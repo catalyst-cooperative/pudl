@@ -14,7 +14,7 @@ job when deployment handling is complete.
 | [`FERCEQR_SOURCE_PARTITIONS_TAG`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG) |    |
 | [`DAGSTER_BACKFILL_TAG`](#pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG)          |    |
 | [`FERCEQR_TRANSFORM_ASSETS`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS)      |    |
-| [`DATAPACKAGE_FILENAME`](#pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME)          |    |
+| [`FERCEQR_DATAPACKAGE_ASSET_KEY`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY) |    |
 | [`DEPLOYED_DATAPACKAGE_FILENAME`](#pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME) |    |
 | [`STAGING_DATA_SUBDIR`](#pudl.dagster.assets.deploy.ferceqr.STAGING_DATA_SUBDIR)           |    |
 | [`STAGING_META_SUBDIR`](#pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR)           |    |
@@ -30,35 +30,36 @@ job when deployment handling is complete.
 
 ## Functions
 
-| [`_run_ferceqr_validation`](#pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation)() → list[ValidationStage]                                  | Run the dbt data validations for the FERC EQR tables.                                                                                        |
-|-------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| [`_markdown_validation_results`](#pudl.dagster.assets.deploy.ferceqr._markdown_validation_results)(stages) → str                                         | Summarize dbt validation stage outcomes as a Markdown table.                                                                                 |
-| [`_write_status_file`](#pudl.dagster.assets.deploy.ferceqr._write_status_file)(status, pudl_paths)                                             | Notify build script that job is complete by creating a status file.                                                                          |
-| [`_clear_status_files`](#pudl.dagster.assets.deploy.ferceqr._clear_status_files)(pudl_paths) → None                                             | Remove any stale FERC EQR status files from the output directory.                                                                            |
-| [`_deployment_targets`](#pudl.dagster.assets.deploy.ferceqr._deployment_targets)(resolved_targets) → list[_DeploymentTarget]                    | Turn resolved deployment UPaths into [`_DeploymentTarget`](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget) records.                             |
-| [`_source_parquet_files`](#pudl.dagster.assets.deploy.ferceqr._source_parquet_files)(source_partitions) → dict[str, list[pathlib.Path]]           | Map each transform asset to its local Parquet files for *source_partitions*.                                                                 |
-| [`_expected_object_sizes`](#pudl.dagster.assets.deploy.ferceqr._expected_object_sizes)(table_files, datapackage_path) → dict[str, int]             | Return `{staging_relative_path: size_bytes}` for everything to be uploaded.                                                                  |
-| [`_wait`](#pudl.dagster.assets.deploy.ferceqr._wait)(futures) → None                                                              | Block until every future finishes, raising the first failure.                                                                                |
-| [`_is_s3`](#pudl.dagster.assets.deploy.ferceqr._is_s3)(path) → bool                                                                | Whether *path* lives on S3, where bulk transfers bypass fsspec.                                                                              |
-| [`_make_local_parents`](#pudl.dagster.assets.deploy.ferceqr._make_local_parents)(paths) → None                                                  | Create parent directories for local *paths*; object stores need none.                                                                        |
-| [`_relative_objects`](#pudl.dagster.assets.deploy.ferceqr._relative_objects)(root) → dict[str, int]                                           | Map each object's path relative to *root* to its size in bytes.                                                                              |
-| [`_verify_staged`](#pudl.dagster.assets.deploy.ferceqr._verify_staged)(target, expected) → None                                            | Raise [`RuntimeError`](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) unless staging holds exactly the *expected* objects. |
-| [`_copy_tree`](#pudl.dagster.assets.deploy.ferceqr._copy_tree)(src, dst, executor) → None                                              | Copy every object under *src* to the same relative path under *dst*.                                                                         |
-| [`_stage_target`](#pudl.dagster.assets.deploy.ferceqr._stage_target)(target, table_files, datapackage_path, ...) → None                   | Upload all outputs to *target*'s staging prefix and verify they arrived.                                                                     |
-| [`_promote_target`](#pudl.dagster.assets.deploy.ferceqr._promote_target)(target, executor) → None                                           | Snapshot the live tree, then merge staging into it and drop the staging dir.                                                                 |
-| [`_remove_all_staging`](#pudl.dagster.assets.deploy.ferceqr._remove_all_staging)(targets) → None                                                | Best-effort removal of every target's staging prefix after a failure.                                                                        |
-| [`_parse_step_key`](#pudl.dagster.assets.deploy.ferceqr._parse_step_key)(step_key, source_partition) → tuple[str, str]                      | Extract asset and partition from a step key like `asset_name[partition]`.                                                                    |
-| [`_validate_partitions`](#pudl.dagster.assets.deploy.ferceqr._validate_partitions)(raw) → list[str]                                              | Validate and parse the source partitions JSON from run tags.                                                                                 |
-| [`_markdown_step_status_table`](#pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table)(asset_partition_statuses, ...) → str                   | Format terminal step statuses as an asset-by-partition Markdown table.                                                                       |
-| [`_gather_step_statuses`](#pudl.dagster.assets.deploy.ferceqr._gather_step_statuses)(context, source_run_id) → tuple[StepStatusTable, str | None] | Collect step statuses and total elapsed time across all source runs.                                                                         |
-| [`_markdown_logfile_list`](#pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list)(build_id) → str                                             | Return pointer to logs to send in Zulip message.                                                                                             |
-| [`_compute_deploy_duration`](#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration)(context) → str | None                                     | Return elapsed time since the current run started, or None on failure.                                                                       |
-| [`build_ferceqr_notification`](#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification)(context, outcome[, ...]) → str                          | Build a Markdown notification string for FERC EQR deployment outcomes.                                                                       |
-| [`deployment_status_asset`](#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset)(asset_fn) → dagster.AssetsDefinition                       | Create a custom decorator for deployment handler assets.                                                                                     |
-| [`_deploy_source_partitions`](#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions)(context) → list[str]                                     | Read the built partitions from run tags, empty when invoked outside a run.                                                                   |
-| [`_notify_ferceqr_outcome`](#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome)(context, zulip, outcome[, ...]) → None                     | Send a deployment outcome notification, never raising on failure.                                                                            |
-| [`deploy_ferceqr`](#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr)(context)                                                            | Publish EQR outputs to configured deployment targets.                                                                                        |
-| [`handle_ferceqr_failure`](#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure)(context)                                                    | Send notification if the FERC EQR build failed.                                                                                              |
+| [`_run_ferceqr_validation`](#pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation)() → list[ValidationStage]                                                                    | Run the dbt data validations for the FERC EQR tables.                                                                                        |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| [`_markdown_validation_results`](#pudl.dagster.assets.deploy.ferceqr._markdown_validation_results)(stages) → str                                                                           | Summarize dbt validation stage outcomes as a Markdown table.                                                                                 |
+| [`_write_status_file`](#pudl.dagster.assets.deploy.ferceqr._write_status_file)(status, pudl_paths)                                                                               | Notify build script that job is complete by creating a status file.                                                                          |
+| [`_clear_status_files`](#pudl.dagster.assets.deploy.ferceqr._clear_status_files)(pudl_paths) → None                                                                               | Remove any stale FERC EQR status files from the output directory.                                                                            |
+| [`_deployment_targets`](#pudl.dagster.assets.deploy.ferceqr._deployment_targets)(resolved_targets) → list[_DeploymentTarget]                                                      | Turn resolved deployment UPaths into [`_DeploymentTarget`](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget) records.                             |
+| [`_source_parquet_files`](#pudl.dagster.assets.deploy.ferceqr._source_parquet_files)(source_partitions) → dict[str, list[pathlib.Path]]                                             | Map each transform asset to its local Parquet files for *source_partitions*.                                                                 |
+| [`_expected_object_sizes`](#pudl.dagster.assets.deploy.ferceqr._expected_object_sizes)(table_files, datapackage_path) → dict[str, int]                                               | Return `{staging_relative_path: size_bytes}` for everything to be uploaded.                                                                  |
+| [`_wait`](#pudl.dagster.assets.deploy.ferceqr._wait)(futures) → None                                                                                                | Block until every future finishes, raising the first failure.                                                                                |
+| [`_is_s3`](#pudl.dagster.assets.deploy.ferceqr._is_s3)(path) → bool                                                                                                  | Whether *path* lives on S3, where bulk transfers bypass fsspec.                                                                              |
+| [`_make_local_parents`](#pudl.dagster.assets.deploy.ferceqr._make_local_parents)(paths) → None                                                                                    | Create parent directories for local *paths*; object stores need none.                                                                        |
+| [`_relative_objects`](#pudl.dagster.assets.deploy.ferceqr._relative_objects)(root) → dict[str, int]                                                                             | Map each object's path relative to *root* to its size in bytes.                                                                              |
+| [`_verify_staged`](#pudl.dagster.assets.deploy.ferceqr._verify_staged)(target, expected) → None                                                                              | Raise [`RuntimeError`](https://docs.python.org/3/builtins/exceptions.html#RuntimeError) unless staging holds exactly the *expected* objects. |
+| [`_copy_tree`](#pudl.dagster.assets.deploy.ferceqr._copy_tree)(src, dst, executor) → None                                                                                | Copy every object under *src* to the same relative path under *dst*.                                                                         |
+| [`_stage_target`](#pudl.dagster.assets.deploy.ferceqr._stage_target)(target, table_files, datapackage_path, ...) → None                                                     | Upload all outputs to *target*'s staging prefix and verify they arrived.                                                                     |
+| [`_promote_target`](#pudl.dagster.assets.deploy.ferceqr._promote_target)(target, executor) → None                                                                             | Snapshot the live tree, then merge staging into it and drop the staging dir.                                                                 |
+| [`_remove_all_staging`](#pudl.dagster.assets.deploy.ferceqr._remove_all_staging)(targets) → None                                                                                  | Best-effort removal of every target's staging prefix after a failure.                                                                        |
+| [`_parse_step_key`](#pudl.dagster.assets.deploy.ferceqr._parse_step_key)(step_key, source_partition) → tuple[str, str]                                                        | Extract asset and partition from a step key like `asset_name[partition]`.                                                                    |
+| [`_validate_partitions`](#pudl.dagster.assets.deploy.ferceqr._validate_partitions)(raw) → list[str]                                                                                | Validate and parse the source partitions JSON from run tags.                                                                                 |
+| [`_markdown_step_status_table`](#pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table)(asset_partition_statuses, ...) → str                                                     | Format terminal step statuses as an asset-by-partition Markdown table.                                                                       |
+| [`_gather_step_statuses`](#pudl.dagster.assets.deploy.ferceqr._gather_step_statuses)(context, source_run_id) → tuple[StepStatusTable, str | None]                                   | Collect step statuses and total elapsed time across all source runs.                                                                         |
+| [`_markdown_logfile_list`](#pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list)(build_id) → str                                                                               | Return pointer to logs to send in Zulip message.                                                                                             |
+| [`_compute_deploy_duration`](#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration)(context) → str | None                                                                       | Return elapsed time since the current run started, or None on failure.                                                                       |
+| [`build_ferceqr_notification`](#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification)(context, outcome[, ...]) → str                                                            | Build a Markdown notification string for FERC EQR deployment outcomes.                                                                       |
+| [`deployment_status_asset`](#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset)(\*[, deps]) → collections.abc.Callable[[collections.abc.Callable], dagster.AssetsDefinition] | Create a custom decorator for deployment handler assets.                                                                                     |
+| [`_datapackage_path`](#pudl.dagster.assets.deploy.ferceqr._datapackage_path)(context) → pathlib.Path                                                                            | Return the descriptor path recorded by the `ferceqr_datapackage` asset.                                                                      |
+| [`_deploy_source_partitions`](#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions)(context) → list[str]                                                                       | Read the built partitions from run tags, empty when invoked outside a run.                                                                   |
+| [`_notify_ferceqr_outcome`](#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome)(context, zulip, outcome[, ...]) → None                                                       | Send a deployment outcome notification, never raising on failure.                                                                            |
+| [`deploy_ferceqr`](#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr)(context)                                                                                              | Publish EQR outputs to configured deployment targets.                                                                                        |
+| [`handle_ferceqr_failure`](#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure)(context)                                                                                      | Send notification if the FERC EQR build failed.                                                                                              |
 
 ## Module Contents
 
@@ -72,7 +73,7 @@ job when deployment handling is complete.
 
 ### pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS *= ['core_ferceqr_\_contracts', 'core_ferceqr_\_transactions', 'core_ferceqr_\_quarterly_identity',...*
 
-### pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME *= 'ferceqr_parquet_datapackage.json'*
+### pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY
 
 ### pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME *= 'datapackage.json'*
 
@@ -273,7 +274,7 @@ Extracts all relevant information (source partitions, run ID, duration,
 step statuses, distribution paths, build ID) from the Dagster execution
 context and returns a formatted Markdown message ready for Zulip.
 
-### pudl.dagster.assets.deploy.ferceqr.deployment_status_asset(asset_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.dagster.assets.deploy.ferceqr.deployment_status_asset(, deps: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Create a custom decorator for deployment handler assets.
 
@@ -281,6 +282,18 @@ This allows us to gracefully handle errors if the deployment assets fail for any
 reason. When these assets fail, sometimes the logs don’t show up in the batch job
 appropriately, and the status file never gets created, so the job keeps running
 until it eventually times out.
+
+* **Parameters:**
+  **deps** – Asset keys the generated asset depends on. Primarily to guarantee that the
+  success asset will only run after the datapackage asset has run.
+
+### pudl.dagster.assets.deploy.ferceqr.\_datapackage_path(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)) → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+
+Return the descriptor path recorded by the `ferceqr_datapackage` asset.
+
+The descriptor is written by the datapackage asset, which records its output
+location in materialization metadata under `path`. Reading it back from the
+event log keeps a single source of truth for where the file lives.
 
 ### pudl.dagster.assets.deploy.ferceqr.\_deploy_source_partitions(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext)) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 

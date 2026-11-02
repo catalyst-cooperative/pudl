@@ -16,6 +16,7 @@ Metadata data classes.
 | [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                            |
 | [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                                |
 | [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                  |
+| [`FERCEQR_PACKAGE`](#pudl.metadata.classes.FERCEQR_PACKAGE)  |                                                                                                                        |
 | [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                                |
 
 ## Classes
@@ -1605,7 +1606,7 @@ Package out of a collection of Resources, we want the Package to reflect the
 union of all the analogous values found in the Resources, but we don’t want
 any duplicates. We may also get values directly from the Package inputs.
 
-#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [Package](#pudl.metadata.classes.Package)
+#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), included_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'pudl') → [Package](#pudl.metadata.classes.Package)
 
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
@@ -1624,9 +1625,12 @@ the full collection of PUDL tables.
     foreign keys.
   * **excluded_etl_groups** – Collection of ETL groups used to filter resources
     out of Package.
+  * **included_etl_groups** – Collection of ETL groups used to filter resources
+    in Package.
   * **title** – Human-readable title for the package.
   * **description** – Human-readable description of the package.
   * **version** – Version string for the package.
+  * **name** – Name of the datapackage.
 
 #### *static* get_etl_group_tables(etl_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
@@ -1690,7 +1694,7 @@ and keep an eye out for spooky data changes showing up in unexpected places.
 * **Returns:**
   A dataframe with clean code columns.
 
-#### to_frictionless(exclude_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, include_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → frictionless.Package
+#### to_frictionless() → frictionless.Package
 
 Convert to a Frictionless Datapackage.
 
@@ -1700,9 +1704,7 @@ or exclude resources by name. This is used to generate an independent
 from the rest of PUDL. This method will only look for table names that exactly
 match the supplied patterns, not substring matches.
 
-* **Parameters:**
-  * **exclude_pattern** – Exclude resources whose names exactly match this pattern.
-  * **include_pattern** – Only include resources whose names exactly match this pattern.
+### pudl.metadata.classes.FERCEQR_PACKAGE
 
 ### pudl.metadata.classes.PUDL_PACKAGE
 

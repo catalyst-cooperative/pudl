@@ -23,7 +23,7 @@ Attributes
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG
    pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS
-   pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY
    pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME
    pudl.dagster.assets.deploy.ferceqr.STAGING_DATA_SUBDIR
    pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR
@@ -70,6 +70,7 @@ Functions
    pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration
    pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification
    pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
+   pudl.dagster.assets.deploy.ferceqr._datapackage_path
    pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions
    pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
@@ -97,9 +98,7 @@ Module Contents
    :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
 
 
-.. py:data:: DATAPACKAGE_FILENAME
-   :value: 'ferceqr_parquet_datapackage.json'
-
+.. py:data:: FERCEQR_DATAPACKAGE_ASSET_KEY
 
 .. py:data:: DEPLOYED_DATAPACKAGE_FILENAME
    :value: 'datapackage.json'
@@ -356,7 +355,7 @@ Module Contents
    context and returns a formatted Markdown message ready for Zulip.
 
 
-.. py:function:: deployment_status_asset(asset_fn: collections.abc.Callable) -> dagster.AssetsDefinition
+.. py:function:: deployment_status_asset(*, deps: collections.abc.Sequence[dagster.AssetKey] | None = None) -> collections.abc.Callable[[collections.abc.Callable], dagster.AssetsDefinition]
 
    Create a custom decorator for deployment handler assets.
 
@@ -364,6 +363,18 @@ Module Contents
    reason. When these assets fail, sometimes the logs don't show up in the batch job
    appropriately, and the status file never gets created, so the job keeps running
    until it eventually times out.
+
+   :param deps: Asset keys the generated asset depends on. Primarily to guarantee that the
+                success asset will only run after the datapackage asset has run.
+
+
+.. py:function:: _datapackage_path(context: dagster.AssetExecutionContext) -> pathlib.Path
+
+   Return the descriptor path recorded by the ``ferceqr_datapackage`` asset.
+
+   The descriptor is written by the datapackage asset, which records its output
+   location in materialization metadata under ``path``. Reading it back from the
+   event log keeps a single source of truth for where the file lives.
 
 
 .. py:function:: _deploy_source_partitions(context: dagster.AssetExecutionContext) -> list[str]

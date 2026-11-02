@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.build &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.dagster.build &#8212; PUDL 2026.10.1.dev24 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../_static/documentation_options.js?v=d1a24279"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -896,6 +896,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.jobs</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_jobs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DatastoreResource</span><span class="p">,</span>
+    <span class="n">FercEqrArchiveResource</span><span class="p">,</span>
     <span class="n">GlobalDataConfigResource</span><span class="p">,</span>
     <span class="n">PudlPathsResource</span><span class="p">,</span>
     <span class="n">ZenodoDoiSettingsResource</span><span class="p">,</span>
@@ -948,11 +949,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">ZenodoDoiSettingsResource</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Build interactive-only resources wired to concrete local resource instances."""</span>
+    <span class="n">datastore</span> <span class="o">=</span> <span class="n">DatastoreResource</span><span class="p">(</span>
+        <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois</span><span class="p">,</span>
+        <span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">"datastore"</span><span class="p">:</span> <span class="n">DatastoreResource</span><span class="p">(</span>
-            <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois</span><span class="p">,</span>
-            <span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths</span><span class="p">,</span>
-        <span class="p">),</span>
+        <span class="s2">"datastore"</span><span class="p">:</span> <span class="n">datastore</span><span class="p">,</span>
+        <span class="c1"># Nests the datastore, so it must be rebuilt around the concrete one.</span>
+        <span class="s2">"ferceqr_archive"</span><span class="p">:</span> <span class="n">FercEqrArchiveResource</span><span class="p">(</span><span class="n">datastore</span><span class="o">=</span><span class="n">datastore</span><span class="p">),</span>
         <span class="s2">"parquet_io_manager"</span><span class="p">:</span> <span class="n">PudlParquetIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths</span><span class="p">),</span>
         <span class="s2">"ferc1_dbf_sqlite_io_manager"</span><span class="p">:</span> <span class="n">FercDbfSqliteIOManager</span><span class="p">(</span>
             <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config</span><span class="p">,</span>

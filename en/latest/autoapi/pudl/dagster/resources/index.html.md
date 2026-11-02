@@ -15,16 +15,17 @@ For the underlying Dagster concept, see
 
 ## Attributes
 
-| [`global_data_config_resource`](#pudl.dagster.resources.global_data_config_resource)   |    |
-|--------------------------------------------------------------------------------|----|
-| [`pudl_paths_resource`](#pudl.dagster.resources.pudl_paths_resource)           |    |
-| [`zenodo_doi_settings_resource`](#pudl.dagster.resources.zenodo_doi_settings_resource)  |    |
-| [`datastore_resource`](#pudl.dagster.resources.datastore_resource)            |    |
-| [`ferc_xbrl_runtime_settings`](#pudl.dagster.resources.ferc_xbrl_runtime_settings)    |    |
-| [`ferceqr_archive`](#pudl.dagster.resources.ferceqr_archive)               |    |
-| [`ferceqr_deployment_targets`](#pudl.dagster.resources.ferceqr_deployment_targets)    |    |
-| [`zulip_notification_resource`](#pudl.dagster.resources.zulip_notification_resource)   |    |
-| [`default_resources`](#pudl.dagster.resources.default_resources)             |    |
+| [`FERCEQR_ALLOW_DOWNLOADS_ENV_VAR`](#pudl.dagster.resources.FERCEQR_ALLOW_DOWNLOADS_ENV_VAR)   | Environment variable opting a run in to downloading raw FERC EQR archives.   |
+|------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`global_data_config_resource`](#pudl.dagster.resources.global_data_config_resource)       |                                                                              |
+| [`pudl_paths_resource`](#pudl.dagster.resources.pudl_paths_resource)               |                                                                              |
+| [`zenodo_doi_settings_resource`](#pudl.dagster.resources.zenodo_doi_settings_resource)      |                                                                              |
+| [`datastore_resource`](#pudl.dagster.resources.datastore_resource)                |                                                                              |
+| [`ferc_xbrl_runtime_settings`](#pudl.dagster.resources.ferc_xbrl_runtime_settings)        |                                                                              |
+| [`ferceqr_archive`](#pudl.dagster.resources.ferceqr_archive)                   |                                                                              |
+| [`ferceqr_deployment_targets`](#pudl.dagster.resources.ferceqr_deployment_targets)        |                                                                              |
+| [`zulip_notification_resource`](#pudl.dagster.resources.zulip_notification_resource)       |                                                                              |
+| [`default_resources`](#pudl.dagster.resources.default_resources)                 |                                                                              |
 
 ## Classes
 
@@ -40,6 +41,10 @@ For the underlying Dagster concept, see
 | [`ZulipNotificationResource`](#pudl.dagster.resources.ZulipNotificationResource)     | Send notifications to Zulip streams via the Zulip API.                  |
 
 ## Module Contents
+
+### pudl.dagster.resources.FERCEQR_ALLOW_DOWNLOADS_ENV_VAR *= 'PUDL_FERCEQR_ALLOW_DOWNLOADS'*
+
+Environment variable opting a run in to downloading raw FERC EQR archives.
 
 ### *class* pudl.dagster.resources.PudlPathsResource
 
@@ -132,11 +137,38 @@ The default value of `path` points to the published archive of FERC EQR filings 
 GCS which is what we use in production. For testing or development, this can be
 overridden to point to a local path with a subset of the archive.
 
+FERC EQR is far too large to archive on Zenodo, so only the Frictionless metadata –
+including a per-quarter md5 checksum – is archived there. Each downloaded quarterly
+archive is verified against that metadata, giving EQR the same integrity guarantee
+that Zenodo-hosted datasets get from `Datastore.get_resources()`. Only the hash
+is checked, not where they came from: developers routinely point `path` at a
+local cache of archives pulled from GCS, which is fine as long as the contents
+match.
+
+Downloading from remote storage is gated behind the
+[`FERCEQR_ALLOW_DOWNLOADS_ENV_VAR`](#pudl.dagster.resources.FERCEQR_ALLOW_DOWNLOADS_ENV_VAR) environment variable. Extracting every
+quarter transfers ~100GB and this resource caches nothing between runs, so opting
+in has to be deliberate. The variable is read each time an archive is opened, so
+the gate applies on every launch path. It must be set in the environment hosting
+the Dagster code server, since run workers inherit their environment from it –
+exporting it partway through a `dg dev` session has no effect until the code
+server reloads.
+
+#### datastore *: dagster.ResourceDependency[[pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)]*
+
 #### path *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)*
+
+#### *property* allow_downloads *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
+
+Whether this run may download raw FERC EQR archives from remote storage.
 
 #### *property* upath *: upath.UPath*
 
 Return UPath pointing to archive base path.
+
+#### open_quarter_archive(year_quarter: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [collections.abc.Generator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator)[[zipfile.ZipFile](https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile)]
+
+Download CSV to a temporary directory to avoid reading into memory.
 
 ### *class* pudl.dagster.resources.FercEqrDeploymentTargetConfig(\*\*config_dict)
 

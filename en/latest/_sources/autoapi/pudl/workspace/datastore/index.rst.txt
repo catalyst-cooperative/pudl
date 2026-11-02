@@ -96,9 +96,26 @@ Module Contents
 
 
 
-   .. py:method:: validate_checksum(name: str, content: str) -> bool
+   .. py:method:: validate_checksum(name: str, content: str) -> None
 
       Returns True if content matches checksum for given named resource.
+
+
+
+   .. py:method:: validate_file_checksum(name: str, path: str | pathlib.Path) -> None
+
+      Verify that a file on disk matches the checksum for a named resource.
+
+      Hashes the file incrementally instead of reading it into memory, so it can be
+      used on resources too large to buffer like the multi-gigabyte quarterly FERC
+      EQR archives, which are streamed to local disk before being opened.
+
+      :param name: name of the resource as it appears in this datapackage descriptor.
+      :param path: local path to the file whose contents should be checked.
+
+      :returns: The hex md5 digest of the file's contents.
+
+      :raises ChecksumMismatchError: if the digest does not match the expected checksum.
 
 
 

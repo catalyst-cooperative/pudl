@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev24 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=d1a24279"></script>
     <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -833,7 +833,7 @@ job when deployment handling is complete.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS" title="pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FERCEQR_TRANSFORM_ASSETS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME" title="pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATAPACKAGE_FILENAME</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY" title="pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FERCEQR_DATAPACKAGE_ASSET_KEY</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME" title="pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPLOYED_DATAPACKAGE_FILENAME</span></code></a></p></td>
@@ -945,19 +945,22 @@ job when deployment handling is complete.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification" title="pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_ferceqr_notification</span></code></a>(context, outcome[, ...]) → str</p></td>
 <td><p>Build a Markdown notification string for FERC EQR deployment outcomes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset" title="pudl.dagster.assets.deploy.ferceqr.deployment_status_asset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deployment_status_asset</span></code></a>(asset_fn) → dagster.AssetsDefinition</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset" title="pudl.dagster.assets.deploy.ferceqr.deployment_status_asset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deployment_status_asset</span></code></a>(*[, deps]) → collections.abc.Callable[[collections.abc.Callable], dagster.AssetsDefinition]</p></td>
 <td><p>Create a custom decorator for deployment handler assets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions" title="pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deploy_source_partitions</span></code></a>(context) → list[str]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._datapackage_path" title="pudl.dagster.assets.deploy.ferceqr._datapackage_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_datapackage_path</span></code></a>(context) → pathlib.Path</p></td>
+<td><p>Return the descriptor path recorded by the <code class="docutils literal notranslate"><span class="pre">ferceqr_datapackage</span></code> asset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions" title="pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deploy_source_partitions</span></code></a>(context) → list[str]</p></td>
 <td><p>Read the built partitions from run tags, empty when invoked outside a run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome" title="pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_notify_ferceqr_outcome</span></code></a>(context, zulip, outcome[, ...]) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome" title="pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_notify_ferceqr_outcome</span></code></a>(context, zulip, outcome[, ...]) → None</p></td>
 <td><p>Send a deployment outcome notification, never raising on failure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr" title="pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deploy_ferceqr</span></code></a>(context)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr" title="pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deploy_ferceqr</span></code></a>(context)</p></td>
 <td><p>Publish EQR outputs to configured deployment targets.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure" title="pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_ferceqr_failure</span></code></a>(context)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure" title="pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_ferceqr_failure</span></code></a>(context)</p></td>
 <td><p>Send notification if the FERC EQR build failed.</p></td>
 </tr>
 </tbody>
@@ -992,8 +995,8 @@ job when deployment handling is complete.</p>
 <dd></dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.deploy.ferceqr.</span></span><span class="sig-name descname"><span class="pre">DATAPACKAGE_FILENAME</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ferceqr_parquet_datapackage.json'</span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/deploy/ferceqr.html#DATAPACKAGE_FILENAME"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.deploy.ferceqr.</span></span><span class="sig-name descname"><span class="pre">FERCEQR_DATAPACKAGE_ASSET_KEY</span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/deploy/ferceqr.html#FERCEQR_DATAPACKAGE_ASSET_KEY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1268,12 +1271,27 @@ context and returns a formatted Markdown message ready for Zulip.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.dagster.assets.deploy.ferceqr.deployment_status_asset">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.deploy.ferceqr.</span></span><span class="sig-name descname"><span class="pre">deployment_status_asset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><span class="pre">collections.abc.Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/deploy/ferceqr.html#deployment_status_asset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.deploy.ferceqr.</span></span><span class="sig-name descname"><span class="pre">deployment_status_asset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">deps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey" title="(in Dagster)"><span class="pre">dagster.AssetKey</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><span class="pre">collections.abc.Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><span class="pre">collections.abc.Callable</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/deploy/ferceqr.html#deployment_status_asset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset" title="Link to this definition">#</a></dt>
 <dd><p>Create a custom decorator for deployment handler assets.</p>
 <p>This allows us to gracefully handle errors if the deployment assets fail for any
 reason. When these assets fail, sometimes the logs don’t show up in the batch job
 appropriately, and the status file never gets created, so the job keeps running
 until it eventually times out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deps</strong> – Asset keys the generated asset depends on. Primarily to guarantee that the
+success asset will only run after the datapackage asset has run.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.dagster.assets.deploy.ferceqr._datapackage_path">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.deploy.ferceqr.</span></span><span class="sig-name descname"><span class="pre">_datapackage_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext" title="(in Dagster)"><span class="pre">dagster.AssetExecutionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/deploy/ferceqr.html#_datapackage_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.deploy.ferceqr._datapackage_path" title="Link to this definition">#</a></dt>
+<dd><p>Return the descriptor path recorded by the <code class="docutils literal notranslate"><span class="pre">ferceqr_datapackage</span></code> asset.</p>
+<p>The descriptor is written by the datapackage asset, which records its output
+location in materialization metadata under <code class="docutils literal notranslate"><span class="pre">path</span></code>. Reading it back from the
+event log keeps a single source of truth for where the file lives.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1377,7 +1395,7 @@ concurrently.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG"><code class="docutils literal notranslate"><span class="pre">FERCEQR_SOURCE_PARTITIONS_TAG</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG"><code class="docutils literal notranslate"><span class="pre">DAGSTER_BACKFILL_TAG</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS"><code class="docutils literal notranslate"><span class="pre">FERCEQR_TRANSFORM_ASSETS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME"><code class="docutils literal notranslate"><span class="pre">DATAPACKAGE_FILENAME</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY"><code class="docutils literal notranslate"><span class="pre">FERCEQR_DATAPACKAGE_ASSET_KEY</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME"><code class="docutils literal notranslate"><span class="pre">DEPLOYED_DATAPACKAGE_FILENAME</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.STAGING_DATA_SUBDIR"><code class="docutils literal notranslate"><span class="pre">STAGING_DATA_SUBDIR</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR"><code class="docutils literal notranslate"><span class="pre">STAGING_META_SUBDIR</span></code></a></li>
@@ -1422,6 +1440,7 @@ concurrently.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration"><code class="docutils literal notranslate"><span class="pre">_compute_deploy_duration()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification"><code class="docutils literal notranslate"><span class="pre">build_ferceqr_notification()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset"><code class="docutils literal notranslate"><span class="pre">deployment_status_asset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr._datapackage_path"><code class="docutils literal notranslate"><span class="pre">_datapackage_path()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions"><code class="docutils literal notranslate"><span class="pre">_deploy_source_partitions()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome"><code class="docutils literal notranslate"><span class="pre">_notify_ferceqr_outcome()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr"><code class="docutils literal notranslate"><span class="pre">deploy_ferceqr()</span></code></a></li>

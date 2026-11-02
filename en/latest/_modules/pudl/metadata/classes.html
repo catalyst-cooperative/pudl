@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev24 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../_static/documentation_options.js?v=d1a24279"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -882,7 +882,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hashlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">sha1</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_get_version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">re</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pattern</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">get_args</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
@@ -3580,7 +3579,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-            <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">],</span>
+            <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s2">"title"</span><span class="p">:</span> <span class="n">source</span><span class="o">.</span><span class="n">title</span><span class="p">}</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">],</span>
             <span class="n">licenses</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">lic</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">lic</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenses</span>
             <span class="p">],</span>
@@ -4440,9 +4439,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">resource_ids</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">RESOURCE_METADATA</span><span class="p">)),</span>
         <span class="n">resolve_foreign_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">excluded_etl_groups</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">included_etl_groups</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"pudl"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Package</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct a collection of Resources from PUDL identifiers (`resource.name`).</span>
 
@@ -4461,9 +4462,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                foreign keys.</span>
 <span class="sd">            excluded_etl_groups: Collection of ETL groups used to filter resources</span>
 <span class="sd">                out of Package.</span>
+<span class="sd">            included_etl_groups: Collection of ETL groups used to filter resources</span>
+<span class="sd">                in Package.</span>
 <span class="sd">            title: Human-readable title for the package.</span>
 <span class="sd">            description: Human-readable description of the package.</span>
 <span class="sd">            version: Version string for the package.</span>
+<span class="sd">            name: Name of the datapackage.</span>
 <span class="sd">        """</span>
         <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span><span class="n">Resource</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">resource_ids</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">resolve_foreign_keys</span><span class="p">:</span>
@@ -4480,6 +4484,11 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">:</span>
                     <span class="n">resources</span> <span class="o">+=</span> <span class="p">[</span><span class="n">Resource</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">:]]</span>
 
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">excluded_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">included_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">"ETL groups must be a collection of names, not a single string."</span>
+            <span class="p">)</span>
+
         <span class="k">if</span> <span class="n">excluded_etl_groups</span><span class="p">:</span>
             <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">resource</span>
@@ -4487,8 +4496,15 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">if</span> <span class="n">resource</span><span class="p">[</span><span class="s2">"etl_group"</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excluded_etl_groups</span>
             <span class="p">]</span>
 
+        <span class="k">if</span> <span class="n">included_etl_groups</span><span class="p">:</span>
+            <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">resource</span>
+                <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">resources</span>
+                <span class="k">if</span> <span class="n">resource</span><span class="p">[</span><span class="s2">"etl_group"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">included_etl_groups</span>
+            <span class="p">]</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">"pudl"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
             <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
@@ -4671,8 +4687,6 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.to_frictionless">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_frictionless</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">exclude_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">include_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Convert to a Frictionless Datapackage.</span>
 
@@ -4681,23 +4695,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately</span>
 <span class="sd">        from the rest of PUDL. This method will only look for table names that exactly</span>
 <span class="sd">        match the supplied patterns, not substring matches.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            exclude_pattern: Exclude resources whose names exactly match this pattern.</span>
-<span class="sd">            include_pattern: Only include resources whose names exactly match this pattern.</span>
 <span class="sd">        """</span>
         <span class="n">pudl_resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">exclude_pattern</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pudl_resources</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pudl_resources</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">exclude_pattern</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="p">]</span>
-        <span class="k">if</span> <span class="n">include_pattern</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pudl_resources</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">r</span>
-                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pudl_resources</span>
-                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">include_pattern</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">]</span>
-
         <span class="n">compiled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile_from_resources</span><span class="p">(</span><span class="n">pudl_resources</span><span class="p">)</span>
 
         <span class="n">package</span> <span class="o">=</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="p">(</span>
@@ -4716,9 +4715,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">],</span>
             <span class="n">keywords</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">compiled</span><span class="p">[</span><span class="s2">"keywords"</span><span class="p">]),</span>
             <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pudl_resources</span><span class="p">],</span>
-            <span class="n">sources</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SOURCES</span><span class="p">)</span>
-            <span class="p">],</span>
+            <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">compiled</span><span class="p">[</span><span class="s2">"sources"</span><span class="p">]],</span>
         <span class="p">)</span>
         <span class="n">package</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s2">"$schema"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">"https://datapackage.org/profiles/2.0/datapackage.json"</span>
@@ -4726,6 +4723,27 @@ window.runMermaid = runMermaid;</script>
         <span class="n">package</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s2">"unit_registry"</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_registry_to_frictionless</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">package</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="FERCEQR_PACKAGE">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FERCEQR_PACKAGE">[docs]</a>
+<span class="n">FERCEQR_PACKAGE</span> <span class="o">=</span> <span class="n">Package</span><span class="o">.</span><span class="n">from_resource_ids</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"ferceqr"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"The Public Utility Data Liberation Project (PUDL) FERC EQR Data"</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">_get_version</span><span class="p">(</span><span class="s2">"catalystcoop.pudl"</span><span class="p">),</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"PUDL is a data processing pipeline created by Catalyst Cooperative that "</span>
+        <span class="s2">"cleans, integrates, and standardizes some of the most widely used public "</span>
+        <span class="s2">"energy datasets in the US. The data serve researchers, activists, "</span>
+        <span class="s2">"journalists, and policy makers that might not have the technical expertise "</span>
+        <span class="s2">"to access it in its raw form, the time to clean and prepare the data for "</span>
+        <span class="s2">"bulk analysis, or the means to purchase it from existing commercial "</span>
+        <span class="s2">"providers. FERC EQR data is included in PUDL, but handled and distributed"</span>
+        <span class="s2">"separately due to its scale."</span>
+    <span class="p">),</span>
+    <span class="n">included_etl_groups</span><span class="o">=</span><span class="p">(</span><span class="s2">"ferceqr"</span><span class="p">,),</span>
+<span class="p">)</span></div>
 
 
 
@@ -4743,6 +4761,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"bulk analysis, or the means to purchase it from existing commercial "</span>
         <span class="s2">"providers."</span>
     <span class="p">),</span>
+    <span class="n">excluded_etl_groups</span><span class="o">=</span><span class="p">(</span><span class="s2">"ferceqr"</span><span class="p">,),</span>
 <span class="p">)</span></div>
 
 <span class="sd">"""Define a global PUDL package object for use across the entire codebase.</span>

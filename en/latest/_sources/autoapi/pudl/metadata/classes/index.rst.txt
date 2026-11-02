@@ -25,6 +25,7 @@ Attributes
    pudl.metadata.classes.FIELD_NAMESPACES
    pudl.metadata.classes.EtlGroup
    pudl.metadata.classes.ETL_GROUPS
+   pudl.metadata.classes.FERCEQR_PACKAGE
    pudl.metadata.classes.PUDL_PACKAGE
 
 
@@ -2265,7 +2266,7 @@ Module Contents
 
 
 
-   .. py:method:: from_resource_ids(resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str, ...] = (), title: str | None = None, description: str | None = None, version: str | None = None) -> Package
+   .. py:method:: from_resource_ids(resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str, ...] = (), included_etl_groups: tuple[str, ...] = (), title: str | None = None, description: str | None = None, version: str | None = None, name: str = 'pudl') -> Package
       :classmethod:
 
 
@@ -2285,9 +2286,12 @@ Module Contents
                                    foreign keys.
       :param excluded_etl_groups: Collection of ETL groups used to filter resources
                                   out of Package.
+      :param included_etl_groups: Collection of ETL groups used to filter resources
+                                  in Package.
       :param title: Human-readable title for the package.
       :param description: Human-readable description of the package.
       :param version: Version string for the package.
+      :param name: Name of the datapackage.
 
 
 
@@ -2366,7 +2370,7 @@ Module Contents
 
 
 
-   .. py:method:: to_frictionless(exclude_pattern: str | re.Pattern[str] | None = None, include_pattern: str | re.Pattern[str] | None = None) -> frictionless.Package
+   .. py:method:: to_frictionless() -> frictionless.Package
 
       Convert to a Frictionless Datapackage.
 
@@ -2376,10 +2380,9 @@ Module Contents
       from the rest of PUDL. This method will only look for table names that exactly
       match the supplied patterns, not substring matches.
 
-      :param exclude_pattern: Exclude resources whose names exactly match this pattern.
-      :param include_pattern: Only include resources whose names exactly match this pattern.
 
 
+.. py:data:: FERCEQR_PACKAGE
 
 .. py:data:: PUDL_PACKAGE
 

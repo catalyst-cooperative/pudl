@@ -6,6 +6,14 @@
 
 ### Enhancements
 
+* Standardized how distributed `datapackage.json` descriptors are produced. FERC EQR
+  now has its own package, `FERCEQR_PACKAGE`, and a dedicated `ferceqr_datapackage`
+  asset built with the same factory as `pudl_datapackage`. Descriptors list only the
+  sources their tables use and describe partitioned tables with per-partition `bytes`
+  and `hash` entries. Each quarterly FERC EQR archive is now verified against the md5
+  checksum in its Zenodo metadata, and downloading archives from remote storage
+  requires setting `PUDL_FERCEQR_ALLOW_DOWNLOADS`. See [#5279](https://github.com/catalyst-cooperative/pudl/issues/5279) and [#5693](https://github.com/catalyst-cooperative/pudl/pull/5693).
+
 ### New Data
 
 ### Expanded Data Coverage
@@ -24,10 +32,14 @@
 
 ### New Data Tests & Validations
 
-* Updated `dbt` data validation now to support FERC EQR data. This requires `dbt`
-  configuration changes to handle partitioned parquet outputs. See issue [#4864](https://github.com/catalyst-cooperative/pudl/pull/4864)
-  and PR [#5676](https://github.com/catalyst-cooperative/pudl/pull/5676). This PR also applies basic validation tests to FERC EQR tables,
-  including row count tests.
+* Updated `dbt` data validation to support FERC EQR, whose partitioned parquet outputs
+  required several configuration changes. The `external_location` of each table is now
+  generated automatically, row count tests accept string partition keys such as
+  `year_quarter`, and `dbt_helper` can generate row counts for partitioned tables.
+  Validation tests can also run against remote parquet datasets without downloading the
+  files, and the FERC EQR deployment asset now runs the EQR validations before
+  publishing. All FERC EQR tables get basic validation tests, including row counts. See
+  [#4864](https://github.com/catalyst-cooperative/pudl/issues/4864) and [#5676](https://github.com/catalyst-cooperative/pudl/pull/5676).
 * Validate that the net utility plant, total other property and investments, and total
   assets in [core_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#core-rus7-yearly-balance-sheet-assets) and
   [out_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-assets) equal the sum of their subcomponents.
@@ -36,6 +48,8 @@
 
 ### Bug Fixes & Data Cleaning
 
+* Added a missing US minor outlying islands territory entry to the
+  [core_pudl_\_codes_subdivisions](data_dictionaries/pudl_db.html.md#core-pudl-codes-subdivisions) table. See [#5696](https://github.com/catalyst-cooperative/pudl/issues/5696) and [#5716](https://github.com/catalyst-cooperative/pudl/pull/5716).
 * Restored non-utility property (RUS Form 7 Part C, line 6) to
   [core_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#core-rus7-yearly-balance-sheet-assets) and
   [out_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-assets). A typo in the column map
