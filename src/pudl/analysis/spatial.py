@@ -3,7 +3,7 @@
 import itertools
 import warnings
 from collections.abc import Callable, Iterable
-from typing import Literal
+from typing import Literal, cast
 
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
@@ -42,6 +42,7 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         raise ValueError("Geometry contains (Multi)Polygon geometries with zero area")
     is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
     for mpoly in gdf.geometry[is_mpoly]:
+        assert isinstance(mpoly, MultiPolygon)
         for poly in mpoly.geoms:
             if not poly.area:
                 raise ValueError(
@@ -68,9 +69,9 @@ def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
             if isinstance(g, Polygon):
                 polys.append(g)
             elif isinstance(g, MultiPolygon):
-                polys.extend(g)
+                polys.extend(g.geoms)
     elif isinstance(geom, MultiPolygon):
-        polys.extend(geom)
+        polys.extend(geom.geoms)
     elif isinstance(geom, Polygon):
         polys.append(geom)
     # Remove zero-area polygons
@@ -149,7 +150,7 @@ def self_union(
     intersections = gpd.GeoSeries([a.intersection(b) for a, b in pairs])
     # Form polygons from the boundaries of the original polygons and their intersections
     boundaries = pd.concat([gdf.geometry, intersections]).boundary.union_all()
-    polygons = gpd.GeoSeries(shapely.ops.polygonize(boundaries))
+    polygons = gpd.GeoSeries(list(shapely.ops.polygonize(boundaries)))
     # Determine origin of each polygon by a spatial join on representative points
     points = gpd.GeoDataFrame(geometry=polygons.representative_point())
     oids = gpd.sjoin(
@@ -238,6 +239,7 @@ def overlay(
 
     Raises:
         ValueError: Duplicate column names in layers.
+        ValueError: Fewer than two layers provided.
 
     Returns:
         GeoDataFrame with the geometries and attributes resulting from the overlay.
@@ -256,19 +258,21 @@ def overlay(
     # Drop index columns and replace with default index of known name
     # NOTE: Assumes that default index name not already names of columns
     keys = [f"__id{i}__" for i in range(len(gdfs))]
-    gdfs = [
+    layers = [
         df.reset_index(drop=True).rename_axis(k)
         for df, k in zip(gdfs, keys, strict=True)
     ]
-    overlay = None
-    for i in range(len(gdfs) - 1):
-        a, b = overlay if i else gdfs[i], gdfs[i + 1]
+    if len(layers) < 2:
+        raise ValueError("At least two layers are required for an overlay")
+    result = layers[0]
+    for i in range(len(layers) - 1):
+        a, b = result, layers[i + 1]
         # Perform overlay with geometry and constant fields
         constants = [
             [c for c in df.columns if c == df.geometry.name or c not in ratios]
             for df in (a, b)
         ]
-        overlay = gpd.overlay(
+        result = gpd.overlay(
             a[constants[0]].reset_index(), b[constants[1]].reset_index(), how=how
         )
         # For uniform fields, compute area fraction of originals and merge by index
@@ -280,14 +284,14 @@ def overlay(
                 dfs.append(
                     df[df_ratios]
                     .div(df.area, axis="index")
-                    .reindex(overlay[keys[j]])
+                    .reindex(result[keys[j]])
                     .reset_index(drop=True)
-                    .mul(overlay.area, axis="index")
+                    .mul(result.area, axis="index")
                 )
         if dfs:
             # Assumed to be faster than incremental concat
-            overlay = pd.concat([overlay] + dfs, axis="columns")
-    return overlay.drop(columns=keys)
+            result = cast(gpd.GeoDataFrame, pd.concat([result] + dfs, axis="columns"))
+    return result.drop(columns=keys)
 
 
 def get_data_columns(df: pd.DataFrame) -> list:
