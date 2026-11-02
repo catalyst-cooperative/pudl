@@ -120,7 +120,7 @@ Module Contents
    Denormalize the :ref:`core_eia923__fuel_receipts_costs` table.
 
 
-.. py:function:: time_aggregated_eia923_asset_factory(freq: Literal['YS', 'MS'], io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
+.. py:function:: time_aggregated_eia923_asset_factory(freq: pudl.helpers.AggregationFreq, io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
 
    Build EIA-923 asset definitions, aggregated by year or month.
 

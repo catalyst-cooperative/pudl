@@ -21,8 +21,8 @@ This module contains the implementation of CompanyNameCleaner class from OS-Clim
 
 ## Functions
 
-| [`_get_legal_terms_dict`](#pudl.analysis.record_linkage.name_cleaner._get_legal_terms_dict)(→ dict[str, list])   |    |
-|---------------------------------------------------------------------------------------------|----|
+| [`_get_legal_terms_dict`](#pudl.analysis.record_linkage.name_cleaner._get_legal_terms_dict)() → dict[str, list]   |    |
+|----------------------------------------------------------------------------------------------|----|
 
 ## Module Contents
 

@@ -4,8 +4,8 @@ Tiny CLI for showing table descriptions without building the full docs.
 
 ## Functions
 
-| [`main`](#pudl.scripts.resource_description.main)(→ None)   | Compute and display the description components for a resource.   |
-|-----------------------------------------------------------------|------------------------------------------------------------------|
+| [`main`](#pudl.scripts.resource_description.main)(ctx, name) → None   | Compute and display the description components for a resource.   |
+|---------------------------------------------------------------------------|------------------------------------------------------------------|
 
 ## Module Contents
 

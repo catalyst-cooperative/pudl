@@ -17,11 +17,11 @@ each module there to actually store resource metadata.
 
 ## Functions
 
-| [`canonical_harvested_details`](#pudl.metadata.resource_helpers.canonical_harvested_details)(→ str)       | Generate additional details text for one of the eight core harvested tables.                                              |
-|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| [`inherits_harvested_values_details`](#pudl.metadata.resource_helpers.inherits_harvested_values_details)(→ str) | Generate additional details text for a table which inherits harvested values from one of the eight core harvested tables. |
-| [`merge_descriptions`](#pudl.metadata.resource_helpers.merge_descriptions)(→ dict[str, Any])     | Merge two description dictionaries.                                                                                       |
-| [`core_to_out_harvested_resources`](#pudl.metadata.resource_helpers.core_to_out_harvested_resources)(→ dict)  | Make out tables from core resource metadata when extra columns are standard.                                              |
+| [`canonical_harvested_details`](#pudl.metadata.resource_helpers.canonical_harvested_details)(entities, is_static) → str        | Generate additional details text for one of the eight core harvested tables.                                              |
+|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| [`inherits_harvested_values_details`](#pudl.metadata.resource_helpers.inherits_harvested_values_details)(entities) → str             | Generate additional details text for a table which inherits harvested values from one of the eight core harvested tables. |
+| [`merge_descriptions`](#pudl.metadata.resource_helpers.merge_descriptions)(left, right) → dict[str, Any]              | Merge two description dictionaries.                                                                                       |
+| [`core_to_out_harvested_resources`](#pudl.metadata.resource_helpers.core_to_out_harvested_resources)(core_table_names, ...) → dict | Make out tables from core resource metadata when extra columns are standard.                                              |
 
 ## Module Contents
 

@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -894,7 +894,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">get_args</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
@@ -929,6 +929,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">generation is reported normally, then the fuel consumption for the year needs to be NA,</span>
 <span class="sd">otherwise we'll get unrealistic heat rates.</span>
 <span class="sd">"""</span>
+
+<div class="viewcode-block" id="AggregationFreq">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.AggregationFreq">[docs]</a>
+<span class="nb">type</span> <span class="n">AggregationFreq</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">]</span></div>
+
+<span class="sd">"""Pandas frequency aliases for annual (year start) and monthly (month start) data."""</span>
+
+<div class="viewcode-block" id="AGGREGATION_FREQS">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.AGGREGATION_FREQS">[docs]</a>
+<span class="n">AGGREGATION_FREQS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">AggregationFreq</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">AggregationFreq</span><span class="o">.</span><span class="n">__value__</span><span class="p">)</span></div>
+
+<span class="sd">"""All of the :data:`AggregationFreq` values, for iterating over."""</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.logger">[docs]</a>
@@ -2502,7 +2514,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="groupby_agg_label_unique_source_or_mixed">
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.groupby_agg_label_unique_source_or_mixed">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">groupby_agg_label_unique_source_or_mixed</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">groupby_agg_label_unique_source_or_mixed</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NAType</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get either the unique source in a group or return mixed.</span>
 
 <span class="sd">    Custom function for groupby.agg. Written specifically for</span>
@@ -2794,7 +2806,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.calc_capacity_factor">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_capacity_factor</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">AggregationFreq</span><span class="p">,</span>
     <span class="n">min_cap_fact</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_cap_fact</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -4189,7 +4201,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">return</span> <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">tagged</span><span class="p">,</span> <span class="n">addr_type</span> <span class="o">=</span> <span class="n">usaddress</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
 
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">parsed</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">tagged</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">parsed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">val</span> <span class="k">else</span> <span class="kc">None</span>
 

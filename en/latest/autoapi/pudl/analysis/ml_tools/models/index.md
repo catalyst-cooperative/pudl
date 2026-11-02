@@ -50,10 +50,10 @@ Configuration precedence (lowest → highest):
 
 ## Functions
 
-| [`get_yml_config`](#pudl.analysis.ml_tools.models.get_yml_config)(→ dict)     | Load model configuration from yaml file.                                       |
-|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`get_default_config`](#pudl.analysis.ml_tools.models.get_default_config)(→ dict) | Get default config values for model.                                           |
-| [`pudl_model`](#pudl.analysis.ml_tools.models.pudl_model)(...)            | Decorator for an ML model that will handle providing configuration to dagster. |
+| [`get_yml_config`](#pudl.analysis.ml_tools.models.get_yml_config)(experiment_name) → dict                                                                                     | Load model configuration from yaml file.                                       |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`get_default_config`](#pudl.analysis.ml_tools.models.get_default_config)(model_graph) → dict                                                                                     | Get default config values for model.                                           |
+| [`pudl_model`](#pudl.analysis.ml_tools.models.pudl_model)(asset_name[, config_from_yaml]) → collections.abc.Callable[[dagster.GraphDefinition], dagster.AssetsDefinition] | Decorator for an ML model that will handle providing configuration to dagster. |
 
 ## Module Contents
 

@@ -15,9 +15,9 @@ Generic extractor for all FERC XBRL data.
 
 ## Functions
 
-| [`_suppress_arelle_message_spam`](#pudl.extract.xbrl._suppress_arelle_message_spam)()   | Filter known Arelle console spam without suppressing normal logs.   |
-|------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`convert_form`](#pudl.extract.xbrl.convert_form)(→ None)              | Clone a single FERC XBRL form to SQLite.                            |
+| [`_suppress_arelle_message_spam`](#pudl.extract.xbrl._suppress_arelle_message_spam)()                                  | Filter known Arelle console spam without suppressing normal logs.   |
+|-------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`convert_form`](#pudl.extract.xbrl.convert_form)(ferc_to_sqlite, form, datastore, pudl_paths) → None | Clone a single FERC XBRL form to SQLite.                            |
 
 ## Module Contents
 

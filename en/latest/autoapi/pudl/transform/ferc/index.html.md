@@ -9,12 +9,12 @@ Module for shared helpers for FERC Form transforms.
 
 ## Functions
 
-| [`__apply_diffs`](#pudl.transform.ferc.__apply_diffs)(→ pandas.DataFrame)                  | Take the latest reported non-null value for each group.             |
-|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`__best_snapshot`](#pudl.transform.ferc.__best_snapshot)(→ pandas.DataFrame)                | Take the row that has most non-null values out of each group.       |
-| [`__compare_dedupe_methodologies`](#pudl.transform.ferc.__compare_dedupe_methodologies)(applied_diffs, ...) | Compare deduplication methodologies.                                |
-| [`filter_for_freshest_data_xbrl`](#pudl.transform.ferc.filter_for_freshest_data_xbrl)(→ pandas.DataFrame)  | Get most updated values for each XBRL context.                      |
-| [`get_primary_key_raw_xbrl`](#pudl.transform.ferc.get_primary_key_raw_xbrl)(→ list[str])              | Get the primary key for a raw XBRL table from the XBRL datapackage. |
+| [`__apply_diffs`](#pudl.transform.ferc.__apply_diffs)(duped_groups) → pandas.DataFrame                             | Take the latest reported non-null value for each group.             |
+|-----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`__best_snapshot`](#pudl.transform.ferc.__best_snapshot)(duped_groups) → pandas.DataFrame                           | Take the row that has most non-null values out of each group.       |
+| [`__compare_dedupe_methodologies`](#pudl.transform.ferc.__compare_dedupe_methodologies)(applied_diffs, ...)                         | Compare deduplication methodologies.                                |
+| [`filter_for_freshest_data_xbrl`](#pudl.transform.ferc.filter_for_freshest_data_xbrl)(xbrl_table, primary_keys) → pandas.DataFrame | Get most updated values for each XBRL context.                      |
+| [`get_primary_key_raw_xbrl`](#pudl.transform.ferc.get_primary_key_raw_xbrl)(sched_table_name, ferc_form, ...) → list[str]     | Get the primary key for a raw XBRL table from the XBRL datapackage. |
 
 ## Module Contents
 

@@ -29,15 +29,15 @@ every output asset name defined here must keep that `missing_` prefix.
 
 ## Functions
 
-| [`_lower_strings`](#pudl.dagster.assets.core.unmapped_ids._lower_strings)(→ pandas.DataFrame)           | Lower-case all string values so case differences don't break ID matching.      |
-|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`_write_unmapped_ids_csv`](#pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv)(→ None)              | Write an unmapped-IDs dataframe to `$PUDL_OUTPUT` as a CSV for manual mapping. |
-| [`_util_ids_ferc1_raw_dbf`](#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf)(→ pandas.DataFrame)  | Utility IDs reported in the raw FERC1 DBF database, for manual ID mapping.     |
-| [`_util_ids_ferc1_raw_xbrl`](#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl)(→ pandas.DataFrame) | Utility IDs reported in the raw FERC1 XBRL database, for manual ID mapping.    |
-| [`_plants_ferc1_raw`](#pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw)(→ pandas.DataFrame)        | All raw FERC1 plants across DBF & XBRL, compiled for manual ID mapping.        |
-| [`_eia923_plant_ids`](#pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids)(→ set)                     | All `plant_id_eia` values that appear in the core EIA-923 tables.              |
-| [`unmapped_plants`](#pudl.dagster.assets.core.unmapped_ids.unmapped_plants)(...)                         | Identify FERC1 & EIA plants that appear in the data but aren't PUDL-mapped.    |
-| [`unmapped_utilities`](#pudl.dagster.assets.core.unmapped_ids.unmapped_utilities)(...)                      | Identify FERC1 & EIA utilities that appear in the data but aren't PUDL-mapped. |
+| [`_lower_strings`](#pudl.dagster.assets.core.unmapped_ids._lower_strings)(df) → pandas.DataFrame                                                         | Lower-case all string values so case differences don't break ID matching.      |
+|------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`_write_unmapped_ids_csv`](#pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv)(context, name, df) → None                                             | Write an unmapped-IDs dataframe to `$PUDL_OUTPUT` as a CSV for manual mapping. |
+| [`_util_ids_ferc1_raw_dbf`](#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf)(context) → pandas.DataFrame                                           | Utility IDs reported in the raw FERC1 DBF database, for manual ID mapping.     |
+| [`_util_ids_ferc1_raw_xbrl`](#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl)(context) → pandas.DataFrame                                          | Utility IDs reported in the raw FERC1 XBRL database, for manual ID mapping.    |
+| [`_plants_ferc1_raw`](#pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw)(\*\*generic_plant_tables) → pandas.DataFrame                                | All raw FERC1 plants across DBF & XBRL, compiled for manual ID mapping.        |
+| [`_eia923_plant_ids`](#pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids)(\*\*eia923_dfs) → set                                                       | All `plant_id_eia` values that appear in the core EIA-923 tables.              |
+| [`unmapped_plants`](#pudl.dagster.assets.core.unmapped_ids.unmapped_plants)(context, ...) → collections.abc.Iterator[dagster.Output[pandas.DataFrame]]    | Identify FERC1 & EIA plants that appear in the data but aren't PUDL-mapped.    |
+| [`unmapped_utilities`](#pudl.dagster.assets.core.unmapped_ids.unmapped_utilities)(context, ...) → collections.abc.Iterator[dagster.Output[pandas.DataFrame]] | Identify FERC1 & EIA utilities that appear in the data but aren't PUDL-mapped. |
 
 ## Module Contents
 

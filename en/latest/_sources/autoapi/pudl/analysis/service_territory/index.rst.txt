@@ -22,6 +22,7 @@ Attributes
    pudl.analysis.service_territory.logger
    pudl.analysis.service_territory.MAP_CRS
    pudl.analysis.service_territory.CALC_CRS
+   pudl.analysis.service_territory._ENTITY_TYPES
    pudl.analysis.service_territory.service_territory_eia861_assets
 
 
@@ -193,9 +194,14 @@ Module Contents
    balancing authority, with geometries available at the county level.
 
 
-.. py:function:: service_territory_asset_factory(entity_type: Literal['balancing_authority', 'utility'], io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
+.. py:function:: service_territory_asset_factory(entity_type: Literal['balancing_authority', 'utility'], io_manager_key: str | None = None) -> dagster.AssetsDefinition
 
    Build asset definitions for balancing authority and utility territories.
+
+
+.. py:data:: _ENTITY_TYPES
+   :type:  list[Literal['balancing_authority', 'utility']]
+   :value: ['balancing_authority', 'utility']
 
 
 .. py:data:: service_territory_eia861_assets

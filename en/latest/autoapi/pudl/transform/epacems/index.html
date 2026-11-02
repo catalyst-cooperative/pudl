@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.epacems &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.epacems &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -820,28 +820,28 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems.harmonize_eia_epa_orispl" title="pudl.transform.epacems.harmonize_eia_epa_orispl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harmonize_eia_epa_orispl</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems.harmonize_eia_epa_orispl" title="pudl.transform.epacems.harmonize_eia_epa_orispl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harmonize_eia_epa_orispl</span></code></a>(lf, crosswalk_lf) → polars.LazyFrame</p></td>
 <td><p>Harmonize the ORISPL code to match the EIA data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems.convert_to_utc" title="pudl.transform.epacems.convert_to_utc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_utc</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems.convert_to_utc" title="pudl.transform.epacems.convert_to_utc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_utc</span></code></a>(lf, plant_utc_offset) → polars.LazyFrame</p></td>
 <td><p>Convert CEMS datetime data to UTC timezones.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems._load_plant_utc_offset" title="pudl.transform.epacems._load_plant_utc_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_plant_utc_offset</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems._load_plant_utc_offset" title="pudl.transform.epacems._load_plant_utc_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_plant_utc_offset</span></code></a>(core_eia__entity_plants) → polars.DataFrame</p></td>
 <td><p>Load the UTC offset for each EIA plant.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems._validate_crosswalk_uniqueness" title="pudl.transform.epacems._validate_crosswalk_uniqueness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_crosswalk_uniqueness</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems._validate_crosswalk_uniqueness" title="pudl.transform.epacems._validate_crosswalk_uniqueness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_crosswalk_uniqueness</span></code></a>(crosswalk_df) → None</p></td>
 <td><p>Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems.transform_epacems" title="pudl.transform.epacems.transform_epacems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_epacems</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems.transform_epacems" title="pudl.transform.epacems.transform_epacems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_epacems</span></code></a>(raw_lf, core_epa__assn_eia_epacamd, ...) → polars.LazyFrame</p></td>
 <td><p>Transform EPA CEMS hourly data and ready it for export to Parquet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems._partitioned_path" title="pudl.transform.epacems._partitioned_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_partitioned_path</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems._partitioned_path" title="pudl.transform.epacems._partitioned_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_partitioned_path</span></code></a>(pudl_paths) → pathlib.Path</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems.core_epacems__hourly_emissions" title="pudl.transform.epacems.core_epacems__hourly_emissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epacems__hourly_emissions</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epacems.core_epacems__hourly_emissions" title="pudl.transform.epacems.core_epacems__hourly_emissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epacems__hourly_emissions</span></code></a>(context, ...) → polars.LazyFrame</p></td>
 <td><p>Extract EPA CEMS data by quarter and write to partitioned Parquet files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems._core_epacems__emissions_unit_ids" title="pudl.transform.epacems._core_epacems__emissions_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_epacems__emissions_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epacems._core_epacems__emissions_unit_ids" title="pudl.transform.epacems._core_epacems__emissions_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_epacems__emissions_unit_ids</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Make unique annual plant_id_eia and emissions_unit_id_epa.</p></td>
 </tr>
 </tbody>

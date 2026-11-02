@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.eia &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -860,52 +860,52 @@ found in <code class="xref py py-func docutils literal notranslate"><span class=
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.find_timezone" title="pudl.transform.eia.find_timezone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_timezone</span></code></a>(→ str | None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.find_timezone" title="pudl.transform.eia.find_timezone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_timezone</span></code></a>(*, lng, lat[, state, strict]) → str | None</p></td>
 <td><p>Find the timezone associated with the a specified input location.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.occurrence_consistency" title="pudl.transform.eia.occurrence_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">occurrence_consistency</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.occurrence_consistency" title="pudl.transform.eia.occurrence_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">occurrence_consistency</span></code></a>(entity_idx, compiled_df, col, ...) → pandas.DataFrame</p></td>
 <td><p>Find the occurrence of entities &amp; the consistency of records.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._lat_long" title="pudl.transform.eia._lat_long"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lat_long</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._lat_long" title="pudl.transform.eia._lat_long"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lat_long</span></code></a>(dirty_df, clean_df, entity_id_df, ...[, ...]) → pandas.DataFrame</p></td>
 <td><p>Harvests more complete lat/long in special cases.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia._last_operating_date" title="pudl.transform.eia._last_operating_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_last_operating_date</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia._last_operating_date" title="pudl.transform.eia._last_operating_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_last_operating_date</span></code></a>(dirty_df, clean_df, entity_id_df, ...) → pandas.DataFrame</p></td>
 <td><p>When there's no consistent generator operating date, take the last reported one.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._add_timezone" title="pudl.transform.eia._add_timezone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_timezone</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._add_timezone" title="pudl.transform.eia._add_timezone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_timezone</span></code></a>(plants_entity) → pandas.DataFrame</p></td>
 <td><p>Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia._add_additional_epacems_plants" title="pudl.transform.eia._add_additional_epacems_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_additional_epacems_plants</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia._add_additional_epacems_plants" title="pudl.transform.eia._add_additional_epacems_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_additional_epacems_plants</span></code></a>(plants_entity) → pandas.DataFrame</p></td>
 <td><p>Adds the info for plants that have IDs in the CEMS data but not EIA data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._compile_all_entity_records" title="pudl.transform.eia._compile_all_entity_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compile_all_entity_records</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._compile_all_entity_records" title="pudl.transform.eia._compile_all_entity_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compile_all_entity_records</span></code></a>(entity, clean_dfs) → pandas.DataFrame</p></td>
 <td><p>Compile all of the entity records from each table they appear in.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia._manage_strictness" title="pudl.transform.eia._manage_strictness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_manage_strictness</span></code></a>(→ float)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia._manage_strictness" title="pudl.transform.eia._manage_strictness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_manage_strictness</span></code></a>(col, special_case_strictness) → float</p></td>
 <td><p>Manage the strictness level for each column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.harvest_entity_tables" title="pudl.transform.eia.harvest_entity_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harvest_entity_tables</span></code></a>(→ tuple)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.harvest_entity_tables" title="pudl.transform.eia.harvest_entity_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harvest_entity_tables</span></code></a>(entity, clean_dfs[, ...]) → tuple</p></td>
 <td><p>Compile consistent records for various entities.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.core_eia860__assn_boiler_generator" title="pudl.transform.eia.core_eia860__assn_boiler_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia860__assn_boiler_generator</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.core_eia860__assn_boiler_generator" title="pudl.transform.eia.core_eia860__assn_boiler_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia860__assn_boiler_generator</span></code></a>(context, **clean_dfs) → pandas.DataFrame</p></td>
 <td><p>Creates a set of more complete boiler generator associations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._restrict_years" title="pudl.transform.eia._restrict_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_restrict_years</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia._restrict_years" title="pudl.transform.eia._restrict_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_restrict_years</span></code></a>(df[, eia_data_config]) → pandas.DataFrame</p></td>
 <td><p>Restricts eia years for boiler generator association.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.map_balancing_authority_names_to_codes" title="pudl.transform.eia.map_balancing_authority_names_to_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_balancing_authority_names_to_codes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.map_balancing_authority_names_to_codes" title="pudl.transform.eia.map_balancing_authority_names_to_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_balancing_authority_names_to_codes</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Build a map of the BA names to their most frequently associated BA codes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.fillna_balancing_authority_codes_via_names" title="pudl.transform.eia.fillna_balancing_authority_codes_via_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillna_balancing_authority_codes_via_names</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.fillna_balancing_authority_codes_via_names" title="pudl.transform.eia.fillna_balancing_authority_codes_via_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillna_balancing_authority_codes_via_names</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Fill null balancing authority (BA) codes via a map of the BA names to codes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.fix_balancing_authority_codes_with_state" title="pudl.transform.eia.fix_balancing_authority_codes_with_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_balancing_authority_codes_with_state</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.fix_balancing_authority_codes_with_state" title="pudl.transform.eia.fix_balancing_authority_codes_with_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_balancing_authority_codes_with_state</span></code></a>(plants, ...) → pandas.DataFrame</p></td>
 <td><p>Fix selective balancing_authority_code_eia's based on states.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.harvested_entity_asset_factory" title="pudl.transform.eia.harvested_entity_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harvested_entity_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia.harvested_entity_asset_factory" title="pudl.transform.eia.harvested_entity_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harvested_entity_asset_factory</span></code></a>(entity[, io_manager_key]) → dagster.AssetsDefinition</p></td>
 <td><p>Create an asset definition for the harvested entity tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.finished_eia_asset_factory" title="pudl.transform.eia.finished_eia_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finished_eia_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia.finished_eia_asset_factory" title="pudl.transform.eia.finished_eia_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finished_eia_asset_factory</span></code></a>(table_name, _core_table_name) → dagster.AssetsDefinition</p></td>
 <td><p>An asset factory for finished EIA tables.</p></td>
 </tr>
 </tbody>

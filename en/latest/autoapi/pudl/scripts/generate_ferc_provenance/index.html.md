@@ -8,9 +8,9 @@ in CI to detect when the cached SQLite databases need to be rebuilt.
 
 ## Functions
 
-| [`get_provenance`](#pudl.scripts.generate_ferc_provenance.get_provenance)(→ dict)   | Return the current provenance requirements for a FERC SQLite asset.       |
-|---------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| [`main`](#pudl.scripts.generate_ferc_provenance.main)(→ int)              | Generate a JSON representation of the provenance for a FERC SQLite asset. |
+| [`get_provenance`](#pudl.scripts.generate_ferc_provenance.get_provenance)(dataset, data_format) → dict   | Return the current provenance requirements for a FERC SQLite asset.       |
+|------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`main`](#pudl.scripts.generate_ferc_provenance.main)(dataset, data_format) → int              | Generate a JSON representation of the provenance for a FERC SQLite asset. |
 
 ## Module Contents
 

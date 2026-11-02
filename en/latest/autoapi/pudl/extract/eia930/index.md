@@ -18,12 +18,12 @@ dump out the concatenated pages to Parquet.
 
 ## Functions
 
-| [`raw_eia930__balance`](#pudl.extract.eia930.raw_eia930__balance)(→ pudl.helpers.ParquetData)     | Raw balance page.                                                |
-|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| [`raw_eia930__interchange`](#pudl.extract.eia930.raw_eia930__interchange)(→ pudl.helpers.ParquetData) | Raw interchange page.                                            |
-| [`raw_eia930__subregion`](#pudl.extract.eia930.raw_eia930__subregion)(→ pudl.helpers.ParquetData)   | Raw subregion page - only exists after 2018h2.                   |
-| [`extract_page`](#pudl.extract.eia930.extract_page)(→ pudl.helpers.ParquetData)            | Pull data for a page across many half-years into a Parquet file. |
-| [`extract_half_year_page`](#pudl.extract.eia930.extract_half_year_page)(→ str)                       | Extract data from a single CSV.                                  |
+| [`raw_eia930__balance`](#pudl.extract.eia930.raw_eia930__balance)(context) → pudl.helpers.ParquetData              | Raw balance page.                                                |
+|-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [`raw_eia930__interchange`](#pudl.extract.eia930.raw_eia930__interchange)(context) → pudl.helpers.ParquetData          | Raw interchange page.                                            |
+| [`raw_eia930__subregion`](#pudl.extract.eia930.raw_eia930__subregion)(context) → pudl.helpers.ParquetData            | Raw subregion page - only exists after 2018h2.                   |
+| [`extract_page`](#pudl.extract.eia930.extract_page)(datastore, page, half_years) → pudl.helpers.ParquetData | Pull data for a page across many half-years into a Parquet file. |
+| [`extract_half_year_page`](#pudl.extract.eia930.extract_half_year_page)(con, datastore, half_year, page) → str        | Extract data from a single CSV.                                  |
 
 ## Module Contents
 

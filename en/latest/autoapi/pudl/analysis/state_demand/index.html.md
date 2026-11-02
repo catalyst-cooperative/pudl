@@ -25,12 +25,12 @@ electricity demand estimates (e.g. at the county level).
 
 ## Functions
 
-| [`lookup_state`](#pudl.analysis.state_demand.lookup_state)(→ dict)                            | Lookup US state by state identifier.             |
-|--------------------------------------------------------------------------------------------------|--------------------------------------------------|
-| [`county_assignments_ferc714`](#pudl.analysis.state_demand.county_assignments_ferc714)(→ pandas.DataFrame)  | Load FERC 714 county assignments.                |
-| [`census_counties`](#pudl.analysis.state_demand.census_counties)(→ pandas.DataFrame)             | Load county attributes.                          |
-| [`total_state_sales_eia861`](#pudl.analysis.state_demand.total_state_sales_eia861)(→ pandas.DataFrame)    | Read and format EIA 861 sales by state and year. |
-| [`out_ferc714__hourly_estimated_state_demand`](#pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand)(...) | Estimate hourly electricity demand by state.     |
+| [`lookup_state`](#pudl.analysis.state_demand.lookup_state)(state) → dict                                                  | Lookup US state by state identifier.             |
+|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
+| [`county_assignments_ferc714`](#pudl.analysis.state_demand.county_assignments_ferc714)(...) → pandas.DataFrame                          | Load FERC 714 county assignments.                |
+| [`census_counties`](#pudl.analysis.state_demand.census_counties)(out_censusdp1tract_\_counties) → pandas.DataFrame           | Load county attributes.                          |
+| [`total_state_sales_eia861`](#pudl.analysis.state_demand.total_state_sales_eia861)(core_eia861_\_yearly_sales) → pandas.DataFrame     | Read and format EIA 861 sales by state and year. |
+| [`out_ferc714__hourly_estimated_state_demand`](#pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand)(context, ...) → polars.LazyFrame | Estimate hourly electricity demand by state.     |
 
 ## Module Contents
 

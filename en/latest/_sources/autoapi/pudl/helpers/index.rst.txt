@@ -21,6 +21,8 @@ Attributes
 .. autoapisummary::
 
    pudl.helpers.sum_na
+   pudl.helpers.AggregationFreq
+   pudl.helpers.AGGREGATION_FREQS
    pudl.helpers.logger
    pudl.helpers.MergeValidate
    pudl.helpers._DUCKDB_INTEGER_TYPES
@@ -128,6 +130,17 @@ Module Contents
    if there are some months where fuel consumption is reported as NA, but electricity
    generation is reported normally, then the fuel consumption for the year needs to be NA,
    otherwise we'll get unrealistic heat rates.
+
+.. py:type:: AggregationFreq
+   :canonical: Literal['YS', 'MS']
+
+
+   Pandas frequency aliases for annual (year start) and monthly (month start) data.
+
+.. py:data:: AGGREGATION_FREQS
+   :type:  tuple[AggregationFreq, ...]
+
+   All of the :data:`AggregationFreq` values, for iterating over.
 
 .. py:data:: logger
 
@@ -777,7 +790,7 @@ Module Contents
    :rtype: pandas.DataFrame
 
 
-.. py:function:: groupby_agg_label_unique_source_or_mixed(x: pandas.Series) -> str | None
+.. py:function:: groupby_agg_label_unique_source_or_mixed(x: pandas.Series) -> str | pandas._libs.missing.NAType
 
    Get either the unique source in a group or return mixed.
 
@@ -895,7 +908,7 @@ Module Contents
    :returns: The standardized dataframe.
 
 
-.. py:function:: calc_capacity_factor(df: pandas.DataFrame, freq: Literal['YS', 'MS'], min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
+.. py:function:: calc_capacity_factor(df: pandas.DataFrame, freq: AggregationFreq, min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
 
    Calculate capacity factor.
 

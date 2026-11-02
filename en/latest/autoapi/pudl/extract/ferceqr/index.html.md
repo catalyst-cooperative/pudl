@@ -13,18 +13,18 @@ Extract FERC EQR data.
 
 ## Functions
 
-| [`_get_csv`](#pudl.extract.ferceqr._get_csv)(→ collections.abc.Generator[zipfile.ZipFile])   | Download CSV to a tempmorary directory to avoid reading into memory.             |
-|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`_clean_csv_name`](#pudl.extract.ferceqr._clean_csv_name)(→ pathlib.Path)                          | Strip characters from an extracted CSV's filename that would confuse duckdb.     |
-| [`_get_table_name`](#pudl.extract.ferceqr._get_table_name)(→ str)                                   |                                                                                  |
-| [`_clear_raw_table_partition`](#pudl.extract.ferceqr._clear_raw_table_partition)(→ None)                       | Delete any existing per-filing parquet output for one raw table+quarter.         |
-| [`_extract_ident`](#pudl.extract.ferceqr._extract_ident)(→ str | None)                             | Extract data from ident csv, write to parquet, and return CID from table.        |
-| [`_extract_other_table`](#pudl.extract.ferceqr._extract_other_table)(table_type, csv_path, ...)          | Extract data from a table other than ident and add year_quarter and CID columns. |
-| [`_resolve_cid`](#pudl.extract.ferceqr._resolve_cid)(→ str | None)                               | Extract one filing's ident table and return its CID, or `None`.                  |
-| [`_csvs_to_parquet`](#pudl.extract.ferceqr._csvs_to_parquet)(→ frozenset[FercEqrTableType])          | Mirror CSVs in filing to a parquet file.                                         |
-| [`_get_rejected_record_counts`](#pudl.extract.ferceqr._get_rejected_record_counts)(→ dict[str, int])            | Count rejected CSV records by DuckDB's reason for rejecting them.                |
-| [`_save_extract_errors`](#pudl.extract.ferceqr._save_extract_errors)(→ None)                             | Persist DuckDB's CSV parsing errors for the quarter to parquet.                  |
-| [`extract_ferceqr`](#pudl.extract.ferceqr.extract_ferceqr)(context[, ferceqr_archive])              | Extract year quarter from CSVs and load to parquet files.                        |
+| [`_get_csv`](#pudl.extract.ferceqr._get_csv)(base_path, year_quarter) → collections.abc.Generator[zipfile.ZipFile]           | Download CSV to a tempmorary directory to avoid reading into memory.             |
+|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`_clean_csv_name`](#pudl.extract.ferceqr._clean_csv_name)(csv_path) → pathlib.Path                                                 | Strip characters from an extracted CSV's filename that would confuse duckdb.     |
+| [`_get_table_name`](#pudl.extract.ferceqr._get_table_name)(table_type, year_quarter) → str                                          |                                                                                  |
+| [`_clear_raw_table_partition`](#pudl.extract.ferceqr._clear_raw_table_partition)(table_type, year_quarter) → None                              | Delete any existing per-filing parquet output for one raw table+quarter.         |
+| [`_extract_ident`](#pudl.extract.ferceqr._extract_ident)(ident_csv, year_quarter, filing_name, ...) → str | None                   | Extract data from ident csv, write to parquet, and return CID from table.        |
+| [`_extract_other_table`](#pudl.extract.ferceqr._extract_other_table)(table_type, csv_path, ...)                                          | Extract data from a table other than ident and add year_quarter and CID columns. |
+| [`_resolve_cid`](#pudl.extract.ferceqr._resolve_cid)(ident_path, year_quarter, filing_name, ...) → str | None                    | Extract one filing's ident table and return its CID, or `None`.                  |
+| [`_csvs_to_parquet`](#pudl.extract.ferceqr._csvs_to_parquet)(csv_path, year_quarter, filing_name, ...) → frozenset[FercEqrTableType] | Mirror CSVs in filing to a parquet file.                                         |
+| [`_get_rejected_record_counts`](#pudl.extract.ferceqr._get_rejected_record_counts)(duckdb_connection) → dict[str, int]                          | Count rejected CSV records by DuckDB's reason for rejecting them.                |
+| [`_save_extract_errors`](#pudl.extract.ferceqr._save_extract_errors)(year_quarter, duckdb_connection) → None                             | Persist DuckDB's CSV parsing errors for the quarter to parquet.                  |
+| [`extract_ferceqr`](#pudl.extract.ferceqr.extract_ferceqr)(context[, ferceqr_archive])                                              | Extract year quarter from CSVs and load to parquet files.                        |
 
 ## Module Contents
 

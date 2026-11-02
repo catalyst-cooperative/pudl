@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -909,19 +909,19 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._unique" title="pudl.metadata.classes._unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_unique</span></code></a>(→ list)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._unique" title="pudl.metadata.classes._unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_unique</span></code></a>(*args) → list</p></td>
 <td><p>Return a list of all unique values, in order of first appearance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes._format_for_sql" title="pudl.metadata.classes._format_for_sql"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_for_sql</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes._format_for_sql" title="pudl.metadata.classes._format_for_sql"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_for_sql</span></code></a>(x[, identifier]) → str</p></td>
 <td><p>Format value for use in raw SQL(ite).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._get_jinja_environment" title="pudl.metadata.classes._get_jinja_environment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_jinja_environment</span></code></a>([template_dir])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes._check_unique" title="pudl.metadata.classes._check_unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_unique</span></code></a>(→ list | None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes._check_unique" title="pudl.metadata.classes._check_unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_unique</span></code></a>([value]) → list | None</p></td>
 <td><p>Check that input list has unique values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._sort_deterministically" title="pudl.metadata.classes._sort_deterministically"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_deterministically</span></code></a>(→ list | None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._sort_deterministically" title="pudl.metadata.classes._sort_deterministically"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_deterministically</span></code></a>([value]) → list | None</p></td>
 <td><p>Sort an enum constraint's values into a deterministic order.</p></td>
 </tr>
 </tbody>
@@ -3107,7 +3107,7 @@ out of Package.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Package.to_rst">
-<span class="sig-name descname"><span class="pre">to_rst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pydantic.DirectoryPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Package.to_rst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Package.to_rst" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_rst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pydantic.DirectoryPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Package.to_rst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Package.to_rst" title="Link to this definition">#</a></dt>
 <dd><p>Output to an RST file.</p>
 </dd></dl>
 

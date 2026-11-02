@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.allocate_gen_fuel &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.allocate_gen_fuel &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -1023,12 +1023,6 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AllocationFrequency">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.AllocationFrequency">[docs]</a>
-<span class="n">AllocationFrequency</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">]</span></div>
-
-<span class="sd">"""The two frequencies at which generation &amp; fuel data can be allocated."""</span>
-
 <div class="viewcode-block" id="IDX_GENS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.IDX_GENS">[docs]</a>
 <span class="n">IDX_GENS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">]</span></div>
@@ -1112,7 +1106,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="allocate_gen_fuel_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">allocate_gen_fuel_asset_factory</span><span class="p">(</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AggregationFreq</span><span class="p">,</span>
     <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Build yearly and monthly net generation &amp; fuel consumption allocation assets."""</span>
@@ -1227,16 +1221,11 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="ALLOCATION_FREQUENCIES">
-<a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES">[docs]</a>
-<span class="n">ALLOCATION_FREQUENCIES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">AllocationFrequency</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="allocate_gen_fuel_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets">[docs]</a>
 <span class="n">allocate_gen_fuel_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">allocated_net_gen_asset</span>
-    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">ALLOCATION_FREQUENCIES</span>
+    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AGGREGATION_FREQS</span>
     <span class="k">for</span> <span class="n">allocated_net_gen_asset</span> <span class="ow">in</span> <span class="n">allocate_gen_fuel_asset_factory</span><span class="p">(</span>
         <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
         <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
@@ -1253,7 +1242,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AggregationFreq</span><span class="p">,</span>
     <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Allocate net gen from gen_fuel table to the generator/energy_source_code level.</span>
@@ -1408,7 +1397,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="standardize_input_frequency">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.standardize_input_frequency">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">standardize_input_frequency</span><span class="p">(</span>
-    <span class="n">bf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span>
+    <span class="n">bf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AggregationFreq</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Standardize the frequency of the input tables.</span>
 
@@ -2773,7 +2765,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">key_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">data_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">AllocationFrequency</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AggregationFreq</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Allocates annually-reported data from the gen or bf table to each month.</span>
 

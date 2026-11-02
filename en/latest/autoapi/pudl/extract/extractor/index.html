@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.extract.extractor &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.extract.extractor &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -843,19 +843,19 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.extractor.concat_pages" title="pudl.extract.extractor.concat_pages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concat_pages</span></code></a>(→ dict[str, pandas.DataFrame])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.extractor.concat_pages" title="pudl.extract.extractor.concat_pages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concat_pages</span></code></a>(paged_dfs) → dict[str, pandas.DataFrame]</p></td>
 <td><p>Concatenate similar pages of data from different years into single dataframes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.extractor._is_dict_str_strint" title="pudl.extract.extractor._is_dict_str_strint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_dict_str_strint</span></code></a>(→ bool)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.extractor._is_dict_str_strint" title="pudl.extract.extractor._is_dict_str_strint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_dict_str_strint</span></code></a>(_context, x) → bool</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.extractor.partition_extractor_factory" title="pudl.extract.extractor.partition_extractor_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_extractor_factory</span></code></a>(→ dagster.OpDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.extractor.partition_extractor_factory" title="pudl.extract.extractor.partition_extractor_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition_extractor_factory</span></code></a>(extractor_cls, name) → dagster.OpDefinition</p></td>
 <td><p>Construct a Dagster op that extracts one partition of data, given an extractor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.extractor.partitions_from_data_config_factory" title="pudl.extract.extractor.partitions_from_data_config_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions_from_data_config_factory</span></code></a>(→ dagster.OpDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.extractor.partitions_from_data_config_factory" title="pudl.extract.extractor.partitions_from_data_config_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions_from_data_config_factory</span></code></a>(name) → dagster.OpDefinition</p></td>
 <td><p>Construct a Dagster op to get target partitions from data config in Dagster context.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.extractor.raw_df_factory" title="pudl.extract.extractor.raw_df_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_df_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.extractor.raw_df_factory" title="pudl.extract.extractor.raw_df_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_df_factory</span></code></a>(extractor_cls, name) → dagster.AssetsDefinition</p></td>
 <td><p>Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.</p></td>
 </tr>
 </tbody>

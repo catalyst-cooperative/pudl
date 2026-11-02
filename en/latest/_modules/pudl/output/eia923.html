@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.eia923 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.eia923 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -1278,7 +1278,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="time_aggregated_eia923_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.time_aggregated_eia923_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">time_aggregated_eia923_asset_factory</span><span class="p">(</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AggregationFreq</span><span class="p">,</span>
     <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Build EIA-923 asset definitions, aggregated by year or month."""</span>
@@ -1578,7 +1578,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.generation_fuel_agg_eia923_assets">[docs]</a>
 <span class="n">generation_fuel_agg_eia923_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">ass</span>
-    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">AGGREGATION_FREQS</span>
     <span class="k">for</span> <span class="n">ass</span> <span class="ow">in</span> <span class="n">time_aggregated_eia923_asset_factory</span><span class="p">(</span>
         <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
     <span class="p">)</span>

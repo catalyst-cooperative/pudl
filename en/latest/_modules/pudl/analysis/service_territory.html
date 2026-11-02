@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.service_territory &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.service_territory &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -881,7 +881,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1255,7 +1255,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">assn</span><span class="o">=</span><span class="n">assn</span><span class="p">,</span>
         <span class="n">assn_col</span><span class="o">=</span><span class="n">assn_col</span><span class="p">,</span>
         <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span>
-        <span class="n">census_gdf</span><span class="o">=</span><span class="n">census_counties</span><span class="p">,</span>
+        <span class="c1"># The census counties are read from GeoParquet, so they are a GeoDataFrame.</span>
+        <span class="n">census_gdf</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">census_counties</span><span class="p">),</span>
         <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
         <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1280,7 +1281,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">service_territory_asset_factory</span><span class="p">(</span>
     <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">],</span>
     <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Build asset definitions for balancing authority and utility territories."""</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
@@ -1347,13 +1348,21 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_ENTITY_TYPES">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory._ENTITY_TYPES">[docs]</a>
+<span class="n">_ENTITY_TYPES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"balancing_authority"</span><span class="p">,</span>
+    <span class="s2">"utility"</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="service_territory_eia861_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.service_territory_eia861_assets">[docs]</a>
 <span class="n">service_territory_eia861_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">service_territory_asset_factory</span><span class="p">(</span>
         <span class="n">entity_type</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">_ENTITY_TYPES</span>
 <span class="p">]</span></div>
 
 

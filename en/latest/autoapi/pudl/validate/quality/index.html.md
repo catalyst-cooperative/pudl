@@ -19,9 +19,9 @@ asset checks, or when they don’t cleanly apply to an individual asset.
 
 ## Functions
 
-| [`no_null_rows`](#pudl.validate.quality.no_null_rows)(→ pandas.DataFrame)   | Check for rows with excessive missing values, usually due to a merge gone wrong.   |
-|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`weighted_quantile`](#pudl.validate.quality.weighted_quantile)(→ float)         | Calculate the weighted quantile of a Series or DataFrame column.                   |
+| [`no_null_rows`](#pudl.validate.quality.no_null_rows)(df[, cols, df_name, max_null_fraction]) → pandas.DataFrame   | Check for rows with excessive missing values, usually due to a merge gone wrong.   |
+|----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`weighted_quantile`](#pudl.validate.quality.weighted_quantile)(data, weights, quantile) → float                        | Calculate the weighted quantile of a Series or DataFrame column.                   |
 
 ## Module Contents
 

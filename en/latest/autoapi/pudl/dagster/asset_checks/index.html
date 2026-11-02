@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -838,16 +838,16 @@ should go in dbt.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.group_mean_continuity_check" title="pudl.dagster.asset_checks.group_mean_continuity_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_mean_continuity_check</span></code></a>(→ dagster.AssetCheckResult)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.group_mean_continuity_check" title="pudl.dagster.asset_checks.group_mean_continuity_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_mean_continuity_check</span></code></a>(df, thresholds, groupby_col) → dagster.AssetCheckResult</p></td>
 <td><p>Check that certain variables don't vary too much on average between groups.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.asset_check_from_schema" title="pudl.dagster.asset_checks.asset_check_from_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_check_from_schema</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.asset_check_from_schema" title="pudl.dagster.asset_checks.asset_check_from_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asset_check_from_schema</span></code></a>(asset_key, package, duckdb_asset) → dagster.AssetChecksDefinition | None</p></td>
 <td><p>Create a Dagster asset check based on the resource schema, if defined.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.valid_datapackage_check" title="pudl.dagster.asset_checks.valid_datapackage_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_datapackage_check</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.valid_datapackage_check" title="pudl.dagster.asset_checks.valid_datapackage_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_datapackage_check</span></code></a>(asset_key, *, description[, ...]) → dagster.AssetChecksDefinition</p></td>
 <td><p>Return a Dagster asset check that validates a frictionless datapackage descriptor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check" title="pudl.dagster.asset_checks.valid_datapackage_unit_strings_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_datapackage_unit_strings_check</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check" title="pudl.dagster.asset_checks.valid_datapackage_unit_strings_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_datapackage_unit_strings_check</span></code></a>(asset_key, *, ...) → dagster.AssetChecksDefinition</p></td>
 <td><p>Return a Dagster asset check that validates unit strings in a datapackage descriptor.</p></td>
 </tr>
 </tbody>

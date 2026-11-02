@@ -344,7 +344,7 @@ Module Contents
 
 
 
-.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, data_config: pudl.settings.FercDbfToSqliteDataConfig, output_path: pathlib.Path)
+.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, data_config: pudl.settings.FercToSqliteDataConfig, output_path: pathlib.Path)
 
    Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.
 

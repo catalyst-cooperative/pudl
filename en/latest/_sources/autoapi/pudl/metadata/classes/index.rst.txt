@@ -2309,7 +2309,7 @@ Module Contents
 
 
 
-   .. py:method:: to_rst(docs_dir: pydantic.DirectoryPath, path: str) -> None
+   .. py:method:: to_rst(docs_dir: pydantic.DirectoryPath, path: pathlib.Path | None) -> None
 
       Output to an RST file.
 

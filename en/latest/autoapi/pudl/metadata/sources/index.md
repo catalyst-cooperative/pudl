@@ -9,8 +9,8 @@ Metadata and operational constants.
 
 ## Functions
 
-| [`_year_quarter_range`](#pudl.metadata.sources._year_quarter_range)(→ list[str])   | Return a range of year-quarters formatted as `YYYYqQ`.   |
-|-------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [`_year_quarter_range`](#pudl.metadata.sources._year_quarter_range)(start_quarter, end_quarter) → list[str]   | Return a range of year-quarters formatted as `YYYYqQ`.   |
+|----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
 
 ## Module Contents
 

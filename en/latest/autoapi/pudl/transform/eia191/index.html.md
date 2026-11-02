@@ -9,8 +9,8 @@ Transform EIA Form 191 monthly underground natural gas storage data.
 
 ## Functions
 
-| [`core_eia191__monthly_gas_storage`](#pudl.transform.eia191.core_eia191__monthly_gas_storage)(→ pandas.DataFrame)   | Transform raw EIA-191 monthly underground natural gas storage data.   |
-|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`core_eia191__monthly_gas_storage`](#pudl.transform.eia191.core_eia191__monthly_gas_storage)(raw_eia191_\_data) → pandas.DataFrame   | Transform raw EIA-191 monthly underground natural gas storage data.   |
+|---------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
 
 ## Module Contents
 

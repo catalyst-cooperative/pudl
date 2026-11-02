@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.rus7 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.rus7 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -847,49 +847,49 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__power_requirements" title="pudl.transform.rus7._core_rus7__power_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__power_requirements</span></code></a>(...)</p></td>
 <td><p>Early transform an internal power_requirements table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales" title="pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_power_requirements_electric_sales</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales" title="pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_power_requirements_electric_sales</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the power requirements of electric sales table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_customers" title="pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_customers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_power_requirements_electric_customers</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_customers" title="pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_customers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_power_requirements_electric_customers</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the power requirements of electric customers table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_power_requirements" title="pudl.transform.rus7._core_rus7__yearly_power_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_power_requirements</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_power_requirements" title="pudl.transform.rus7._core_rus7__yearly_power_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_power_requirements</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the power requirements table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_investments" title="pudl.transform.rus7._core_rus7__yearly_investments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_investments</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_investments" title="pudl.transform.rus7._core_rus7__yearly_investments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_investments</span></code></a>(raw_rus7__investments) → pandas.DataFrame</p></td>
 <td><p>Transform the investments table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_long_term_debt" title="pudl.transform.rus7._core_rus7__yearly_long_term_debt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_long_term_debt</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_long_term_debt" title="pudl.transform.rus7._core_rus7__yearly_long_term_debt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_long_term_debt</span></code></a>(raw_rus7__long_term_debt) → pandas.DataFrame</p></td>
 <td><p>Transform the core_rus7__yearly_investments table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_patronage_capital" title="pudl.transform.rus7._core_rus7__yearly_patronage_capital"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_patronage_capital</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_patronage_capital" title="pudl.transform.rus7._core_rus7__yearly_patronage_capital"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_patronage_capital</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the patronage capital table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_statement_of_operations" title="pudl.transform.rus7._core_rus7__yearly_statement_of_operations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_statement_of_operations</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_statement_of_operations" title="pudl.transform.rus7._core_rus7__yearly_statement_of_operations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_statement_of_operations</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the statement of operations table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__consumer_debt" title="pudl.transform.rus7._core_rus7__consumer_debt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__consumer_debt</span></code></a>(raw_rus7__owed_by_customers)</p></td>
 <td><p>Transform the owed by consumer table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_service_interruptions" title="pudl.transform.rus7._core_rus7__yearly_service_interruptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_service_interruptions</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_service_interruptions" title="pudl.transform.rus7._core_rus7__yearly_service_interruptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_service_interruptions</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the service_interruptions table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__transmission_and_distribution" title="pudl.transform.rus7._core_rus7__transmission_and_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__transmission_and_distribution</span></code></a>(...)</p></td>
 <td><p>Transform the transmission_and_distribution table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_long_term_leases" title="pudl.transform.rus7._core_rus7__yearly_long_term_leases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_long_term_leases</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_long_term_leases" title="pudl.transform.rus7._core_rus7__yearly_long_term_leases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_long_term_leases</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the long term leases table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_loans" title="pudl.transform.rus7._core_rus7__yearly_loans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_loans</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_loans" title="pudl.transform.rus7._core_rus7__yearly_loans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_loans</span></code></a>(raw_rus7__loan_guarantees, ...) → pandas.DataFrame</p></td>
 <td><p>Transform the raw_rus7__loans and raw_rus7__loan_guarantees tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio" title="pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_external_financial_risk_ratio</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio" title="pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_external_financial_risk_ratio</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the raw_rus7__external_financial_risk_ratio table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_energy_purchased" title="pudl.transform.rus7._core_rus7__yearly_energy_purchased"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_energy_purchased</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_energy_purchased" title="pudl.transform.rus7._core_rus7__yearly_energy_purchased"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_energy_purchased</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the raw_rus7__energy_purchased table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_materials_and_supplies" title="pudl.transform.rus7._core_rus7__yearly_materials_and_supplies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_materials_and_supplies</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_materials_and_supplies" title="pudl.transform.rus7._core_rus7__yearly_materials_and_supplies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_materials_and_supplies</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the materials and supplies table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus7._core_rus7__yearly_utility_plant_changes" title="pudl.transform.rus7._core_rus7__yearly_utility_plant_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus7__yearly_utility_plant_changes</span></code></a>(...)</p></td>

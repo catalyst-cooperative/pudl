@@ -40,12 +40,12 @@ Metadata data classes.
 
 ## Functions
 
-| [`_unique`](#pudl.metadata.classes._unique)(→ list)                        | Return a list of all unique values, in order of first appearance.   |
-|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(→ str)                 | Format value for use in raw SQL(ite).                               |
-| [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir]) |                                                                     |
-| [`_check_unique`](#pudl.metadata.classes._check_unique)(→ list | None)           | Check that input list has unique values.                            |
-| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)(→ list | None) | Sort an enum constraint's values into a deterministic order.        |
+| [`_unique`](#pudl.metadata.classes._unique)(\*args) → list                         | Return a list of all unique values, in order of first appearance.   |
+|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(x[, identifier]) → str         | Format value for use in raw SQL(ite).                               |
+| [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir])         |                                                                     |
+| [`_check_unique`](#pudl.metadata.classes._check_unique)([value]) → list | None           | Check that input list has unique values.                            |
+| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)([value]) → list | None | Sort an enum constraint's values into a deterministic order.        |
 
 ## Module Contents
 
@@ -1641,7 +1641,7 @@ Get a sorted tuple of table names for an etl_group.
 
 Return the resource with the given name if it is in the Package.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output to an RST file.
 

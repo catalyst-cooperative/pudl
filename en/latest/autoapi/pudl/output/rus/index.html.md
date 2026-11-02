@@ -10,8 +10,8 @@ Create output tables for RUS-7 and RUS-12.
 
 ## Functions
 
-| [`out_rus_asset_factory`](#pudl.output.rus.out_rus_asset_factory)(→ dagster.AssetsDefinition)   | An asset factory for finished RUS output tables.   |
-|------------------------------------------------------------------------------------------------------|----------------------------------------------------|
+| [`out_rus_asset_factory`](#pudl.output.rus.out_rus_asset_factory)(core_table_name, borrower_table_name) → dagster.AssetsDefinition   | An asset factory for finished RUS output tables.   |
+|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
 
 ## Module Contents
 

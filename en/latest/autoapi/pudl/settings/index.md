@@ -55,8 +55,8 @@ Module for validating pudl ETL data configurations.
 
 ## Functions
 
-| [`_zenodo_doi_to_url`](#pudl.settings._zenodo_doi_to_url)(→ pydantic.AnyHttpUrl)   | Create a DOI URL out o a Zenodo DOI.   |
-|----------------------------------------------------------------------------------------------|----------------------------------------|
+| [`_zenodo_doi_to_url`](#pudl.settings._zenodo_doi_to_url)(doi) → pydantic.AnyHttpUrl   | Create a DOI URL out o a Zenodo DOI.   |
+|--------------------------------------------------------------------------------------------------|----------------------------------------|
 
 ## Module Contents
 
@@ -116,7 +116,7 @@ Checks that:
 * only known to be working partition values are specified
 * no duplicate partition values are specified
 
-#### *property* partitions *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[None](https://docs.python.org/3/builtins/constants.html#None) | [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
+#### *property* partitions *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
 
 Return list of dictionaries representing individual partitions.
 

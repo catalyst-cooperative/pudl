@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.spatial &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.spatial &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -809,25 +809,25 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.check_gdf" title="pudl.analysis.spatial.check_gdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_gdf</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.check_gdf" title="pudl.analysis.spatial.check_gdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_gdf</span></code></a>(gdf) → None</p></td>
 <td><p>Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.spatial.polygonize" title="pudl.analysis.spatial.polygonize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polygonize</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.spatial.polygonize" title="pudl.analysis.spatial.polygonize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polygonize</span></code></a>(geom) → shapely.geometry.Polygon | shapely.geometry.MultiPolygon</p></td>
 <td><p>Convert geometry to (Multi)Polygon.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.explode" title="pudl.analysis.spatial.explode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">explode</span></code></a>(→ geopandas.GeoDataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.explode" title="pudl.analysis.spatial.explode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">explode</span></code></a>(gdf[, ratios]) → geopandas.GeoDataFrame</p></td>
 <td><p>Explode MultiPolygon to multiple Polygon geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.spatial.self_union" title="pudl.analysis.spatial.self_union"><code class="xref py py-obj docutils literal notranslate"><span class="pre">self_union</span></code></a>(→ geopandas.GeoDataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.spatial.self_union" title="pudl.analysis.spatial.self_union"><code class="xref py py-obj docutils literal notranslate"><span class="pre">self_union</span></code></a>(gdf[, ratios]) → geopandas.GeoDataFrame</p></td>
 <td><p>Calculate the geometric union of a feature layer with itself.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.dissolve" title="pudl.analysis.spatial.dissolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dissolve</span></code></a>(→ geopandas.GeoDataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.dissolve" title="pudl.analysis.spatial.dissolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dissolve</span></code></a>(gdf, by, func[, how]) → geopandas.GeoDataFrame</p></td>
 <td><p>Dissolve layer by aggregating features based on common attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.spatial.overlay" title="pudl.analysis.spatial.overlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code></a>(→ geopandas.GeoDataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.spatial.overlay" title="pudl.analysis.spatial.overlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code></a>(*gdfs[, how, ratios]) → geopandas.GeoDataFrame</p></td>
 <td><p>Overlay multiple layers incrementally.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.get_data_columns" title="pudl.analysis.spatial.get_data_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_columns</span></code></a>(→ list)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.spatial.get_data_columns" title="pudl.analysis.spatial.get_data_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_columns</span></code></a>(df) → list</p></td>
 <td><p>Return list of columns, ignoring geometry.</p></td>
 </tr>
 </tbody>
@@ -972,7 +972,10 @@ relative to the original. By default, the original value is used unchanged.</p><
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – Duplicate column names in layers.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – Duplicate column names in layers.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – Fewer than two layers provided.</p></li>
+</ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GeoDataFrame with the geometries and attributes resulting from the overlay.</p>

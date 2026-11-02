@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.nrelatb &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.nrelatb &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -846,34 +846,34 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.transform_normalize" title="pudl.transform.nrelatb.transform_normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_normalize</span></code></a>(nrelatb, normalizer)</p></td>
 <td><p>Normalize a subset of the NREL ATB data into a small table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.transform_unstack" title="pudl.transform.nrelatb.transform_unstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_unstack</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.transform_unstack" title="pudl.transform.nrelatb.transform_unstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_unstack</span></code></a>(nrelatb, table_unstacker) → pandas.DataFrame</p></td>
 <td><p>Generic unstacking function to convert ATB data from a skinny to wider format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb._core_nrelatb__transform_start" title="pudl.transform.nrelatb._core_nrelatb__transform_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_nrelatb__transform_start</span></code></a>(raw_nrelatb__data)</p></td>
 <td><p>Transform raw NREL ATB data into semi-clean but still very skinny table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases" title="pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_projected_financial_cases</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases" title="pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_projected_financial_cases</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the data defining the assumptions for the ATB financial cases.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases_by_scenario" title="pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases_by_scenario"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_projected_financial_cases_by_scenario</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases_by_scenario" title="pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases_by_scenario"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_projected_financial_cases_by_scenario</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the data defining the assumptions for the ATB financial cases which vary by scenario.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail" title="pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_fixed_charge_rate_across_tech_detail</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail" title="pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_fixed_charge_rate_across_tech_detail</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>For older years, broadcast the <code class="docutils literal notranslate"><span class="pre">fixed_charge_rate</span></code> parameter across the technical detail columns.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.broadcast_asterisk_cost_recovery_period_years" title="pudl.transform.nrelatb.broadcast_asterisk_cost_recovery_period_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">broadcast_asterisk_cost_recovery_period_years</span></code></a>(...)</p></td>
 <td><p>Broadcast the asterisk (wildcard) <code class="docutils literal notranslate"><span class="pre">cost_recovery_period_years</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb._broadcast_core_metric_parameters" title="pudl.transform.nrelatb._broadcast_core_metric_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_broadcast_core_metric_parameters</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb._broadcast_core_metric_parameters" title="pudl.transform.nrelatb._broadcast_core_metric_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_broadcast_core_metric_parameters</span></code></a>(nrelatb_unstacked, ...) → pandas.DataFrame</p></td>
 <td><p>Broadcast a section of a table and fillna with the broadcasted values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance" title="pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_projected_cost_performance</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance" title="pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_projected_cost_performance</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the yearly NREL ATB cost and performance projections.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb._core_nrelatb__yearly_units" title="pudl.transform.nrelatb._core_nrelatb__yearly_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_nrelatb__yearly_units</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb._core_nrelatb__yearly_units" title="pudl.transform.nrelatb._core_nrelatb__yearly_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_nrelatb__yearly_units</span></code></a>(_core_nrelatb__transform_start) → pandas.DataFrame</p></td>
 <td><p>Transform a table of units by <code class="docutils literal notranslate"><span class="pre">core_metric_parameter</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_technology_status" title="pudl.transform.nrelatb.core_nrelatb__yearly_technology_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_technology_status</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.core_nrelatb__yearly_technology_status" title="pudl.transform.nrelatb.core_nrelatb__yearly_technology_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_nrelatb__yearly_technology_status</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform a small table of statuses of different technology types.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.nrelatb.null_cols_cost_performance" title="pudl.transform.nrelatb.null_cols_cost_performance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_cols_cost_performance</span></code></a>(df)</p></td>

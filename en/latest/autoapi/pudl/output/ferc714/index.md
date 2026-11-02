@@ -21,18 +21,18 @@ at [Timeseries Imputation](../../../../methodology/timeseries_imputation.md)
 
 ## Functions
 
-| [`categorize_eia_code`](#pudl.output.ferc714.categorize_eia_code)(→ pandas.DataFrame)                   | Categorize FERC 714 `eia_codes` as either balancing authority or utility IDs.   |
-|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`_apply_exclude_states`](#pudl.output.ferc714._apply_exclude_states)(→ pandas.DataFrame)                 | Filter source rows by exclude_states, raising if all rows are eliminated.       |
-| [`filled_core_eia861__yearly_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority)(...)       | Modified core_eia861_\_yearly_balancing_authority table.                        |
-| [`filled_core_eia861__assn_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority)(...)         | Modified core_eia861_\_assn_balancing_authority table.                          |
-| [`filled_core_eia861__yearly_service_territory`](#pudl.output.ferc714.filled_core_eia861__yearly_service_territory)(...)         | Modified core_eia861_\_yearly_service_territory table.                          |
-| [`_out_ferc714__annualized_respondents`](#pudl.output.ferc714._out_ferc714__annualized_respondents)(→ pandas.DataFrame)  | Broadcast respondent data across all years with reported demand.                |
-| [`_out_ferc714__categorized_respondents`](#pudl.output.ferc714._out_ferc714__categorized_respondents)(→ pandas.DataFrame) | Annualized respondents with `respondent_type` assigned if possible.             |
-| [`out_ferc714__respondents_with_fips`](#pudl.output.ferc714.out_ferc714__respondents_with_fips)(→ pandas.DataFrame)    | Annual respondents with the county FIPS IDs for their service territories.      |
-| [`_out_ferc714__georeferenced_counties`](#pudl.output.ferc714._out_ferc714__georeferenced_counties)(...)                 | Annual respondents with all associated county-level geometries.                 |
-| [`out_ferc714__georeferenced_respondents`](#pudl.output.ferc714.out_ferc714__georeferenced_respondents)(...)               | Annual respondents with a single all-encompassing geometry for each year.       |
-| [`out_ferc714__summarized_demand`](#pudl.output.ferc714.out_ferc714__summarized_demand)(→ pandas.DataFrame)        | Compile annualized, categorized respondents and summarize values.               |
+| [`categorize_eia_code`](#pudl.output.ferc714.categorize_eia_code)(eia_codes, ba_ids, util_ids[, ...]) → pandas.DataFrame   | Categorize FERC 714 `eia_codes` as either balancing authority or utility IDs.   |
+|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`_apply_exclude_states`](#pudl.output.ferc714._apply_exclude_states)(ref, fix, target_year) → pandas.DataFrame              | Filter source rows by exclude_states, raising if all rows are eliminated.       |
+| [`filled_core_eia861__yearly_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority)(...) → pandas.DataFrame       | Modified core_eia861_\_yearly_balancing_authority table.                        |
+| [`filled_core_eia861__assn_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority)(...) → pandas.DataFrame         | Modified core_eia861_\_assn_balancing_authority table.                          |
+| [`filled_core_eia861__yearly_service_territory`](#pudl.output.ferc714.filled_core_eia861__yearly_service_territory)(...) → pandas.DataFrame         | Modified core_eia861_\_yearly_service_territory table.                          |
+| [`_out_ferc714__annualized_respondents`](#pudl.output.ferc714._out_ferc714__annualized_respondents)(context, ...) → pandas.DataFrame        | Broadcast respondent data across all years with reported demand.                |
+| [`_out_ferc714__categorized_respondents`](#pudl.output.ferc714._out_ferc714__categorized_respondents)(context, ...) → pandas.DataFrame       | Annualized respondents with `respondent_type` assigned if possible.             |
+| [`out_ferc714__respondents_with_fips`](#pudl.output.ferc714.out_ferc714__respondents_with_fips)(context, ...) → pandas.DataFrame          | Annual respondents with the county FIPS IDs for their service territories.      |
+| [`_out_ferc714__georeferenced_counties`](#pudl.output.ferc714._out_ferc714__georeferenced_counties)(...) → geopandas.GeoDataFrame           | Annual respondents with all associated county-level geometries.                 |
+| [`out_ferc714__georeferenced_respondents`](#pudl.output.ferc714.out_ferc714__georeferenced_respondents)(...) → geopandas.GeoDataFrame         | Annual respondents with a single all-encompassing geometry for each year.       |
+| [`out_ferc714__summarized_demand`](#pudl.output.ferc714.out_ferc714__summarized_demand)(...) → pandas.DataFrame                       | Compile annualized, categorized respondents and summarize values.               |
 
 ## Module Contents
 
@@ -126,7 +126,7 @@ The changes are applied locally to EIA 861 tables.
 * `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
   `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.
 
-### pudl.output.ferc714.categorize_eia_code(eia_codes: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], ba_ids: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], util_ids: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)], priority: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'balancing_authority') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.output.ferc714.categorize_eia_code(eia_codes: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), ba_ids: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), util_ids: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), priority: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'balancing_authority') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Categorize FERC 714 `eia_codes` as either balancing authority or utility IDs.
 

@@ -17,22 +17,22 @@ A basic CLI to autogenerate dbt data test configurations.
 
 ## Functions
 
-| [`insert_data_source`](#pudl.scripts.dbt_helper.insert_data_source)(→ pathlib.Path)                  | Convert parent_dir and table_name to parent_dir/data_source/table_name.             |
-|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`_get_row_count_csv_path`](#pudl.scripts.dbt_helper._get_row_count_csv_path)(→ pathlib.Path)             |                                                                                     |
-| [`_get_existing_row_counts`](#pudl.scripts.dbt_helper._get_existing_row_counts)(→ pandas.DataFrame)        |                                                                                     |
-| [`_calculate_row_counts`](#pudl.scripts.dbt_helper._calculate_row_counts)(→ pandas.DataFrame)           |                                                                                     |
-| [`_combine_row_counts`](#pudl.scripts.dbt_helper._combine_row_counts)(→ pandas.DataFrame)             |                                                                                     |
-| [`_write_row_counts`](#pudl.scripts.dbt_helper._write_row_counts)(row_counts)                       |                                                                                     |
-| [`update_row_counts`](#pudl.scripts.dbt_helper.update_row_counts)(→ UpdateResult)                   | Generate updated row counts per partition and write to csv file within dbt project. |
-| [`maybe_schema_from_path`](#pudl.scripts.dbt_helper.maybe_schema_from_path)(→ pudl.dbt_schema.DbtSchema) | Load DbtSchema that may or may not be located at specified path.                    |
-| [`update_table_schema`](#pudl.scripts.dbt_helper.update_table_schema)(→ UpdateResult)                 | Generate and write out a schema.yaml file defining a new or updated table for dbt.  |
-| [`_log_update_result`](#pudl.scripts.dbt_helper._log_update_result)(result)                          |                                                                                     |
-| [`_extract_row_count_partitions`](#pudl.scripts.dbt_helper._extract_row_count_partitions)(→ list[str | None])   | Extract partition columns from check_row_counts_per_partition tests in a DbtTable.  |
-| [`update_tables`](#pudl.scripts.dbt_helper.update_tables)(tables, clobber, schema, row_counts)  | Add or update dbt schema configs and row count expectations for PUDL tables.        |
-| [`_source_selection`](#pudl.scripts.dbt_helper._source_selection)(→ str)                            | Translate a `--source` choice into a dbt node selection.                            |
-| [`validate`](#pudl.scripts.dbt_helper.validate)(→ None)                                    | Validate a selection of dbt nodes.                                                  |
-| [`main`](#pudl.scripts.dbt_helper.main)(→ int)                                         | Script for auto-generating dbt configuration and migrating existing tests.          |
+| [`insert_data_source`](#pudl.scripts.dbt_helper.insert_data_source)(parent_dir, table_name) → pathlib.Path              | Convert parent_dir and table_name to parent_dir/data_source/table_name.             |
+|-------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [`_get_row_count_csv_path`](#pudl.scripts.dbt_helper._get_row_count_csv_path)() → pathlib.Path                               |                                                                                     |
+| [`_get_existing_row_counts`](#pudl.scripts.dbt_helper._get_existing_row_counts)() → pandas.DataFrame                          |                                                                                     |
+| [`_calculate_row_counts`](#pudl.scripts.dbt_helper._calculate_row_counts)(table_name[, partition_expr]) → pandas.DataFrame |                                                                                     |
+| [`_combine_row_counts`](#pudl.scripts.dbt_helper._combine_row_counts)(existing, new) → pandas.DataFrame                  |                                                                                     |
+| [`_write_row_counts`](#pudl.scripts.dbt_helper._write_row_counts)(row_counts)                                          |                                                                                     |
+| [`update_row_counts`](#pudl.scripts.dbt_helper.update_row_counts)(table_name, dbt_root[, clobber]) → UpdateResult      | Generate updated row counts per partition and write to csv file within dbt project. |
+| [`maybe_schema_from_path`](#pudl.scripts.dbt_helper.maybe_schema_from_path)(path) → pudl.dbt_schema.DbtSchema               | Load DbtSchema that may or may not be located at specified path.                    |
+| [`update_table_schema`](#pudl.scripts.dbt_helper.update_table_schema)(table_name, dbt_root) → UpdateResult               | Generate and write out a schema.yaml file defining a new or updated table for dbt.  |
+| [`_log_update_result`](#pudl.scripts.dbt_helper._log_update_result)(result)                                             |                                                                                     |
+| [`_extract_row_count_partitions`](#pudl.scripts.dbt_helper._extract_row_count_partitions)(table) → list[str | None]                | Extract partition columns from check_row_counts_per_partition tests in a DbtTable.  |
+| [`update_tables`](#pudl.scripts.dbt_helper.update_tables)(tables, clobber, schema, row_counts)                     | Add or update dbt schema configs and row count expectations for PUDL tables.        |
+| [`_source_selection`](#pudl.scripts.dbt_helper._source_selection)(source) → str                                        | Translate a `--source` choice into a dbt node selection.                            |
+| [`validate`](#pudl.scripts.dbt_helper.validate)([select, asset_select, source, exclude, ...]) → None          | Validate a selection of dbt nodes.                                                  |
+| [`main`](#pudl.scripts.dbt_helper.main)() → int                                                           | Script for auto-generating dbt configuration and migrating existing tests.          |
 
 ## Module Contents
 

@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -876,82 +876,82 @@ job when deployment handling is complete.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation" title="pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_ferceqr_validation</span></code></a>(→ list[ValidationStage])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation" title="pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_ferceqr_validation</span></code></a>() → list[ValidationStage]</p></td>
 <td><p>Run the dbt data validations for the FERC EQR tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._markdown_validation_results" title="pudl.dagster.assets.deploy.ferceqr._markdown_validation_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_markdown_validation_results</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._markdown_validation_results" title="pudl.dagster.assets.deploy.ferceqr._markdown_validation_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_markdown_validation_results</span></code></a>(stages) → str</p></td>
 <td><p>Summarize dbt validation stage outcomes as a Markdown table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._write_status_file" title="pudl.dagster.assets.deploy.ferceqr._write_status_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_write_status_file</span></code></a>(status, pudl_paths)</p></td>
 <td><p>Notify build script that job is complete by creating a status file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._clear_status_files" title="pudl.dagster.assets.deploy.ferceqr._clear_status_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clear_status_files</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._clear_status_files" title="pudl.dagster.assets.deploy.ferceqr._clear_status_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clear_status_files</span></code></a>(pudl_paths) → None</p></td>
 <td><p>Remove any stale FERC EQR status files from the output directory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._deployment_targets" title="pudl.dagster.assets.deploy.ferceqr._deployment_targets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deployment_targets</span></code></a>(→ list[_DeploymentTarget])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._deployment_targets" title="pudl.dagster.assets.deploy.ferceqr._deployment_targets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deployment_targets</span></code></a>(resolved_targets) → list[_DeploymentTarget]</p></td>
 <td><p>Turn resolved deployment UPaths into <a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget" title="pudl.dagster.assets.deploy.ferceqr._DeploymentTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">_DeploymentTarget</span></code></a> records.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._source_parquet_files" title="pudl.dagster.assets.deploy.ferceqr._source_parquet_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_source_parquet_files</span></code></a>(→ dict[str, list[pathlib.Path]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._source_parquet_files" title="pudl.dagster.assets.deploy.ferceqr._source_parquet_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_source_parquet_files</span></code></a>(source_partitions) → dict[str, list[pathlib.Path]]</p></td>
 <td><p>Map each transform asset to its local Parquet files for <em>source_partitions</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._expected_object_sizes" title="pudl.dagster.assets.deploy.ferceqr._expected_object_sizes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_expected_object_sizes</span></code></a>(→ dict[str, int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._expected_object_sizes" title="pudl.dagster.assets.deploy.ferceqr._expected_object_sizes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_expected_object_sizes</span></code></a>(table_files, datapackage_path) → dict[str, int]</p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">{staging_relative_path:</span> <span class="pre">size_bytes}</span></code> for everything to be uploaded.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._wait" title="pudl.dagster.assets.deploy.ferceqr._wait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._wait" title="pudl.dagster.assets.deploy.ferceqr._wait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait</span></code></a>(futures) → None</p></td>
 <td><p>Block until every future finishes, raising the first failure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._is_s3" title="pudl.dagster.assets.deploy.ferceqr._is_s3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_s3</span></code></a>(→ bool)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._is_s3" title="pudl.dagster.assets.deploy.ferceqr._is_s3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_s3</span></code></a>(path) → bool</p></td>
 <td><p>Whether <em>path</em> lives on S3, where bulk transfers bypass fsspec.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._make_local_parents" title="pudl.dagster.assets.deploy.ferceqr._make_local_parents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_local_parents</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._make_local_parents" title="pudl.dagster.assets.deploy.ferceqr._make_local_parents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_local_parents</span></code></a>(paths) → None</p></td>
 <td><p>Create parent directories for local <em>paths</em>; object stores need none.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._relative_objects" title="pudl.dagster.assets.deploy.ferceqr._relative_objects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_relative_objects</span></code></a>(→ dict[str, int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._relative_objects" title="pudl.dagster.assets.deploy.ferceqr._relative_objects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_relative_objects</span></code></a>(root) → dict[str, int]</p></td>
 <td><p>Map each object's path relative to <em>root</em> to its size in bytes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._verify_staged" title="pudl.dagster.assets.deploy.ferceqr._verify_staged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_verify_staged</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._verify_staged" title="pudl.dagster.assets.deploy.ferceqr._verify_staged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_verify_staged</span></code></a>(target, expected) → None</p></td>
 <td><p>Raise <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> unless staging holds exactly the <em>expected</em> objects.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._copy_tree" title="pudl.dagster.assets.deploy.ferceqr._copy_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_copy_tree</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._copy_tree" title="pudl.dagster.assets.deploy.ferceqr._copy_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_copy_tree</span></code></a>(src, dst, executor) → None</p></td>
 <td><p>Copy every object under <em>src</em> to the same relative path under <em>dst</em>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._stage_target" title="pudl.dagster.assets.deploy.ferceqr._stage_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stage_target</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._stage_target" title="pudl.dagster.assets.deploy.ferceqr._stage_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stage_target</span></code></a>(target, table_files, datapackage_path, ...) → None</p></td>
 <td><p>Upload all outputs to <em>target</em>'s staging prefix and verify they arrived.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._promote_target" title="pudl.dagster.assets.deploy.ferceqr._promote_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_promote_target</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._promote_target" title="pudl.dagster.assets.deploy.ferceqr._promote_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_promote_target</span></code></a>(target, executor) → None</p></td>
 <td><p>Snapshot the live tree, then merge staging into it and drop the staging dir.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._remove_all_staging" title="pudl.dagster.assets.deploy.ferceqr._remove_all_staging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_remove_all_staging</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._remove_all_staging" title="pudl.dagster.assets.deploy.ferceqr._remove_all_staging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_remove_all_staging</span></code></a>(targets) → None</p></td>
 <td><p>Best-effort removal of every target's staging prefix after a failure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._parse_step_key" title="pudl.dagster.assets.deploy.ferceqr._parse_step_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_step_key</span></code></a>(→ tuple[str, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._parse_step_key" title="pudl.dagster.assets.deploy.ferceqr._parse_step_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_step_key</span></code></a>(step_key, source_partition) → tuple[str, str]</p></td>
 <td><p>Extract asset and partition from a step key like <code class="docutils literal notranslate"><span class="pre">asset_name[partition]</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._validate_partitions" title="pudl.dagster.assets.deploy.ferceqr._validate_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_partitions</span></code></a>(→ list[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._validate_partitions" title="pudl.dagster.assets.deploy.ferceqr._validate_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_partitions</span></code></a>(raw) → list[str]</p></td>
 <td><p>Validate and parse the source partitions JSON from run tags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table" title="pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_markdown_step_status_table</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table" title="pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_markdown_step_status_table</span></code></a>(asset_partition_statuses, ...) → str</p></td>
 <td><p>Format terminal step statuses as an asset-by-partition Markdown table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._gather_step_statuses" title="pudl.dagster.assets.deploy.ferceqr._gather_step_statuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_gather_step_statuses</span></code></a>(→ tuple[StepStatusTable, str | None])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._gather_step_statuses" title="pudl.dagster.assets.deploy.ferceqr._gather_step_statuses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_gather_step_statuses</span></code></a>(context, source_run_id) → tuple[StepStatusTable, str | None]</p></td>
 <td><p>Collect step statuses and total elapsed time across all source runs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list" title="pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_markdown_logfile_list</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list" title="pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_markdown_logfile_list</span></code></a>(build_id) → str</p></td>
 <td><p>Return pointer to logs to send in Zulip message.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration" title="pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_deploy_duration</span></code></a>(→ str | None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration" title="pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_deploy_duration</span></code></a>(context) → str | None</p></td>
 <td><p>Return elapsed time since the current run started, or None on failure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification" title="pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_ferceqr_notification</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification" title="pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_ferceqr_notification</span></code></a>(context, outcome[, ...]) → str</p></td>
 <td><p>Build a Markdown notification string for FERC EQR deployment outcomes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset" title="pudl.dagster.assets.deploy.ferceqr.deployment_status_asset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deployment_status_asset</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deployment_status_asset" title="pudl.dagster.assets.deploy.ferceqr.deployment_status_asset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deployment_status_asset</span></code></a>(asset_fn) → dagster.AssetsDefinition</p></td>
 <td><p>Create a custom decorator for deployment handler assets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions" title="pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deploy_source_partitions</span></code></a>(→ list[str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions" title="pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deploy_source_partitions</span></code></a>(context) → list[str]</p></td>
 <td><p>Read the built partitions from run tags, empty when invoked outside a run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome" title="pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_notify_ferceqr_outcome</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome" title="pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_notify_ferceqr_outcome</span></code></a>(context, zulip, outcome[, ...]) → None</p></td>
 <td><p>Send a deployment outcome notification, never raising on failure.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr" title="pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deploy_ferceqr</span></code></a>(context)</p></td>

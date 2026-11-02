@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -844,55 +844,55 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._core_eia176__numeric_data" title="pudl.transform.eia176._core_eia176__numeric_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia176__numeric_data</span></code></a>(→ tuple[dagster.Output, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._core_eia176__numeric_data" title="pudl.transform.eia176._core_eia176__numeric_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia176__numeric_data</span></code></a>(raw_eia176__numeric_data) → tuple[dagster.Output, dagster.Output]</p></td>
 <td><p>Process EIA 176 custom report data into company and aggregate outputs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.get_wide_table" title="pudl.transform.eia176.get_wide_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_wide_table</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.get_wide_table" title="pudl.transform.eia176.get_wide_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_wide_table</span></code></a>(long_table, primary_key) → pandas.DataFrame</p></td>
 <td><p>Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._subdivision_code_map" title="pudl.transform.eia176._subdivision_code_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_subdivision_code_map</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._subdivision_code_map" title="pudl.transform.eia176._subdivision_code_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_subdivision_code_map</span></code></a>(core_pudl__codes_subdivisions) → pandas.Series</p></td>
 <td><p>Map subdivision names and codes to canonical two-letter codes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.normalize_continuation_line_location_codes" title="pudl.transform.eia176.normalize_continuation_line_location_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_continuation_line_location_codes</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.normalize_continuation_line_location_codes" title="pudl.transform.eia176.normalize_continuation_line_location_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_continuation_line_location_codes</span></code></a>(df, ...) → pandas.DataFrame</p></td>
 <td><p>Validate and normalize EIA-176 continuation line location codes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._get_continuation_code_type" title="pudl.transform.eia176._get_continuation_code_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_continuation_code_type</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._get_continuation_code_type" title="pudl.transform.eia176._get_continuation_code_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_continuation_code_type</span></code></a>(continuation_code, ...) → pandas.Series</p></td>
 <td><p>Classify EIA-176 continuation codes as subnational or national/other codes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._find_continuation_line_total_mismatches" title="pudl.transform.eia176._find_continuation_line_total_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_continuation_line_total_mismatches</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._find_continuation_line_total_mismatches" title="pudl.transform.eia176._find_continuation_line_total_mismatches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_continuation_line_total_mismatches</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Compare detailed continuation line totals with reported company-level totals.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.validate_totals" title="pudl.transform.eia176.validate_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_totals</span></code></a>(→ dagster.AssetCheckResult)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.validate_totals" title="pudl.transform.eia176.validate_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_totals</span></code></a>(_core_eia176__yearly_company_data, ...) → dagster.AssetCheckResult</p></td>
 <td><p>Compare reported and calculated totals for different geographical aggregates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition_by_consumer</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition_by_consumer</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce annual company-level gas disposition by consumer class (EIA-176).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_imports" title="pudl.transform.eia176.core_eia176__yearly_gas_imports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_imports</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_imports" title="pudl.transform.eia176.core_eia176__yearly_gas_imports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_imports</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce company-level detailed annual gas imports (EIA-176, Line 3.0).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies" title="pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_supplemental_gaseous_fuel_supplies</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies" title="pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_supplemental_gaseous_fuel_supplies</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce detailed annual supplemental gaseous fuel supplies (EIA-176, Line 6.0).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_exports" title="pudl.transform.eia176.core_eia176__yearly_gas_exports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_exports</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_exports" title="pudl.transform.eia176.core_eia176__yearly_gas_exports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_exports</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition_other" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition_other"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition_other</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition_other" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition_other"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition_other</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_supply" title="pudl.transform.eia176.core_eia176__yearly_gas_supply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_supply</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_supply" title="pudl.transform.eia176.core_eia176__yearly_gas_supply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_supply</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._compare_eia176_continuation_line_total" title="pudl.transform.eia176._compare_eia176_continuation_line_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare_eia176_continuation_line_total</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._compare_eia176_continuation_line_total" title="pudl.transform.eia176._compare_eia176_continuation_line_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare_eia176_continuation_line_total</span></code></a>(df, ...) → pandas.DataFrame</p></td>
 <td><p>Compare a wide EIA-176 value column against summed continuation-line values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory" title="pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_liquefied_natural_gas_inventory</span></code></a>(...)</p></td>
 <td><p>Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_company_characteristics" title="pudl.transform.eia176.core_eia176__yearly_company_characteristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_company_characteristics</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_company_characteristics" title="pudl.transform.eia176.core_eia176__yearly_company_characteristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_company_characteristics</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Produce annual company-level operational and ownership characteristics (EIA-176).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._normalize_operating_states" title="pudl.transform.eia176._normalize_operating_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_operating_states</span></code></a>(...[, column])</p></td>

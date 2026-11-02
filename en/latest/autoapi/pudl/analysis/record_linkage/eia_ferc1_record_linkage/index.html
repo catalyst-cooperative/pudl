@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.record_linkage.eia_ferc1_record_linkage &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.record_linkage.eia_ferc1_record_linkage &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -885,7 +885,7 @@ plant-parts.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_full_records_with_overrides" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_full_records_with_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_full_records_with_overrides</span></code></a>(best_match_df, inputs, ...)</p></td>
 <td><p>Join full dataframe onto matches to make usable and get stats.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_to_eia</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_to_eia</span></code></a>(experiment_tracker, ...) → pandas.DataFrame</p></td>
 <td><p>Using splink model the connection between FERC1 plants and EIA plant-parts.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_true_pos" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_true_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_true_pos</span></code></a>(pred_df, train_df)</p></td>
@@ -897,13 +897,13 @@ plant-parts.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_neg" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_neg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_false_neg</span></code></a>(pred_df, train_df)</p></td>
 <td><p>Get the number of matches from the training data where no prediction is made.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prettyify_best_matches</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prettyify_best_matches</span></code></a>(matches_best, ...[, debug]) → pandas.DataFrame</p></td>
 <td><p>Make the EIA-FERC best matches usable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_match_consistency</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_match_consistency</span></code></a>(connects_ferc1_eia, train_df, ...) → pandas.DataFrame</p></td>
 <td><p>Check how consistent FERC-EIA matches are with FERC-FERC matches.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">override_bad_predictions</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">override_bad_predictions</span></code></a>(match_df, train_df) → pandas.DataFrame</p></td>
 <td><p>Override incorrect predictions with the correct match from training data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_record_linkage._log_match_coverage" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage._log_match_coverage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_match_coverage</span></code></a>(connects_ferc1_eia, experiment_tracker)</p></td>

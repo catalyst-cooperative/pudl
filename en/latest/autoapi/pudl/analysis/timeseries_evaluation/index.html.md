@@ -19,12 +19,12 @@ Static reported vs. imputed values with color coded points for the imputations
 
 ## Functions
 
-| [`_filter_df`](#pudl.analysis.timeseries_evaluation._filter_df)(→ pandas.DataFrame)                              | Filter a dataframe based on index columns and date range.               |
-|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`extract_baseline_eia930_imputation`](#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation)(→ pandas.DataFrame)      | Download and extract an existing imputation of the EIA-930 demand data. |
-| [`plot_correlation`](#pudl.analysis.timeseries_evaluation.plot_correlation)(df, timeseries_x, timeseries_y, idx_cols)  | Plot the correlation between two analogous time series.                 |
-| [`plot_imputation`](#pudl.analysis.timeseries_evaluation.plot_imputation)(df, idx_cols, idx_vals, start_date, ...)    | Compare reported values with imputed values visually.                   |
-| [`plot_compare_imputation`](#pudl.analysis.timeseries_evaluation.plot_compare_imputation)(df, idx_cols, idx_vals, ...[, ...]) | Plot two timeseries of the same information like demand for comparison. |
+| [`_filter_df`](#pudl.analysis.timeseries_evaluation._filter_df)(df, idx_cols, idx_vals[, start_date, ...]) → pandas.DataFrame   | Filter a dataframe based on index columns and date range.               |
+|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`extract_baseline_eia930_imputation`](#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation)() → pandas.DataFrame                    | Download and extract an existing imputation of the EIA-930 demand data. |
+| [`plot_correlation`](#pudl.analysis.timeseries_evaluation.plot_correlation)(df, timeseries_x, timeseries_y, idx_cols)                 | Plot the correlation between two analogous time series.                 |
+| [`plot_imputation`](#pudl.analysis.timeseries_evaluation.plot_imputation)(df, idx_cols, idx_vals, start_date, ...)                   | Compare reported values with imputed values visually.                   |
+| [`plot_compare_imputation`](#pudl.analysis.timeseries_evaluation.plot_compare_imputation)(df, idx_cols, idx_vals, ...[, ...])                | Plot two timeseries of the same information like demand for comparison. |
 
 ## Module Contents
 

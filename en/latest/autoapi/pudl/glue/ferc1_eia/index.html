@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.glue.ferc1_eia &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.glue.ferc1_eia &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -875,52 +875,52 @@ as an id.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_plant_map" title="pudl.glue.ferc1_eia.get_plant_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_plant_map</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_plant_map" title="pudl.glue.ferc1_eia.get_plant_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_plant_map</span></code></a>() → pandas.DataFrame</p></td>
 <td><p>Read in the manual FERC to EIA plant mapping data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_utility_map_pudl" title="pudl.glue.ferc1_eia.get_utility_map_pudl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utility_map_pudl</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_utility_map_pudl" title="pudl.glue.ferc1_eia.get_utility_map_pudl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utility_map_pudl</span></code></a>() → pandas.DataFrame</p></td>
 <td><p>Read in the manual FERC to EIA utility mapping data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_utility_map_ferc1" title="pudl.glue.ferc1_eia.get_utility_map_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utility_map_ferc1</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_utility_map_ferc1" title="pudl.glue.ferc1_eia.get_utility_map_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utility_map_ferc1</span></code></a>() → pandas.DataFrame</p></td>
 <td><p>Read in the manual XBRL to DBF FERC1 utility mapping data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_mapped_plants_eia" title="pudl.glue.ferc1_eia.get_mapped_plants_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_mapped_plants_eia</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_mapped_plants_eia" title="pudl.glue.ferc1_eia.get_mapped_plants_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_mapped_plants_eia</span></code></a>() → pandas.DataFrame</p></td>
 <td><p>Get a list of all EIA plants that have been assigned PUDL Plant IDs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl" title="pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_util_ids_ferc1_raw_xbrl</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl" title="pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_util_ids_ferc1_raw_xbrl</span></code></a>(ferc1_engine_xbrl) → pandas.DataFrame</p></td>
 <td><p>Grab the utility ids (reported as <cite>entity_id</cite>) in the FERC1 XBRL database.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf" title="pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_util_ids_ferc1_raw_dbf</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf" title="pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_util_ids_ferc1_raw_dbf</span></code></a>(ferc1_engine_dbf) → pandas.DataFrame</p></td>
 <td><p>Grab the utility ids (reported as <cite>respondent_id</cite>) in the FERC1 DBF database.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.compile_plants_ferc1_raw" title="pudl.glue.ferc1_eia.compile_plants_ferc1_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_plants_ferc1_raw</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.compile_plants_ferc1_raw" title="pudl.glue.ferc1_eia.compile_plants_ferc1_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_plants_ferc1_raw</span></code></a>(plant_dfs) → pandas.DataFrame</p></td>
 <td><p>Compile a full list of raw FERC1 plants for manual ID mapping.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_missing_ids" title="pudl.glue.ferc1_eia.get_missing_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_missing_ids</span></code></a>(→ pandas.Index)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_missing_ids" title="pudl.glue.ferc1_eia.get_missing_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_missing_ids</span></code></a>(ids_left, ids_right, id_cols) → pandas.Index</p></td>
 <td><p>Identify IDs that are missing from the left df but show up in the right df.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping" title="pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_missing_ids_for_manual_mapping</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping" title="pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_missing_ids_for_manual_mapping</span></code></a>(missing_ids, label_df) → pandas.DataFrame</p></td>
 <td><p>Label unmapped IDs for manual mapping.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_plants_eia" title="pudl.glue.ferc1_eia.label_plants_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_plants_eia</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_plants_eia" title="pudl.glue.ferc1_eia.label_plants_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_plants_eia</span></code></a>(out_eia__yearly_plants, ...) → pandas.DataFrame</p></td>
 <td><p>Label plants with columns helpful in manual mapping.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_utilities_ferc1_dbf" title="pudl.glue.ferc1_eia.label_utilities_ferc1_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_utilities_ferc1_dbf</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_utilities_ferc1_dbf" title="pudl.glue.ferc1_eia.label_utilities_ferc1_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_utilities_ferc1_dbf</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Get the DBF FERC1 utilities with their names.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl" title="pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_utilities_ferc1_xbrl</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl" title="pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_utilities_ferc1_xbrl</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Get the XBRL FERC1 utilities with their names.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_utility_most_recent_capacity" title="pudl.glue.ferc1_eia.get_utility_most_recent_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utility_most_recent_capacity</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_utility_most_recent_capacity" title="pudl.glue.ferc1_eia.get_utility_most_recent_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utility_most_recent_capacity</span></code></a>(...) → pandas.Series</p></td>
 <td><p>Calculate total generation capacity by utility in most recent reported year.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables" title="pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_core_eia923_plant_id_tables</span></code></a>(→ tuple[str, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables" title="pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_core_eia923_plant_id_tables</span></code></a>() → tuple[str, ...]</p></td>
 <td><p>Get the names of core_eia923 tables that contain plant_id_eia.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_core_eia923_plant_ids" title="pudl.glue.ferc1_eia.get_core_eia923_plant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_core_eia923_plant_ids</span></code></a>(→ set)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_core_eia923_plant_ids" title="pudl.glue.ferc1_eia.get_core_eia923_plant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_core_eia923_plant_ids</span></code></a>(eia923_dfs) → set</p></td>
 <td><p>Compile Plant IDs for all plants that appear in core EIA-923 tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_util_ids_eia_unmapped" title="pudl.glue.ferc1_eia.get_util_ids_eia_unmapped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_util_ids_eia_unmapped</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.get_util_ids_eia_unmapped" title="pudl.glue.ferc1_eia.get_util_ids_eia_unmapped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_util_ids_eia_unmapped</span></code></a>(out_eia__yearly_utilities, ...) → pandas.DataFrame</p></td>
 <td><p>Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.glue.ferc1_eia.glue" title="pudl.glue.ferc1_eia.glue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">glue</span></code></a>([ferc1, eia])</p></td>

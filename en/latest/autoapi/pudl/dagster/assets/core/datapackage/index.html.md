@@ -10,8 +10,8 @@ the PUDL documentation page for each data source.
 
 ## Functions
 
-| [`build_pudl_datapackage_asset`](#pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset)(→ dagster.AssetsDefinition)   | Return a Dagster asset that writes `datapackage.json` for PUDL parquet outputs.   |
-|-------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`build_pudl_datapackage_asset`](#pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset)(parquet_asset_keys) → dagster.AssetsDefinition   | Return a Dagster asset that writes `datapackage.json` for PUDL parquet outputs.   |
+|--------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 
 ## Module Contents
 

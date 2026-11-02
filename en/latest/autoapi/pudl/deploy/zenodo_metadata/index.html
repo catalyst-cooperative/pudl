@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.deploy.zenodo_metadata &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.deploy.zenodo_metadata &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -852,22 +852,22 @@ Sphinx itself can resolve correctly.</p></li>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.load_zenodo_json" title="pudl.deploy.zenodo_metadata.load_zenodo_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenodo_json</span></code></a>(→ tuple[list[dict], list[str]])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.load_zenodo_json" title="pudl.deploy.zenodo_metadata.load_zenodo_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenodo_json</span></code></a>(path) → tuple[list[dict], list[str]]</p></td>
 <td><p>Read creators and keywords out of <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.get_data_license_id" title="pudl.deploy.zenodo_metadata.get_data_license_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_license_id</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.get_data_license_id" title="pudl.deploy.zenodo_metadata.get_data_license_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_license_id</span></code></a>() → str</p></td>
 <td><p>Get the Zenodo license ID for the PUDL data release.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.get_latest_release_tag" title="pudl.deploy.zenodo_metadata.get_latest_release_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_latest_release_tag</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.get_latest_release_tag" title="pudl.deploy.zenodo_metadata.get_latest_release_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_latest_release_tag</span></code></a>(repo_root) → str</p></td>
 <td><p>Get the most recently released PUDL version tag reachable from <code class="docutils literal notranslate"><span class="pre">HEAD</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out" title="pudl.deploy.zenodo_metadata.verify_git_tag_checked_out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">verify_git_tag_checked_out</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out" title="pudl.deploy.zenodo_metadata.verify_git_tag_checked_out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">verify_git_tag_checked_out</span></code></a>(tag, repo_root) → None</p></td>
 <td><p>Raise if the working tree at <code class="docutils literal notranslate"><span class="pre">repo_root</span></code> isn't exactly the given git tag.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.render_release_notes_html" title="pudl.deploy.zenodo_metadata.render_release_notes_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_release_notes_html</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.render_release_notes_html" title="pudl.deploy.zenodo_metadata.render_release_notes_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_release_notes_html</span></code></a>(docs_html_dir, version_tag) → str</p></td>
 <td><p>Extract one version's section out of the built release notes HTML.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.build_related_resources" title="pudl.deploy.zenodo_metadata.build_related_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_related_resources</span></code></a>(→ tuple[str, list[dict]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.zenodo_metadata.build_related_resources" title="pudl.deploy.zenodo_metadata.build_related_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_related_resources</span></code></a>(version_tag, ...) → tuple[str, list[dict]]</p></td>
 <td><p>Build the &quot;Other Resources&quot; description footer and matching related_identifiers.</p></td>
 </tr>
 </tbody>

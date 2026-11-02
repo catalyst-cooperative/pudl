@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -830,61 +830,61 @@ output row per unit via <a class="reference internal" href="#pudl.analysis.opera
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config" title="pudl.analysis.operational_characteristics._get_heat_rate_analysis_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_heat_rate_analysis_config</span></code></a>(→ dict[str, int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config" title="pudl.analysis.operational_characteristics._get_heat_rate_analysis_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_heat_rate_analysis_config</span></code></a>(context) → dict[str, int]</p></td>
 <td><p>Extract heat rate analysis settings from Dagster asset config.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._year_quarter_to_ordinal" title="pudl.analysis.operational_characteristics._year_quarter_to_ordinal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_year_quarter_to_ordinal</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._year_quarter_to_ordinal" title="pudl.analysis.operational_characteristics._year_quarter_to_ordinal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_year_quarter_to_ordinal</span></code></a>(year_quarter) → int</p></td>
 <td><p>Convert a <code class="docutils literal notranslate"><span class="pre">YYYYqN</span></code> string into a zero-based quarter ordinal.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._ordinal_to_quarter_start" title="pudl.analysis.operational_characteristics._ordinal_to_quarter_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ordinal_to_quarter_start</span></code></a>(→ pandas.Timestamp)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._ordinal_to_quarter_start" title="pudl.analysis.operational_characteristics._ordinal_to_quarter_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ordinal_to_quarter_start</span></code></a>(ordinal) → pandas.Timestamp</p></td>
 <td><p>Convert a zero-based quarter ordinal into its first UTC timestamp.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._ordinal_to_year_quarter" title="pudl.analysis.operational_characteristics._ordinal_to_year_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ordinal_to_year_quarter</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._ordinal_to_year_quarter" title="pudl.analysis.operational_characteristics._ordinal_to_year_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ordinal_to_year_quarter</span></code></a>(ordinal) → str</p></td>
 <td><p>Convert a zero-based quarter ordinal into its <code class="docutils literal notranslate"><span class="pre">YYYYqN</span></code> string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._missing_required_quarters" title="pudl.analysis.operational_characteristics._missing_required_quarters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_missing_required_quarters</span></code></a>(→ list[str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._missing_required_quarters" title="pudl.analysis.operational_characteristics._missing_required_quarters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_missing_required_quarters</span></code></a>(year_quarters, ...) → list[str]</p></td>
 <td><p>List quarters in the trailing window ending at <code class="docutils literal notranslate"><span class="pre">target_year_quarter</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._select_target_year_quarters" title="pudl.analysis.operational_characteristics._select_target_year_quarters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_target_year_quarters</span></code></a>(→ list[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._select_target_year_quarters" title="pudl.analysis.operational_characteristics._select_target_year_quarters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_target_year_quarters</span></code></a>(year_quarters, num_quarters) → list[str]</p></td>
 <td><p>Choose the EPA CEMS year-quarters that each end a full analysis window.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis" title="pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_cems_for_heat_rate_analysis</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis" title="pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_cems_for_heat_rate_analysis</span></code></a>(...[, states]) → polars.LazyFrame</p></td>
 <td><p>Filter hourly EPA CEMS records to the configured analysis window.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._add_run_id_expr" title="pudl.analysis.operational_characteristics._add_run_id_expr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_run_id_expr</span></code></a>(→ polars.Expr)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics._add_run_id_expr" title="pudl.analysis.operational_characteristics._add_run_id_expr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_run_id_expr</span></code></a>(unit_cols[, state_col]) → polars.Expr</p></td>
 <td><p>Build an expression assigning run IDs to consecutive hourly observations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins" title="pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_groupwise_load_factor_bins</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins" title="pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_groupwise_load_factor_bins</span></code></a>(cems_working, ...) → polars.DataFrame</p></td>
 <td><p>Fully vectorized, per-unit equal-width load-factor binning.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.summarize_ramp_rates" title="pudl.analysis.operational_characteristics.summarize_ramp_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_ramp_rates</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.summarize_ramp_rates" title="pudl.analysis.operational_characteristics.summarize_ramp_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_ramp_rates</span></code></a>(cems_with_stable_bins, unit_cols, ...) → polars.DataFrame</p></td>
 <td><p>Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.handle_adjustment_in_cems" title="pudl.analysis.operational_characteristics.handle_adjustment_in_cems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_adjustment_in_cems</span></code></a>(→ tuple[polars.LazyFrame, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.handle_adjustment_in_cems" title="pudl.analysis.operational_characteristics.handle_adjustment_in_cems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_adjustment_in_cems</span></code></a>(cems, unit_cols[, adjusted]) → tuple[polars.LazyFrame, dict[str, str]]</p></td>
 <td><p>Filter CEMS data, computing derived columns if not adjusted.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.prep_output_df" title="pudl.analysis.operational_characteristics.prep_output_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_output_df</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.prep_output_df" title="pudl.analysis.operational_characteristics.prep_output_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_output_df</span></code></a>(cems, unit_cols, max_load_col) → polars.DataFrame</p></td>
 <td><p>Set up aggregated output dataframe with empty calculated columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.compute_minimum_stable_bin" title="pudl.analysis.operational_characteristics.compute_minimum_stable_bin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_minimum_stable_bin</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.compute_minimum_stable_bin" title="pudl.analysis.operational_characteristics.compute_minimum_stable_bin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_minimum_stable_bin</span></code></a>(binned_cems, unit_cols, ...) → polars.DataFrame</p></td>
 <td><p>Given a certain consecutive hour threshold, find runs with stable behavior.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load" title="pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_heat_rate_at_max_load</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load" title="pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_heat_rate_at_max_load</span></code></a>(heat_rate_input, ...) → polars.DataFrame</p></td>
 <td><p>Compute the heat rate at the maximum load (by bin).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.compute_min_stable_heat_rates" title="pudl.analysis.operational_characteristics.compute_min_stable_heat_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_min_stable_heat_rates</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.compute_min_stable_heat_rates" title="pudl.analysis.operational_characteristics.compute_min_stable_heat_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_min_stable_heat_rates</span></code></a>(heat_rate_input, ...) → polars.DataFrame</p></td>
 <td><p>Compute the heat rate for the minimum stable run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.filter_for_min_stable_bin" title="pudl.analysis.operational_characteristics.filter_for_min_stable_bin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_for_min_stable_bin</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.filter_for_min_stable_bin" title="pudl.analysis.operational_characteristics.filter_for_min_stable_bin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_for_min_stable_bin</span></code></a>(df) → polars.DataFrame</p></td>
 <td><p>Filter out records below the minimum stable bin.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.calculate_min_up_or_down_times" title="pudl.analysis.operational_characteristics.calculate_min_up_or_down_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_min_up_or_down_times</span></code></a>(→ polars.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.calculate_min_up_or_down_times" title="pudl.analysis.operational_characteristics.calculate_min_up_or_down_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_min_up_or_down_times</span></code></a>(output, ...) → polars.DataFrame</p></td>
 <td><p>Calculate minimum up or down times.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit" title="pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_operational_characteristics_by_unit</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit" title="pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_operational_characteristics_by_unit</span></code></a>(cems, ...) → polars.DataFrame</p></td>
 <td><p>Estimate operational characteristics for every EPA CEMS plant-unit pair.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics" title="pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_epacems__yearly_operational_characteristics</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics" title="pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_epacems__yearly_operational_characteristics</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Estimate EPA CEMS unit operational characteristics for every unit and year.</p></td>
 </tr>
 </tbody>

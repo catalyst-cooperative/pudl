@@ -12,16 +12,16 @@ with the biggest count, fix it, then shrink `.pyrefly-baseline.json`.
 
 ## Functions
 
-| [`_run_pyrefly`](#pudl.scripts.pyrefly_status._run_pyrefly)(→ dict)               | Run a pyrefly subcommand and return its JSON stdout, parsed.             |
-|-------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`_collect_live_errors`](#pudl.scripts.pyrefly_status._collect_live_errors)(→ list[dict]) | Run pyrefly directly and return its full, per-occurrence error list.     |
-| [`_collect_coverage_report`](#pudl.scripts.pyrefly_status._collect_coverage_report)(→ dict)   | Run `pyrefly coverage report` on `src/` and return its parsed JSON.      |
-| [`_print_counts`](#pudl.scripts.pyrefly_status._print_counts)(→ None)              |                                                                          |
-| [`_relative_path`](#pudl.scripts.pyrefly_status._relative_path)(→ str)              | Display a coverage report path relative to the repo root when possible.  |
-| [`_print_coverage_table`](#pudl.scripts.pyrefly_status._print_coverage_table)(→ None)      |                                                                          |
-| [`main`](#pudl.scripts.pyrefly_status.main)(→ None)                       | Report on the current status of pyrefly typing in the repo.              |
-| [`errors`](#pudl.scripts.pyrefly_status.errors)(→ None)                     | Summarize remaining pyrefly type errors by module and/or error kind.     |
-| [`coverage`](#pudl.scripts.pyrefly_status.coverage)(→ None)                   | Summarize pyrefly coverage report's per-module type coverage as a table. |
+| [`_run_pyrefly`](#pudl.scripts.pyrefly_status._run_pyrefly)(args) → dict                          | Run a pyrefly subcommand and return its JSON stdout, parsed.             |
+|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`_collect_live_errors`](#pudl.scripts.pyrefly_status._collect_live_errors)() → list[dict]                | Run pyrefly directly and return its full, per-occurrence error list.     |
+| [`_collect_coverage_report`](#pudl.scripts.pyrefly_status._collect_coverage_report)() → dict                  | Run `pyrefly coverage report` on `src/` and return its parsed JSON.      |
+| [`_print_counts`](#pudl.scripts.pyrefly_status._print_counts)(errors, key, header, top) → None     |                                                                          |
+| [`_relative_path`](#pudl.scripts.pyrefly_status._relative_path)(path) → str                         | Display a coverage report path relative to the repo root when possible.  |
+| [`_print_coverage_table`](#pudl.scripts.pyrefly_status._print_coverage_table)(report, sort_by, top) → None |                                                                          |
+| [`main`](#pudl.scripts.pyrefly_status.main)() → None                                      | Report on the current status of pyrefly typing in the repo.              |
+| [`errors`](#pudl.scripts.pyrefly_status.errors)(by, top) → None                             | Summarize remaining pyrefly type errors by module and/or error kind.     |
+| [`coverage`](#pudl.scripts.pyrefly_status.coverage)(sort_by, top) → None                      | Summarize pyrefly coverage report's per-module type coverage as a table. |
 
 ## Module Contents
 

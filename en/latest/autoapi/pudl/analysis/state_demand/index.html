@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.state_demand &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.state_demand &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -833,19 +833,19 @@ electricity demand estimates (e.g. at the county level).</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.lookup_state" title="pudl.analysis.state_demand.lookup_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup_state</span></code></a>(→ dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.lookup_state" title="pudl.analysis.state_demand.lookup_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup_state</span></code></a>(state) → dict</p></td>
 <td><p>Lookup US state by state identifier.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.county_assignments_ferc714" title="pudl.analysis.state_demand.county_assignments_ferc714"><code class="xref py py-obj docutils literal notranslate"><span class="pre">county_assignments_ferc714</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.county_assignments_ferc714" title="pudl.analysis.state_demand.county_assignments_ferc714"><code class="xref py py-obj docutils literal notranslate"><span class="pre">county_assignments_ferc714</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Load FERC 714 county assignments.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.census_counties" title="pudl.analysis.state_demand.census_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">census_counties</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.census_counties" title="pudl.analysis.state_demand.census_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">census_counties</span></code></a>(out_censusdp1tract__counties) → pandas.DataFrame</p></td>
 <td><p>Load county attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.total_state_sales_eia861" title="pudl.analysis.state_demand.total_state_sales_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_state_sales_eia861</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.total_state_sales_eia861" title="pudl.analysis.state_demand.total_state_sales_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_state_sales_eia861</span></code></a>(core_eia861__yearly_sales) → pandas.DataFrame</p></td>
 <td><p>Read and format EIA 861 sales by state and year.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand" title="pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__hourly_estimated_state_demand</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand" title="pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__hourly_estimated_state_demand</span></code></a>(context, ...) → polars.LazyFrame</p></td>
 <td><p>Estimate hourly electricity demand by state.</p></td>
 </tr>
 </tbody>

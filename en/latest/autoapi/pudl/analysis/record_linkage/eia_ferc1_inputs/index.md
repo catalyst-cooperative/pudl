@@ -14,9 +14,9 @@ Prepare the inputs to the FERC1 to EIA record linkage model.
 
 ## Functions
 
-| [`restrict_train_connections_on_date_range`](#pudl.analysis.record_linkage.eia_ferc1_inputs.restrict_train_connections_on_date_range)(...)   | Restrict the training data based on the date ranges of the input tables.   |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`prep_train_connections`](#pudl.analysis.record_linkage.eia_ferc1_inputs.prep_train_connections)(→ pandas.DataFrame)      | Get and prepare the training connections for the model.                    |
+| [`restrict_train_connections_on_date_range`](#pudl.analysis.record_linkage.eia_ferc1_inputs.restrict_train_connections_on_date_range)(train_df, ...) → pandas.DataFrame   | Restrict the training data based on the date ranges of the input tables.   |
+|-------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`prep_train_connections`](#pudl.analysis.record_linkage.eia_ferc1_inputs.prep_train_connections)(ppe, start_date, end_date) → pandas.DataFrame         | Get and prepare the training connections for the model.                    |
 
 ## Module Contents
 

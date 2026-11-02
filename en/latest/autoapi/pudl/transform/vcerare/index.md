@@ -13,20 +13,20 @@ in this module, as they have exactly the same structure.
 
 ## Functions
 
-| [`_prep_lat_long_fips_df`](#pudl.transform.vcerare._prep_lat_long_fips_df)(→ pandas.DataFrame)                 | Prep the lat_long_fips table to merge into the capacity factor tables.      |
-|-------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`_stack_cap_fac_df`](#pudl.transform.vcerare._stack_cap_fac_df)(→ polars.LazyFrame)                      | Reshape one wide capacity factor table from county columns to county rows.  |
-| [`_add_time_cols`](#pudl.transform.vcerare._add_time_cols)(→ polars.LazyFrame)                         | Add aligned `datetime_utc` and integer `hour_of_year` columns.              |
-| [`_drop_city_cols`](#pudl.transform.vcerare._drop_city_cols)(→ polars.LazyFrame)                        | Drop the two Virginia independent-city rows from a capacity factor table.   |
-| [`_make_cap_fac_frac`](#pudl.transform.vcerare._make_cap_fac_frac)(→ polars.LazyFrame)                     | Convert the capacity factor column from a percentage to a fraction.         |
-| [`_check_for_valid_counties`](#pudl.transform.vcerare._check_for_valid_counties)(→ polars.LazyFrame)              | Check that every place name in the data appears in the FIPS mapping table.  |
-| [`_standardize_census_names`](#pudl.transform.vcerare._standardize_census_names)(→ pandas.DataFrame)              | Make sure that the VCE place names correspond to the latest census vintage. |
-| [`_clip_unexpected_2016_pv_capacity`](#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity)(→ polars.LazyFrame)      | Clip a known set of out-of-bounds 2016 solar PV capacity factors.           |
-| [`_spot_fix_great_lakes_fips`](#pudl.transform.vcerare._spot_fix_great_lakes_fips)(→ pandas.Series)                | Normalize the misspelled Lake Huron place name in the lat/lon/FIPS table.   |
-| [`_spot_fix_great_lakes_capacity_factor`](#pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor)(→ polars.LazyFrame)  | Normalize the misspelled Lake Huron place name in a capacity factor table.  |
-| [`one_year_hourly_available_capacity_factor`](#pudl.transform.vcerare.one_year_hourly_available_capacity_factor)(→ dict[str, ...) | Transform one year of raw VCE RARE capacity factor tables to parquet.       |
-| [`merge_all_vce_tables`](#pudl.transform.vcerare.merge_all_vce_tables)(→ pudl.helpers.ParquetData)           | Merge the cleaned VCE capacity factor tables into the final `out` table.    |
-| [`out_vcerare__hourly_available_capacity_factor`](#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor)(...)         | Transform raw Vibrant Clean Energy renewable generation profiles.           |
+| [`_prep_lat_long_fips_df`](#pudl.transform.vcerare._prep_lat_long_fips_df)(raw_vcerare_\_lat_lon_fips) → pandas.DataFrame                      | Prep the lat_long_fips table to merge into the capacity factor tables.      |
+|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`_stack_cap_fac_df`](#pudl.transform.vcerare._stack_cap_fac_df)(lf, lf_name) → polars.LazyFrame                                          | Reshape one wide capacity factor table from county columns to county rows.  |
+| [`_add_time_cols`](#pudl.transform.vcerare._add_time_cols)(lf, lf_name, year) → polars.LazyFrame                                       | Add aligned `datetime_utc` and integer `hour_of_year` columns.              |
+| [`_drop_city_cols`](#pudl.transform.vcerare._drop_city_cols)(lf, lf_name) → polars.LazyFrame                                            | Drop the two Virginia independent-city rows from a capacity factor table.   |
+| [`_make_cap_fac_frac`](#pudl.transform.vcerare._make_cap_fac_frac)(lf, lf_name) → polars.LazyFrame                                         | Convert the capacity factor column from a percentage to a fraction.         |
+| [`_check_for_valid_counties`](#pudl.transform.vcerare._check_for_valid_counties)(lf, clean_fips_df, lf_name) → polars.LazyFrame                   | Check that every place name in the data appears in the FIPS mapping table.  |
+| [`_standardize_census_names`](#pudl.transform.vcerare._standardize_census_names)(vce_fips_df, census_pep_data) → pandas.DataFrame                 | Make sure that the VCE place names correspond to the latest census vintage. |
+| [`_clip_unexpected_2016_pv_capacity`](#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity)(lf, lf_name, year) → polars.LazyFrame                    | Clip a known set of out-of-bounds 2016 solar PV capacity factors.           |
+| [`_spot_fix_great_lakes_fips`](#pudl.transform.vcerare._spot_fix_great_lakes_fips)(sr) → pandas.Series                                             | Normalize the misspelled Lake Huron place name in the lat/lon/FIPS table.   |
+| [`_spot_fix_great_lakes_capacity_factor`](#pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor)(lf, lf_name) → polars.LazyFrame                      | Normalize the misspelled Lake Huron place name in a capacity factor table.  |
+| [`one_year_hourly_available_capacity_factor`](#pudl.transform.vcerare.one_year_hourly_available_capacity_factor)(year, ...) → dict[str, pudl.helpers.ParquetData] | Transform one year of raw VCE RARE capacity factor tables to parquet.       |
+| [`merge_all_vce_tables`](#pudl.transform.vcerare.merge_all_vce_tables)(transformed_tables, ...) → pudl.helpers.ParquetData                   | Merge the cleaned VCE capacity factor tables into the final `out` table.    |
+| [`out_vcerare__hourly_available_capacity_factor`](#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor)(context, ...) → polars.LazyFrame             | Transform raw Vibrant Clean Energy renewable generation profiles.           |
 
 ## Module Contents
 

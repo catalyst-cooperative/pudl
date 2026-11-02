@@ -10,9 +10,9 @@ Extract and transform glue tables between FERC Form 714’s CSV and XBRL raw sou
 
 ## Functions
 
-| [`get_respondent_map_ferc714`](#pudl.glue.ferc714.get_respondent_map_ferc714)(→ pandas.DataFrame)   | Read in the manual CSV to XBRL FERC714 respondent mapping data.         |
-|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`glue`](#pudl.glue.ferc714.glue)(→ dict[str, pandas.DataFrame])              | Make the FERC 714 glue tables out of stored CSVs of association tables. |
+| [`get_respondent_map_ferc714`](#pudl.glue.ferc714.get_respondent_map_ferc714)() → pandas.DataFrame   | Read in the manual CSV to XBRL FERC714 respondent mapping data.         |
+|----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`glue`](#pudl.glue.ferc714.glue)() → dict[str, pandas.DataFrame]              | Make the FERC 714 glue tables out of stored CSVs of association tables. |
 
 ## Module Contents
 

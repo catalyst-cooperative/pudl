@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.scripts.pudl_null_cols &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.scripts.pudl_null_cols &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -823,25 +823,25 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.max_eia860_year" title="pudl.scripts.pudl_null_cols.max_eia860_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_eia860_year</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.max_eia860_year" title="pudl.scripts.pudl_null_cols.max_eia860_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_eia860_year</span></code></a>() → int</p></td>
 <td><p>Get the maximum year available in the EIA-860 dataset.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.date_column_to_year_expr" title="pudl.scripts.pudl_null_cols.date_column_to_year_expr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">date_column_to_year_expr</span></code></a>(date_column)</p></td>
 <td><p>Convert a date column to a year extraction expression.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.get_null_years" title="pudl.scripts.pudl_null_cols.get_null_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_null_years</span></code></a>(→ list[int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.get_null_years" title="pudl.scripts.pudl_null_cols.get_null_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_null_years</span></code></a>(table_name, column, date_column[, max_year]) → list[int]</p></td>
 <td><p>Find years where a specific column is entirely null.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.get_available_years" title="pudl.scripts.pudl_null_cols.get_available_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_years</span></code></a>(→ list[int])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.get_available_years" title="pudl.scripts.pudl_null_cols.get_available_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_years</span></code></a>(table_name, date_column[, max_year]) → list[int]</p></td>
 <td><p>Generate a list of all years present in the named table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.infer_row_conditions" title="pudl.scripts.pudl_null_cols.infer_row_conditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_row_conditions</span></code></a>(→ dict[str, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.infer_row_conditions" title="pudl.scripts.pudl_null_cols.infer_row_conditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_row_conditions</span></code></a>(table_name, date_column[, max_year]) → dict[str, str]</p></td>
 <td><p>Analyze a single table for null columns and generate conditions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.compact_row_condition" title="pudl.scripts.pudl_null_cols.compact_row_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compact_row_condition</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.compact_row_condition" title="pudl.scripts.pudl_null_cols.compact_row_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compact_row_condition</span></code></a>(null_years, available_years, ...) → str</p></td>
 <td><p>Generate a compact SQL condition that excludes entirely null years.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.main" title="pudl.scripts.pudl_null_cols.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_null_cols.main" title="pudl.scripts.pudl_null_cols.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(table_name, ignore_eia860m, date_column, max_year) → int</p></td>
 <td><p>Generate row_conditions for use with the expect_columns_not_all_null dbt test.</p></td>
 </tr>
 </tbody>

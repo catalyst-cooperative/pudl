@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -833,40 +833,40 @@ rather than the domain-specific transforms for any one source dataset.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.create_glue_tables" title="pudl.dagster.assets.core.glue.create_glue_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_glue_tables</span></code></a>(context)</p></td>
 <td><p>Extract, transform and load CSVs for the FERC-EIA Glue tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.raw_pudl__assn_eia_epacamd" title="pudl.dagster.assets.core.glue.raw_pudl__assn_eia_epacamd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_pudl__assn_eia_epacamd</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.raw_pudl__assn_eia_epacamd" title="pudl.dagster.assets.core.glue.raw_pudl__assn_eia_epacamd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_pudl__assn_eia_epacamd</span></code></a>(context) → pandas.DataFrame</p></td>
 <td><p>Extract the EPACAMD-EIA Crosswalk from the Datastore.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd" title="pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd" title="pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd</span></code></a>(context, ...) → pandas.DataFrame</p></td>
 <td><p>Clean up the EPACAMD-EIA Crosswalk file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._core_epa__assn_eia_epacamd_unique" title="pudl.dagster.assets.core.glue._core_epa__assn_eia_epacamd_unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_epa__assn_eia_epacamd_unique</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._core_epa__assn_eia_epacamd_unique" title="pudl.dagster.assets.core.glue._core_epa__assn_eia_epacamd_unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_epa__assn_eia_epacamd_unique</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Intermediate asset that contains all unique core_epa__assn_eia_epacamd matches.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.correct_epa_eia_plant_id_mapping" title="pudl.dagster.assets.core.glue.correct_epa_eia_plant_id_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_epa_eia_plant_id_mapping</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.correct_epa_eia_plant_id_mapping" title="pudl.dagster.assets.core.glue.correct_epa_eia_plant_id_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_epa_eia_plant_id_mapping</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Manually correct one plant ID.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd_subplant_ids" title="pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd_subplant_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd_subplant_ids" title="pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epa__assn_eia_epacamd_subplant_ids</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Groups units and generators into unique subplant groups.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_crosswalk_with_generators_eia860</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_crosswalk_with_generators_eia860</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_crosswalk_with_epacamd_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_crosswalk_with_epacamd_ids</span></code></a>(crosswalk_clean, ...) → pandas.DataFrame</p></td>
 <td><p>Merge all EPA CAMD IDs into the crosswalk.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_crosswalk_with_bga_eia860</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860" title="pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_crosswalk_with_bga_eia860</span></code></a>(crosswalk_clean, ...) → pandas.DataFrame</p></td>
 <td><p>Merge all EIA Unit IDs into the crosswalk.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._prep_for_networkx" title="pudl.dagster.assets.core.glue._prep_for_networkx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_for_networkx</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._prep_for_networkx" title="pudl.dagster.assets.core.glue._prep_for_networkx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_for_networkx</span></code></a>(crosswalk) → pandas.DataFrame</p></td>
 <td><p>Build composite node identities for combustors, generators, and EIA units.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk" title="pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_subplant_ids_from_prepped_crosswalk</span></code></a>(prepped) → pandas.DataFrame</p></td>
 <td><p>Use networkx graph analysis to assign a per-plant <code class="docutils literal notranslate"><span class="pre">subplant_id</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_subplant_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.make_subplant_ids" title="pudl.dagster.assets.core.glue.make_subplant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_subplant_ids</span></code></a>(crosswalk) → pandas.DataFrame</p></td>
 <td><p>Identify sub-plants in the EPA/EIA crosswalk graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.manually_update_subplant_id" title="pudl.dagster.assets.core.glue.manually_update_subplant_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manually_update_subplant_id</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.glue.manually_update_subplant_id" title="pudl.dagster.assets.core.glue.manually_update_subplant_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manually_update_subplant_id</span></code></a>(subplant_crosswalk) → pandas.DataFrame</p></td>
 <td><p>Manually update the subplant_id for <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> 1391.</p></td>
 </tr>
 </tbody>
