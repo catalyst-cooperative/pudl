@@ -236,12 +236,14 @@ def mcoe_asset_factory(
     ]
 
 
+_MCOE_FREQS: list[tuple[Literal["YS", "MS"], dict]] = [
+    ("YS", {}),
+    ("MS", {"dagster/priority": 10}),
+]
+
 mcoe_assets = [
     mcoe_asset
-    for freq, op_tags in [
-        ("YS", {}),
-        ("MS", {"dagster/priority": 10}),
-    ]
+    for freq, op_tags in _MCOE_FREQS
     for mcoe_asset in mcoe_asset_factory(
         freq=freq,
         op_tags=op_tags,
