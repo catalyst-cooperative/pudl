@@ -51,7 +51,6 @@ New Data Tests & Validations
   files, and the FERC EQR deployment asset now runs the EQR validations before
   publishing. All FERC EQR tables get basic validation tests, including row counts. See
   :issue:`4864` and :pr:`5676`.
-
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
@@ -68,8 +67,6 @@ Bug Fixes & Data Cleaning
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
   (``non_utility_property_asset``) meant the transform never picked it up. See
   :issue:`5566` and :pr:`5729`.
-* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
-  :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
@@ -104,7 +101,6 @@ Bug Fixes & Data Cleaning
   numeric columns summed when de-duplicating EIA-923 generation fuel rows are
   explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
   :pr:`5719`.
-*
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
