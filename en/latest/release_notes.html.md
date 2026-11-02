@@ -32,6 +32,10 @@
 
 ### New Data Tests & Validations
 
+* Updated `dbt` data validation now to support FERC EQR data. This requires `dbt`
+  configuration changes to handle partitioned parquet outputs. See issue [#4864](https://github.com/catalyst-cooperative/pudl/pull/4864)
+  and PR [#5676](https://github.com/catalyst-cooperative/pudl/pull/5676). This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
 * Updated `dbt` data validation to support FERC EQR, whose partitioned parquet outputs
   required several configuration changes. The `external_location` of each table is now
   generated automatically, row count tests accept string partition keys such as
@@ -95,6 +99,13 @@
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See [#5621](https://github.com/catalyst-cooperative/pudl/issues/5621),
   [#5622](https://github.com/catalyst-cooperative/pudl/issues/5622), [#5624](https://github.com/catalyst-cooperative/pudl/issues/5624) and [#5721](https://github.com/catalyst-cooperative/pudl/pull/5721).
+* Stop `make_changelog()` from dropping records whose values reverted to an earlier
+  state (e.g. `OP` -> `OA` -> `OP`), leaving the intermediate value looking like a
+  permanent change. This adds 3-7% more rows to
+  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators) and the entity resolution forensics tables.
+  It also removes empty `valid_until_date` intervals, and ensures every series ends
+  on the same date – one month past the entity’s final report date. See [#5730](https://github.com/catalyst-cooperative/pudl/issues/5730)
+  and [#5731](https://github.com/catalyst-cooperative/pudl/pull/5731).
 
 ### Performance Improvements
 
