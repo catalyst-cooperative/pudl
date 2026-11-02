@@ -3010,7 +3010,7 @@ def _valid_until(changes: pd.DataFrame, series_cols: list[str]) -> pd.Series:
     A record is valid until the next record in the same series begins, so the intervals
     ``[report_date, valid_until_date)`` are half-open. A series' last record has no
     successor, and was still in force when the entity was last reported, so it is valid
-    for one month past the entity's last report date (``report_date_max``). Every
+    until one month past the entity's last report date (``report_date_max``). Every
     series' last record therefore ends on the same date. The month is fixed, and
     assumes monthly reporting.
 
