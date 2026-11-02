@@ -4,6 +4,7 @@ import json
 import re
 from collections.abc import Callable
 from datetime import date
+from itertools import chain
 from typing import Any, Literal
 
 import duckdb.sqltypes
@@ -20,6 +21,7 @@ from pandera.errors import SchemaErrors
 from shapely import Point
 
 from pudl.metadata.classes import (
+    FERCEQR_PACKAGE,
     PUDL_PACKAGE,
     DataSource,
     Field,
@@ -49,6 +51,7 @@ from pudl.metadata.sources import SOURCES
 from pudl.metadata.units import PUDL_UNIT_REGISTRY
 
 PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
+FERCEQR_RESOURCES = {r.name: r for r in FERCEQR_PACKAGE.resources}
 PUDL_ENCODERS = PUDL_PACKAGE.encoders
 
 
@@ -708,7 +711,7 @@ def test_field_unit_strings() -> None:
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()
-    for resource in PUDL_RESOURCES.values():
+    for resource in chain(PUDL_RESOURCES.values(), FERCEQR_RESOURCES.values()):
         used_fields |= {f.name for f in resource.schema.fields}
     defined_fields = set(FIELD_METADATA.keys())
     unused_fields = sorted(defined_fields - used_fields)
@@ -915,9 +918,12 @@ def test_resource_descriptor_schema_failures_w_geometry(
         dummy_pandera_schema_w_geometry.validate(data)
 
 
-def test_frictionless_data_package_non_empty(tmp_path):
-    datapackage = PUDL_PACKAGE.to_frictionless()
-    assert len(datapackage.resources) == len(RESOURCE_METADATA)
+def test_frictionless_data_package_non_empty():
+    pudl_datapackage = PUDL_PACKAGE.to_frictionless()
+    ferceqr_datapackage = FERCEQR_PACKAGE.to_frictionless()
+    assert len(pudl_datapackage.resources + ferceqr_datapackage.resources) == len(
+        RESOURCE_METADATA
+    )
 
 
 METADATA_OVERRIDE_KEYS = [
@@ -1028,17 +1034,29 @@ def test_multiple_path_resources(dummy_resource_dict):
     assert set(frictionless_resource.normpaths) == set(paths)
 
 
+def test_from_resource_ids_etl_groups_exact_match():
+    """ETL group filters match whole group names, and reject bare strings."""
+    eqr_ids = tuple(r.name for r in FERCEQR_PACKAGE.resources)
+    # "eqr" is a substring of "ferceqr" but not a group name: nothing is excluded.
+    kept = Package.from_resource_ids(resource_ids=eqr_ids, excluded_etl_groups=("eqr",))
+    assert {r.name for r in kept.resources} == set(eqr_ids)
+    mixed_ids = (*eqr_ids, "core_pudl__codes_subdivisions")
+    excluded = Package.from_resource_ids(
+        resource_ids=mixed_ids, excluded_etl_groups=("ferceqr",)
+    )
+    assert {r.name for r in excluded.resources} == {"core_pudl__codes_subdivisions"}
+    with pytest.raises(TypeError, match="not a single string"):
+        Package.from_resource_ids(excluded_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
+    with pytest.raises(TypeError, match="not a single string"):
+        Package.from_resource_ids(included_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
+
+
 def test_frictionless_data_package_filter_resources():
     """Test that filtering resources when converting Package to frictionless works as expected."""
-    eqr_pattern = r"core_ferceqr.*"
     expected_num_eqr_resources = 4
-    all_resources = PUDL_PACKAGE.to_frictionless().resources
-    no_eqr_resources = PUDL_PACKAGE.to_frictionless(
-        exclude_pattern=eqr_pattern
-    ).resources
-    only_eqr_resources = PUDL_PACKAGE.to_frictionless(
-        include_pattern=eqr_pattern
-    ).resources
+    no_eqr_resources = PUDL_PACKAGE.to_frictionless().resources
+    only_eqr_resources = FERCEQR_PACKAGE.to_frictionless().resources
+    all_resources = no_eqr_resources + only_eqr_resources
 
     assert len(no_eqr_resources) == (len(all_resources) - expected_num_eqr_resources)
     assert len(only_eqr_resources) == expected_num_eqr_resources
