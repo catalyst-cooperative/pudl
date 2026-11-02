@@ -14,12 +14,12 @@ than an external extract step, and keep source-specific extract logic elsewhere.
 
 ## Functions
 
-| [`_read_static_encoding_tables`](#pudl.dagster.assets.core.static._read_static_encoding_tables)(→ dict[str, pandas.DataFrame])   | Build dataframes of static tables from a data source for use as foreign keys.   |
-|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`static_pudl_tables`](#pudl.dagster.assets.core.static.static_pudl_tables)(context)                                   | Read static tables compiled as part of PUDL and not from any agency dataset.    |
-| [`static_eia_tables`](#pudl.dagster.assets.core.static.static_eia_tables)(context)                                    | Create static EIA tables.                                                       |
-| [`static_ferc1_tables`](#pudl.dagster.assets.core.static.static_ferc1_tables)(context)                                  | Compile static tables for FERC1 for foreign key constraints.                    |
-| [`static_rus_tables`](#pudl.dagster.assets.core.static.static_rus_tables)(context)                                    | Create static RUS tables.                                                       |
+| [`_read_static_encoding_tables`](#pudl.dagster.assets.core.static._read_static_encoding_tables)(etl_group) → dict[str, pandas.DataFrame]   | Build dataframes of static tables from a data source for use as foreign keys.   |
+|--------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`static_pudl_tables`](#pudl.dagster.assets.core.static.static_pudl_tables)(context)                                             | Read static tables compiled as part of PUDL and not from any agency dataset.    |
+| [`static_eia_tables`](#pudl.dagster.assets.core.static.static_eia_tables)(context)                                              | Create static EIA tables.                                                       |
+| [`static_ferc1_tables`](#pudl.dagster.assets.core.static.static_ferc1_tables)(context)                                            | Compile static tables for FERC1 for foreign key constraints.                    |
+| [`static_rus_tables`](#pudl.dagster.assets.core.static.static_rus_tables)(context)                                              | Create static RUS tables.                                                       |
 
 ## Module Contents
 

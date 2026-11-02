@@ -34,23 +34,23 @@ found in `pudl.transform.eia._boiler_generator_assn()`.
 
 ## Functions
 
-| [`find_timezone`](#pudl.transform.eia.find_timezone)(→ str | None)                                | Find the timezone associated with the a specified input location.                |
-|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`occurrence_consistency`](#pudl.transform.eia.occurrence_consistency)(→ pandas.DataFrame)                 | Find the occurrence of entities & the consistency of records.                    |
-| [`_lat_long`](#pudl.transform.eia._lat_long)(→ pandas.DataFrame)                              | Harvests more complete lat/long in special cases.                                |
-| [`_last_operating_date`](#pudl.transform.eia._last_operating_date)(→ pandas.DataFrame)                   | When there's no consistent generator operating date, take the last reported one. |
-| [`_add_timezone`](#pudl.transform.eia._add_timezone)(→ pandas.DataFrame)                          | Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.     |
-| [`_add_additional_epacems_plants`](#pudl.transform.eia._add_additional_epacems_plants)(→ pandas.DataFrame)         | Adds the info for plants that have IDs in the CEMS data but not EIA data.        |
-| [`_compile_all_entity_records`](#pudl.transform.eia._compile_all_entity_records)(→ pandas.DataFrame)            | Compile all of the entity records from each table they appear in.                |
-| [`_manage_strictness`](#pudl.transform.eia._manage_strictness)(→ float)                                | Manage the strictness level for each column.                                     |
-| [`harvest_entity_tables`](#pudl.transform.eia.harvest_entity_tables)(→ tuple)                             | Compile consistent records for various entities.                                 |
-| [`core_eia860__assn_boiler_generator`](#pudl.transform.eia.core_eia860__assn_boiler_generator)(→ pandas.DataFrame)     | Creates a set of more complete boiler generator associations.                    |
-| [`_restrict_years`](#pudl.transform.eia._restrict_years)(→ pandas.DataFrame)                        | Restricts eia years for boiler generator association.                            |
-| [`map_balancing_authority_names_to_codes`](#pudl.transform.eia.map_balancing_authority_names_to_codes)(→ pandas.DataFrame) | Build a map of the BA names to their most frequently associated BA codes.        |
-| [`fillna_balancing_authority_codes_via_names`](#pudl.transform.eia.fillna_balancing_authority_codes_via_names)(...)            | Fill null balancing authority (BA) codes via a map of the BA names to codes.     |
-| [`fix_balancing_authority_codes_with_state`](#pudl.transform.eia.fix_balancing_authority_codes_with_state)(...)              | Fix selective balancing_authority_code_eia's based on states.                    |
-| [`harvested_entity_asset_factory`](#pudl.transform.eia.harvested_entity_asset_factory)(→ dagster.AssetsDefinition) | Create an asset definition for the harvested entity tables.                      |
-| [`finished_eia_asset_factory`](#pudl.transform.eia.finished_eia_asset_factory)(→ dagster.AssetsDefinition)     | An asset factory for finished EIA tables.                                        |
+| [`find_timezone`](#pudl.transform.eia.find_timezone)(\*, lng, lat[, state, strict]) → str | None                            | Find the timezone associated with the a specified input location.                |
+|---------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`occurrence_consistency`](#pudl.transform.eia.occurrence_consistency)(entity_idx, compiled_df, col, ...) → pandas.DataFrame         | Find the occurrence of entities & the consistency of records.                    |
+| [`_lat_long`](#pudl.transform.eia._lat_long)(dirty_df, clean_df, entity_id_df, ...[, ...]) → pandas.DataFrame           | Harvests more complete lat/long in special cases.                                |
+| [`_last_operating_date`](#pudl.transform.eia._last_operating_date)(dirty_df, clean_df, entity_id_df, ...) → pandas.DataFrame       | When there's no consistent generator operating date, take the last reported one. |
+| [`_add_timezone`](#pudl.transform.eia._add_timezone)(plants_entity) → pandas.DataFrame                                      | Add plant IANA timezone based on lat/lon or state if lat/lon is unavailable.     |
+| [`_add_additional_epacems_plants`](#pudl.transform.eia._add_additional_epacems_plants)(plants_entity) → pandas.DataFrame                     | Adds the info for plants that have IDs in the CEMS data but not EIA data.        |
+| [`_compile_all_entity_records`](#pudl.transform.eia._compile_all_entity_records)(entity, clean_dfs) → pandas.DataFrame                    | Compile all of the entity records from each table they appear in.                |
+| [`_manage_strictness`](#pudl.transform.eia._manage_strictness)(col, special_case_strictness) → float                             | Manage the strictness level for each column.                                     |
+| [`harvest_entity_tables`](#pudl.transform.eia.harvest_entity_tables)(entity, clean_dfs[, ...]) → tuple                              | Compile consistent records for various entities.                                 |
+| [`core_eia860__assn_boiler_generator`](#pudl.transform.eia.core_eia860__assn_boiler_generator)(context, \*\*clean_dfs) → pandas.DataFrame        | Creates a set of more complete boiler generator associations.                    |
+| [`_restrict_years`](#pudl.transform.eia._restrict_years)(df[, eia_data_config]) → pandas.DataFrame                            | Restricts eia years for boiler generator association.                            |
+| [`map_balancing_authority_names_to_codes`](#pudl.transform.eia.map_balancing_authority_names_to_codes)(df) → pandas.DataFrame                        | Build a map of the BA names to their most frequently associated BA codes.        |
+| [`fillna_balancing_authority_codes_via_names`](#pudl.transform.eia.fillna_balancing_authority_codes_via_names)(df) → pandas.DataFrame                    | Fill null balancing authority (BA) codes via a map of the BA names to codes.     |
+| [`fix_balancing_authority_codes_with_state`](#pudl.transform.eia.fix_balancing_authority_codes_with_state)(plants, ...) → pandas.DataFrame             | Fix selective balancing_authority_code_eia's based on states.                    |
+| [`harvested_entity_asset_factory`](#pudl.transform.eia.harvested_entity_asset_factory)(entity[, io_manager_key]) → dagster.AssetsDefinition  | Create an asset definition for the harvested entity tables.                      |
+| [`finished_eia_asset_factory`](#pudl.transform.eia.finished_eia_asset_factory)(table_name, \_core_table_name) → dagster.AssetsDefinition | An asset factory for finished EIA tables.                                        |
 
 ## Module Contents
 

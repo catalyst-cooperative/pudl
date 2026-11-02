@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -878,145 +878,145 @@ described at:</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._shift_utc" title="pudl.analysis.timeseries_cleaning._shift_utc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_shift_utc</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._shift_utc" title="pudl.analysis.timeseries_cleaning._shift_utc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_shift_utc</span></code></a>(utc, utc_offset) → pandas.Series</p></td>
 <td><p>Shift <code class="docutils literal notranslate"><span class="pre">utc</span></code> by UTC offset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned" title="pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utc_dataframe_to_aligned</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned" title="pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utc_dataframe_to_aligned</span></code></a>(input_df) → pandera.typing.DataFrame[AlignedTimeseriesDataFrame]</p></td>
 <td><p>Return DataFrame with <code class="docutils literal notranslate"><span class="pre">datetime_utc</span></code> shifted by offset to align timeseries'.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe" title="pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot_aligned_timeseries_dataframe</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe" title="pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot_aligned_timeseries_dataframe</span></code></a>(aligned_df[, value_col]) → pandera.typing.DataFrame[TimeseriesMatrix]</p></td>
 <td><p>Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix" title="pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">melt_imputed_timeseries_matrix</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix" title="pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">melt_imputed_timeseries_matrix</span></code></a>(imputed_matrix, flag_matrix) → pandera.typing.DataFrame[AlignedTimeseriesDataFrame]</p></td>
 <td><p>Melt imputed timeseries matrix and flag matrix to time-aligned dataframe.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.slice_axis" title="pudl.analysis.timeseries_cleaning.slice_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_axis</span></code></a>(→ tuple[slice, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.slice_axis" title="pudl.analysis.timeseries_cleaning.slice_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_axis</span></code></a>(x[, start, end, step, axis]) → tuple[slice, ...]</p></td>
 <td><p>Return an index that slices an array along an axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.array_diff" title="pudl.analysis.timeseries_cleaning.array_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_diff</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.array_diff" title="pudl.analysis.timeseries_cleaning.array_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_diff</span></code></a>(x[, periods, axis, fill]) → numpy.ndarray</p></td>
 <td><p>First discrete difference of array elements.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.encode_run_length" title="pudl.analysis.timeseries_cleaning.encode_run_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode_run_length</span></code></a>(→ tuple[numpy.ndarray, numpy.ndarray])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.encode_run_length" title="pudl.analysis.timeseries_cleaning.encode_run_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode_run_length</span></code></a>(x) → tuple[numpy.ndarray, numpy.ndarray]</p></td>
 <td><p>Encode vector with run-length encoding.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.insert_run_length" title="pudl.analysis.timeseries_cleaning.insert_run_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_run_length</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.insert_run_length" title="pudl.analysis.timeseries_cleaning.insert_run_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_run_length</span></code></a>(x, values, lengths[, mask, padding, ...]) → numpy.ndarray</p></td>
 <td><p>Insert run-length encoded values into a vector.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._mat2ten" title="pudl.analysis.timeseries_cleaning._mat2ten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mat2ten</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._mat2ten" title="pudl.analysis.timeseries_cleaning._mat2ten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mat2ten</span></code></a>(matrix, shape, mode) → numpy.ndarray</p></td>
 <td><p>Fold matrix into a tensor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._ten2mat" title="pudl.analysis.timeseries_cleaning._ten2mat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ten2mat</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._ten2mat" title="pudl.analysis.timeseries_cleaning._ten2mat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ten2mat</span></code></a>(tensor, mode) → numpy.ndarray</p></td>
 <td><p>Unfold tensor into a matrix.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._svt_tnn" title="pudl.analysis.timeseries_cleaning._svt_tnn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_svt_tnn</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._svt_tnn" title="pudl.analysis.timeseries_cleaning._svt_tnn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_svt_tnn</span></code></a>(matrix, tau, theta) → numpy.ndarray</p></td>
 <td><p>Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_latc_tnn" title="pudl.analysis.timeseries_cleaning.impute_latc_tnn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_latc_tnn</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_latc_tnn" title="pudl.analysis.timeseries_cleaning.impute_latc_tnn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_latc_tnn</span></code></a>(tensor[, lags, alpha, rho0, lambda0, ...]) → numpy.ndarray</p></td>
 <td><p>Impute tensor values with LATC-TNN method by Chen and Sun (2020).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._tsvt" title="pudl.analysis.timeseries_cleaning._tsvt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_tsvt</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._tsvt" title="pudl.analysis.timeseries_cleaning._tsvt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_tsvt</span></code></a>(tensor, phi, tau) → numpy.ndarray</p></td>
 <td><p>Tensor singular value thresholding (TSVT).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_latc_tubal" title="pudl.analysis.timeseries_cleaning.impute_latc_tubal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_latc_tubal</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_latc_tubal" title="pudl.analysis.timeseries_cleaning.impute_latc_tubal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_latc_tubal</span></code></a>(tensor[, lags, rho0, lambda0, ...]) → numpy.ndarray</p></td>
 <td><p>Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_null" title="pudl.analysis.timeseries_cleaning.flag_null"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_null</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_null" title="pudl.analysis.timeseries_cleaning.flag_null"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_null</span></code></a>(ts) → FlaggedTimeseries</p></td>
 <td><p>Flag null values (MISSING_VALUE).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_negative_or_zero" title="pudl.analysis.timeseries_cleaning.flag_negative_or_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_negative_or_zero</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_negative_or_zero" title="pudl.analysis.timeseries_cleaning.flag_negative_or_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_negative_or_zero</span></code></a>(ts) → FlaggedTimeseries</p></td>
 <td><p>Flag negative or zero values (NEGATIVE_OR_ZERO).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_identical_run" title="pudl.analysis.timeseries_cleaning.flag_identical_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_identical_run</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_identical_run" title="pudl.analysis.timeseries_cleaning.flag_identical_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_identical_run</span></code></a>(ts[, length]) → FlaggedTimeseries</p></td>
 <td><p>Flag the last values in identical runs (IDENTICAL_RUN).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_global_outlier" title="pudl.analysis.timeseries_cleaning.flag_global_outlier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_global_outlier</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_global_outlier" title="pudl.analysis.timeseries_cleaning.flag_global_outlier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_global_outlier</span></code></a>(ts[, medians]) → FlaggedTimeseries</p></td>
 <td><p>Flag values greater or less than n times the global median (GLOBAL_OUTLIER).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor" title="pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_global_outlier_neighbor</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor" title="pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_global_outlier_neighbor</span></code></a>(ts[, neighbors]) → FlaggedTimeseries</p></td>
 <td><p>Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_median" title="pudl.analysis.timeseries_cleaning.rolling_median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_median</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_median" title="pudl.analysis.timeseries_cleaning.rolling_median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_median</span></code></a>(ts[, window]) → numpy.ndarray</p></td>
 <td><p>Rolling median of values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_median_offset" title="pudl.analysis.timeseries_cleaning.rolling_median_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_median_offset</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_median_offset" title="pudl.analysis.timeseries_cleaning.rolling_median_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_median_offset</span></code></a>(ts[, window]) → numpy.ndarray</p></td>
 <td><p>Values minus the rolling median.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset" title="pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_of_rolling_median_offset</span></code></a>() → numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset" title="pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_of_rolling_median_offset</span></code></a>(ts[, window, shifts]) → numpy.ndarray</p></td>
 <td><p>Median of the offset from the rolling median.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset" title="pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_iqr_of_rolling_median_offset</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset" title="pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_iqr_of_rolling_median_offset</span></code></a>(ts[, window, ...]) → numpy.ndarray</p></td>
 <td><p>Rolling interquartile range (IQR) of rolling median offset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.median_prediction" title="pudl.analysis.timeseries_cleaning.median_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_prediction</span></code></a>(, long_window)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.median_prediction" title="pudl.analysis.timeseries_cleaning.median_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_prediction</span></code></a>(ts[, window, shifts, long_window]) → numpy.ndarray</p></td>
 <td><p>Values predicted from local and regional rolling medians.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_local_outlier" title="pudl.analysis.timeseries_cleaning.flag_local_outlier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_local_outlier</span></code></a>(, long_window, iqr_window, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_local_outlier" title="pudl.analysis.timeseries_cleaning.flag_local_outlier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_local_outlier</span></code></a>(ts[, window, shifts, long_window, ...]) → FlaggedTimeseries</p></td>
 <td><p>Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.diff" title="pudl.analysis.timeseries_cleaning.diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.diff" title="pudl.analysis.timeseries_cleaning.diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff</span></code></a>(ts[, shift]) → numpy.ndarray</p></td>
 <td><p>Values minus the value of their neighbor.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff" title="pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_iqr_of_diff</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff" title="pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_iqr_of_diff</span></code></a>(ts[, shift, window]) → numpy.ndarray</p></td>
 <td><p>Rolling interquartile range (IQR) of difference between neighboring values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_double_delta" title="pudl.analysis.timeseries_cleaning.flag_double_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_double_delta</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_double_delta" title="pudl.analysis.timeseries_cleaning.flag_double_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_double_delta</span></code></a>(ts[, iqr_window, multiplier]) → FlaggedTimeseries</p></td>
 <td><p>Flag values very different from neighbors on either side (DOUBLE_DELTA).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.relative_median_prediction" title="pudl.analysis.timeseries_cleaning.relative_median_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_median_prediction</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.relative_median_prediction" title="pudl.analysis.timeseries_cleaning.relative_median_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_median_prediction</span></code></a>(ts, **kwargs) → numpy.ndarray</p></td>
 <td><p>Values divided by their value predicted from medians.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction" title="pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iqr_of_diff_of_relative_median_prediction</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction" title="pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iqr_of_diff_of_relative_median_prediction</span></code></a>(ts[, shift]) → numpy.ndarray</p></td>
 <td><p>Interquartile range of running difference of relative median prediction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._find_single_delta" title="pudl.analysis.timeseries_cleaning._find_single_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_single_delta</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._find_single_delta" title="pudl.analysis.timeseries_cleaning._find_single_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_single_delta</span></code></a>(ts, relative_median_prediction, ...) → numpy.ndarray</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_single_delta" title="pudl.analysis.timeseries_cleaning.flag_single_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_single_delta</span></code></a>(, long_window, iqr_window, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_single_delta" title="pudl.analysis.timeseries_cleaning.flag_single_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_single_delta</span></code></a>(ts[, window, shifts, long_window, ...]) → FlaggedTimeseries</p></td>
 <td><p>Flag values very different from the nearest unflagged value (SINGLE_DELTA).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_anomalous_region" title="pudl.analysis.timeseries_cleaning.flag_anomalous_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_anomalous_region</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_anomalous_region" title="pudl.analysis.timeseries_cleaning.flag_anomalous_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_anomalous_region</span></code></a>(ts[, window, threshold]) → FlaggedTimeseries</p></td>
 <td><p>Flag values surrounded by flagged values (ANOMALOUS_REGION).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_bad_years" title="pudl.analysis.timeseries_cleaning.flag_bad_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_bad_years</span></code></a>(→ FlaggedTimeseries)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_bad_years" title="pudl.analysis.timeseries_cleaning.flag_bad_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_bad_years</span></code></a>(ts[, min_data, min_data_fraction]) → FlaggedTimeseries</p></td>
 <td><p>Flag entire years, which are missing a large portion of values (BAD_YEAR).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_ruggles" title="pudl.analysis.timeseries_cleaning.flag_ruggles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_ruggles</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.flag_ruggles" title="pudl.analysis.timeseries_cleaning.flag_ruggles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_ruggles</span></code></a>(timeseries_matrix[, min_data, ...]) → tuple[pandera.typing.DataFrame[TimeseriesMatrix], pandera.typing.DataFrame[TimeseriesMatrix]]</p></td>
 <td><p>Flag values following the method of Ruggles and others (2020).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.summarize_flags" title="pudl.analysis.timeseries_cleaning.summarize_flags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_flags</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.summarize_flags" title="pudl.analysis.timeseries_cleaning.summarize_flags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_flags</span></code></a>(imputed_df, id_col, value_col, flag_col) → pandas.DataFrame</p></td>
 <td><p>Summarize flagged values by flag, count and median.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.simulate_nulls" title="pudl.analysis.timeseries_cleaning.simulate_nulls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_nulls</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.simulate_nulls" title="pudl.analysis.timeseries_cleaning.simulate_nulls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_nulls</span></code></a>(x[, lengths, padding, intersect, ...]) → numpy.ndarray</p></td>
 <td><p>Find non-null values to null to match a run-length distribution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.fold_tensor" title="pudl.analysis.timeseries_cleaning.fold_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fold_tensor</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.fold_tensor" title="pudl.analysis.timeseries_cleaning.fold_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fold_tensor</span></code></a>(x[, periods]) → numpy.ndarray</p></td>
 <td><p>Fold into a 3-dimensional tensor representation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.unfold_tensor" title="pudl.analysis.timeseries_cleaning.unfold_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfold_tensor</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.unfold_tensor" title="pudl.analysis.timeseries_cleaning.unfold_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfold_tensor</span></code></a>(tensor, shape) → numpy.ndarray</p></td>
 <td><p>Unfold a 3-dimensional tensor representation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute" title="pudl.analysis.timeseries_cleaning.impute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute</span></code></a>(→ pandera.typing.DataFrame[TimeseriesMatrix])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute" title="pudl.analysis.timeseries_cleaning.impute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute</span></code></a>(df[, mask, periods, blocks, method]) → pandera.typing.DataFrame[TimeseriesMatrix]</p></td>
 <td><p>Impute null values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.summarize_imputed" title="pudl.analysis.timeseries_cleaning.summarize_imputed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_imputed</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.summarize_imputed" title="pudl.analysis.timeseries_cleaning.summarize_imputed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_imputed</span></code></a>(matrix, imputed_matrix, mask) → pandas.DataFrame</p></td>
 <td><p>Summarize the fit of imputed values to actual values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_flagged_values" title="pudl.analysis.timeseries_cleaning.impute_flagged_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_flagged_values</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_flagged_values" title="pudl.analysis.timeseries_cleaning.impute_flagged_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_flagged_values</span></code></a>(df, years, method[, periods, blocks]) → pandera.typing.DataFrame[TimeseriesMatrix]</p></td>
 <td><p>Impute null values in input timeseries matrix.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._merge_imputed" title="pudl.analysis.timeseries_cleaning._merge_imputed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_merge_imputed</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._merge_imputed" title="pudl.analysis.timeseries_cleaning._merge_imputed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_merge_imputed</span></code></a>(aligned_df, matrix, flags) → pandas.DataFrame</p></td>
 <td><p>Helper function to melt imputed timeseries matrix and merge back on input asset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._add_simulated_flag_col" title="pudl.analysis.timeseries_cleaning._add_simulated_flag_col"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_simulated_flag_col</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._add_simulated_flag_col" title="pudl.analysis.timeseries_cleaning._add_simulated_flag_col"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_simulated_flag_col</span></code></a>(imputed_df, simulation_df) → pandera.typing.DataFrame[AlignedTimeseriesDataFrame]</p></td>
 <td><p>Return a modified <code class="docutils literal notranslate"><span class="pre">imputed_df</span></code> with a column indicating which rows should be flagged for simulation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.get_simulated_flag_mask" title="pudl.analysis.timeseries_cleaning.get_simulated_flag_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulated_flag_mask</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.get_simulated_flag_mask" title="pudl.analysis.timeseries_cleaning.get_simulated_flag_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulated_flag_mask</span></code></a>(settings, imputed_df, ...) → tuple[pandera.typing.DataFrame[TimeseriesMatrix], set[int]]</p></td>
 <td><p>Return a flag mask to flag values for simulated imputation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._resolve_imputation_methods" title="pudl.analysis.timeseries_cleaning._resolve_imputation_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_imputation_methods</span></code></a>(→ dict[int, Literal[, ]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning._resolve_imputation_methods" title="pudl.analysis.timeseries_cleaning._resolve_imputation_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_imputation_methods</span></code></a>(years, settings) → dict[int, Literal['tubal', 'tnn']]</p></td>
 <td><p>Map each year being imputed to the method that should be used for it.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory" title="pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_timeseries_asset_factory</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory" title="pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute_timeseries_asset_factory</span></code></a>(input_asset_name, ...) → list[dagster.AssetsDefinition] | tuple[list[dagster.AssetsDefinition], dagster.AssetChecksDefinition]</p></td>
 <td><p>Produces assets to impute values for a given timeseries table/column.</p></td>
 </tr>
 </tbody>

@@ -163,7 +163,7 @@ Module Contents
 
 
    .. py:property:: partitions
-      :type: list[None | dict[str, str]]
+      :type: list[dict[str, str]]
 
 
       Return list of dictionaries representing individual partitions.

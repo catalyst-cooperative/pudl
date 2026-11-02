@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.vcerare &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.vcerare &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -825,43 +825,43 @@ in this module, as they have exactly the same structure.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._prep_lat_long_fips_df" title="pudl.transform.vcerare._prep_lat_long_fips_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_lat_long_fips_df</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._prep_lat_long_fips_df" title="pudl.transform.vcerare._prep_lat_long_fips_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_lat_long_fips_df</span></code></a>(raw_vcerare__lat_lon_fips) → pandas.DataFrame</p></td>
 <td><p>Prep the lat_long_fips table to merge into the capacity factor tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._stack_cap_fac_df" title="pudl.transform.vcerare._stack_cap_fac_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stack_cap_fac_df</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._stack_cap_fac_df" title="pudl.transform.vcerare._stack_cap_fac_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stack_cap_fac_df</span></code></a>(lf, lf_name) → polars.LazyFrame</p></td>
 <td><p>Reshape one wide capacity factor table from county columns to county rows.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._add_time_cols" title="pudl.transform.vcerare._add_time_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_time_cols</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._add_time_cols" title="pudl.transform.vcerare._add_time_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_time_cols</span></code></a>(lf, lf_name, year) → polars.LazyFrame</p></td>
 <td><p>Add aligned <code class="docutils literal notranslate"><span class="pre">datetime_utc</span></code> and integer <code class="docutils literal notranslate"><span class="pre">hour_of_year</span></code> columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._drop_city_cols" title="pudl.transform.vcerare._drop_city_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_drop_city_cols</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._drop_city_cols" title="pudl.transform.vcerare._drop_city_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_drop_city_cols</span></code></a>(lf, lf_name) → polars.LazyFrame</p></td>
 <td><p>Drop the two Virginia independent-city rows from a capacity factor table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._make_cap_fac_frac" title="pudl.transform.vcerare._make_cap_fac_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_cap_fac_frac</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._make_cap_fac_frac" title="pudl.transform.vcerare._make_cap_fac_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_cap_fac_frac</span></code></a>(lf, lf_name) → polars.LazyFrame</p></td>
 <td><p>Convert the capacity factor column from a percentage to a fraction.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._check_for_valid_counties" title="pudl.transform.vcerare._check_for_valid_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_for_valid_counties</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._check_for_valid_counties" title="pudl.transform.vcerare._check_for_valid_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_for_valid_counties</span></code></a>(lf, clean_fips_df, lf_name) → polars.LazyFrame</p></td>
 <td><p>Check that every place name in the data appears in the FIPS mapping table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._standardize_census_names" title="pudl.transform.vcerare._standardize_census_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_standardize_census_names</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._standardize_census_names" title="pudl.transform.vcerare._standardize_census_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_standardize_census_names</span></code></a>(vce_fips_df, census_pep_data) → pandas.DataFrame</p></td>
 <td><p>Make sure that the VCE place names correspond to the latest census vintage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity" title="pudl.transform.vcerare._clip_unexpected_2016_pv_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clip_unexpected_2016_pv_capacity</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity" title="pudl.transform.vcerare._clip_unexpected_2016_pv_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clip_unexpected_2016_pv_capacity</span></code></a>(lf, lf_name, year) → polars.LazyFrame</p></td>
 <td><p>Clip a known set of out-of-bounds 2016 solar PV capacity factors.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._spot_fix_great_lakes_fips" title="pudl.transform.vcerare._spot_fix_great_lakes_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_spot_fix_great_lakes_fips</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare._spot_fix_great_lakes_fips" title="pudl.transform.vcerare._spot_fix_great_lakes_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_spot_fix_great_lakes_fips</span></code></a>(sr) → pandas.Series</p></td>
 <td><p>Normalize the misspelled Lake Huron place name in the lat/lon/FIPS table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor" title="pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_spot_fix_great_lakes_capacity_factor</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor" title="pudl.transform.vcerare._spot_fix_great_lakes_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_spot_fix_great_lakes_capacity_factor</span></code></a>(lf, lf_name) → polars.LazyFrame</p></td>
 <td><p>Normalize the misspelled Lake Huron place name in a capacity factor table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare.one_year_hourly_available_capacity_factor" title="pudl.transform.vcerare.one_year_hourly_available_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_year_hourly_available_capacity_factor</span></code></a>(→ dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare.one_year_hourly_available_capacity_factor" title="pudl.transform.vcerare.one_year_hourly_available_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_year_hourly_available_capacity_factor</span></code></a>(year, ...) → dict[str, pudl.helpers.ParquetData]</p></td>
 <td><p>Transform one year of raw VCE RARE capacity factor tables to parquet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare.merge_all_vce_tables" title="pudl.transform.vcerare.merge_all_vce_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_all_vce_tables</span></code></a>(→ pudl.helpers.ParquetData)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.vcerare.merge_all_vce_tables" title="pudl.transform.vcerare.merge_all_vce_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_all_vce_tables</span></code></a>(transformed_tables, ...) → pudl.helpers.ParquetData</p></td>
 <td><p>Merge the cleaned VCE capacity factor tables into the final <code class="docutils literal notranslate"><span class="pre">out</span></code> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor" title="pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_vcerare__hourly_available_capacity_factor</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor" title="pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_vcerare__hourly_available_capacity_factor</span></code></a>(context, ...) → polars.LazyFrame</p></td>
 <td><p>Transform raw Vibrant Clean Energy renewable generation profiles.</p></td>
 </tr>
 </tbody>

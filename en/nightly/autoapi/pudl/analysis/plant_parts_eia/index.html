@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -1043,34 +1043,34 @@ from this module directly in a notebook or script like this:</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership" title="pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_generators_by_ownership</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership" title="pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_generators_by_ownership</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Create mega generators table asset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.plant_part_asset_factory" title="pudl.analysis.plant_parts_eia.plant_part_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plant_part_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.plant_part_asset_factory" title="pudl.analysis.plant_parts_eia.plant_part_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plant_part_asset_factory</span></code></a>(part_name) → dagster.AssetsDefinition</p></td>
 <td><p>Asset factory to create assets for each individual plant part.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts" title="pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_plant_parts</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts" title="pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_plant_parts</span></code></a>(out_eia__yearly_plants, ...) → pandas.DataFrame</p></td>
 <td><p>Create plant parts list asset by concatenating all plant-part assets.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.make_id_cols_list" title="pudl.analysis.plant_parts_eia.make_id_cols_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_id_cols_list</span></code></a>(→ list[Any])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.make_id_cols_list" title="pudl.analysis.plant_parts_eia.make_id_cols_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_id_cols_list</span></code></a>() → list[Any]</p></td>
 <td><p>Get a list of the id columns (primary keys) for all of the plant parts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict" title="pudl.analysis.plant_parts_eia.make_parts_to_ids_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_parts_to_ids_dict</span></code></a>(→ dict[PlantPartName, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict" title="pudl.analysis.plant_parts_eia.make_parts_to_ids_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_parts_to_ids_dict</span></code></a>() → dict[PlantPartName, str]</p></td>
 <td><p>Make dict w/ plant-part names (keys) to the main id column (values).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.add_record_id" title="pudl.analysis.plant_parts_eia.add_record_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_record_id</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.add_record_id" title="pudl.analysis.plant_parts_eia.add_record_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_record_id</span></code></a>(part_df, id_cols[, plant_part_col, year]) → pandas.DataFrame</p></td>
 <td><p>Add a record id to a compiled part df.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.match_to_single_plant_part" title="pudl.analysis.plant_parts_eia.match_to_single_plant_part"><code class="xref py py-obj docutils literal notranslate"><span class="pre">match_to_single_plant_part</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.match_to_single_plant_part" title="pudl.analysis.plant_parts_eia.match_to_single_plant_part"><code class="xref py py-obj docutils literal notranslate"><span class="pre">match_to_single_plant_part</span></code></a>(multi_gran_df, ppe[, ...]) → pandas.DataFrame</p></td>
 <td><p>Match data with a variety of granularities to a single plant-part.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.plant_parts_eia_distinct" title="pudl.analysis.plant_parts_eia.plant_parts_eia_distinct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plant_parts_eia_distinct</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.plant_parts_eia_distinct" title="pudl.analysis.plant_parts_eia.plant_parts_eia_distinct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plant_parts_eia_distinct</span></code></a>(plant_parts_eia) → pandas.DataFrame</p></td>
 <td><p>Get the EIA plant_parts with only the unique granularities.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes" title="pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassign_id_ownership_dupes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes" title="pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassign_id_ownership_dupes</span></code></a>(plant_parts_eia) → pandas.DataFrame</p></td>
 <td><p>Reassign the record_id for the records that are labeled ownership_dupe.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen" title="pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_assn_plant_parts_plant_gen</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen" title="pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_assn_plant_parts_plant_gen</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Build association table between EIA plant parts and EIA generators.</p></td>
 </tr>
 </tbody>

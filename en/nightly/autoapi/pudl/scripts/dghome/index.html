@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.scripts.dghome &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.scripts.dghome &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -837,28 +837,28 @@ based on modification date.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome._parse_date" title="pudl.scripts.dghome._parse_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_date</span></code></a>(→ datetime.datetime)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome._parse_date" title="pudl.scripts.dghome._parse_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_date</span></code></a>(date_str[, now]) → datetime.datetime</p></td>
 <td><p>Parse a cutoff datetime from one of several formats.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome._human_readable" title="pudl.scripts.dghome._human_readable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_human_readable</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome._human_readable" title="pudl.scripts.dghome._human_readable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_human_readable</span></code></a>(kb) → str</p></td>
 <td><p>Format a kilobyte count as a human-readable string (e.g. 1.2M, 3.4G).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome._row_color" title="pudl.scripts.dghome._row_color"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_row_color</span></code></a>(→ str | tuple[int, int, int])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome._row_color" title="pudl.scripts.dghome._row_color"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_row_color</span></code></a>(size_kb) → str | tuple[int, int, int]</p></td>
 <td><p>Get the right color of output for the filesize.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome._collect" title="pudl.scripts.dghome._collect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_collect</span></code></a>(→ list[dict])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome._collect" title="pudl.scripts.dghome._collect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_collect</span></code></a>(cutoff_ts) → list[dict]</p></td>
 <td><p>Return UUID dirs from $DAGSTER_HOME/storage, filtered to mtime &lt;= cutoff_ts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome.dghome" title="pudl.scripts.dghome.dghome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dghome</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome.dghome" title="pudl.scripts.dghome.dghome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dghome</span></code></a>() → None</p></td>
 <td><p>Manage UUID-named directories in Dagster storage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome.ls" title="pudl.scripts.dghome.ls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ls</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome.ls" title="pudl.scripts.dghome.ls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ls</span></code></a>(date) → None</p></td>
 <td><p>List UUID directories, optionally filtered by modification date.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome.rm" title="pudl.scripts.dghome.rm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rm</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dghome.rm" title="pudl.scripts.dghome.rm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rm</span></code></a>(date) → None</p></td>
 <td><p>Remove UUID directories last modified on or before DATE.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome.main" title="pudl.scripts.dghome.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dghome.main" title="pudl.scripts.dghome.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>() → None</p></td>
 <td><p>Entry point for the dghome CLI.</p></td>
 </tr>
 </tbody>

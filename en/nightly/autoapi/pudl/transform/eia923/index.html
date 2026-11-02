@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.eia923 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.eia923 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -823,103 +823,103 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._get_plant_nuclear_unit_id_map" title="pudl.transform.eia923._get_plant_nuclear_unit_id_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_plant_nuclear_unit_id_map</span></code></a>(→ dict[int, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._get_plant_nuclear_unit_id_map" title="pudl.transform.eia923._get_plant_nuclear_unit_id_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_plant_nuclear_unit_id_map</span></code></a>(nuc_fuel) → dict[int, str]</p></td>
 <td><p>Get a plant_id -&gt; nuclear_unit_id mapping for all plants with one nuclear unit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._backfill_nuclear_unit_id" title="pudl.transform.eia923._backfill_nuclear_unit_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_backfill_nuclear_unit_id</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._backfill_nuclear_unit_id" title="pudl.transform.eia923._backfill_nuclear_unit_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_backfill_nuclear_unit_id</span></code></a>(nuc_fuel) → pandas.DataFrame</p></td>
 <td><p>Backfill 2001 and 2002 nuclear_unit_id for plants with one nuclear unit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._get_plant_prime_mover_map" title="pudl.transform.eia923._get_plant_prime_mover_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_plant_prime_mover_map</span></code></a>(→ dict[int, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._get_plant_prime_mover_map" title="pudl.transform.eia923._get_plant_prime_mover_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_plant_prime_mover_map</span></code></a>(gen_fuel) → dict[int, str]</p></td>
 <td><p>Get a plant_id -&gt; prime_mover_code mapping for all plants with one prime mover.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._backfill_prime_mover_code" title="pudl.transform.eia923._backfill_prime_mover_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_backfill_prime_mover_code</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._backfill_prime_mover_code" title="pudl.transform.eia923._backfill_prime_mover_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_backfill_prime_mover_code</span></code></a>(gen_fuel) → pandas.DataFrame</p></td>
 <td><p>Backfill 2001 and 2002 prime_mover_code for plants with one prime mover.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._get_most_frequent_energy_source_map" title="pudl.transform.eia923._get_most_frequent_energy_source_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_most_frequent_energy_source_map</span></code></a>(→ dict[str, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._get_most_frequent_energy_source_map" title="pudl.transform.eia923._get_most_frequent_energy_source_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_most_frequent_energy_source_map</span></code></a>(gen_fuel) → dict[str, str]</p></td>
 <td><p>Get the a mapping of the most common energy_source for each fuel_type_code_agg.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._clean_gen_fuel_energy_sources" title="pudl.transform.eia923._clean_gen_fuel_energy_sources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_gen_fuel_energy_sources</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._clean_gen_fuel_energy_sources" title="pudl.transform.eia923._clean_gen_fuel_energy_sources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_gen_fuel_energy_sources</span></code></a>(gen_fuel) → pandas.DataFrame</p></td>
 <td><p>Clean the generator_fuel_eia923.energy_source_code field specifically.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._aggregate_generation_fuel_duplicates" title="pudl.transform.eia923._aggregate_generation_fuel_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_aggregate_generation_fuel_duplicates</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._aggregate_generation_fuel_duplicates" title="pudl.transform.eia923._aggregate_generation_fuel_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_aggregate_generation_fuel_duplicates</span></code></a>(gen_fuel[, nuclear]) → pandas.DataFrame</p></td>
 <td><p>Aggregate remaining duplicate generation fuels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._yearly_to_monthly_records" title="pudl.transform.eia923._yearly_to_monthly_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_yearly_to_monthly_records</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._yearly_to_monthly_records" title="pudl.transform.eia923._yearly_to_monthly_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_yearly_to_monthly_records</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Converts an EIA 923 record of 12 months of data into 12 monthly records.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._coalmine_cleanup" title="pudl.transform.eia923._coalmine_cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_coalmine_cleanup</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._coalmine_cleanup" title="pudl.transform.eia923._coalmine_cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_coalmine_cleanup</span></code></a>(cmi_df, _core_censuspep__yearly_geocodes) → pandas.DataFrame</p></td>
 <td><p>Clean up the core_eia923__entity_coalmine table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923.plants_eia923" title="pudl.transform.eia923.plants_eia923"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plants_eia923</span></code></a>(→ dict[str, pandas.DataFrame])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923.plants_eia923" title="pudl.transform.eia923.plants_eia923"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plants_eia923</span></code></a>(eia923_dfs, eia923_transformed_dfs) → dict[str, pandas.DataFrame]</p></td>
 <td><p>Transforms the plants_eia923 table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923.gen_fuel_nuclear" title="pudl.transform.eia923.gen_fuel_nuclear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_fuel_nuclear</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923.gen_fuel_nuclear" title="pudl.transform.eia923.gen_fuel_nuclear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_fuel_nuclear</span></code></a>(gen_fuel_nuke) → pandas.DataFrame</p></td>
 <td><p>Transforms the core_eia923__monthly_generation_fuel_nuclear table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__pre_generation_fuel" title="pudl.transform.eia923._core_eia923__pre_generation_fuel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__pre_generation_fuel</span></code></a>(...)</p></td>
 <td><p>Transforms the raw_eia923__generation_fuel table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._map_prime_mover_sets" title="pudl.transform.eia923._map_prime_mover_sets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_map_prime_mover_sets</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._map_prime_mover_sets" title="pudl.transform.eia923._map_prime_mover_sets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_map_prime_mover_sets</span></code></a>(prime_mover_set) → str</p></td>
 <td><p>Map unique prime mover combinations to a single prime mover code.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._aggregate_duplicate_boiler_fuel_keys" title="pudl.transform.eia923._aggregate_duplicate_boiler_fuel_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_aggregate_duplicate_boiler_fuel_keys</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._aggregate_duplicate_boiler_fuel_keys" title="pudl.transform.eia923._aggregate_duplicate_boiler_fuel_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_aggregate_duplicate_boiler_fuel_keys</span></code></a>(boiler_fuel_df) → pandas.DataFrame</p></td>
 <td><p>Combine boiler_fuel rows with duplicate keys by aggregating them.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__boiler_fuel" title="pudl.transform.eia923._core_eia923__boiler_fuel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__boiler_fuel</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__boiler_fuel" title="pudl.transform.eia923._core_eia923__boiler_fuel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__boiler_fuel</span></code></a>(raw_eia923__boiler_fuel) → pandas.DataFrame</p></td>
 <td><p>Transforms the core_eia923__monthly_boiler_fuel table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923" title="pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_pks_boiler_fuel_eia923</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923" title="pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_pks_boiler_fuel_eia923</span></code></a>(bf) → pandas.DataFrame</p></td>
 <td><p>Deduplicate on primary keys for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-eia923-monthly-boiler-fuel"><span class="std std-ref">core_eia923__monthly_boiler_fuel</span></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__generation" title="pudl.transform.eia923._core_eia923__generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__generation</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__generation" title="pudl.transform.eia923._core_eia923__generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__generation</span></code></a>(raw_eia923__generator) → pandas.DataFrame</p></td>
 <td><p>Transforms the EIA 923 generation table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._drop_duplicates__core_eia923__generation" title="pudl.transform.eia923._drop_duplicates__core_eia923__generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_drop_duplicates__core_eia923__generation</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._drop_duplicates__core_eia923__generation" title="pudl.transform.eia923._drop_duplicates__core_eia923__generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_drop_duplicates__core_eia923__generation</span></code></a>(gen_df[, ...]) → pandas.DataFrame</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__coalmine" title="pudl.transform.eia923._core_eia923__coalmine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__coalmine</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__coalmine" title="pudl.transform.eia923._core_eia923__coalmine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__coalmine</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the raw_eia923__fuel_receipts_costs table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__fuel_receipts_costs" title="pudl.transform.eia923._core_eia923__fuel_receipts_costs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__fuel_receipts_costs</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__fuel_receipts_costs" title="pudl.transform.eia923._core_eia923__fuel_receipts_costs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__fuel_receipts_costs</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the eia923__fuel_receipts_costs dataframe.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__monthly_cooling_system_information" title="pudl.transform.eia923._core_eia923__monthly_cooling_system_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__monthly_cooling_system_information</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__monthly_cooling_system_information" title="pudl.transform.eia923._core_eia923__monthly_cooling_system_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__monthly_cooling_system_information</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the eia923__cooling_system_information dataframe.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923.cooling_system_information_continuity" title="pudl.transform.eia923.cooling_system_information_continuity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cooling_system_information_continuity</span></code></a>(csi)</p></td>
 <td><p>Check to see if columns vary as slowly as expected.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._build_emissions_control_dates" title="pudl.transform.eia923._build_emissions_control_dates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_emissions_control_dates</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._build_emissions_control_dates" title="pudl.transform.eia923._build_emissions_control_dates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_emissions_control_dates</span></code></a>(raw_value, year, month, ...) → pandas.Series</p></td>
 <td><p>Validate date parts and build parsed timestamps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._parse_emissions_control_date_subset" title="pudl.transform.eia923._parse_emissions_control_date_subset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_emissions_control_date_subset</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._parse_emissions_control_date_subset" title="pudl.transform.eia923._parse_emissions_control_date_subset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_emissions_control_date_subset</span></code></a>(raw_subset, ...) → pandas.Series</p></td>
 <td><p>Parse one recognized emissions-control date format for a subset of rows.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._clean_emissions_control_dates" title="pudl.transform.eia923._clean_emissions_control_dates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_emissions_control_dates</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._clean_emissions_control_dates" title="pudl.transform.eia923._clean_emissions_control_dates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_emissions_control_dates</span></code></a>(col, min_valid_year, ...) → pandas.Series</p></td>
 <td><p>Parse raw EIA-923 emissions-control date strings into datetimes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance" title="pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_fgd_operation_maintenance</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance" title="pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_fgd_operation_maintenance</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the _core_eia923__yearly_fgd_operation_maintenance table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923.fgd_continuity_check" title="pudl.transform.eia923.fgd_continuity_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fgd_continuity_check</span></code></a>(fgd)</p></td>
 <td><p>Check to see if columns vary as slowly as expected.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__energy_storage" title="pudl.transform.eia923._core_eia923__energy_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__energy_storage</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__energy_storage" title="pudl.transform.eia923._core_eia923__energy_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__energy_storage</span></code></a>(raw_eia923__energy_storage) → pandas.DataFrame</p></td>
 <td><p>Transforms the eia923_energy_storage table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_fuel_stocks" title="pudl.transform.eia923._core_eia923__yearly_fuel_stocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_fuel_stocks</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_fuel_stocks" title="pudl.transform.eia923._core_eia923__yearly_fuel_stocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_fuel_stocks</span></code></a>(raw_eia923__stocks) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA-923 fossil-fuel stocks table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition" title="pudl.transform.eia923._core_eia923__yearly_byproduct_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_disposition</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition" title="pudl.transform.eia923._core_eia923__yearly_byproduct_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_disposition</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the eia923__byproduct_disposition table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923.disposition_continuity_check" title="pudl.transform.eia923.disposition_continuity_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disposition_continuity_check</span></code></a>(bpd)</p></td>
 <td><p>Check to see if columns vary as slowly as expected.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues" title="pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_expenses_and_revenues</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues" title="pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_expenses_and_revenues</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the eia923__byproduct_expenses_and_revenues table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_emissions_control" title="pudl.transform.eia923._core_eia923__yearly_emissions_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_emissions_control</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_emissions_control" title="pudl.transform.eia923._core_eia923__yearly_emissions_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_emissions_control</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transforms the eia923__emissions_control table.</p></td>
 </tr>
 </tbody>

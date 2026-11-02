@@ -25,15 +25,15 @@ Tools for embedding a DataFrame to create feature matrix for models.
 
 ## Functions
 
-| [`log_dataframe_embedder_config`](#pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config)(embedder_name, ...)           | Log embedder config to mlflow experiment.                                |
-|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`dataframe_embedder_factory`](#pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory)(name_prefix, vectorizers)        | Return a configured op graph to embed an input dataframe.                |
-| [`dataframe_cleaner_factory`](#pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory)(name_prefix, vectorizers)         | Return a configured op graph to clean an input dataframe.                |
-| [`_apply_cleaning_func`](#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func)(df, function_key)                      |                                                                          |
-| [`_extract_keyword_from_column`](#pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column)(→ pandas.Series)               | Extract keywords contained in a Pandas series with a regular expression. |
-| [`_fill_fuel_type_from_name`](#pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name)(→ pandas.DataFrame)               | Impute missing fuel type data from a name column.                        |
-| [`_apply_string_similarity_func`](#pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func)(df, function_key, col1, col2) |                                                                          |
-| [`_apply_numeric_similarity_func`](#pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func)(df, function_key, col1, ...) |                                                                          |
+| [`log_dataframe_embedder_config`](#pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config)(embedder_name, ...)                         | Log embedder config to mlflow experiment.                                |
+|----------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`dataframe_embedder_factory`](#pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory)(name_prefix, vectorizers)                      | Return a configured op graph to embed an input dataframe.                |
+| [`dataframe_cleaner_factory`](#pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory)(name_prefix, vectorizers)                       | Return a configured op graph to clean an input dataframe.                |
+| [`_apply_cleaning_func`](#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func)(df, function_key)                                    |                                                                          |
+| [`_extract_keyword_from_column`](#pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column)(ser, keyword_list) → pandas.Series           | Extract keywords contained in a Pandas series with a regular expression. |
+| [`_fill_fuel_type_from_name`](#pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name)(df, fuel_type_col, name_col) → pandas.DataFrame | Impute missing fuel type data from a name column.                        |
+| [`_apply_string_similarity_func`](#pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func)(df, function_key, col1, col2)               |                                                                          |
+| [`_apply_numeric_similarity_func`](#pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func)(df, function_key, col1, ...)               |                                                                          |
 
 ## Module Contents
 

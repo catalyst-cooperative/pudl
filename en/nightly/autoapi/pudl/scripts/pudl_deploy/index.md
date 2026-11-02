@@ -39,9 +39,9 @@ changes before production use.
 
 ## Functions
 
-| [`_deploy_outputs`](#pudl.scripts.pudl_deploy._deploy_outputs)(source_dir, plan, github_token, ...)   | Execute stable or nightly deployment workflow.                  |
-|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| [`main`](#pudl.scripts.pudl_deploy.main)(→ None)                                           | Deploy PUDL ETL outputs to cloud storage and external services. |
+| [`_deploy_outputs`](#pudl.scripts.pudl_deploy._deploy_outputs)(source_dir, plan, github_token, ...)       | Execute stable or nightly deployment workflow.                  |
+|-------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`main`](#pudl.scripts.pudl_deploy.main)(ctx, git_tag, environment, deploy_to_gcs, ...) → None | Deploy PUDL ETL outputs to cloud storage and external services. |
 
 ## Module Contents
 

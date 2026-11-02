@@ -29,11 +29,11 @@ should go in dbt.
 
 ## Functions
 
-| [`group_mean_continuity_check`](#pudl.dagster.asset_checks.group_mean_continuity_check)(→ dagster.AssetCheckResult)   | Check that certain variables don't vary too much on average between groups.           |
-|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`asset_check_from_schema`](#pudl.dagster.asset_checks.asset_check_from_schema)(...)                              | Create a Dagster asset check based on the resource schema, if defined.                |
-| [`valid_datapackage_check`](#pudl.dagster.asset_checks.valid_datapackage_check)(→ dagster.AssetChecksDefinition)  | Return a Dagster asset check that validates a frictionless datapackage descriptor.    |
-| [`valid_datapackage_unit_strings_check`](#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check)(...)                 | Return a Dagster asset check that validates unit strings in a datapackage descriptor. |
+| [`group_mean_continuity_check`](#pudl.dagster.asset_checks.group_mean_continuity_check)(df, thresholds, groupby_col) → dagster.AssetCheckResult              | Check that certain variables don't vary too much on average between groups.           |
+|---------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`asset_check_from_schema`](#pudl.dagster.asset_checks.asset_check_from_schema)(asset_key, package, duckdb_asset) → dagster.AssetChecksDefinition | None | Create a Dagster asset check based on the resource schema, if defined.                |
+| [`valid_datapackage_check`](#pudl.dagster.asset_checks.valid_datapackage_check)(asset_key, \*, description[, ...]) → dagster.AssetChecksDefinition       | Return a Dagster asset check that validates a frictionless datapackage descriptor.    |
+| [`valid_datapackage_unit_strings_check`](#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check)(asset_key, \*, ...) → dagster.AssetChecksDefinition         | Return a Dagster asset check that validates unit strings in a datapackage descriptor. |
 
 ## Module Contents
 

@@ -20,7 +20,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: main(skip: list[str], output: pathlib.Path, docs_dir: pathlib.Path, logfile: pathlib.Path, loglevel: str) -> int
+.. py:function:: main(skip: list[str], output: pathlib.Path, docs_dir: pathlib.Path, logfile: pathlib.Path | None, loglevel: pudl.logging_helpers.LogLevel) -> int
 
    Export PUDL table and field metadata to RST for use in documentation.
 

@@ -36,8 +36,8 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/as
 
 ## Functions
 
-| [`get_keys_from_assets`](#pudl.dagster.assets.get_keys_from_assets)(→ list[dagster.AssetKey])   | Get a list of asset keys for an asset definition or spec.   |
-|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| [`get_keys_from_assets`](#pudl.dagster.assets.get_keys_from_assets)(asset_def) → list[dagster.AssetKey]   | Get a list of asset keys for an asset definition or spec.   |
+|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 
 ## Package Contents
 

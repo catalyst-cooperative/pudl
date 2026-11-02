@@ -18,11 +18,11 @@ tools from scikit-learn
 
 ## Functions
 
-| [`_canonicalize_plant_ids`](#pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids)(→ pandas.Series)   | Replace arbitrary cluster labels with IDs that depend only on the clusters.   |
-|---------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| [`assign_plant_ids`](#pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids)(→ pandas.DataFrame)       | Add canonical `plant_id_ferc1` values to the steam table.                     |
-| [`merge_steam_fuel_dfs`](#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs)(→ pandas.DataFrame)   | Merge steam plants and fuel dfs to prepare inputs for ferc plant matching.    |
-| [`ferc_to_ferc`](#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc)(→ pandas.DataFrame)           | Assign IDs to the large steam plants.                                         |
+| [`_canonicalize_plant_ids`](#pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids)(labeled_df) → pandas.Series                     | Replace arbitrary cluster labels with IDs that depend only on the clusters.   |
+|--------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`assign_plant_ids`](#pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids)(ferc1_steam_df, labeled_df) → pandas.DataFrame         | Add canonical `plant_id_ferc1` values to the steam table.                     |
+| [`merge_steam_fuel_dfs`](#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs)(ferc1_steam_df, fuel_fractions) → pandas.DataFrame | Merge steam plants and fuel dfs to prepare inputs for ferc plant matching.    |
+| [`ferc_to_ferc`](#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc)(experiment_tracker, ...) → pandas.DataFrame                | Assign IDs to the large steam plants.                                         |
 
 ## Module Contents
 

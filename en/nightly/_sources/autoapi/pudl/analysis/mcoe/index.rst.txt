@@ -15,6 +15,7 @@ Attributes
 .. autoapisummary::
 
    pudl.analysis.mcoe.DEFAULT_GENS_COLS
+   pudl.analysis.mcoe._MCOE_FREQS
    pudl.analysis.mcoe.mcoe_assets
    pudl.analysis.mcoe.mcoe_asset_check_specs
    pudl.analysis.mcoe.mcoe_asset_checks
@@ -62,10 +63,13 @@ Module Contents
 
    :type: List
 
-.. py:function:: mcoe_asset_factory(freq: Literal['YS', 'MS'], op_tags: dict | None = None) -> list[dagster.AssetsDefinition]
+.. py:function:: mcoe_asset_factory(freq: pudl.helpers.AggregationFreq, op_tags: dict | None = None) -> list[dagster.AssetsDefinition]
 
    Build MCOE related assets at yearly and monthly frequencies.
 
+
+.. py:data:: _MCOE_FREQS
+   :type:  list[tuple[pudl.helpers.AggregationFreq, dict]]
 
 .. py:data:: mcoe_assets
 
@@ -173,7 +177,7 @@ Module Contents
    with the generators that have energy_source_code coal.
 
 
-.. py:function:: capacity_factor(gens: pandas.DataFrame, gen: pandas.DataFrame, freq: Literal['YS', 'MS'], min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
+.. py:function:: capacity_factor(gens: pandas.DataFrame, gen: pandas.DataFrame, freq: pudl.helpers.AggregationFreq, min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
 
    Calculate the capacity factor for each generator.
 
@@ -210,7 +214,7 @@ Module Contents
              rates, and net generation.
 
 
-.. py:function:: mcoe_generators(mcoe: pandas.DataFrame, gens: pandas.DataFrame, freq: Literal['YS', 'MS'], all_gens: bool = True, timeseries_fillin: bool = False) -> pandas.DataFrame
+.. py:function:: mcoe_generators(mcoe: pandas.DataFrame, gens: pandas.DataFrame, freq: pudl.helpers.AggregationFreq, all_gens: bool = True, timeseries_fillin: bool = False) -> pandas.DataFrame
 
    Merge generator attributes onto the marginal cost of electricity table.
 

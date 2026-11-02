@@ -9,8 +9,8 @@ Interim and output tables derived from the EIA Bulk Electricity data.
 
 ## Functions
 
-| [`_out_eia__monthly_state_fuel_prices`](#pudl.output.eiaapi._out_eia__monthly_state_fuel_prices)(→ pandas.DataFrame)   | Get state-level average fuel costs from EIA's bulk electricity data.   |
-|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| [`_out_eia__monthly_state_fuel_prices`](#pudl.output.eiaapi._out_eia__monthly_state_fuel_prices)(...) → pandas.DataFrame   | Get state-level average fuel costs from EIA's bulk electricity data.   |
+|----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
 
 ## Module Contents
 

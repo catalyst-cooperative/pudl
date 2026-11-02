@@ -16,9 +16,9 @@ to extract, and those are used to filter the extracted data before returning it.
 
 ## Functions
 
-| [`extract`](#pudl.extract.sec10k.extract)(→ pandas.DataFrame)                          | Extract SEC 10-K data from the datastore.               |
-|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| [`raw_sec10k_asset_factory`](#pudl.extract.sec10k.raw_sec10k_asset_factory)(→ dagster.AssetsDefinition) | An asset factory for extracting SEC 10-K data by table. |
+| [`extract`](#pudl.extract.sec10k.extract)(ds, table, years) → pandas.DataFrame               | Extract SEC 10-K data from the datastore.               |
+|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| [`raw_sec10k_asset_factory`](#pudl.extract.sec10k.raw_sec10k_asset_factory)(table) → dagster.AssetsDefinition | An asset factory for extracting SEC 10-K data by table. |
 
 ## Module Contents
 

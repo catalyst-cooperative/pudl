@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.provenance &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.dagster.provenance &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -844,13 +844,13 @@ logic that produces the asset itself.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.provenance._get_ferc_to_sqlite_asset_key" title="pudl.dagster.provenance._get_ferc_to_sqlite_asset_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_ferc_to_sqlite_asset_key</span></code></a>(→ dagster.AssetKey)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.provenance._get_ferc_to_sqlite_asset_key" title="pudl.dagster.provenance._get_ferc_to_sqlite_asset_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_ferc_to_sqlite_asset_key</span></code></a>(dataset, data_format) → dagster.AssetKey</p></td>
 <td><p>Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.provenance.get_xbrl_extractor_version" title="pudl.dagster.provenance.get_xbrl_extractor_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xbrl_extractor_version</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.provenance.get_xbrl_extractor_version" title="pudl.dagster.provenance.get_xbrl_extractor_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xbrl_extractor_version</span></code></a>() → str</p></td>
 <td><p>Return the installed version of <code class="docutils literal notranslate"><span class="pre">catalystcoop.ferc_xbrl_extractor</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible" title="pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_sqlite_provenance_is_compatible</span></code></a>(→ bool)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible" title="pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_sqlite_provenance_is_compatible</span></code></a>(*, ...) → bool</p></td>
 <td><p>Ensure a persisted FERC SQLite prerequisite is compatible with this run.</p></td>
 </tr>
 </tbody>
@@ -980,10 +980,10 @@ compatible FERC SQLite prerequisite must contain. Used by
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.dagster.provenance.FercSqliteProvenanceRecord.from_datapackage">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_datapackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapackage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">upath.UPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'nightly'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'local_cache'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'local_new'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.dagster.provenance.FercSqliteProvenanceRecord" title="pudl.dagster.provenance.FercSqliteProvenanceRecord"><span class="pre">FercSqliteProvenanceRecord</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/provenance.html#FercSqliteProvenanceRecord.from_datapackage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.provenance.FercSqliteProvenanceRecord.from_datapackage" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_datapackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapackage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">upath.UPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'nightly'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'local_cache'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'local_new'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.dagster.provenance.FercSqliteProvenanceRecord" title="pudl.dagster.provenance.FercSqliteProvenanceRecord"><span class="pre">FercSqliteProvenanceRecord</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/provenance.html#FercSqliteProvenanceRecord.from_datapackage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.provenance.FercSqliteProvenanceRecord.from_datapackage" title="Link to this definition">#</a></dt>
 <dd><p>Read SQLite provenance metadata from datapackage JSON file.</p>
 <p>Note that this method accepts <code class="docutils literal notranslate"><span class="pre">datapackage_path</span></code> as a <code class="docutils literal notranslate"><span class="pre">UPath</span></code> as we read
-provenance metadata directly from nightly builds, but <code class="docutils literal notranslate"><span class="pre">to_datapackage</span></code> only
+provenance metadata directly from nightly builds (or a local <code class="docutils literal notranslate"><span class="pre">Path</span></code>), but <code class="docutils literal notranslate"><span class="pre">to_datapackage</span></code> only
 accepts a regular <code class="docutils literal notranslate"><span class="pre">Path</span></code>, as we should never try to write directly to s3.</p>
 </dd></dl>
 

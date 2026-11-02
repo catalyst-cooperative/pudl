@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.extract.eia930 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.extract.eia930 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -827,19 +827,19 @@ dump out the concatenated pages to Parquet.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.eia930.raw_eia930__balance" title="pudl.extract.eia930.raw_eia930__balance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_eia930__balance</span></code></a>(→ pudl.helpers.ParquetData)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.eia930.raw_eia930__balance" title="pudl.extract.eia930.raw_eia930__balance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_eia930__balance</span></code></a>(context) → pudl.helpers.ParquetData</p></td>
 <td><p>Raw balance page.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.eia930.raw_eia930__interchange" title="pudl.extract.eia930.raw_eia930__interchange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_eia930__interchange</span></code></a>(→ pudl.helpers.ParquetData)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.eia930.raw_eia930__interchange" title="pudl.extract.eia930.raw_eia930__interchange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_eia930__interchange</span></code></a>(context) → pudl.helpers.ParquetData</p></td>
 <td><p>Raw interchange page.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.eia930.raw_eia930__subregion" title="pudl.extract.eia930.raw_eia930__subregion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_eia930__subregion</span></code></a>(→ pudl.helpers.ParquetData)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.eia930.raw_eia930__subregion" title="pudl.extract.eia930.raw_eia930__subregion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_eia930__subregion</span></code></a>(context) → pudl.helpers.ParquetData</p></td>
 <td><p>Raw subregion page - only exists after 2018h2.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.eia930.extract_page" title="pudl.extract.eia930.extract_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_page</span></code></a>(→ pudl.helpers.ParquetData)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.eia930.extract_page" title="pudl.extract.eia930.extract_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_page</span></code></a>(datastore, page, half_years) → pudl.helpers.ParquetData</p></td>
 <td><p>Pull data for a page across many half-years into a Parquet file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.eia930.extract_half_year_page" title="pudl.extract.eia930.extract_half_year_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_half_year_page</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.eia930.extract_half_year_page" title="pudl.extract.eia930.extract_half_year_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_half_year_page</span></code></a>(con, datastore, half_year, page) → str</p></td>
 <td><p>Extract data from a single CSV.</p></td>
 </tr>
 </tbody>

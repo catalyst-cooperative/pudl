@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.output.ferc1 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.ferc1 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -873,64 +873,64 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.get_core_ferc1_asset_description" title="pudl.output.ferc1.get_core_ferc1_asset_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_core_ferc1_asset_description</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.get_core_ferc1_asset_description" title="pudl.output.ferc1.get_core_ferc1_asset_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_core_ferc1_asset_description</span></code></a>(asset_name) → str</p></td>
 <td><p>Get the asset description portion of a core FERC FORM 1 asset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.ferc1_output_asset_factory" title="pudl.output.ferc1.ferc1_output_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_output_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.ferc1_output_asset_factory" title="pudl.output.ferc1.ferc1_output_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_output_asset_factory</span></code></a>(table_name) → dagster.AssetsDefinition</p></td>
 <td><p>Define an output asset for the FERC1 table by adding in utility IDs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._out_ferc1__yearly_plants_utilities" title="pudl.output.ferc1._out_ferc1__yearly_plants_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc1__yearly_plants_utilities</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._out_ferc1__yearly_plants_utilities" title="pudl.output.ferc1._out_ferc1__yearly_plants_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc1__yearly_plants_utilities</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>A denormalized table containing FERC plant and utility names and IDs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402" title="pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_steam_plants_sched402</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402" title="pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_steam_plants_sched402</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Select and joins some useful fields from the FERC Form 1 steam table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410" title="pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_small_plants_sched410</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410" title="pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_small_plants_sched410</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Pull a useful dataframe related to the FERC Form 1 small plants.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406" title="pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_hydroelectric_plants_sched406</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406" title="pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_hydroelectric_plants_sched406</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Pull a useful dataframe related to the FERC Form 1 hydro plants.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408" title="pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_pumped_storage_plants_sched408</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408" title="pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_pumped_storage_plants_sched408</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Pull a dataframe of FERC Form 1 Pumped Storage plant data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402" title="pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_steam_plants_fuel_sched402</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402" title="pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_steam_plants_fuel_sched402</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Pull a useful dataframe related to FERC Form 1 fuel information.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_all_plants" title="pudl.output.ferc1.out_ferc1__yearly_all_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_all_plants</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_all_plants" title="pudl.output.ferc1.out_ferc1__yearly_all_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_all_plants</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Combine the steam, small generators, hydro, and pumped storage tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402" title="pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_steam_plants_fuel_by_plant_sched402</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402" title="pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_steam_plants_fuel_by_plant_sched402</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Summarize FERC fuel data by plant for output.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.calc_annual_capital_additions_ferc1" title="pudl.output.ferc1.calc_annual_capital_additions_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_annual_capital_additions_ferc1</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.calc_annual_capital_additions_ferc1" title="pudl.output.ferc1.calc_annual_capital_additions_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_annual_capital_additions_ferc1</span></code></a>(steam_df[, window]) → pandas.DataFrame</p></td>
 <td><p>Calculate annual capital additions for FERC1 steam records.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.add_mean_cap_additions" title="pudl.output.ferc1.add_mean_cap_additions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mean_cap_additions</span></code></a>(steam_df)</p></td>
 <td><p>Add mean capital additions over lifetime of plant.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._out_ferc1__detailed_tags" title="pudl.output.ferc1._out_ferc1__detailed_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc1__detailed_tags</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._out_ferc1__detailed_tags" title="pudl.output.ferc1._out_ferc1__detailed_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc1__detailed_tags</span></code></a>(_core_ferc1__table_dimensions) → pandas.DataFrame</p></td>
 <td><p>Grab the stored tables of tags and add inferred dimension.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1._get_tags" title="pudl.output.ferc1._get_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_tags</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1._get_tags" title="pudl.output.ferc1._get_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_tags</span></code></a>(file_name, _core_ferc1__table_dimensions) → pandas.DataFrame</p></td>
 <td><p>Grab tags from a stored CSV file and apply <code class="xref py py-func docutils literal notranslate"><span class="pre">make_xbrl_factoid_dimensions_explicit()</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._aggregatable_dimension_tags" title="pudl.output.ferc1._aggregatable_dimension_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_aggregatable_dimension_tags</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._aggregatable_dimension_tags" title="pudl.output.ferc1._aggregatable_dimension_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_aggregatable_dimension_tags</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.exploded_table_asset_factory" title="pudl.output.ferc1.exploded_table_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exploded_table_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.exploded_table_asset_factory" title="pudl.output.ferc1.exploded_table_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exploded_table_asset_factory</span></code></a>(root_table, table_names, ...) → dagster.AssetsDefinition</p></td>
 <td><p>Create an exploded table based on a set of related input tables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.create_exploded_table_assets" title="pudl.output.ferc1.create_exploded_table_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_exploded_table_assets</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.create_exploded_table_assets" title="pudl.output.ferc1.create_exploded_table_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_exploded_table_assets</span></code></a>() → list[dagster.AssetsDefinition]</p></td>
 <td><p>Create a list of exploded FERC Form 1 assets.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.nodes_to_df" title="pudl.output.ferc1.nodes_to_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nodes_to_df</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.nodes_to_df" title="pudl.output.ferc1.nodes_to_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nodes_to_df</span></code></a>(calc_forest, nodes) → pandas.DataFrame</p></td>
 <td><p>Construct a dataframe from a list of nodes, including their annotations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tag" title="pudl.output.ferc1._propagate_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tag</span></code></a>(→ networkx.DiGraph[NodeId])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tag" title="pudl.output.ferc1._propagate_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tag</span></code></a>(annotated_forest, tag_name, ...) → networkx.DiGraph[NodeId]</p></td>
 <td><p>Set the tag for nodes when all of its successors or predecessorshave same tag.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tags_to_corrections" title="pudl.output.ferc1._propagate_tags_to_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tags_to_corrections</span></code></a>(→ networkx.DiGraph[NodeId])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tags_to_corrections" title="pudl.output.ferc1._propagate_tags_to_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tags_to_corrections</span></code></a>(annotated_forest) → networkx.DiGraph[NodeId]</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags" title="pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_tag_propagation_compared_to_compiled_tags</span></code></a>(df, ...)</p></td>
@@ -939,28 +939,28 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag" title="pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_correction_xbrl_factoids_with_tag</span></code></a>(df, ...)</p></td>
 <td><p>Check if any correction records have tags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_tag_propagation" title="pudl.output.ferc1.make_check_tag_propagation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_tag_propagation</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_tag_propagation" title="pudl.output.ferc1.make_check_tag_propagation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_tag_propagation</span></code></a>(spec) → dagster.AssetChecksDefinition</p></td>
 <td><p>Check the propagation of tags.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_correction_tags" title="pudl.output.ferc1.make_check_correction_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_correction_tags</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_correction_tags" title="pudl.output.ferc1.make_check_correction_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_correction_tags</span></code></a>(spec) → dagster.AssetChecksDefinition</p></td>
 <td><p>Check the propagation of tags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_rate_base" title="pudl.output.ferc1.out_ferc1__yearly_rate_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_rate_base</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_rate_base" title="pudl.output.ferc1.out_ferc1__yearly_rate_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_rate_base</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Make a table of granular utility rate base data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.replace_dimension_columns_with_aggregatable" title="pudl.output.ferc1.replace_dimension_columns_with_aggregatable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_dimension_columns_with_aggregatable</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.replace_dimension_columns_with_aggregatable" title="pudl.output.ferc1.replace_dimension_columns_with_aggregatable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_dimension_columns_with_aggregatable</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Replace the dimension columns with their aggregatable counterparts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_idx_check" title="pudl.output.ferc1.make_idx_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_idx_check</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_idx_check" title="pudl.output.ferc1.make_idx_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_idx_check</span></code></a>(spec) → dagster.AssetChecksDefinition</p></td>
 <td><p>Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.prep_cash_working_capital" title="pudl.output.ferc1.prep_cash_working_capital"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_cash_working_capital</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.prep_cash_working_capital" title="pudl.output.ferc1.prep_cash_working_capital"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_cash_working_capital</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Extract a new <code class="docutils literal notranslate"><span class="pre">cash_working_capital</span></code> <code class="docutils literal notranslate"><span class="pre">xbrl_factoid</span></code> for the rate base table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.disaggregate_null_or_total_tag" title="pudl.output.ferc1.disaggregate_null_or_total_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disaggregate_null_or_total_tag</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.disaggregate_null_or_total_tag" title="pudl.output.ferc1.disaggregate_null_or_total_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disaggregate_null_or_total_tag</span></code></a>(rate_base_df, tag_col) → pandas.DataFrame</p></td>
 <td><p>Disaggregate records with an null or total value in the <code class="docutils literal notranslate"><span class="pre">tag_col</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.get_column_value_ratio" title="pudl.output.ferc1.get_column_value_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_value_ratio</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.get_column_value_ratio" title="pudl.output.ferc1.get_column_value_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_value_ratio</span></code></a>(rate_base_df, ratio_idx, column) → pandas.DataFrame</p></td>
 <td><p>Calculate the percentage of the <code class="docutils literal notranslate"><span class="pre">ending_balance</span></code> within each value in the column.</p></td>
 </tr>
 </tbody>

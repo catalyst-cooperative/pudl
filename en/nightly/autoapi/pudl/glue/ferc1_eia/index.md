@@ -48,24 +48,24 @@ as an id.
 
 ## Functions
 
-| [`get_plant_map`](#pudl.glue.ferc1_eia.get_plant_map)(→ pandas.DataFrame)                        | Read in the manual FERC to EIA plant mapping data.                           |
-|-----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`get_utility_map_pudl`](#pudl.glue.ferc1_eia.get_utility_map_pudl)(→ pandas.DataFrame)                 | Read in the manual FERC to EIA utility mapping data.                         |
-| [`get_utility_map_ferc1`](#pudl.glue.ferc1_eia.get_utility_map_ferc1)(→ pandas.DataFrame)                | Read in the manual XBRL to DBF FERC1 utility mapping data.                   |
-| [`get_mapped_plants_eia`](#pudl.glue.ferc1_eia.get_mapped_plants_eia)(→ pandas.DataFrame)                | Get a list of all EIA plants that have been assigned PUDL Plant IDs.         |
-| [`get_util_ids_ferc1_raw_xbrl`](#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl)(→ pandas.DataFrame)          | Grab the utility ids (reported as entity_id) in the FERC1 XBRL database.     |
-| [`get_util_ids_ferc1_raw_dbf`](#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf)(→ pandas.DataFrame)           | Grab the utility ids (reported as respondent_id) in the FERC1 DBF database.  |
-| [`compile_plants_ferc1_raw`](#pudl.glue.ferc1_eia.compile_plants_ferc1_raw)(→ pandas.DataFrame)             | Compile a full list of raw FERC1 plants for manual ID mapping.               |
-| [`get_missing_ids`](#pudl.glue.ferc1_eia.get_missing_ids)(→ pandas.Index)                          | Identify IDs that are missing from the left df but show up in the right df.  |
-| [`label_missing_ids_for_manual_mapping`](#pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping)(→ pandas.DataFrame) | Label unmapped IDs for manual mapping.                                       |
-| [`label_plants_eia`](#pudl.glue.ferc1_eia.label_plants_eia)(→ pandas.DataFrame)                     | Label plants with columns helpful in manual mapping.                         |
-| [`label_utilities_ferc1_dbf`](#pudl.glue.ferc1_eia.label_utilities_ferc1_dbf)(→ pandas.DataFrame)            | Get the DBF FERC1 utilities with their names.                                |
-| [`label_utilities_ferc1_xbrl`](#pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl)(→ pandas.DataFrame)           | Get the XBRL FERC1 utilities with their names.                               |
-| [`get_utility_most_recent_capacity`](#pudl.glue.ferc1_eia.get_utility_most_recent_capacity)(→ pandas.Series)        | Calculate total generation capacity by utility in most recent reported year. |
-| [`get_core_eia923_plant_id_tables`](#pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables)(→ tuple[str, ...])       | Get the names of core_eia923 tables that contain plant_id_eia.               |
-| [`get_core_eia923_plant_ids`](#pudl.glue.ferc1_eia.get_core_eia923_plant_ids)(→ set)                         | Compile Plant IDs for all plants that appear in core EIA-923 tables.         |
-| [`get_util_ids_eia_unmapped`](#pudl.glue.ferc1_eia.get_util_ids_eia_unmapped)(→ pandas.DataFrame)            | Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.         |
-| [`glue`](#pudl.glue.ferc1_eia.glue)([ferc1, eia])                                       | Generates a dictionary of dataframes for glue tables between FERC1, EIA.     |
+| [`get_plant_map`](#pudl.glue.ferc1_eia.get_plant_map)() → pandas.DataFrame                                             | Read in the manual FERC to EIA plant mapping data.                           |
+|---------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`get_utility_map_pudl`](#pudl.glue.ferc1_eia.get_utility_map_pudl)() → pandas.DataFrame                                      | Read in the manual FERC to EIA utility mapping data.                         |
+| [`get_utility_map_ferc1`](#pudl.glue.ferc1_eia.get_utility_map_ferc1)() → pandas.DataFrame                                     | Read in the manual XBRL to DBF FERC1 utility mapping data.                   |
+| [`get_mapped_plants_eia`](#pudl.glue.ferc1_eia.get_mapped_plants_eia)() → pandas.DataFrame                                     | Get a list of all EIA plants that have been assigned PUDL Plant IDs.         |
+| [`get_util_ids_ferc1_raw_xbrl`](#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl)(ferc1_engine_xbrl) → pandas.DataFrame              | Grab the utility ids (reported as entity_id) in the FERC1 XBRL database.     |
+| [`get_util_ids_ferc1_raw_dbf`](#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf)(ferc1_engine_dbf) → pandas.DataFrame                | Grab the utility ids (reported as respondent_id) in the FERC1 DBF database.  |
+| [`compile_plants_ferc1_raw`](#pudl.glue.ferc1_eia.compile_plants_ferc1_raw)(plant_dfs) → pandas.DataFrame                         | Compile a full list of raw FERC1 plants for manual ID mapping.               |
+| [`get_missing_ids`](#pudl.glue.ferc1_eia.get_missing_ids)(ids_left, ids_right, id_cols) → pandas.Index                   | Identify IDs that are missing from the left df but show up in the right df.  |
+| [`label_missing_ids_for_manual_mapping`](#pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping)(missing_ids, label_df) → pandas.DataFrame | Label unmapped IDs for manual mapping.                                       |
+| [`label_plants_eia`](#pudl.glue.ferc1_eia.label_plants_eia)(out_eia_\_yearly_plants, ...) → pandas.DataFrame              | Label plants with columns helpful in manual mapping.                         |
+| [`label_utilities_ferc1_dbf`](#pudl.glue.ferc1_eia.label_utilities_ferc1_dbf)(...) → pandas.DataFrame                              | Get the DBF FERC1 utilities with their names.                                |
+| [`label_utilities_ferc1_xbrl`](#pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl)(...) → pandas.DataFrame                             | Get the XBRL FERC1 utilities with their names.                               |
+| [`get_utility_most_recent_capacity`](#pudl.glue.ferc1_eia.get_utility_most_recent_capacity)(...) → pandas.Series                          | Calculate total generation capacity by utility in most recent reported year. |
+| [`get_core_eia923_plant_id_tables`](#pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables)() → tuple[str, ...]                            | Get the names of core_eia923 tables that contain plant_id_eia.               |
+| [`get_core_eia923_plant_ids`](#pudl.glue.ferc1_eia.get_core_eia923_plant_ids)(eia923_dfs) → set                                    | Compile Plant IDs for all plants that appear in core EIA-923 tables.         |
+| [`get_util_ids_eia_unmapped`](#pudl.glue.ferc1_eia.get_util_ids_eia_unmapped)(out_eia_\_yearly_utilities, ...) → pandas.DataFrame  | Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.         |
+| [`glue`](#pudl.glue.ferc1_eia.glue)([ferc1, eia])                                                             | Generates a dictionary of dataframes for glue tables between FERC1, EIA.     |
 
 ## Module Contents
 

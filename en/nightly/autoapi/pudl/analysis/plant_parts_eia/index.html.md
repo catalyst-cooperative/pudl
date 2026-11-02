@@ -206,17 +206,17 @@ plant_parts_eia = MakePlantParts().execute(
 
 ## Functions
 
-| [`out_eia__yearly_generators_by_ownership`](#pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership)(→ pandas.DataFrame)   | Create mega generators table asset.                                     |
-|----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`plant_part_asset_factory`](#pudl.analysis.plant_parts_eia.plant_part_asset_factory)(→ dagster.AssetsDefinition)          | Asset factory to create assets for each individual plant part.          |
-| [`out_eia__yearly_plant_parts`](#pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts)(→ pandas.DataFrame)               | Create plant parts list asset by concatenating all plant-part assets.   |
-| [`make_id_cols_list`](#pudl.analysis.plant_parts_eia.make_id_cols_list)(→ list[Any])                                | Get a list of the id columns (primary keys) for all of the plant parts. |
-| [`make_parts_to_ids_dict`](#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict)(→ dict[PlantPartName, str])            | Make dict w/ plant-part names (keys) to the main id column (values).    |
-| [`add_record_id`](#pudl.analysis.plant_parts_eia.add_record_id)(→ pandas.DataFrame)                             | Add a record id to a compiled part df.                                  |
-| [`match_to_single_plant_part`](#pudl.analysis.plant_parts_eia.match_to_single_plant_part)(→ pandas.DataFrame)                | Match data with a variety of granularities to a single plant-part.      |
-| [`plant_parts_eia_distinct`](#pudl.analysis.plant_parts_eia.plant_parts_eia_distinct)(→ pandas.DataFrame)                  | Get the EIA plant_parts with only the unique granularities.             |
-| [`reassign_id_ownership_dupes`](#pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)(→ pandas.DataFrame)               | Reassign the record_id for the records that are labeled ownership_dupe. |
-| [`out_eia__yearly_assn_plant_parts_plant_gen`](#pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen)(...)               | Build association table between EIA plant parts and EIA generators.     |
+| [`out_eia__yearly_generators_by_ownership`](#pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership)(...) → pandas.DataFrame              | Create mega generators table asset.                                     |
+|-------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`plant_part_asset_factory`](#pudl.analysis.plant_parts_eia.plant_part_asset_factory)(part_name) → dagster.AssetsDefinition               | Asset factory to create assets for each individual plant part.          |
+| [`out_eia__yearly_plant_parts`](#pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts)(out_eia_\_yearly_plants, ...) → pandas.DataFrame | Create plant parts list asset by concatenating all plant-part assets.   |
+| [`make_id_cols_list`](#pudl.analysis.plant_parts_eia.make_id_cols_list)() → list[Any]                                              | Get a list of the id columns (primary keys) for all of the plant parts. |
+| [`make_parts_to_ids_dict`](#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict)() → dict[PlantPartName, str]                          | Make dict w/ plant-part names (keys) to the main id column (values).    |
+| [`add_record_id`](#pudl.analysis.plant_parts_eia.add_record_id)(part_df, id_cols[, plant_part_col, year]) → pandas.DataFrame   | Add a record id to a compiled part df.                                  |
+| [`match_to_single_plant_part`](#pudl.analysis.plant_parts_eia.match_to_single_plant_part)(multi_gran_df, ppe[, ...]) → pandas.DataFrame     | Match data with a variety of granularities to a single plant-part.      |
+| [`plant_parts_eia_distinct`](#pudl.analysis.plant_parts_eia.plant_parts_eia_distinct)(plant_parts_eia) → pandas.DataFrame                 | Get the EIA plant_parts with only the unique granularities.             |
+| [`reassign_id_ownership_dupes`](#pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)(plant_parts_eia) → pandas.DataFrame              | Reassign the record_id for the records that are labeled ownership_dupe. |
+| [`out_eia__yearly_assn_plant_parts_plant_gen`](#pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen)(...) → pandas.DataFrame           | Build association table between EIA plant parts and EIA generators.     |
 
 ## Module Contents
 

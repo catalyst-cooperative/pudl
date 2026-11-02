@@ -41,13 +41,13 @@ cycle.
 
 ## Functions
 
-| [`_get_applicable_dtypes`](#pudl.metadata.dtypes._get_applicable_dtypes)(→ dict[str, Any])     | Return the subset of resolved dtypes needed to cast the given columns.            |
-|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| [`get_pudl_dtypes`](#pudl.metadata.dtypes.get_pudl_dtypes)(→ dict[str, Any])            | Compile a dictionary of field dtypes.                                             |
-| [`_get_pudl_namespace_dtypes`](#pudl.metadata.dtypes._get_pudl_namespace_dtypes)(→ dict[str, Any]) | Compile a dictionary of field dtypes based on the namespace-level field metadata. |
-| [`_get_pudl_resource_dtypes`](#pudl.metadata.dtypes._get_pudl_resource_dtypes)(→ dict[str, Any])  | Compile a dictionary of field dtypes for a specific PUDL resource.                |
-| [`apply_pudl_dtypes`](#pudl.metadata.dtypes.apply_pudl_dtypes)(...)                       | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
-| [`apply_pudl_dtypes_polars`](#pudl.metadata.dtypes.apply_pudl_dtypes_polars)(→ polars.LazyFrame) | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
+| [`_get_applicable_dtypes`](#pudl.metadata.dtypes._get_applicable_dtypes)(columns, field_namespace, ...) → dict[str, Any]                                 | Return the subset of resolved dtypes needed to cast the given columns.            |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`get_pudl_dtypes`](#pudl.metadata.dtypes.get_pudl_dtypes)([field_namespace, resource, dtype_backend]) → dict[str, Any]                           | Compile a dictionary of field dtypes.                                             |
+| [`_get_pudl_namespace_dtypes`](#pudl.metadata.dtypes._get_pudl_namespace_dtypes)([field_namespace, ...]) → dict[str, Any]                                    | Compile a dictionary of field dtypes based on the namespace-level field metadata. |
+| [`_get_pudl_resource_dtypes`](#pudl.metadata.dtypes._get_pudl_resource_dtypes)(resource[, dtype_backend]) → dict[str, Any]                                  | Compile a dictionary of field dtypes for a specific PUDL resource.                |
+| [`apply_pudl_dtypes`](#pudl.metadata.dtypes.apply_pudl_dtypes)(df[, field_namespace, resource, strict]) → pandas.DataFrame | geopandas.GeoDataFrame | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
+| [`apply_pudl_dtypes_polars`](#pudl.metadata.dtypes.apply_pudl_dtypes_polars)(lf[, field_namespace, ...]) → polars.LazyFrame                                | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
 
 ## Module Contents
 

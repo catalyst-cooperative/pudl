@@ -147,7 +147,6 @@ Attributes
 .. autoapisummary::
 
    pudl.analysis.allocate_gen_fuel.logger
-   pudl.analysis.allocate_gen_fuel.AllocationFrequency
    pudl.analysis.allocate_gen_fuel.IDX_GENS
    pudl.analysis.allocate_gen_fuel.IDX_GENS_PM_ESC
    pudl.analysis.allocate_gen_fuel.IDX_PM_ESC
@@ -156,7 +155,6 @@ Attributes
    pudl.analysis.allocate_gen_fuel.IDX_UNIT_ESC
    pudl.analysis.allocate_gen_fuel.DATA_COLUMNS
    pudl.analysis.allocate_gen_fuel.MISSING_SENTINEL
-   pudl.analysis.allocate_gen_fuel.ALLOCATION_FREQUENCIES
    pudl.analysis.allocate_gen_fuel.allocate_gen_fuel_assets
    pudl.analysis.allocate_gen_fuel._TRANSITION_DATE_COL
 
@@ -204,10 +202,6 @@ Module Contents
 ---------------
 
 .. py:data:: logger
-
-.. py:data:: AllocationFrequency
-
-   The two frequencies at which generation & fuel data can be allocated.
 
 .. py:data:: IDX_GENS
    :value: ['report_date', 'plant_id_eia', 'generator_id']
@@ -271,19 +265,14 @@ Module Contents
       sentinel values. We avoid any negative values because there are instances of
       negative original values - especially negative net generation.
 
-.. py:function:: allocate_gen_fuel_asset_factory(freq: AllocationFrequency, io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
+.. py:function:: allocate_gen_fuel_asset_factory(freq: pudl.helpers.AggregationFreq, io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
 
    Build yearly and monthly net generation & fuel consumption allocation assets.
 
 
-.. py:data:: ALLOCATION_FREQUENCIES
-   :type:  tuple[AllocationFrequency, ...]
-   :value: ('YS', 'MS')
-
-
 .. py:data:: allocate_gen_fuel_assets
 
-.. py:function:: allocate_gen_fuel_by_generator_energy_source(gf: pandas.DataFrame, bf: pandas.DataFrame, gen: pandas.DataFrame, bga: pandas.DataFrame, gens: pandas.DataFrame, freq: AllocationFrequency, debug: bool = False) -> pandas.DataFrame
+.. py:function:: allocate_gen_fuel_by_generator_energy_source(gf: pandas.DataFrame, bf: pandas.DataFrame, gen: pandas.DataFrame, bga: pandas.DataFrame, gens: pandas.DataFrame, freq: pudl.helpers.AggregationFreq, debug: bool = False) -> pandas.DataFrame
 
    Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
@@ -321,7 +310,7 @@ Module Contents
    recent data from the EIA-860M.
 
 
-.. py:function:: standardize_input_frequency(bf: pandas.DataFrame, gens: pandas.DataFrame, gen: pandas.DataFrame, freq: AllocationFrequency) -> tuple[pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]
+.. py:function:: standardize_input_frequency(bf: pandas.DataFrame, gens: pandas.DataFrame, gen: pandas.DataFrame, freq: pudl.helpers.AggregationFreq) -> tuple[pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]
 
    Standardize the frequency of the input tables.
 
@@ -780,7 +769,7 @@ Module Contents
    duplicates.
 
 
-.. py:function:: distribute_annually_reported_data_to_months_if_annual(df: pandas.DataFrame, key_columns: list[str], data_column_name: str, freq: AllocationFrequency) -> pandas.DataFrame
+.. py:function:: distribute_annually_reported_data_to_months_if_annual(df: pandas.DataFrame, key_columns: list[str], data_column_name: str, freq: pudl.helpers.AggregationFreq) -> pandas.DataFrame
 
    Allocates annually-reported data from the gen or bf table to each month.
 

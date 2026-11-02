@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.censusdp1tract &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.censusdp1tract &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -872,7 +872,7 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for pudl.output.censusdp1tract</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Functions for reading data out of the Census DP1 SQLite Database."""</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypedDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">get_args</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -884,6 +884,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="CensusLayer">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.CensusLayer">[docs]</a>
+<span class="nb">type</span> <span class="n">CensusLayer</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">]</span></div>
 
 
 
@@ -906,7 +912,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="census_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.census_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">census_asset_factory</span><span class="p">(</span>
-    <span class="n">layer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">],</span>
+    <span class="n">layer</span><span class="p">:</span> <span class="n">CensusLayer</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""An asset factory for finished EIA tables."""</span>
     <span class="n">common_rename</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -966,20 +972,18 @@ window.runMermaid = runMermaid;</script>
         <span class="n">census_conn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">raw_censusdp1tract__all_tables</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">dp1_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="n">census_conn</span><span class="p">)</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">get_layer</span><span class="p">(</span>
-            <span class="n">layer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">],</span> <span class="n">dp1_engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span>
-        <span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">CensusLayer</span><span class="p">,</span> <span class="n">dp1_engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"Argument 'layer' must be a string, got arg of type </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
-            <span class="n">layer</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">]:</span>
+            <span class="n">layer_name</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">layer_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">"Census DP1 layer must be one of 'state', 'county' or 'tract', "</span>
-                    <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">."</span>
+                    <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="n">layer_name</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
-            <span class="n">table_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">_2010census_dp1"</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">layer_name</span><span class="si">}</span><span class="s2">_2010census_dp1"</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
 <span class="w">                </span><span class="sd">"""</span>
 <span class="sd">SELECT geom_cols.f_table_name as table_name,</span>
@@ -1008,7 +1012,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">)</span>
                 <span class="o">.</span><span class="n">rename_geometry</span><span class="p">(</span><span class="s2">"geometry"</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"objectid"</span><span class="p">])</span>
-                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">layer_params</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s2">"rename"</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">layer_params</span><span class="p">[</span><span class="n">layer_name</span><span class="p">][</span><span class="s2">"rename"</span><span class="p">])</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span>
                     <span class="p">{</span>
                         <span class="s2">"land_area"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1033,7 +1037,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="census_dp1_layers">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.census_dp1_layers">[docs]</a>
 <span class="n">census_dp1_layers</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">census_asset_factory</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">]</span>
+    <span class="n">census_asset_factory</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">get_args</span><span class="p">(</span><span class="n">CensusLayer</span><span class="o">.</span><span class="n">__value__</span><span class="p">)</span>
 <span class="p">]</span></div>
 
 </pre></div>

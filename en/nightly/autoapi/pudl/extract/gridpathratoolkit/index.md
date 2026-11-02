@@ -23,10 +23,10 @@ In addition there’s a table of daily weather data, which is also stored as a s
 
 ## Functions
 
-| [`_extract_csv`](#pudl.extract.gridpathratoolkit._extract_csv)(→ pandas.DataFrame)             |                                                                      |
-|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [`_extract_capacity_factor`](#pudl.extract.gridpathratoolkit._extract_capacity_factor)(→ pandas.DataFrame) |                                                                      |
-| [`raw_gridpathratoolkit_asset_factory`](#pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory)(...)     | An asset factory for GridPath RA Toolkit hourly generation profiles. |
+| [`_extract_csv`](#pudl.extract.gridpathratoolkit._extract_csv)(part, ds) → pandas.DataFrame                            |                                                                      |
+|-----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`_extract_capacity_factor`](#pudl.extract.gridpathratoolkit._extract_capacity_factor)(part, ds) → pandas.DataFrame                |                                                                      |
+| [`raw_gridpathratoolkit_asset_factory`](#pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory)(part) → dagster.AssetsDefinition | An asset factory for GridPath RA Toolkit hourly generation profiles. |
 
 ## Module Contents
 

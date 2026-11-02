@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -1004,133 +1004,133 @@ transformations.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__metadata_json" title="pudl.transform.ferc1._core_ferc1_xbrl__metadata_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__metadata_json</span></code></a>(→ dict[str, dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__metadata_json" title="pudl.transform.ferc1._core_ferc1_xbrl__metadata_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__metadata_json</span></code></a>(...) → dict[str, dict[str, list[dict[str, Any]]]]</p></td>
 <td><p>Generate cleaned json xbrl metadata.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_missing_factoid" title="pudl.transform.ferc1.add_missing_factoid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_missing_factoid</span></code></a>(raw_ferc1_xbrl__metadata_json)</p></td>
 <td><p>Add one missing factoid from core_ferc1__yearly_operating_expenses_sched320.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_source_tables_to_xbrl_metadata" title="pudl.transform.ferc1.add_source_tables_to_xbrl_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_source_tables_to_xbrl_metadata</span></code></a>(→ dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_source_tables_to_xbrl_metadata" title="pudl.transform.ferc1.add_source_tables_to_xbrl_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_source_tables_to_xbrl_metadata</span></code></a>(...) → dict[str, dict[str, list[dict[str, Any]]]]</p></td>
 <td><p>Add a <code class="docutils literal notranslate"><span class="pre">source_tables</span></code> field into metadata calculation components.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.wide_to_tidy" title="pudl.transform.ferc1.wide_to_tidy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wide_to_tidy</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.wide_to_tidy" title="pudl.transform.ferc1.wide_to_tidy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wide_to_tidy</span></code></a>(df, params) → pandas.DataFrame</p></td>
 <td><p>Reshape wide tables with FERC account columns to tidy format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.merge_xbrl_metadata" title="pudl.transform.ferc1.merge_xbrl_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_xbrl_metadata</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.merge_xbrl_metadata" title="pudl.transform.ferc1.merge_xbrl_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_xbrl_metadata</span></code></a>(df, xbrl_metadata, params) → pandas.DataFrame</p></td>
 <td><p>Merge metadata based on params.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.drop_duplicate_rows_dbf" title="pudl.transform.ferc1.drop_duplicate_rows_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_duplicate_rows_dbf</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.drop_duplicate_rows_dbf" title="pudl.transform.ferc1.drop_duplicate_rows_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_duplicate_rows_dbf</span></code></a>(df, params[, ...]) → pandas.DataFrame</p></td>
 <td><p>Drop duplicate DBF rows if duplicates have identical data or one row has nulls.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.align_row_numbers_dbf" title="pudl.transform.ferc1.align_row_numbers_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_row_numbers_dbf</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.align_row_numbers_dbf" title="pudl.transform.ferc1.align_row_numbers_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_row_numbers_dbf</span></code></a>(df, params) → pandas.DataFrame</p></td>
 <td><p>Rename the xbrl_factoid column after <a class="reference internal" href="#pudl.transform.ferc1.align_row_numbers_dbf" title="pudl.transform.ferc1.align_row_numbers_dbf"><code class="xref py py-meth docutils literal notranslate"><span class="pre">align_row_numbers_dbf()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.select_dbf_rows_by_category" title="pudl.transform.ferc1.select_dbf_rows_by_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_dbf_rows_by_category</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.select_dbf_rows_by_category" title="pudl.transform.ferc1.select_dbf_rows_by_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_dbf_rows_by_category</span></code></a>(processed_dbf, ...) → pandas.DataFrame</p></td>
 <td><p>Select DBF rows with values listed or found in XBRL in a categorical-like column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl" title="pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_balances_to_report_year_instant_xbrl</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl" title="pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_balances_to_report_year_instant_xbrl</span></code></a>(df, ...) → pandas.DataFrame</p></td>
 <td><p>Turn start year end year rows into columns for each value type.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.combine_axis_columns_xbrl" title="pudl.transform.ferc1.combine_axis_columns_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_axis_columns_xbrl</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.combine_axis_columns_xbrl" title="pudl.transform.ferc1.combine_axis_columns_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_axis_columns_xbrl</span></code></a>(df, params) → pandas.DataFrame</p></td>
 <td><p>Combine axis columns from squished XBRL tables into one column with no NAs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf" title="pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_quarterly_data_to_yearly_dbf</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf" title="pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_quarterly_data_to_yearly_dbf</span></code></a>(df, params) → pandas.DataFrame</p></td>
 <td><p>Transfer 4th quarter reported data to the annual columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_columns_with_uniform_values" title="pudl.transform.ferc1.add_columns_with_uniform_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_columns_with_uniform_values</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_columns_with_uniform_values" title="pudl.transform.ferc1.add_columns_with_uniform_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_columns_with_uniform_values</span></code></a>(df, params) → pandas.DataFrame</p></td>
 <td><p>Add a column to a table with a single value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.reconcile_table_calculations" title="pudl.transform.ferc1.reconcile_table_calculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_table_calculations</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.reconcile_table_calculations" title="pudl.transform.ferc1.reconcile_table_calculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_table_calculations</span></code></a>(df, ...) → pandas.DataFrame</p></td>
 <td><p>Ensure intra-table calculated values match reported values within a tolerance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.reconcile_one_type_of_table_calculations" title="pudl.transform.ferc1.reconcile_one_type_of_table_calculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_one_type_of_table_calculations</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.reconcile_one_type_of_table_calculations" title="pudl.transform.ferc1.reconcile_one_type_of_table_calculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_one_type_of_table_calculations</span></code></a>(data, ...[, ...]) → pandas.DataFrame</p></td>
 <td><p>Calculate vales, run metric checks and add corrections.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._calculation_components_subdimension_calculations" title="pudl.transform.ferc1._calculation_components_subdimension_calculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculation_components_subdimension_calculations</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._calculation_components_subdimension_calculations" title="pudl.transform.ferc1._calculation_components_subdimension_calculations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculation_components_subdimension_calculations</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Add total to subdimension calculations into calculation components.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._add_intra_table_calculation_dimensions" title="pudl.transform.ferc1._add_intra_table_calculation_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_intra_table_calculation_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._add_intra_table_calculation_dimensions" title="pudl.transform.ferc1._add_intra_table_calculation_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_intra_table_calculation_dimensions</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Add all observed subdimensions into the calculation components.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.calculate_values_from_components" title="pudl.transform.ferc1.calculate_values_from_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_values_from_components</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.calculate_values_from_components" title="pudl.transform.ferc1.calculate_values_from_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_values_from_components</span></code></a>(...[, ...]) → pandas.DataFrame</p></td>
 <td><p>Apply calculations derived from XBRL metadata to reported XBRL data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_calculation_metrics_by_group" title="pudl.transform.ferc1.check_calculation_metrics_by_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_calculation_metrics_by_group</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_calculation_metrics_by_group" title="pudl.transform.ferc1.check_calculation_metrics_by_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_calculation_metrics_by_group</span></code></a>(calculated_df, ...) → pandas.DataFrame</p></td>
 <td><p>Tabulate the results of the calculation checks by group.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_calculation_metrics" title="pudl.transform.ferc1.check_calculation_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_calculation_metrics</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_calculation_metrics" title="pudl.transform.ferc1.check_calculation_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_calculation_metrics</span></code></a>(calculated_df, ...) → pandas.DataFrame</p></td>
 <td><p>Run the calculation metrics and determine if calculations are within tolerance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_corrections" title="pudl.transform.ferc1.add_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_corrections</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_corrections" title="pudl.transform.ferc1.add_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_corrections</span></code></a>(calculated_df, value_col, ...) → pandas.DataFrame</p></td>
 <td><p>Add corrections to discrepancies between reported &amp; calculated values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl" title="pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_current_year_annual_records_duration_xbrl</span></code></a>(df, ...)</p></td>
 <td><p>Select for annual records within their report_year.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.get_ferc1_dbf_rows_to_map" title="pudl.transform.ferc1.get_ferc1_dbf_rows_to_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ferc1_dbf_rows_to_map</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.get_ferc1_dbf_rows_to_map" title="pudl.transform.ferc1.get_ferc1_dbf_rows_to_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ferc1_dbf_rows_to_map</span></code></a>(ferc1_engine) → pandas.DataFrame</p></td>
 <td><p>Identify DBF rows that need to be mapped to XBRL columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.update_dbf_to_xbrl_map" title="pudl.transform.ferc1.update_dbf_to_xbrl_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_dbf_to_xbrl_map</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.update_dbf_to_xbrl_map" title="pudl.transform.ferc1.update_dbf_to_xbrl_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_dbf_to_xbrl_map</span></code></a>(ferc1_engine) → pandas.DataFrame</p></td>
 <td><p>Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.read_dbf_to_xbrl_map" title="pudl.transform.ferc1.read_dbf_to_xbrl_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_dbf_to_xbrl_map</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.read_dbf_to_xbrl_map" title="pudl.transform.ferc1.read_dbf_to_xbrl_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_dbf_to_xbrl_map</span></code></a>(dbf_table_names) → pandas.DataFrame</p></td>
 <td><p>Read the manually compiled DBF row to XBRL column mapping for a given table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.fill_dbf_to_xbrl_map" title="pudl.transform.ferc1.fill_dbf_to_xbrl_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_dbf_to_xbrl_map</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.fill_dbf_to_xbrl_map" title="pudl.transform.ferc1.fill_dbf_to_xbrl_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_dbf_to_xbrl_map</span></code></a>(df[, dbf_years]) → pandas.DataFrame</p></td>
 <td><p>Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.get_data_cols_raw_xbrl" title="pudl.transform.ferc1.get_data_cols_raw_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_cols_raw_xbrl</span></code></a>(→ list[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.get_data_cols_raw_xbrl" title="pudl.transform.ferc1.get_data_cols_raw_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_cols_raw_xbrl</span></code></a>(raw_xbrl_instant, raw_xbrl_duration) → list[str]</p></td>
 <td><p>Get a list of all XBRL data columns appearing in a given XBRL table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.read_xbrl_calculation_fixes" title="pudl.transform.ferc1.read_xbrl_calculation_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_xbrl_calculation_fixes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.read_xbrl_calculation_fixes" title="pudl.transform.ferc1.read_xbrl_calculation_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_xbrl_calculation_fixes</span></code></a>() → pandas.DataFrame</p></td>
 <td><p>Read in the table of calculation fixes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years" title="pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pnynmndtnhnmns_to_years</span></code></a>(dep_factors, life_col)</p></td>
 <td><p>Convert the XBRL-based PnYnMnDTnHnMnS time period into years.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.ferc1_transform_asset_factory" title="pudl.transform.ferc1.ferc1_transform_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_transform_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.ferc1_transform_asset_factory" title="pudl.transform.ferc1.ferc1_transform_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_transform_asset_factory</span></code></a>(table_name, tfr_class[, ...]) → dagster.AssetsDefinition</p></td>
 <td><p>Create an asset that pulls in raw ferc Form 1 assets and applies transformations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.create_ferc1_transform_assets" title="pudl.transform.ferc1.create_ferc1_transform_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ferc1_transform_assets</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.create_ferc1_transform_assets" title="pudl.transform.ferc1.create_ferc1_transform_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ferc1_transform_assets</span></code></a>() → list[dagster.AssetsDefinition]</p></td>
 <td><p>Create a list of transformed FERC Form 1 assets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.other_dimensions" title="pudl.transform.ferc1.other_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_dimensions</span></code></a>(→ list[str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.other_dimensions" title="pudl.transform.ferc1.other_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_dimensions</span></code></a>(table_names) → list[str]</p></td>
 <td><p>Get a list of the other dimension columns across all of the transformers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_xbrl_factoid_name" title="pudl.transform.ferc1.table_to_xbrl_factoid_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_xbrl_factoid_name</span></code></a>(→ dict[str, str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_xbrl_factoid_name" title="pudl.transform.ferc1.table_to_xbrl_factoid_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_xbrl_factoid_name</span></code></a>() → dict[str, str]</p></td>
 <td><p>Build a dictionary of table name (keys) to <code class="docutils literal notranslate"><span class="pre">xbrl_factoid</span></code> column name.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_column_to_check" title="pudl.transform.ferc1.table_to_column_to_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_column_to_check</span></code></a>(→ dict[str, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_column_to_check" title="pudl.transform.ferc1.table_to_column_to_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_column_to_check</span></code></a>() → dict[str, str]</p></td>
 <td><p>Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows" title="pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_rare_utility_type_subdimensions_rows</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows" title="pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_rare_utility_type_subdimensions_rows</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Remove the rare, non-total utility types when all values are duplicated.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__table_dimensions" title="pudl.transform.ferc1._core_ferc1__table_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__table_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__table_dimensions" title="pudl.transform.ferc1._core_ferc1__table_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__table_dimensions</span></code></a>(**kwargs) → pandas.DataFrame</p></td>
 <td><p>Build a table of values of dimensions observed in the transformed data tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__metadata" title="pudl.transform.ferc1._core_ferc1_xbrl__metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__metadata</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__metadata" title="pudl.transform.ferc1._core_ferc1_xbrl__metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__metadata</span></code></a>(**kwargs) → pandas.DataFrame</p></td>
 <td><p>Build a table of all of the tables' XBRL metadata.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__calculation_components" title="pudl.transform.ferc1._core_ferc1_xbrl__calculation_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__calculation_components</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__calculation_components" title="pudl.transform.ferc1._core_ferc1_xbrl__calculation_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__calculation_components</span></code></a>(**kwargs) → pandas.DataFrame</p></td>
 <td><p>Create calculation-component table from table-level metadata.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.unexpected_total_components" title="pudl.transform.ferc1.unexpected_total_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unexpected_total_components</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.unexpected_total_components" title="pudl.transform.ferc1.unexpected_total_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unexpected_total_components</span></code></a>(calc_comps, dimensions) → pandas.DataFrame</p></td>
 <td><p>Find unexpected components in within-fact total calculations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_for_calc_components_duplicates" title="pudl.transform.ferc1.check_for_calc_components_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_calc_components_duplicates</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_for_calc_components_duplicates" title="pudl.transform.ferc1.check_for_calc_components_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_calc_components_duplicates</span></code></a>(calc_components, ...) → None</p></td>
 <td><p>Check for duplicates calculation records.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit" title="pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_xbrl_factoid_dimensions_explicit</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit" title="pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_xbrl_factoid_dimensions_explicit</span></code></a>(...[, parent]) → pandas.DataFrame</p></td>
 <td><p>Fill in null dimensions w/ the values observed in <a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__table_dimensions" title="pudl.transform.ferc1._core_ferc1__table_dimensions"><code class="xref py py-func docutils literal notranslate"><span class="pre">_core_ferc1__table_dimensions()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.assign_parent_dimensions" title="pudl.transform.ferc1.assign_parent_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_parent_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.assign_parent_dimensions" title="pudl.transform.ferc1.assign_parent_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_parent_dimensions</span></code></a>(calc_components, ...) → pandas.DataFrame</p></td>
 <td><p>Add dimensions to calculation parents.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.infer_intra_factoid_totals" title="pudl.transform.ferc1.infer_intra_factoid_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_intra_factoid_totals</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.infer_intra_factoid_totals" title="pudl.transform.ferc1.infer_intra_factoid_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_intra_factoid_totals</span></code></a>(calc_components, ...) → pandas.DataFrame</p></td>
 <td><p>Define dimension total calculations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_calculation_component_corrections" title="pudl.transform.ferc1.add_calculation_component_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_calculation_component_corrections</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_calculation_component_corrections" title="pudl.transform.ferc1.add_calculation_component_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_calculation_component_corrections</span></code></a>(calc_components) → pandas.DataFrame</p></td>
 <td><p>Add records into the calculation components table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__calculation_metric_checks" title="pudl.transform.ferc1._core_ferc1__calculation_metric_checks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__calculation_metric_checks</span></code></a>(**kwargs)</p></td>

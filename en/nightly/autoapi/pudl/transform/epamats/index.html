@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.epamats &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.epamats &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -833,19 +833,19 @@ loading, and crosswalk validation), so they are imported directly from
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epamats._map_measurement_codes" title="pudl.transform.epamats._map_measurement_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_map_measurement_codes</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epamats._map_measurement_codes" title="pudl.transform.epamats._map_measurement_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_map_measurement_codes</span></code></a>(lf) → polars.LazyFrame</p></td>
 <td><p>Map non-canonical measurement codes to canonical values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epamats._replace_missing_placeholders" title="pudl.transform.epamats._replace_missing_placeholders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_replace_missing_placeholders</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epamats._replace_missing_placeholders" title="pudl.transform.epamats._replace_missing_placeholders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_replace_missing_placeholders</span></code></a>(lf) → polars.LazyFrame</p></td>
 <td><p>Convert EPA's -1 placeholder for missing values into null.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epamats._validate_and_drop_hf_columns" title="pudl.transform.epamats._validate_and_drop_hf_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_and_drop_hf_columns</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epamats._validate_and_drop_hf_columns" title="pudl.transform.epamats._validate_and_drop_hf_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_and_drop_hf_columns</span></code></a>(lf) → polars.LazyFrame</p></td>
 <td><p>Assert all HF columns are null, then drop them from the data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epamats.transform_epamats" title="pudl.transform.epamats.transform_epamats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_epamats</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.epamats.transform_epamats" title="pudl.transform.epamats.transform_epamats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_epamats</span></code></a>(raw_lf, core_epa__assn_eia_epacamd, ...) → polars.LazyFrame</p></td>
 <td><p>Transform EPA MATS hourly data and ready it for export to Parquet.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epamats.core_epamats__hourly_emissions" title="pudl.transform.epamats.core_epamats__hourly_emissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epamats__hourly_emissions</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.epamats.core_epamats__hourly_emissions" title="pudl.transform.epamats.core_epamats__hourly_emissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_epamats__hourly_emissions</span></code></a>(context, ...) → polars.LazyFrame</p></td>
 <td><p>Transform raw EPA MATS hourly emissions data and write to Parquet.</p></td>
 </tr>
 </tbody>

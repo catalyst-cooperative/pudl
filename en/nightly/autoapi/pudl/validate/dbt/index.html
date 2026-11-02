@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.validate.dbt &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.validate.dbt &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -849,22 +849,22 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt._preserve_logging_propagation" title="pudl.validate.dbt._preserve_logging_propagation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_preserve_logging_propagation</span></code></a>()</p></td>
 <td><p>Restore logging propagation settings after a dbt invocation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.install_dbt_deps" title="pudl.validate.dbt.install_dbt_deps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">install_dbt_deps</span></code></a>(→ dbt.cli.main.dbtRunner)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.install_dbt_deps" title="pudl.validate.dbt.install_dbt_deps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">install_dbt_deps</span></code></a>([dbt]) → dbt.cli.main.dbtRunner</p></td>
 <td><p>Ensure dbt package dependencies are installed in the project directory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.__get_failed_nodes" title="pudl.validate.dbt.__get_failed_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_failed_nodes</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.__get_failed_nodes" title="pudl.validate.dbt.__get_failed_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_failed_nodes</span></code></a>(results) → list[dbt.contracts.graph.nodes.GenericTestNode]</p></td>
 <td><p>Get test node output from tests that failed.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.__get_quantile_contexts" title="pudl.validate.dbt.__get_quantile_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_quantile_contexts</span></code></a>(→ list[NodeContext])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.__get_quantile_contexts" title="pudl.validate.dbt.__get_quantile_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_quantile_contexts</span></code></a>(nodes, dbt, dbt_dir) → list[NodeContext]</p></td>
 <td><p>Run debug_quantile_constraints macro for failed quantile constraints.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.__get_compiled_sql_contexts" title="pudl.validate.dbt.__get_compiled_sql_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_compiled_sql_contexts</span></code></a>(→ list[NodeContext])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.__get_compiled_sql_contexts" title="pudl.validate.dbt.__get_compiled_sql_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_compiled_sql_contexts</span></code></a>(nodes) → list[NodeContext]</p></td>
 <td><p>Run the compiled SQL against duckdb to get failure contexts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.build_with_context" title="pudl.validate.dbt.build_with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_with_context</span></code></a>(→ BuildResult)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.build_with_context" title="pudl.validate.dbt.build_with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_with_context</span></code></a>(node_selection, dbt_target[, ...]) → BuildResult</p></td>
 <td><p>Run the DBT build and get failure information back.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.dagster_to_dbt_selection" title="pudl.validate.dbt.dagster_to_dbt_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster_to_dbt_selection</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.dagster_to_dbt_selection" title="pudl.validate.dbt.dagster_to_dbt_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster_to_dbt_selection</span></code></a>(selection, defs[, manifest]) → str</p></td>
 <td><p>Translate dagster asset selection to db node selection.</p></td>
 </tr>
 </tbody>

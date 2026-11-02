@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.output.eia923 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.eia923 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -826,37 +826,37 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.denorm_by_plant" title="pudl.output.eia923.denorm_by_plant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denorm_by_plant</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.denorm_by_plant" title="pudl.output.eia923.denorm_by_plant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denorm_by_plant</span></code></a>(df, pu[, first_cols]) → pandas.DataFrame</p></td>
 <td><p>Denormalize a table that is reported on a per-plant basis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.denorm_by_gen" title="pudl.output.eia923.denorm_by_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denorm_by_gen</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.denorm_by_gen" title="pudl.output.eia923.denorm_by_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denorm_by_gen</span></code></a>(df, pu, bga[, first_cols]) → pandas.DataFrame</p></td>
 <td><p>Denormalize a table that is reported on a per-generator basis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.denorm_by_boil" title="pudl.output.eia923.denorm_by_boil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denorm_by_boil</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.denorm_by_boil" title="pudl.output.eia923.denorm_by_boil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denorm_by_boil</span></code></a>(df, pu, bga[, first_cols]) → pandas.DataFrame</p></td>
 <td><p>Denormalize a table that is reported on a per-boiler basis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923._fill_fuel_costs_by_state" title="pudl.output.eia923._fill_fuel_costs_by_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fill_fuel_costs_by_state</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923._fill_fuel_costs_by_state" title="pudl.output.eia923._fill_fuel_costs_by_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fill_fuel_costs_by_state</span></code></a>(frc_df, fuel_costs) → pandas.DataFrame</p></td>
 <td><p>Fill in missing fuel costs with state-level averages.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.drop_ytd_for_annual_tables" title="pudl.output.eia923.drop_ytd_for_annual_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_ytd_for_annual_tables</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.drop_ytd_for_annual_tables" title="pudl.output.eia923.drop_ytd_for_annual_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_ytd_for_annual_tables</span></code></a>(df, freq) → pandas.DataFrame</p></td>
 <td><p>Drop records in annual tables where data_maturity is incremental_ytd.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__generation" title="pudl.output.eia923.out_eia923__generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__generation</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__generation" title="pudl.output.eia923.out_eia923__generation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__generation</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Denormalize the <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-eia923-monthly-generation"><span class="std std-ref">core_eia923__monthly_generation</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__generation_fuel_combined" title="pudl.output.eia923.out_eia923__generation_fuel_combined"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__generation_fuel_combined</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__generation_fuel_combined" title="pudl.output.eia923.out_eia923__generation_fuel_combined"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__generation_fuel_combined</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Denormalize the <cite>generation_fuel_combined_eia923</cite> table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__energy_storage" title="pudl.output.eia923.out_eia923__energy_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__energy_storage</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__energy_storage" title="pudl.output.eia923.out_eia923__energy_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__energy_storage</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Denormalize the <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-eia923-monthly-energy-storage"><span class="std std-ref">core_eia923__monthly_energy_storage</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__boiler_fuel" title="pudl.output.eia923.out_eia923__boiler_fuel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__boiler_fuel</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__boiler_fuel" title="pudl.output.eia923.out_eia923__boiler_fuel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__boiler_fuel</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Denormalize the <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-eia923-monthly-boiler-fuel"><span class="std std-ref">core_eia923__monthly_boiler_fuel</span></a> table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__fuel_receipts_costs" title="pudl.output.eia923.out_eia923__fuel_receipts_costs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__fuel_receipts_costs</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia923.out_eia923__fuel_receipts_costs" title="pudl.output.eia923.out_eia923__fuel_receipts_costs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia923__fuel_receipts_costs</span></code></a>(context, ...) → pandas.DataFrame</p></td>
 <td><p>Denormalize the <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-eia923-fuel-receipts-costs"><span class="std std-ref">core_eia923__fuel_receipts_costs</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.time_aggregated_eia923_asset_factory" title="pudl.output.eia923.time_aggregated_eia923_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_aggregated_eia923_asset_factory</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia923.time_aggregated_eia923_asset_factory" title="pudl.output.eia923.time_aggregated_eia923_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_aggregated_eia923_asset_factory</span></code></a>(freq[, ...]) → list[dagster.AssetsDefinition]</p></td>
 <td><p>Build EIA-923 asset definitions, aggregated by year or month.</p></td>
 </tr>
 </tbody>
@@ -966,7 +966,7 @@ required later to calculate average heat content per unit of fuel.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.output.eia923.time_aggregated_eia923_asset_factory">
-<span class="sig-prename descclassname"><span class="pre">pudl.output.eia923.</span></span><span class="sig-name descname"><span class="pre">time_aggregated_eia923_asset_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'YS'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MS'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia923.html#time_aggregated_eia923_asset_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia923.time_aggregated_eia923_asset_factory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia923.</span></span><span class="sig-name descname"><span class="pre">time_aggregated_eia923_asset_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../helpers/index.html#pudl.helpers.AggregationFreq" title="pudl.helpers.AggregationFreq"><span class="pre">pudl.helpers.AggregationFreq</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia923.html#time_aggregated_eia923_asset_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia923.time_aggregated_eia923_asset_factory" title="Link to this definition">#</a></dt>
 <dd><p>Build EIA-923 asset definitions, aggregated by year or month.</p>
 </dd></dl>
 

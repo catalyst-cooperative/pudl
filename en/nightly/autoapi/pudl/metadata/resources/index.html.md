@@ -52,8 +52,8 @@ A subpackage to define and organize PUDL database tables by data group.
 
 ## Functions
 
-| [`build_foreign_keys`](#pudl.metadata.resources.build_foreign_keys)(→ dict[str, list[dict]])   | Build foreign keys for each resource.   |
-|------------------------------------------------------------------------------------------------|-----------------------------------------|
+| [`build_foreign_keys`](#pudl.metadata.resources.build_foreign_keys)(resources[, prune]) → dict[str, list[dict]]   | Build foreign keys for each resource.   |
+|-------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
 
 ## Package Contents
 

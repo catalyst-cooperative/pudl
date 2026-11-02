@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc714 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.ferc714 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -876,6 +876,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">at :doc:`/methodology/timeseries_imputation`</span>
 <span class="sd">"""</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
@@ -1171,9 +1172,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="categorize_eia_code">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.categorize_eia_code">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">categorize_eia_code</span><span class="p">(</span>
-    <span class="n">eia_codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">ba_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">util_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">eia_codes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">ba_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">util_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="n">priority</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"balancing_authority"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.</span>
@@ -1311,7 +1312,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">dfi</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
     <span class="n">eia861_years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
 
-    <span class="n">new_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">Hashable</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">target_year</span><span class="p">,</span> <span class="n">fixes</span> <span class="ow">in</span> <span class="n">BA_FIXES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">target_year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -1640,8 +1641,8 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="n">categorized</span> <span class="o">=</span> <span class="n">categorize_eia_code</span><span class="p">(</span>
-        <span class="n">core_ferc714__respondent_id</span><span class="o">.</span><span class="n">eia_code</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
-        <span class="n">ba_ids</span><span class="o">=</span><span class="n">bal_auth</span><span class="o">.</span><span class="n">balancing_authority_id_eia</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+        <span class="n">core_ferc714__respondent_id</span><span class="o">.</span><span class="n">eia_code</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span>
+        <span class="n">ba_ids</span><span class="o">=</span><span class="n">bal_auth</span><span class="o">.</span><span class="n">balancing_authority_id_eia</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span>
         <span class="n">util_ids</span><span class="o">=</span><span class="n">utilids_all_eia</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="p">,</span>
         <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span>
     <span class="p">)</span>

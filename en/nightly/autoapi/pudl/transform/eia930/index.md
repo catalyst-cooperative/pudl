@@ -9,12 +9,12 @@ Module to perform data cleaning functions on EIA930 data tables.
 
 ## Functions
 
-| [`_transform_netgen_by_source`](#pudl.transform.eia930._transform_netgen_by_source)(→ pudl.helpers.ParquetData)      | Transform the eia930 netgen by source table.                             |
-|---------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`_transform_hourly_operations`](#pudl.transform.eia930._transform_hourly_operations)(→ pudl.helpers.ParquetData)     | Transform the eia930 hourly operations table.                            |
-| [`core_eia930__hourly_operations_assets`](#pudl.transform.eia930.core_eia930__hourly_operations_assets)(raw_eia930_\_balance)  | Separate raw_eia930_\_balance into net generation and demand tables.     |
-| [`core_eia930__hourly_subregion_demand`](#pudl.transform.eia930.core_eia930__hourly_subregion_demand)(raw_eia930_\_subregion) | Produce a normalized table of hourly electricity demand by BA subregion. |
-| [`core_eia930__hourly_interchange`](#pudl.transform.eia930.core_eia930__hourly_interchange)(raw_eia930_\_interchange)    | Produce a normalized table of hourly interchange by balancing authority. |
+| [`_transform_netgen_by_source`](#pudl.transform.eia930._transform_netgen_by_source)(table, conn) → pudl.helpers.ParquetData   | Transform the eia930 netgen by source table.                             |
+|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`_transform_hourly_operations`](#pudl.transform.eia930._transform_hourly_operations)(table, conn) → pudl.helpers.ParquetData  | Transform the eia930 hourly operations table.                            |
+| [`core_eia930__hourly_operations_assets`](#pudl.transform.eia930.core_eia930__hourly_operations_assets)(raw_eia930_\_balance)           | Separate raw_eia930_\_balance into net generation and demand tables.     |
+| [`core_eia930__hourly_subregion_demand`](#pudl.transform.eia930.core_eia930__hourly_subregion_demand)(raw_eia930_\_subregion)          | Produce a normalized table of hourly electricity demand by BA subregion. |
+| [`core_eia930__hourly_interchange`](#pudl.transform.eia930.core_eia930__hourly_interchange)(raw_eia930_\_interchange)             | Produce a normalized table of hourly interchange by balancing authority. |
 
 ## Module Contents
 

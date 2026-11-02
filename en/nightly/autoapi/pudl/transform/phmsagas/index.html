@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.phmsagas &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.phmsagas &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -841,52 +841,52 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._check_all_raw_columns_being_transformed" title="pudl.transform.phmsagas._check_all_raw_columns_being_transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_all_raw_columns_being_transformed</span></code></a>(raw_df)</p></td>
 <td><p>Check to ensure that we are transforming all of the raw columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._dedupe_year_distribution_idx" title="pudl.transform.phmsagas._dedupe_year_distribution_idx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dedupe_year_distribution_idx</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._dedupe_year_distribution_idx" title="pudl.transform.phmsagas._dedupe_year_distribution_idx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dedupe_year_distribution_idx</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Remove the rare duplicates in the expected primary key.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._assign_cols_from_patterns" title="pudl.transform.phmsagas._assign_cols_from_patterns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_assign_cols_from_patterns</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._assign_cols_from_patterns" title="pudl.transform.phmsagas._assign_cols_from_patterns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_assign_cols_from_patterns</span></code></a>(df, col_patterns, pattern_col) → pandas.DataFrame</p></td>
 <td><p>Add new columns based on regex patterns within an existing column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas.backfill_zero_operator_id_phmsa" title="pudl.transform.phmsagas.backfill_zero_operator_id_phmsa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backfill_zero_operator_id_phmsa</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas.backfill_zero_operator_id_phmsa" title="pudl.transform.phmsagas.backfill_zero_operator_id_phmsa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backfill_zero_operator_id_phmsa</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Backfill some of the 0's in the operator_id_phmsa.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Clean up the raw yearly distribution table for future transforms.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._melt_col_pattern" title="pudl.transform.phmsagas._melt_col_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_melt_col_pattern</span></code></a>(df, filter_pattern, value_name, ...)</p></td>
 <td><p>Melt a dataframe based on a filter regex pattern and assign pattern columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._melt_merge_main_services" title="pudl.transform.phmsagas._melt_merge_main_services"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_melt_merge_main_services</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._melt_merge_main_services" title="pudl.transform.phmsagas._melt_merge_main_services"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_melt_merge_main_services</span></code></a>(cleaned_raw, main_pattern, ...) → pandas.DataFrame</p></td>
 <td><p>Filter, melt, add columns then merge miles of main and service.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._check_and_drop_log_if_always_in_report_id" title="pudl.transform.phmsagas._check_and_drop_log_if_always_in_report_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_and_drop_log_if_always_in_report_id</span></code></a>(df)</p></td>
 <td><p>Check to ensure we can drop the log column w/o losing information.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_filings</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_filings</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform information about filings (with PK report_id).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators" title="pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_phmsagas__yearly_distribution_operators</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators" title="pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_phmsagas__yearly_distribution_operators</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Pull and transform the yearly distribution PHMSA data into operator-level data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_by_material</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_by_material</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the _core table of the miles of main and services by material.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_by_material_and_size</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_by_material_and_size</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the _core table of the miles of main and services by material type and size.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_leaks</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_leaks</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform table of leaks - broken out by source and leak severity.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_excavation_damages</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_excavation_damages</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform table of damages - broken out by type and sub-type.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_misc</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc" title="pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_phmsagas__yearly_distribution_misc</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform this distribution table of miscellaneous numeric values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._assert_install_decade_totals_match_expected" title="pudl.transform.phmsagas._assert_install_decade_totals_match_expected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_assert_install_decade_totals_match_expected</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.phmsagas._assert_install_decade_totals_match_expected" title="pudl.transform.phmsagas._assert_install_decade_totals_match_expected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_assert_install_decade_totals_match_expected</span></code></a>(df) → None</p></td>
 <td><p>Assert known mismatch counts between reported and summed install decades.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade" title="pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_phmsagas__yearly_distribution_by_install_decade</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade" title="pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_phmsagas__yearly_distribution_by_install_decade</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Create core_phmsagas__yearly_distribution_by_install_decade.</p></td>
 </tr>
 </tbody>

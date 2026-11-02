@@ -9,15 +9,15 @@ Module to perform data cleaning functions on EPA CEMS data tables.
 
 ## Functions
 
-| [`harmonize_eia_epa_orispl`](#pudl.transform.epacems.harmonize_eia_epa_orispl)(→ polars.LazyFrame)          | Harmonize the ORISPL code to match the EIA data.                           |
-|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`convert_to_utc`](#pudl.transform.epacems.convert_to_utc)(→ polars.LazyFrame)                    | Convert CEMS datetime data to UTC timezones.                               |
-| [`_load_plant_utc_offset`](#pudl.transform.epacems._load_plant_utc_offset)(→ polars.DataFrame)            | Load the UTC offset for each EIA plant.                                    |
-| [`_validate_crosswalk_uniqueness`](#pudl.transform.epacems._validate_crosswalk_uniqueness)(→ None)                | Validate that crosswalk has unique plant_id_eia values per EPA plant/unit. |
-| [`transform_epacems`](#pudl.transform.epacems.transform_epacems)(→ polars.LazyFrame)                 | Transform EPA CEMS hourly data and ready it for export to Parquet.         |
-| [`_partitioned_path`](#pudl.transform.epacems._partitioned_path)(→ pathlib.Path)                     |                                                                            |
-| [`core_epacems__hourly_emissions`](#pudl.transform.epacems.core_epacems__hourly_emissions)(→ polars.LazyFrame)    | Extract EPA CEMS data by quarter and write to partitioned Parquet files.   |
-| [`_core_epacems__emissions_unit_ids`](#pudl.transform.epacems._core_epacems__emissions_unit_ids)(→ pandas.DataFrame) | Make unique annual plant_id_eia and emissions_unit_id_epa.                 |
+| [`harmonize_eia_epa_orispl`](#pudl.transform.epacems.harmonize_eia_epa_orispl)(lf, crosswalk_lf) → polars.LazyFrame                  | Harmonize the ORISPL code to match the EIA data.                           |
+|---------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`convert_to_utc`](#pudl.transform.epacems.convert_to_utc)(lf, plant_utc_offset) → polars.LazyFrame                        | Convert CEMS datetime data to UTC timezones.                               |
+| [`_load_plant_utc_offset`](#pudl.transform.epacems._load_plant_utc_offset)(core_eia_\_entity_plants) → polars.DataFrame            | Load the UTC offset for each EIA plant.                                    |
+| [`_validate_crosswalk_uniqueness`](#pudl.transform.epacems._validate_crosswalk_uniqueness)(crosswalk_df) → None                            | Validate that crosswalk has unique plant_id_eia values per EPA plant/unit. |
+| [`transform_epacems`](#pudl.transform.epacems.transform_epacems)(raw_lf, core_epa_\_assn_eia_epacamd, ...) → polars.LazyFrame | Transform EPA CEMS hourly data and ready it for export to Parquet.         |
+| [`_partitioned_path`](#pudl.transform.epacems._partitioned_path)(pudl_paths) → pathlib.Path                                   |                                                                            |
+| [`core_epacems__hourly_emissions`](#pudl.transform.epacems.core_epacems__hourly_emissions)(context, ...) → polars.LazyFrame                | Extract EPA CEMS data by quarter and write to partitioned Parquet files.   |
+| [`_core_epacems__emissions_unit_ids`](#pudl.transform.epacems._core_epacems__emissions_unit_ids)(...) → pandas.DataFrame                      | Make unique annual plant_id_eia and emissions_unit_id_epa.                 |
 
 ## Module Contents
 

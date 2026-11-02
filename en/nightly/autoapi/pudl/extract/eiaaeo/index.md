@@ -17,9 +17,9 @@ Extract EIA AEO data from the bulk JSON.
 
 ## Functions
 
-| [`raw_eiaaeo`](#pudl.extract.eiaaeo.raw_eiaaeo)(context)                                 | Extract tables from EIA's Annual Energy Outlook.                     |
-|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [`raw_table_54_invariants`](#pudl.extract.eiaaeo.raw_table_54_invariants)(→ dagster.AssetCheckResult) | Check that the AEO Table 54 raw data conforms to *some* assumptions. |
+| [`raw_eiaaeo`](#pudl.extract.eiaaeo.raw_eiaaeo)(context)                                    | Extract tables from EIA's Annual Energy Outlook.                     |
+|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`raw_table_54_invariants`](#pudl.extract.eiaaeo.raw_table_54_invariants)(df) → dagster.AssetCheckResult | Check that the AEO Table 54 raw data conforms to *some* assumptions. |
 
 ## Module Contents
 

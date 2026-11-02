@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dbt_schema &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.dbt_schema &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -848,52 +848,52 @@ format, then applying human-sourced patches to the auto-generated schemas.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_whitespace" title="pudl.dbt_schema._normalize_whitespace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_whitespace</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_whitespace" title="pudl.dbt_schema._normalize_whitespace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_whitespace</span></code></a>(text) → str</p></td>
 <td><p>Collapse all whitespace (including blank lines) to single spaces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_descriptions" title="pudl.dbt_schema._normalize_descriptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_descriptions</span></code></a>(→ Any)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_descriptions" title="pudl.dbt_schema._normalize_descriptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_descriptions</span></code></a>(obj) → Any</p></td>
 <td><p>Recursively collapse whitespace in every <code class="docutils literal notranslate"><span class="pre">description</span></code> field.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_description_field" title="pudl.dbt_schema._normalize_description_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_description_field</span></code></a>(→ str | None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_description_field" title="pudl.dbt_schema._normalize_description_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_description_field</span></code></a>(value) → str | None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_data_tests_field" title="pudl.dbt_schema._normalize_data_tests_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_data_tests_field</span></code></a>(→ list | None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._normalize_data_tests_field" title="pudl.dbt_schema._normalize_data_tests_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_data_tests_field</span></code></a>(value) → list | None</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._wrap_description" title="pudl.dbt_schema._wrap_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wrap_description</span></code></a>(→ str | _LiteralStr)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._wrap_description" title="pudl.dbt_schema._wrap_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wrap_description</span></code></a>(text) → str | _LiteralStr</p></td>
 <td><p>Re-wrap a description string to short lines, for readability on disk.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._wrap_descriptions" title="pudl.dbt_schema._wrap_descriptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wrap_descriptions</span></code></a>(→ Any)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._wrap_descriptions" title="pudl.dbt_schema._wrap_descriptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wrap_descriptions</span></code></a>(obj) → Any</p></td>
 <td><p>Recursively re-wrap every <code class="docutils literal notranslate"><span class="pre">description</span></code> field in a dumped schema dict.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._prettier_yaml_dumps" title="pudl.dbt_schema._prettier_yaml_dumps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prettier_yaml_dumps</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema._prettier_yaml_dumps" title="pudl.dbt_schema._prettier_yaml_dumps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prettier_yaml_dumps</span></code></a>(yaml_contents) → str</p></td>
 <td><p>Dump YAML to string that Prettier likes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._foreign_key_data_tests" title="pudl.dbt_schema._foreign_key_data_tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_foreign_key_data_tests</span></code></a>(→ list[dict] | None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema._foreign_key_data_tests" title="pudl.dbt_schema._foreign_key_data_tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_foreign_key_data_tests</span></code></a>(resource) → list[dict] | None</p></td>
 <td><p>Build <code class="docutils literal notranslate"><span class="pre">foreign_key</span></code> data test entries for a resource's outgoing FKs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_schema" title="pudl.dbt_schema.merge_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_schema</span></code></a>(→ DbtSchema)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_schema" title="pudl.dbt_schema.merge_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_schema</span></code></a>(machine_schema, human_schema) → DbtSchema</p></td>
 <td><p>Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_by_name" title="pudl.dbt_schema.merge_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_by_name</span></code></a>(→ list)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_by_name" title="pudl.dbt_schema.merge_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_by_name</span></code></a>(machine_elements, human_elements, ...) → list</p></td>
 <td><p>Perform a generic merge of two lists of dbt elements, matching by name.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_sources_by_name" title="pudl.dbt_schema.merge_sources_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_sources_by_name</span></code></a>(→ list[DbtSource])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_sources_by_name" title="pudl.dbt_schema.merge_sources_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_sources_by_name</span></code></a>(machine_sources, human_sources) → list[DbtSource]</p></td>
 <td><p>Match machine/human sources by name, then merge them.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_source" title="pudl.dbt_schema.merge_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_source</span></code></a>(→ DbtSource)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_source" title="pudl.dbt_schema.merge_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_source</span></code></a>(machine_source, human_source) → DbtSource</p></td>
 <td><p>Merge two DbtSources by applying human-source as a patch on top of machine-source.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_tables_by_name" title="pudl.dbt_schema.merge_tables_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_tables_by_name</span></code></a>(→ list[DbtTable])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_tables_by_name" title="pudl.dbt_schema.merge_tables_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_tables_by_name</span></code></a>(machine_tables, human_tables) → list[DbtTable]</p></td>
 <td><p>Match machine/human tables by name, then merge them.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_table" title="pudl.dbt_schema.merge_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_table</span></code></a>(→ DbtTable)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_table" title="pudl.dbt_schema.merge_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_table</span></code></a>(machine_table, human_table) → DbtTable</p></td>
 <td><p>Merge two DbtTables by applying human-table as a patch on top of machine-table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_columns_by_name" title="pudl.dbt_schema.merge_columns_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_columns_by_name</span></code></a>(→ list[DbtColumn])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_columns_by_name" title="pudl.dbt_schema.merge_columns_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_columns_by_name</span></code></a>(machine_columns, human_columns) → list[DbtColumn]</p></td>
 <td><p>Match machine/human columns by name, then merge them.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_column" title="pudl.dbt_schema.merge_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_column</span></code></a>(→ DbtColumn)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_schema.merge_column" title="pudl.dbt_schema.merge_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_column</span></code></a>(machine_column, human_column) → DbtColumn</p></td>
 <td><p>Merge two DbtColumns by applying human-column as a patch on top of machine-column.</p></td>
 </tr>
 </tbody>

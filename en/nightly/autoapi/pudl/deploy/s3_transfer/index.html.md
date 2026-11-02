@@ -30,11 +30,11 @@ its files.
 
 ## Functions
 
-| [`split_s3_uri`](#pudl.deploy.s3_transfer.split_s3_uri)(→ tuple[str, str])   | Split an `s3://bucket/key` URI into `(bucket, key)`.                  |
-|------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`_client`](#pudl.deploy.s3_transfer._client)(bucket)                   | Return a boto3 S3 client bound to *bucket*'s region.                  |
-| [`upload_files`](#pudl.deploy.s3_transfer.upload_files)(→ None)              | Upload each `(local_path, s3_uri)` pair with the CRT transfer client. |
-| [`copy_objects`](#pudl.deploy.s3_transfer.copy_objects)(→ None)              | Server-side copy each `(source_uri, dest_uri)` pair within S3.        |
+| [`split_s3_uri`](#pudl.deploy.s3_transfer.split_s3_uri)(uri) → tuple[str, str]   | Split an `s3://bucket/key` URI into `(bucket, key)`.                  |
+|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`_client`](#pudl.deploy.s3_transfer._client)(bucket)                       | Return a boto3 S3 client bound to *bucket*'s region.                  |
+| [`upload_files`](#pudl.deploy.s3_transfer.upload_files)(files) → None            | Upload each `(local_path, s3_uri)` pair with the CRT transfer client. |
+| [`copy_objects`](#pudl.deploy.s3_transfer.copy_objects)(objects) → None          | Server-side copy each `(source_uri, dest_uri)` pair within S3.        |
 
 ## Module Contents
 

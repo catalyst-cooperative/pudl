@@ -23,11 +23,11 @@ read in when the fips partition is set to True.
 
 ## Functions
 
-| [`_clean_column_name`](#pudl.extract.vcerare._clean_column_name)(→ str)                     | Match the raw VCE RARE column naming convention to PUDL's snake_case.   |
-|------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`_vcerare_column_types`](#pudl.extract.vcerare._vcerare_column_types)(...)                    | Build a DuckDB `columns` schema from a raw VCE RARE CSV header row.     |
-| [`extract_vcerare`](#pudl.extract.vcerare.extract_vcerare)(→ tuple[dict[int, ...)        | Extract data from all vcerare pages and write to parquet files.         |
-| [`raw_vcerare__lat_lon_fips`](#pudl.extract.vcerare.raw_vcerare__lat_lon_fips)(→ pandas.DataFrame) | Extract lat/lon to FIPS and county mapping CSV.                         |
+| [`_clean_column_name`](#pudl.extract.vcerare._clean_column_name)(col) → str                                                                                                                   | Match the raw VCE RARE column naming convention to PUDL's snake_case.   |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`_vcerare_column_types`](#pudl.extract.vcerare._vcerare_column_types)(year) → collections.abc.Callable[[list[str]], dict[str, str]]                                                             | Build a DuckDB `columns` schema from a raw VCE RARE CSV header row.     |
+| [`extract_vcerare`](#pudl.extract.vcerare.extract_vcerare)(context) → tuple[dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData]] | Extract data from all vcerare pages and write to parquet files.         |
+| [`raw_vcerare__lat_lon_fips`](#pudl.extract.vcerare.raw_vcerare__lat_lon_fips)(context) → pandas.DataFrame                                                                                           | Extract lat/lon to FIPS and county mapping CSV.                         |
 
 ## Module Contents
 

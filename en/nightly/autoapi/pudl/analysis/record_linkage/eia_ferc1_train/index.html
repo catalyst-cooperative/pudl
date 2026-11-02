@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.record_linkage.eia_ferc1_train &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.record_linkage.eia_ferc1_train &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -840,49 +840,49 @@ validate them, and incorporate them into the existing training data.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff" title="pudl.analysis.record_linkage.eia_ferc1_train._pct_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pct_diff</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff" title="pudl.analysis.record_linkage.eia_ferc1_train._pct_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pct_diff</span></code></a>(df, col) → pandas.DataFrame</p></td>
 <td><p>Calculate percent difference between EIA and FERC versions of a column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match" title="pudl.analysis.record_linkage.eia_ferc1_train._is_best_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_best_match</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match" title="pudl.analysis.record_linkage.eia_ferc1_train._is_best_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_best_match</span></code></a>(df[, cap_pct_diff, net_gen_pct_diff, ...]) → pandas.DataFrame</p></td>
 <td><p>Fill the best_match column with strings to show cap, net_gen, inst_year match.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1" title="pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_eia_ferc1</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1" title="pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_eia_ferc1</span></code></a>(eia_ferc1, utils_eia860) → pandas.DataFrame</p></td>
 <td><p>Prep FERC-EIA for use in override output sheet pre-utility subgroups.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish" title="pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_deprish</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish" title="pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_deprish</span></code></a>(deprish, utils_eia860) → pandas.DataFrame</p></td>
 <td><p>Prep depreciation data for use in override output sheet pre-utility subgroups.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets" title="pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_util_year_subsets</span></code></a>(→ dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets" title="pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_util_year_subsets</span></code></a>(inputs_dict, util_id_eia_list, ...) → dict</p></td>
 <td><p>Get utility and year subsets for each of the input dfs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet" title="pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_output_override_spreadsheet</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet" title="pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_output_override_spreadsheet</span></code></a>(util_year_subset_dict, ...) → None</p></td>
 <td><p>Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets" title="pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_all_override_spreadsheets</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets" title="pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_all_override_spreadsheets</span></code></a>(eia_ferc1, ppe, ...) → None</p></td>
 <td><p>Output override spreadsheets for all specified utilities and years.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency" title="pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_id_consistency</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency" title="pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_id_consistency</span></code></a>(id_col, df, actual_ids, ...) → None</p></td>
 <td><p>Check for rogue FERC or EIA ids that don't exist.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training" title="pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_if_already_in_training</span></code></a>(training_data, ...)</p></td>
 <td><p>Check whether any manually mapped records aren't yet in the training data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_override_fixes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_override_fixes</span></code></a>(validated_connections, ppe, ...) → pandas.DataFrame</p></td>
 <td><p>Process the verified and/or fixed matches and look for human error.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df" title="pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_multi_match_df</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df" title="pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_multi_match_df</span></code></a>(training_data) → pandas.DataFrame</p></td>
 <td><p>Process the verified and/or fixed matches and generate a list of 1:m matches.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_training</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_training</span></code></a>(new_overrides, path_to_current_training) → None</p></td>
 <td><p>Add the new overrides to the old override sheet.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_null_overrides</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_null_overrides</span></code></a>(null_matches, ...) → None</p></td>
 <td><p>Take record_id_ferc1 values verified to have no EIA match and add them to csv.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_one_to_many_overrides</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_one_to_many_overrides</span></code></a>(one_to_many, ...) → None</p></td>
 <td><p>Add record_id_ferc1 values verified to have multiple EIA matches to csv.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_and_add_to_training</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_and_add_to_training</span></code></a>(ppe, eia_ferc1, ...[, ...]) → None</p></td>
 <td><p>Validate, combine, and add overrides to the training data.</p></td>
 </tr>
 </tbody>

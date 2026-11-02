@@ -23,9 +23,9 @@ this is a configurable value, which can be found in the dagster UI.
 
 ## Functions
 
-| [`_flatten_model_config`](#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config)(→ dict)                      | Take nested dictionary defining model config and flatten for logging purposes.   |
-|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`experiment_tracker_factory`](#pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory)(→ dagster.OpDefinition) | Use config to create an experiment tracker op.                                   |
+| [`_flatten_model_config`](#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config)(model_config) → dict                                       | Take nested dictionary defining model config and flatten for logging purposes.   |
+|-----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`experiment_tracker_factory`](#pudl.analysis.ml_tools.experiment_tracking.experiment_tracker_factory)(experiment_name, model_config) → dagster.OpDefinition | Use config to create an experiment tracker op.                                   |
 
 ## Module Contents
 

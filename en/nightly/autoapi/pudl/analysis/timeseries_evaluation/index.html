@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.timeseries_evaluation &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.timeseries_evaluation &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -819,10 +819,10 @@ codes).</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_evaluation._filter_df" title="pudl.analysis.timeseries_evaluation._filter_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_df</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_evaluation._filter_df" title="pudl.analysis.timeseries_evaluation._filter_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_df</span></code></a>(df, idx_cols, idx_vals[, start_date, ...]) → pandas.DataFrame</p></td>
 <td><p>Filter a dataframe based on index columns and date range.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation" title="pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_baseline_eia930_imputation</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation" title="pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_baseline_eia930_imputation</span></code></a>() → pandas.DataFrame</p></td>
 <td><p>Download and extract an existing imputation of the EIA-930 demand data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.timeseries_evaluation.plot_correlation" title="pudl.analysis.timeseries_evaluation.plot_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_correlation</span></code></a>(df, timeseries_x, timeseries_y, idx_cols)</p></td>

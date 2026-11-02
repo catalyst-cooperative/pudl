@@ -20,11 +20,11 @@ instances update-container`.
 
 ## Functions
 
-| [`_parse_container_env`](#pudl.scripts.batch_config._parse_container_env)(→ dict[str, str])   | Parse --container-env KEY=VALUE pairs into a dict.                        |
-|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| [`_lookup_machine_spec`](#pudl.scripts.batch_config._lookup_machine_spec)(→ tuple[int, int])  | Return `(cpuMilli, memoryMib)` for a real GCE machine type, via `gcloud`. |
-| [`to_config`](#pudl.scripts.batch_config.to_config)(→ dict[str, Any])              | Munge arguments into a configuration dictionary.                          |
-| [`main`](#pudl.scripts.batch_config.main)(→ None)                             | Generate a Batch configuration file.                                      |
+| [`_parse_container_env`](#pudl.scripts.batch_config._parse_container_env)(container_env) → dict[str, str]                | Parse --container-env KEY=VALUE pairs into a dict.                        |
+|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`_lookup_machine_spec`](#pudl.scripts.batch_config._lookup_machine_spec)(machine_type) → tuple[int, int]                | Return `(cpuMilli, memoryMib)` for a real GCE machine type, via `gcloud`. |
+| [`to_config`](#pudl.scripts.batch_config.to_config)(\*, container_image, container_env, ...) → dict[str, Any] | Munge arguments into a configuration dictionary.                          |
+| [`main`](#pudl.scripts.batch_config.main)(container_image, container_command, ...) → None                | Generate a Batch configuration file.                                      |
 
 ## Module Contents
 

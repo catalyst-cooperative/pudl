@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.output.eia &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.eia &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -820,49 +820,49 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_utilities" title="pudl.output.eia.out_eia__yearly_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_utilities</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_utilities" title="pudl.output.eia.out_eia__yearly_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_utilities</span></code></a>(core_eia__entity_utilities, ...) → pandas.DataFrame</p></td>
 <td><p>Pull all fields from the EIA Utilities table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_plants" title="pudl.output.eia.out_eia__yearly_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_plants</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_plants" title="pudl.output.eia.out_eia__yearly_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_plants</span></code></a>(core_eia__entity_plants, ...) → pandas.DataFrame</p></td>
 <td><p>Pull all fields from the EIA Plants tables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia._out_eia__yearly_generators" title="pudl.output.eia._out_eia__yearly_generators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_eia__yearly_generators</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia._out_eia__yearly_generators" title="pudl.output.eia._out_eia__yearly_generators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_eia__yearly_generators</span></code></a>(context, ...) → pandas.DataFrame</p></td>
 <td><p>Pull all fields from the EIA Utilities table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_boilers" title="pudl.output.eia.out_eia__yearly_boilers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_boilers</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_boilers" title="pudl.output.eia.out_eia__yearly_boilers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_boilers</span></code></a>(core_eia860__scd_boilers, ...) → pandas.DataFrame</p></td>
 <td><p>Pull all fields reported in the EIA boilers tables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia._out_eia__plants_utilities" title="pudl.output.eia._out_eia__plants_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_eia__plants_utilities</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia._out_eia__plants_utilities" title="pudl.output.eia._out_eia__plants_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_eia__plants_utilities</span></code></a>(out_eia__yearly_plants, ...) → pandas.DataFrame</p></td>
 <td><p>Create a dataframe of plant and utility IDs and names from EIA 860.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.add_consistent_ba_code_column" title="pudl.output.eia.add_consistent_ba_code_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_consistent_ba_code_column</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.add_consistent_ba_code_column" title="pudl.output.eia.add_consistent_ba_code_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_consistent_ba_code_column</span></code></a>(plants) → pandas.DataFrame</p></td>
 <td><p>Make a column containing each plant's most consistently reported BA code.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.fill_in_missing_ba_codes" title="pudl.output.eia.fill_in_missing_ba_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_in_missing_ba_codes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.fill_in_missing_ba_codes" title="pudl.output.eia.fill_in_missing_ba_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_in_missing_ba_codes</span></code></a>(plants) → pandas.DataFrame</p></td>
 <td><p>Fill in missing <code class="docutils literal notranslate"><span class="pre">balancing_authority_code_eia</span></code> values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.fill_generator_technology_description" title="pudl.output.eia.fill_generator_technology_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_generator_technology_description</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.fill_generator_technology_description" title="pudl.output.eia.fill_generator_technology_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_generator_technology_description</span></code></a>(gens_df) → pandas.DataFrame</p></td>
 <td><p>Fill in missing <code class="docutils literal notranslate"><span class="pre">technology_description</span></code> based by unique mapping &amp; backfilling.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_unit_ids" title="pudl.output.eia.assign_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_unit_ids" title="pudl.output.eia.assign_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_unit_ids</span></code></a>(gens_df) → pandas.DataFrame</p></td>
 <td><p>Group generators into operational units using various heuristics.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.fill_unit_ids" title="pudl.output.eia.fill_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.fill_unit_ids" title="pudl.output.eia.fill_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_unit_ids</span></code></a>(gens_df) → pandas.DataFrame</p></td>
 <td><p>Back and forward fill Unit IDs for each plant / gen combination.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.max_unit_id_by_plant" title="pudl.output.eia.max_unit_id_by_plant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_unit_id_by_plant</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.max_unit_id_by_plant" title="pudl.output.eia.max_unit_id_by_plant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_unit_id_by_plant</span></code></a>(gens_df) → pandas.DataFrame</p></td>
 <td><p>Identify the largest unit ID associated with each plant so we don't overlap.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia._append_masked_units" title="pudl.output.eia._append_masked_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_append_masked_units</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia._append_masked_units" title="pudl.output.eia._append_masked_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_append_masked_units</span></code></a>(gens_df, row_mask, unit_ids, on) → pandas.DataFrame</p></td>
 <td><p>Replace rows with new PUDL Unit IDs in the original dataframe.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_single_gen_unit_ids" title="pudl.output.eia.assign_single_gen_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_single_gen_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_single_gen_unit_ids" title="pudl.output.eia.assign_single_gen_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_single_gen_unit_ids</span></code></a>(gens_df, prime_mover_codes) → pandas.DataFrame</p></td>
 <td><p>Assign a unique PUDL Unit ID to each generator of a given prime mover type.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.assign_cc_unit_ids" title="pudl.output.eia.assign_cc_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_cc_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.assign_cc_unit_ids" title="pudl.output.eia.assign_cc_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_cc_unit_ids</span></code></a>(gens_df) → pandas.DataFrame</p></td>
 <td><p>Assign PUDL Unit IDs for combined cycle generation units.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_prime_fuel_unit_ids" title="pudl.output.eia.assign_prime_fuel_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_prime_fuel_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_prime_fuel_unit_ids" title="pudl.output.eia.assign_prime_fuel_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_prime_fuel_unit_ids</span></code></a>(gens_df, prime_mover_code, ...) → pandas.DataFrame</p></td>
 <td><p>Assign a PUDL Unit ID to all generators with a given prime mover and fuel.</p></td>
 </tr>
 </tbody>

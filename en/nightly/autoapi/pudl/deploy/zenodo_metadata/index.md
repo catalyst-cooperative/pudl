@@ -29,13 +29,13 @@ in the Zenodo web UI:
 
 ## Functions
 
-| [`load_zenodo_json`](#pudl.deploy.zenodo_metadata.load_zenodo_json)(→ tuple[list[dict], list[str]])   | Read creators and keywords out of `.zenodo.json`.                                |
-|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`get_data_license_id`](#pudl.deploy.zenodo_metadata.get_data_license_id)(→ str)                         | Get the Zenodo license ID for the PUDL data release.                             |
-| [`get_latest_release_tag`](#pudl.deploy.zenodo_metadata.get_latest_release_tag)(→ str)                      | Get the most recently released PUDL version tag reachable from `HEAD`.           |
-| [`verify_git_tag_checked_out`](#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out)(→ None)                 | Raise if the working tree at `repo_root` isn't exactly the given git tag.        |
-| [`render_release_notes_html`](#pudl.deploy.zenodo_metadata.render_release_notes_html)(→ str)                   | Extract one version's section out of the built release notes HTML.               |
-| [`build_related_resources`](#pudl.deploy.zenodo_metadata.build_related_resources)(→ tuple[str, list[dict]])  | Build the "Other Resources" description footer and matching related_identifiers. |
+| [`load_zenodo_json`](#pudl.deploy.zenodo_metadata.load_zenodo_json)(path) → tuple[list[dict], list[str]]              | Read creators and keywords out of `.zenodo.json`.                                |
+|---------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`get_data_license_id`](#pudl.deploy.zenodo_metadata.get_data_license_id)() → str                                        | Get the Zenodo license ID for the PUDL data release.                             |
+| [`get_latest_release_tag`](#pudl.deploy.zenodo_metadata.get_latest_release_tag)(repo_root) → str                            | Get the most recently released PUDL version tag reachable from `HEAD`.           |
+| [`verify_git_tag_checked_out`](#pudl.deploy.zenodo_metadata.verify_git_tag_checked_out)(tag, repo_root) → None                  | Raise if the working tree at `repo_root` isn't exactly the given git tag.        |
+| [`render_release_notes_html`](#pudl.deploy.zenodo_metadata.render_release_notes_html)(docs_html_dir, version_tag) → str        | Extract one version's section out of the built release notes HTML.               |
+| [`build_related_resources`](#pudl.deploy.zenodo_metadata.build_related_resources)(version_tag, ...) → tuple[str, list[dict]] | Build the "Other Resources" description footer and matching related_identifiers. |
 
 ## Module Contents
 

@@ -160,7 +160,7 @@ Module Contents
    * ``replace`` (Optional[bool]): Whether to remove rows where ``id`` is a utility in
      ``core_eia861__assn_balancing_authority``. Applies only if ``reassign=True``.
 
-.. py:function:: categorize_eia_code(eia_codes: list[int], ba_ids: list[int], util_ids: list[int], priority: str = 'balancing_authority') -> pandas.DataFrame
+.. py:function:: categorize_eia_code(eia_codes: pandas.Series, ba_ids: pandas.Series, util_ids: pandas.Series, priority: str = 'balancing_authority') -> pandas.DataFrame
 
    Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
 

@@ -50,10 +50,10 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Functions
 
-| [`get_github_archive_doi_url`](#pudl.scripts.zenodo_data_release.get_github_archive_doi_url)(→ str | None)   | Look up the DOI of the latest GitHub-repo Zenodo software archive.   |
-|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [`build_zenodo_release_zulip_message`](#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)  | Build a markdown Zulip message summarizing a Zenodo release attempt. |
-| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)                                | Publish a new PUDL data release to Zenodo.                           |
+| [`get_github_archive_doi_url`](#pudl.scripts.zenodo_data_release.get_github_archive_doi_url)(zenodo_client) → str | None           | Look up the DOI of the latest GitHub-repo Zenodo software archive.   |
+|-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`build_zenodo_release_zulip_message`](#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(env, publish, ...) → str      | Build a markdown Zulip message summarizing a Zenodo release attempt. |
+| [`main`](#pudl.scripts.zenodo_data_release.main)(env, source_dir, publish, ignore, metadata_only, ...) → int | Publish a new PUDL data release to Zenodo.                           |
 
 ## Module Contents
 

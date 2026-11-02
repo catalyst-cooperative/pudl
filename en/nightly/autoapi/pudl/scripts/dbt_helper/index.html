@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -840,49 +840,49 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.insert_data_source" title="pudl.scripts.dbt_helper.insert_data_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_data_source</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.insert_data_source" title="pudl.scripts.dbt_helper.insert_data_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_data_source</span></code></a>(parent_dir, table_name) → pathlib.Path</p></td>
 <td><p>Convert parent_dir and table_name to parent_dir/data_source/table_name.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._get_row_count_csv_path" title="pudl.scripts.dbt_helper._get_row_count_csv_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_row_count_csv_path</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._get_row_count_csv_path" title="pudl.scripts.dbt_helper._get_row_count_csv_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_row_count_csv_path</span></code></a>() → pathlib.Path</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._get_existing_row_counts" title="pudl.scripts.dbt_helper._get_existing_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_existing_row_counts</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._get_existing_row_counts" title="pudl.scripts.dbt_helper._get_existing_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_existing_row_counts</span></code></a>() → pandas.DataFrame</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._calculate_row_counts" title="pudl.scripts.dbt_helper._calculate_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculate_row_counts</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._calculate_row_counts" title="pudl.scripts.dbt_helper._calculate_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculate_row_counts</span></code></a>(table_name[, partition_expr]) → pandas.DataFrame</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._combine_row_counts" title="pudl.scripts.dbt_helper._combine_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_combine_row_counts</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._combine_row_counts" title="pudl.scripts.dbt_helper._combine_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_combine_row_counts</span></code></a>(existing, new) → pandas.DataFrame</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._write_row_counts" title="pudl.scripts.dbt_helper._write_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_write_row_counts</span></code></a>(row_counts)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.update_row_counts" title="pudl.scripts.dbt_helper.update_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_row_counts</span></code></a>(→ UpdateResult)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.update_row_counts" title="pudl.scripts.dbt_helper.update_row_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_row_counts</span></code></a>(table_name, dbt_root[, clobber]) → UpdateResult</p></td>
 <td><p>Generate updated row counts per partition and write to csv file within dbt project.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.maybe_schema_from_path" title="pudl.scripts.dbt_helper.maybe_schema_from_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maybe_schema_from_path</span></code></a>(→ pudl.dbt_schema.DbtSchema)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.maybe_schema_from_path" title="pudl.scripts.dbt_helper.maybe_schema_from_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maybe_schema_from_path</span></code></a>(path) → pudl.dbt_schema.DbtSchema</p></td>
 <td><p>Load DbtSchema that may or may not be located at specified path.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.update_table_schema" title="pudl.scripts.dbt_helper.update_table_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_table_schema</span></code></a>(→ UpdateResult)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.update_table_schema" title="pudl.scripts.dbt_helper.update_table_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_table_schema</span></code></a>(table_name, dbt_root) → UpdateResult</p></td>
 <td><p>Generate and write out a schema.yaml file defining a new or updated table for dbt.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._log_update_result" title="pudl.scripts.dbt_helper._log_update_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_update_result</span></code></a>(result)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._extract_row_count_partitions" title="pudl.scripts.dbt_helper._extract_row_count_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_row_count_partitions</span></code></a>(→ list[str | None])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._extract_row_count_partitions" title="pudl.scripts.dbt_helper._extract_row_count_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_row_count_partitions</span></code></a>(table) → list[str | None]</p></td>
 <td><p>Extract partition columns from check_row_counts_per_partition tests in a DbtTable.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.update_tables" title="pudl.scripts.dbt_helper.update_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_tables</span></code></a>(tables, clobber, schema, row_counts)</p></td>
 <td><p>Add or update dbt schema configs and row count expectations for PUDL tables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._source_selection" title="pudl.scripts.dbt_helper._source_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_source_selection</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper._source_selection" title="pudl.scripts.dbt_helper._source_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_source_selection</span></code></a>(source) → str</p></td>
 <td><p>Translate a <code class="docutils literal notranslate"><span class="pre">--source</span></code> choice into a dbt node selection.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.validate" title="pudl.scripts.dbt_helper.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.validate" title="pudl.scripts.dbt_helper.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>([select, asset_select, source, exclude, ...]) → None</p></td>
 <td><p>Validate a selection of dbt nodes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.main" title="pudl.scripts.dbt_helper.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.dbt_helper.main" title="pudl.scripts.dbt_helper.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>() → int</p></td>
 <td><p>Script for auto-generating dbt configuration and migrating existing tests.</p></td>
 </tr>
 </tbody>

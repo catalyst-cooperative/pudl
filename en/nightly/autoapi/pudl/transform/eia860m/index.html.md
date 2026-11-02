@@ -9,8 +9,8 @@ Module to perform data cleaning functions on EIA860m data tables.
 
 ## Functions
 
-| [`core_eia860m__changelog_generators`](#pudl.transform.eia860m.core_eia860m__changelog_generators)(→ pandas.DataFrame)   | Changelog of EIA-860M Generators based on operating status.   |
-|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| [`core_eia860m__changelog_generators`](#pudl.transform.eia860m.core_eia860m__changelog_generators)(...) → pandas.DataFrame   | Changelog of EIA-860M Generators based on operating status.   |
+|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 
 ## Module Contents
 

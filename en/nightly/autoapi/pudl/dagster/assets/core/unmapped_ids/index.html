@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.assets.core.unmapped_ids &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.dagster.assets.core.unmapped_ids &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -849,28 +849,28 @@ every output asset name defined here must keep that <code class="docutils litera
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._lower_strings" title="pudl.dagster.assets.core.unmapped_ids._lower_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lower_strings</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._lower_strings" title="pudl.dagster.assets.core.unmapped_ids._lower_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lower_strings</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Lower-case all string values so case differences don't break ID matching.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv" title="pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_write_unmapped_ids_csv</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv" title="pudl.dagster.assets.core.unmapped_ids._write_unmapped_ids_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_write_unmapped_ids_csv</span></code></a>(context, name, df) → None</p></td>
 <td><p>Write an unmapped-IDs dataframe to <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT</span></code> as a CSV for manual mapping.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf" title="pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_util_ids_ferc1_raw_dbf</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf" title="pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_util_ids_ferc1_raw_dbf</span></code></a>(context) → pandas.DataFrame</p></td>
 <td><p>Utility IDs reported in the raw FERC1 DBF database, for manual ID mapping.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl" title="pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_util_ids_ferc1_raw_xbrl</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl" title="pudl.dagster.assets.core.unmapped_ids._util_ids_ferc1_raw_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_util_ids_ferc1_raw_xbrl</span></code></a>(context) → pandas.DataFrame</p></td>
 <td><p>Utility IDs reported in the raw FERC1 XBRL database, for manual ID mapping.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw" title="pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_plants_ferc1_raw</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw" title="pudl.dagster.assets.core.unmapped_ids._plants_ferc1_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_plants_ferc1_raw</span></code></a>(**generic_plant_tables) → pandas.DataFrame</p></td>
 <td><p>All raw FERC1 plants across DBF &amp; XBRL, compiled for manual ID mapping.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids" title="pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_eia923_plant_ids</span></code></a>(→ set)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids" title="pudl.dagster.assets.core.unmapped_ids._eia923_plant_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_eia923_plant_ids</span></code></a>(**eia923_dfs) → set</p></td>
 <td><p>All <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> values that appear in the core EIA-923 tables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids.unmapped_plants" title="pudl.dagster.assets.core.unmapped_ids.unmapped_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unmapped_plants</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids.unmapped_plants" title="pudl.dagster.assets.core.unmapped_ids.unmapped_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unmapped_plants</span></code></a>(context, ...) → collections.abc.Iterator[dagster.Output[pandas.DataFrame]]</p></td>
 <td><p>Identify FERC1 &amp; EIA plants that appear in the data but aren't PUDL-mapped.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids.unmapped_utilities" title="pudl.dagster.assets.core.unmapped_ids.unmapped_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unmapped_utilities</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.unmapped_ids.unmapped_utilities" title="pudl.dagster.assets.core.unmapped_ids.unmapped_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unmapped_utilities</span></code></a>(context, ...) → collections.abc.Iterator[dagster.Output[pandas.DataFrame]]</p></td>
 <td><p>Identify FERC1 &amp; EIA utilities that appear in the data but aren't PUDL-mapped.</p></td>
 </tr>
 </tbody>

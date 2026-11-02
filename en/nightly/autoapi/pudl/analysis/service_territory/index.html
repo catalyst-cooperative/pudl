@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.service_territory &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.analysis.service_territory &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -822,7 +822,10 @@ resulting geometries for use in other applications.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.CALC_CRS" title="pudl.analysis.service_territory.CALC_CRS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CALC_CRS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.service_territory_eia861_assets" title="pudl.analysis.service_territory.service_territory_eia861_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_territory_eia861_assets</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory._ENTITY_TYPES" title="pudl.analysis.service_territory._ENTITY_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ENTITY_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.service_territory_eia861_assets" title="pudl.analysis.service_territory.service_territory_eia861_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_territory_eia861_assets</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -833,28 +836,28 @@ resulting geometries for use in other applications.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.utility_ids_all_eia" title="pudl.analysis.service_territory.utility_ids_all_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utility_ids_all_eia</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.utility_ids_all_eia" title="pudl.analysis.service_territory.utility_ids_all_eia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utility_ids_all_eia</span></code></a>(out_eia__yearly_utilities, ...) → pandas.DataFrame</p></td>
 <td><p>Compile IDs and Names of all known EIA Utilities.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.get_territory_fips" title="pudl.analysis.service_territory.get_territory_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_territory_fips</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.get_territory_fips" title="pudl.analysis.service_territory.get_territory_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_territory_fips</span></code></a>(ids, assn, assn_col, ...[, ...]) → pandas.DataFrame</p></td>
 <td><p>Compile county FIPS codes associated with an entity's service territory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.add_geometries" title="pudl.analysis.service_territory.add_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_geometries</span></code></a>(→ geopandas.GeoDataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.add_geometries" title="pudl.analysis.service_territory.add_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_geometries</span></code></a>(df, census_gdf[, dissolve, dissolve_by]) → geopandas.GeoDataFrame</p></td>
 <td><p>Merge census geometries into dataframe on county_id_fips, optionally dissolving.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.get_territory_geometries" title="pudl.analysis.service_territory.get_territory_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_territory_geometries</span></code></a>(→ geopandas.GeoDataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.get_territory_geometries" title="pudl.analysis.service_territory.get_territory_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_territory_geometries</span></code></a>(ids, assn, assn_col, ...[, ...]) → geopandas.GeoDataFrame</p></td>
 <td><p>Compile service territory geometries based on county_id_fips.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory._save_geoparquet" title="pudl.analysis.service_territory._save_geoparquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_save_geoparquet</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory._save_geoparquet" title="pudl.analysis.service_territory._save_geoparquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_save_geoparquet</span></code></a>(gdf, entity_type, dissolve, ...[, ...]) → None</p></td>
 <td><p>Save utility or balancing authority service territory geometries to GeoParquet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.compile_geoms" title="pudl.analysis.service_territory.compile_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_geoms</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.compile_geoms" title="pudl.analysis.service_territory.compile_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_geoms</span></code></a>(core_eia861__yearly_balancing_authority, ...) → pandas.DataFrame</p></td>
 <td><p>Compile all available utility or balancing authority geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.service_territory_asset_factory" title="pudl.analysis.service_territory.service_territory_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_territory_asset_factory</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.service_territory_asset_factory" title="pudl.analysis.service_territory.service_territory_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_territory_asset_factory</span></code></a>(entity_type[, ...]) → dagster.AssetsDefinition</p></td>
 <td><p>Build asset definitions for balancing authority and utility territories.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.plot_historical_territory" title="pudl.analysis.service_territory.plot_historical_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_historical_territory</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.plot_historical_territory" title="pudl.analysis.service_territory.plot_historical_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_historical_territory</span></code></a>(gdf, id_col, id_val) → None</p></td>
 <td><p>Plot all the historical geometries defined for the specified entity.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.service_territory.plot_all_territories" title="pudl.analysis.service_territory.plot_all_territories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_all_territories</span></code></a>(gdf, report_date[, ...])</p></td>
@@ -1050,9 +1053,14 @@ balancing authority, with geometries available at the county level.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.analysis.service_territory.service_territory_asset_factory">
-<span class="sig-prename descclassname"><span class="pre">pudl.analysis.service_territory.</span></span><span class="sig-name descname"><span class="pre">service_territory_asset_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'balancing_authority'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'utility'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/service_territory.html#service_territory_asset_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.service_territory.service_territory_asset_factory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.service_territory.</span></span><span class="sig-name descname"><span class="pre">service_territory_asset_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'balancing_authority'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'utility'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/service_territory.html#service_territory_asset_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.service_territory.service_territory_asset_factory" title="Link to this definition">#</a></dt>
 <dd><p>Build asset definitions for balancing authority and utility territories.</p>
 </dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.service_territory._ENTITY_TYPES">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.service_territory.</span></span><span class="sig-name descname"><span class="pre">_ENTITY_TYPES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'balancing_authority'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'utility'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['balancing_authority',</span> <span class="pre">'utility']</span></span><a class="reference internal" href="../../../../_modules/pudl/analysis/service_territory.html#_ENTITY_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.service_territory._ENTITY_TYPES" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.analysis.service_territory.service_territory_eia861_assets">
@@ -1173,6 +1181,7 @@ areas should be displayed. Either “utility” or
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory._save_geoparquet"><code class="docutils literal notranslate"><span class="pre">_save_geoparquet()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory.compile_geoms"><code class="docutils literal notranslate"><span class="pre">compile_geoms()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory.service_territory_asset_factory"><code class="docutils literal notranslate"><span class="pre">service_territory_asset_factory()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory._ENTITY_TYPES"><code class="docutils literal notranslate"><span class="pre">_ENTITY_TYPES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory.service_territory_eia861_assets"><code class="docutils literal notranslate"><span class="pre">service_territory_eia861_assets</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory.plot_historical_territory"><code class="docutils literal notranslate"><span class="pre">plot_historical_territory()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.service_territory.plot_all_territories"><code class="docutils literal notranslate"><span class="pre">plot_all_territories()</span></code></a></li>

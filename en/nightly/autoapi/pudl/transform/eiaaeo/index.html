@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -844,25 +844,25 @@ metadata fields.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.__sanitize_string" title="pudl.transform.eiaaeo.__sanitize_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sanitize_string</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.__sanitize_string" title="pudl.transform.eiaaeo.__sanitize_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sanitize_string</span></code></a>(series) → pandas.Series</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.get_series_info" title="pudl.transform.eiaaeo.get_series_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_series_info</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.get_series_info" title="pudl.transform.eiaaeo.get_series_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_series_info</span></code></a>(series_name) → pandas.DataFrame</p></td>
 <td><p>Break human-readable series name into machine-readable fields.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.get_category_info" title="pudl.transform.eiaaeo.get_category_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_category_info</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.get_category_info" title="pudl.transform.eiaaeo.get_category_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_category_info</span></code></a>(category_name) → pandas.Series</p></td>
 <td><p>Break human-readable category name into machine-readable fields.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio" title="pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subtotals_match_reported_totals_ratio</span></code></a>(→ float)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio" title="pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subtotals_match_reported_totals_ratio</span></code></a>(df, pk, ...) → float</p></td>
 <td><p>When subtotals and totals are reported in the same column, check their sums.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.series_sum_ratio" title="pudl.transform.eiaaeo.series_sum_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">series_sum_ratio</span></code></a>(→ float)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.series_sum_ratio" title="pudl.transform.eiaaeo.series_sum_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">series_sum_ratio</span></code></a>(summands, total) → float</p></td>
 <td><p>Find how well multiple columns sum to another column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.filter_enrich_sanitize" title="pudl.transform.eiaaeo.filter_enrich_sanitize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_enrich_sanitize</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.filter_enrich_sanitize" title="pudl.transform.eiaaeo.filter_enrich_sanitize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_enrich_sanitize</span></code></a>(raw_df, relevant_series_names) → pandas.DataFrame</p></td>
 <td><p>Basic cleaning steps common to all AEO tables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo._collect_totals" title="pudl.transform.eiaaeo._collect_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_collect_totals</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo._collect_totals" title="pudl.transform.eiaaeo._collect_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_collect_totals</span></code></a>(df[, total_colname]) → pandas.DataFrame</p></td>
 <td><p>Various columns have different names for their &quot;total&quot; fact.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.unstack" title="pudl.transform.eiaaeo.unstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack</span></code></a>(df, eventual_pk)</p></td>
@@ -883,7 +883,7 @@ metadata fields.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type" title="pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type</span></code></a>(...)</p></td>
 <td><p>Projected fuel cost for the electric power sector.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.make_check" title="pudl.transform.eiaaeo.make_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eiaaeo.make_check" title="pudl.transform.eiaaeo.make_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check</span></code></a>(spec) → dagster.AssetChecksDefinition</p></td>
 <td><p>Turn the AeoCheckSpec into an actual Dagster asset check.</p></td>
 </tr>
 </tbody>

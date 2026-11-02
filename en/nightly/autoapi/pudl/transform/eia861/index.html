@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.eia861 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.eia861 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -837,10 +837,10 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._pre_process" title="pudl.transform.eia861._pre_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pre_process</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._pre_process" title="pudl.transform.eia861._pre_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pre_process</span></code></a>(df, idx_cols) → pandas.DataFrame</p></td>
 <td><p>Pre-processing applied to all EIA-861 dataframes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._post_process" title="pudl.transform.eia861._post_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_post_process</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._post_process" title="pudl.transform.eia861._post_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_post_process</span></code></a>(df[, name]) → pandas.DataFrame</p></td>
 <td><p>Post-processing applied to all EIA-861 dataframes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._filter_class_cols" title="pudl.transform.eia861._filter_class_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_class_cols</span></code></a>(df, class_list)</p></td>
@@ -849,61 +849,61 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._filter_non_class_cols" title="pudl.transform.eia861._filter_non_class_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_non_class_cols</span></code></a>(df, class_list)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.add_backfilled_ba_code_column" title="pudl.transform.eia861.add_backfilled_ba_code_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_backfilled_ba_code_column</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.add_backfilled_ba_code_column" title="pudl.transform.eia861.add_backfilled_ba_code_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_backfilled_ba_code_column</span></code></a>(df, by_cols) → pandas.DataFrame</p></td>
 <td><p>Make a backfilled Balancing Authority Code column based on codes in later years.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.backfill_ba_codes_by_ba_id" title="pudl.transform.eia861.backfill_ba_codes_by_ba_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backfill_ba_codes_by_ba_id</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.backfill_ba_codes_by_ba_id" title="pudl.transform.eia861.backfill_ba_codes_by_ba_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">backfill_ba_codes_by_ba_id</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Fill in missing BA Codes by backfilling based on BA ID.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._dedupe_cols_agg" title="pudl.transform.eia861._dedupe_cols_agg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dedupe_cols_agg</span></code></a>(→ dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._dedupe_cols_agg" title="pudl.transform.eia861._dedupe_cols_agg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dedupe_cols_agg</span></code></a>(data_dupes, df_name, idx_cols, class_type) → dict</p></td>
 <td><p>Sum numeric duplicates and keep non-null value for non-numeric columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._tidy_class_dfs" title="pudl.transform.eia861._tidy_class_dfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_tidy_class_dfs</span></code></a>(→ tuple[pandas.DataFrame, list[str]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._tidy_class_dfs" title="pudl.transform.eia861._tidy_class_dfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_tidy_class_dfs</span></code></a>(df, df_name, idx_cols, class_list, ...) → tuple[pandas.DataFrame, list[str]]</p></td>
 <td><p>Stack multiple data columns and create a categorical column for filtering.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._drop_dupes" title="pudl.transform.eia861._drop_dupes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_drop_dupes</span></code></a>(df, df_name, subset)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._check_for_dupes" title="pudl.transform.eia861._check_for_dupes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_for_dupes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._check_for_dupes" title="pudl.transform.eia861._check_for_dupes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_for_dupes</span></code></a>(df, df_name, subset) → pandas.DataFrame</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._compare_totals" title="pudl.transform.eia861._compare_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare_totals</span></code></a>(data_cols, idx_cols, class_type, df_name)</p></td>
 <td><p>Compare reported totals with sum of component columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.clean_nerc" title="pudl.transform.eia861.clean_nerc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_nerc</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.clean_nerc" title="pudl.transform.eia861.clean_nerc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_nerc</span></code></a>(nerc_df, idx_cols) → pandas.DataFrame</p></td>
 <td><p>Clean NERC region entries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational" title="pudl.transform.eia861._compare_nerc_physical_w_nerc_operational"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare_nerc_physical_w_nerc_operational</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational" title="pudl.transform.eia861._compare_nerc_physical_w_nerc_operational"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare_nerc_physical_w_nerc_operational</span></code></a>(df) → pandas.DataFrame</p></td>
 <td><p>Show df rows where physical NERC region does not match operational region.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._pct_to_mw" title="pudl.transform.eia861._pct_to_mw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pct_to_mw</span></code></a>(df, pct_col)</p></td>
 <td><p>Turn pct col into mw capacity using total capacity col.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._make_yn_bool" title="pudl.transform.eia861._make_yn_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_yn_bool</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._make_yn_bool" title="pudl.transform.eia861._make_yn_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_yn_bool</span></code></a>(col) → pandas.Series</p></td>
 <td><p>Turn Y/N reporting in a series into nullable booleans.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._thousand_to_one" title="pudl.transform.eia861._thousand_to_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_thousand_to_one</span></code></a>(df_object)</p></td>
 <td><p>Turn reporting in thousands of dollars to regular dollars for df or series.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._harvest_associations" title="pudl.transform.eia861._harvest_associations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_harvest_associations</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861._harvest_associations" title="pudl.transform.eia861._harvest_associations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_harvest_associations</span></code></a>(dfs, cols) → pandas.DataFrame</p></td>
 <td><p>Compile all unique, non-null combinations of values <code class="docutils literal notranslate"><span class="pre">cols</span></code> within <code class="docutils literal notranslate"><span class="pre">dfs</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._combine_88888_values" title="pudl.transform.eia861._combine_88888_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_combine_88888_values</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._combine_88888_values" title="pudl.transform.eia861._combine_88888_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_combine_88888_values</span></code></a>(df, idx_cols) → pandas.DataFrame</p></td>
 <td><p>Combine the data associated with 88888 utility_id_values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_service_territory" title="pudl.transform.eia861.core_eia861__yearly_service_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_service_territory</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_service_territory" title="pudl.transform.eia861.core_eia861__yearly_service_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_service_territory</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 utility service territory table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._core_eia861__balancing_authority" title="pudl.transform.eia861._core_eia861__balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia861__balancing_authority</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861._core_eia861__balancing_authority" title="pudl.transform.eia861._core_eia861__balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia861__balancing_authority</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Balancing Authority table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_sales" title="pudl.transform.eia861.core_eia861__yearly_sales"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_sales</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_sales" title="pudl.transform.eia861.core_eia861__yearly_sales"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_sales</span></code></a>(raw_eia861__sales) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Sales table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_short_form" title="pudl.transform.eia861.core_eia861__yearly_short_form"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_short_form</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_short_form" title="pudl.transform.eia861.core_eia861__yearly_short_form"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_short_form</span></code></a>(raw_eia861__short_form) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Short Form table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure" title="pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_advanced_metering_infrastructure</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure" title="pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_advanced_metering_infrastructure</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Advanced Metering Infrastructure table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_demand_response" title="pudl.transform.eia861.core_eia861__yearly_demand_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_demand_response</span></code></a>(...)</p></td>
@@ -915,19 +915,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_distributed_generation_eia861" title="pudl.transform.eia861.core_distributed_generation_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_distributed_generation_eia861</span></code></a>(...)</p></td>
 <td><p>Transform the EIA 861 Distributed Generation table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_distribution_systems" title="pudl.transform.eia861.core_eia861__yearly_distribution_systems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_distribution_systems</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_distribution_systems" title="pudl.transform.eia861.core_eia861__yearly_distribution_systems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_distribution_systems</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Distribution Systems table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_dynamic_pricing" title="pudl.transform.eia861.core_eia861__yearly_dynamic_pricing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_dynamic_pricing</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_dynamic_pricing" title="pudl.transform.eia861.core_eia861__yearly_dynamic_pricing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_dynamic_pricing</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Dynamic Pricing table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_energy_efficiency" title="pudl.transform.eia861.core_eia861__yearly_energy_efficiency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_energy_efficiency</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_energy_efficiency" title="pudl.transform.eia861.core_eia861__yearly_energy_efficiency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_energy_efficiency</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Energy Efficiency table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_green_pricing" title="pudl.transform.eia861.core_eia861__yearly_green_pricing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_green_pricing</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_green_pricing" title="pudl.transform.eia861.core_eia861__yearly_green_pricing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_green_pricing</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Green Pricing table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_mergers" title="pudl.transform.eia861.core_eia861__yearly_mergers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_mergers</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_mergers" title="pudl.transform.eia861.core_eia861__yearly_mergers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_mergers</span></code></a>(raw_eia861__mergers) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Mergers table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_net_metering_eia861" title="pudl.transform.eia861.core_net_metering_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_net_metering_eia861</span></code></a>(raw_eia861__net_metering)</p></td>
@@ -939,19 +939,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_operational_data_eia861" title="pudl.transform.eia861.core_operational_data_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_operational_data_eia861</span></code></a>(raw_eia861__operational_data)</p></td>
 <td><p>Transform the EIA 861 Operational Data table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_reliability" title="pudl.transform.eia861.core_eia861__yearly_reliability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_reliability</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_reliability" title="pudl.transform.eia861.core_eia861__yearly_reliability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_reliability</span></code></a>(raw_eia861__reliability) → pandas.DataFrame</p></td>
 <td><p>Transform the EIA 861 Reliability table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_utility_data_eia861" title="pudl.transform.eia861.core_utility_data_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_utility_data_eia861</span></code></a>(raw_eia861__utility_data)</p></td>
 <td><p>Transform the EIA 861 Utility Data table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__assn_utility" title="pudl.transform.eia861.core_eia861__assn_utility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__assn_utility</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__assn_utility" title="pudl.transform.eia861.core_eia861__assn_utility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__assn_utility</span></code></a>(**data_dfs) → pandas.DataFrame</p></td>
 <td><p>Harvest a Utility-Date-State Association Table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__assn_balancing_authority" title="pudl.transform.eia861.core_eia861__assn_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__assn_balancing_authority</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__assn_balancing_authority" title="pudl.transform.eia861.core_eia861__assn_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__assn_balancing_authority</span></code></a>(**dfs) → pandas.DataFrame</p></td>
 <td><p>Compile a balancing authority, utility, state association table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_balancing_authority" title="pudl.transform.eia861.core_eia861__yearly_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_balancing_authority</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia861.core_eia861__yearly_balancing_authority" title="pudl.transform.eia861.core_eia861__yearly_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia861__yearly_balancing_authority</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Finish the normalization of the core_eia861__yearly_balancing_authority table.</p></td>
 </tr>
 </tbody>

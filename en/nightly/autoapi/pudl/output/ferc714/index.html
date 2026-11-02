@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.output.ferc714 &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.output.ferc714 &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -845,37 +845,37 @@ at <a class="reference internal" href="../../../../methodology/timeseries_imputa
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.categorize_eia_code" title="pudl.output.ferc714.categorize_eia_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize_eia_code</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.categorize_eia_code" title="pudl.output.ferc714.categorize_eia_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize_eia_code</span></code></a>(eia_codes, ba_ids, util_ids[, ...]) → pandas.DataFrame</p></td>
 <td><p>Categorize FERC 714 <code class="docutils literal notranslate"><span class="pre">eia_codes</span></code> as either balancing authority or utility IDs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._apply_exclude_states" title="pudl.output.ferc714._apply_exclude_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_exclude_states</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._apply_exclude_states" title="pudl.output.ferc714._apply_exclude_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_exclude_states</span></code></a>(ref, fix, target_year) → pandas.DataFrame</p></td>
 <td><p>Filter source rows by exclude_states, raising if all rows are eliminated.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Modified core_eia861__yearly_balancing_authority table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Modified core_eia861__assn_balancing_authority table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_service_territory" title="pudl.output.ferc714.filled_core_eia861__yearly_service_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_service_territory</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_service_territory" title="pudl.output.ferc714.filled_core_eia861__yearly_service_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_service_territory</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Modified core_eia861__yearly_service_territory table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__annualized_respondents" title="pudl.output.ferc714._out_ferc714__annualized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__annualized_respondents</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__annualized_respondents" title="pudl.output.ferc714._out_ferc714__annualized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__annualized_respondents</span></code></a>(context, ...) → pandas.DataFrame</p></td>
 <td><p>Broadcast respondent data across all years with reported demand.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__categorized_respondents" title="pudl.output.ferc714._out_ferc714__categorized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__categorized_respondents</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__categorized_respondents" title="pudl.output.ferc714._out_ferc714__categorized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__categorized_respondents</span></code></a>(context, ...) → pandas.DataFrame</p></td>
 <td><p>Annualized respondents with <code class="docutils literal notranslate"><span class="pre">respondent_type</span></code> assigned if possible.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__respondents_with_fips" title="pudl.output.ferc714.out_ferc714__respondents_with_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__respondents_with_fips</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__respondents_with_fips" title="pudl.output.ferc714.out_ferc714__respondents_with_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__respondents_with_fips</span></code></a>(context, ...) → pandas.DataFrame</p></td>
 <td><p>Annual respondents with the county FIPS IDs for their service territories.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__georeferenced_counties" title="pudl.output.ferc714._out_ferc714__georeferenced_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__georeferenced_counties</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__georeferenced_counties" title="pudl.output.ferc714._out_ferc714__georeferenced_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__georeferenced_counties</span></code></a>(...) → geopandas.GeoDataFrame</p></td>
 <td><p>Annual respondents with all associated county-level geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__georeferenced_respondents" title="pudl.output.ferc714.out_ferc714__georeferenced_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__georeferenced_respondents</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__georeferenced_respondents" title="pudl.output.ferc714.out_ferc714__georeferenced_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__georeferenced_respondents</span></code></a>(...) → geopandas.GeoDataFrame</p></td>
 <td><p>Annual respondents with a single all-encompassing geometry for each year.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__summarized_demand" title="pudl.output.ferc714.out_ferc714__summarized_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__summarized_demand</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__summarized_demand" title="pudl.output.ferc714.out_ferc714__summarized_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__summarized_demand</span></code></a>(...) → pandas.DataFrame</p></td>
 <td><p>Compile annualized, categorized respondents and summarize values.</p></td>
 </tr>
 </tbody>
@@ -1003,7 +1003,7 @@ to the BAs for which <code class="docutils literal notranslate"><span class="pre
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.output.ferc714.categorize_eia_code">
-<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">categorize_eia_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eia_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ba_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">util_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'balancing_authority'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#categorize_eia_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.categorize_eia_code" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">categorize_eia_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eia_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ba_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">util_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'balancing_authority'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#categorize_eia_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.categorize_eia_code" title="Link to this definition">#</a></dt>
 <dd><p>Categorize FERC 714 <code class="docutils literal notranslate"><span class="pre">eia_codes</span></code> as either balancing authority or utility IDs.</p>
 <p>Most FERC 714 respondent IDs are associated with an <code class="docutils literal notranslate"><span class="pre">eia_code</span></code> which refers to
 either a <code class="docutils literal notranslate"><span class="pre">balancing_authority_id_eia</span></code> or a <code class="docutils literal notranslate"><span class="pre">utility_id_eia</span></code> but no indication

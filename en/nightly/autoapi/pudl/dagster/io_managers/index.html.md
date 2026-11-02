@@ -32,9 +32,9 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 
 ## Functions
 
-| [`_get_dagster_instance_if_available`](#pudl.dagster.io_managers._get_dagster_instance_if_available)(...)   | Return the Dagster instance from an input context if one was provided.   |
-|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`get_table_name_from_context`](#pudl.dagster.io_managers.get_table_name_from_context)(→ str)        | Retrieves the table name from the context object.                        |
+| [`_get_dagster_instance_if_available`](#pudl.dagster.io_managers._get_dagster_instance_if_available)(context) → dagster.DagsterInstance | None   | Return the Dagster instance from an input context if one was provided.   |
+|---------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`get_table_name_from_context`](#pudl.dagster.io_managers.get_table_name_from_context)(context) → str                                     | Retrieves the table name from the context object.                        |
 
 ## Module Contents
 

@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.metadata.helpers &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.metadata.helpers &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -820,49 +820,49 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.format_errors" title="pudl.metadata.helpers.format_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_errors</span></code></a>(→ str)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.format_errors" title="pudl.metadata.helpers.format_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_errors</span></code></a>(*errors[, title, pydantic]) → str</p></td>
 <td><p>Format multiple errors into a single error.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers._parse_field_names" title="pudl.metadata.helpers._parse_field_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_field_names</span></code></a>(→ list[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers._parse_field_names" title="pudl.metadata.helpers._parse_field_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_field_names</span></code></a>(fields) → list[str]</p></td>
 <td><p>Parse field names.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers._parse_foreign_key_rule" title="pudl.metadata.helpers._parse_foreign_key_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_foreign_key_rule</span></code></a>(→ list[dict])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers._parse_foreign_key_rule" title="pudl.metadata.helpers._parse_foreign_key_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_foreign_key_rule</span></code></a>(rule, name, key) → list[dict]</p></td>
 <td><p>Parse foreign key rule from resource descriptor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers._build_foreign_key_tree" title="pudl.metadata.helpers._build_foreign_key_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_foreign_key_tree</span></code></a>(→ dict[str, dict[tuple[str, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers._build_foreign_key_tree" title="pudl.metadata.helpers._build_foreign_key_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_foreign_key_tree</span></code></a>(resources) → dict[str, dict[tuple[str, ...], dict]]</p></td>
 <td><p>Build foreign key tree.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers._traverse_foreign_key_tree" title="pudl.metadata.helpers._traverse_foreign_key_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_traverse_foreign_key_tree</span></code></a>(→ list[dict[str, Any]])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers._traverse_foreign_key_tree" title="pudl.metadata.helpers._traverse_foreign_key_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_traverse_foreign_key_tree</span></code></a>(tree, name, fields) → list[dict[str, Any]]</p></td>
 <td><p>Traverse foreign key tree.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.build_foreign_keys" title="pudl.metadata.helpers.build_foreign_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_foreign_keys</span></code></a>(→ dict[str, list[dict]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.build_foreign_keys" title="pudl.metadata.helpers.build_foreign_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_foreign_keys</span></code></a>(resources[, prune]) → dict[str, list[dict]]</p></td>
 <td><p>Build foreign keys for each resource.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.split_period" title="pudl.metadata.helpers.split_period"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_period</span></code></a>(→ tuple[str, str | None])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.split_period" title="pudl.metadata.helpers.split_period"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_period</span></code></a>(name) → tuple[str, str | None]</p></td>
 <td><p>Split the time period from a column name.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.expand_periodic_column_names" title="pudl.metadata.helpers.expand_periodic_column_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_periodic_column_names</span></code></a>(→ list[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.expand_periodic_column_names" title="pudl.metadata.helpers.expand_periodic_column_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_periodic_column_names</span></code></a>(names) → list[str]</p></td>
 <td><p>Add smaller periods to a list of column names.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.most_frequent" title="pudl.metadata.helpers.most_frequent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">most_frequent</span></code></a>(→ Any)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.most_frequent" title="pudl.metadata.helpers.most_frequent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">most_frequent</span></code></a>(x) → Any</p></td>
 <td><p>Return most frequent value (or error if none exists).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.most_and_more_frequent" title="pudl.metadata.helpers.most_and_more_frequent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">most_and_more_frequent</span></code></a>(→ Any)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.most_and_more_frequent" title="pudl.metadata.helpers.most_and_more_frequent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">most_and_more_frequent</span></code></a>(x[, min_frequency]) → Any</p></td>
 <td><p>Return the most frequent value if more frequent than <code class="docutils literal notranslate"><span class="pre">min_frequency</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.unique" title="pudl.metadata.helpers.unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unique</span></code></a>(→ Any)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.unique" title="pudl.metadata.helpers.unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unique</span></code></a>(x) → Any</p></td>
 <td><p>Return single unique value (or error if none exists).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.as_dict" title="pudl.metadata.helpers.as_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_dict</span></code></a>(→ dict[Any, list])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.as_dict" title="pudl.metadata.helpers.as_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_dict</span></code></a>(x) → dict[Any, list]</p></td>
 <td><p>Return dictionary of values, listed by index.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.try_aggfunc" title="pudl.metadata.helpers.try_aggfunc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">try_aggfunc</span></code></a>(→ collections.abc.Callable)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.try_aggfunc" title="pudl.metadata.helpers.try_aggfunc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">try_aggfunc</span></code></a>(func[, raised, error]) → collections.abc.Callable</p></td>
 <td><p>Wrap aggregate function in a try-except for error handling.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.groupby_apply" title="pudl.metadata.helpers.groupby_apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_apply</span></code></a>(→ tuple[pandas.DataFrame, dict[Any, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.helpers.groupby_apply" title="pudl.metadata.helpers.groupby_apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_apply</span></code></a>(df, by, aggfuncs[, raised, error]) → tuple[pandas.DataFrame, dict[Any, pandas.Series]]</p></td>
 <td><p>Aggregate dataframe and capture errors (using apply).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.groupby_aggregate" title="pudl.metadata.helpers.groupby_aggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_aggregate</span></code></a>(→ tuple[pandas.DataFrame, dict[Any, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.helpers.groupby_aggregate" title="pudl.metadata.helpers.groupby_aggregate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_aggregate</span></code></a>(df, by, aggfuncs[, raised, error]) → tuple[pandas.DataFrame, dict[Any, pandas.Series]]</p></td>
 <td><p>Aggregate dataframe and capture errors (using aggregate).</p></td>
 </tr>
 </tbody>

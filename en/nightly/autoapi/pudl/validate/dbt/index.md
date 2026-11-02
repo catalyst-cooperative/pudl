@@ -19,14 +19,14 @@ Wrap DBT invocations so we can get custom behavior.
 
 ## Functions
 
-| [`_preserve_logging_propagation`](#pudl.validate.dbt._preserve_logging_propagation)()                  | Restore logging propagation settings after a dbt invocation.            |
-|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`install_dbt_deps`](#pudl.validate.dbt.install_dbt_deps)(→ dbt.cli.main.dbtRunner)       | Ensure dbt package dependencies are installed in the project directory. |
-| [`__get_failed_nodes`](#pudl.validate.dbt.__get_failed_nodes)(...)                          | Get test node output from tests that failed.                            |
-| [`__get_quantile_contexts`](#pudl.validate.dbt.__get_quantile_contexts)(→ list[NodeContext])     | Run debug_quantile_constraints macro for failed quantile constraints.   |
-| [`__get_compiled_sql_contexts`](#pudl.validate.dbt.__get_compiled_sql_contexts)(→ list[NodeContext]) | Run the compiled SQL against duckdb to get failure contexts.            |
-| [`build_with_context`](#pudl.validate.dbt.build_with_context)(→ BuildResult)                | Run the DBT build and get failure information back.                     |
-| [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(→ str)                  | Translate dagster asset selection to db node selection.                 |
+| [`_preserve_logging_propagation`](#pudl.validate.dbt._preserve_logging_propagation)()                                               | Restore logging propagation settings after a dbt invocation.            |
+|--------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`install_dbt_deps`](#pudl.validate.dbt.install_dbt_deps)([dbt]) → dbt.cli.main.dbtRunner                              | Ensure dbt package dependencies are installed in the project directory. |
+| [`__get_failed_nodes`](#pudl.validate.dbt.__get_failed_nodes)(results) → list[dbt.contracts.graph.nodes.GenericTestNode] | Get test node output from tests that failed.                            |
+| [`__get_quantile_contexts`](#pudl.validate.dbt.__get_quantile_contexts)(nodes, dbt, dbt_dir) → list[NodeContext]              | Run debug_quantile_constraints macro for failed quantile constraints.   |
+| [`__get_compiled_sql_contexts`](#pudl.validate.dbt.__get_compiled_sql_contexts)(nodes) → list[NodeContext]                        | Run the compiled SQL against duckdb to get failure contexts.            |
+| [`build_with_context`](#pudl.validate.dbt.build_with_context)(node_selection, dbt_target[, ...]) → BuildResult           | Run the DBT build and get failure information back.                     |
+| [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(selection, defs[, manifest]) → str                   | Translate dagster asset selection to db node selection.                 |
 
 ## Module Contents
 

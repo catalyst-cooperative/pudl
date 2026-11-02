@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.10.1.dev22 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.10.1.dev23 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=90c177af"></script>
+    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev22 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -852,22 +852,22 @@ is partitioned by <code class="docutils literal notranslate"><span class="pre">y
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.apply_duckdb_dtypes" title="pudl.transform.ferceqr.apply_duckdb_dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_duckdb_dtypes</span></code></a>(table_data, table_name, conn)</p></td>
 <td><p>Cast each column to the dtype declared in the PUDL metadata schema for the table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.rename_duckdb_columns" title="pudl.transform.ferceqr.rename_duckdb_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_duckdb_columns</span></code></a>(→ duckdb.DuckDBPyRelation)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.rename_duckdb_columns" title="pudl.transform.ferceqr.rename_duckdb_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_duckdb_columns</span></code></a>(table_data, mapping) → duckdb.DuckDBPyRelation</p></td>
 <td><p>Rename one or more columns in a DuckDB relation, passing all others through unchanged.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.apply_column_transforms" title="pudl.transform.ferceqr.apply_column_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_column_transforms</span></code></a>(→ duckdb.DuckDBPyRelation)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.apply_column_transforms" title="pudl.transform.ferceqr.apply_column_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_column_transforms</span></code></a>(table_data, columns, transform) → duckdb.DuckDBPyRelation</p></td>
 <td><p>Apply a DuckDB expression factory to a set of columns, replacing each in place.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._yn_to_bool" title="pudl.transform.ferceqr._yn_to_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_yn_to_bool</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._yn_to_bool" title="pudl.transform.ferceqr._yn_to_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_yn_to_bool</span></code></a>(col) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that converts <code class="docutils literal notranslate"><span class="pre">'Y'</span></code>/<code class="docutils literal notranslate"><span class="pre">'N'</span></code> strings to booleans.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._na_to_null" title="pudl.transform.ferceqr._na_to_null"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_na_to_null</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._na_to_null" title="pudl.transform.ferceqr._na_to_null"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_na_to_null</span></code></a>(col_name) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that converts <code class="docutils literal notranslate"><span class="pre">'N/A'</span></code> or <code class="docutils literal notranslate"><span class="pre">'NA'</span></code> strings to NULL.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._parse_datetimes" title="pudl.transform.ferceqr._parse_datetimes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_datetimes</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._parse_datetimes" title="pudl.transform.ferceqr._parse_datetimes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_datetimes</span></code></a>(col_name, fmt) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that parses a datetime string column using <code class="docutils literal notranslate"><span class="pre">fmt</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._recode_categoricals" title="pudl.transform.ferceqr._recode_categoricals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_recode_categoricals</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._recode_categoricals" title="pudl.transform.ferceqr._recode_categoricals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_recode_categoricals</span></code></a>(col_name, replace_mapping) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that replaces exact categorical values in a column.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__quarterly_identity" title="pudl.transform.ferceqr.core_ferceqr__quarterly_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__quarterly_identity</span></code></a>(context, ...)</p></td>
@@ -882,16 +882,16 @@ is partitioned by <code class="docutils literal notranslate"><span class="pre">y
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub" title="pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__quarterly_index_pub</span></code></a>(context, ...)</p></td>
 <td><p>Transform the raw FERC EQR index price publisher table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_extraction_stats_by_quarter" title="pudl.transform.ferceqr._latest_extraction_stats_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_extraction_stats_by_quarter</span></code></a>(→ dict[str, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_extraction_stats_by_quarter" title="pudl.transform.ferceqr._latest_extraction_stats_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_extraction_stats_by_quarter</span></code></a>(instance) → dict[str, dict[str, Any]]</p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">{year_quarter:</span> <span class="pre">extraction_stats}</span></code> from each partition's latest run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_check_evaluations_by_quarter" title="pudl.transform.ferceqr._latest_check_evaluations_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_check_evaluations_by_quarter</span></code></a>(→ dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_check_evaluations_by_quarter" title="pudl.transform.ferceqr._latest_check_evaluations_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_check_evaluations_by_quarter</span></code></a>(instance) → dict[str, dict[str, dagster.AssetCheckEvaluation]]</p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">{year_quarter:</span> <span class="pre">{table_label:</span> <span class="pre">evaluation}}</span></code> from each check's latest run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows" title="pudl.transform.ferceqr._build_ferceqr_diagnostics_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_ferceqr_diagnostics_rows</span></code></a>(→ list[dict[str, Any]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows" title="pudl.transform.ferceqr._build_ferceqr_diagnostics_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_ferceqr_diagnostics_rows</span></code></a>(...) → list[dict[str, Any]]</p></td>
 <td><p>Flatten per-quarter extraction stats and check results into one wide table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics" title="pudl.transform.ferceqr.ferceqr_pipeline_diagnostics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_pipeline_diagnostics</span></code></a>(→ dagster.MaterializeResult)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics" title="pudl.transform.ferceqr.ferceqr_pipeline_diagnostics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_pipeline_diagnostics</span></code></a>(context) → dagster.MaterializeResult</p></td>
 <td><p>Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.</p></td>
 </tr>
 </tbody>

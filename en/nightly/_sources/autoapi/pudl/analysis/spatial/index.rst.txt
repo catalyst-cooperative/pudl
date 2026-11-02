@@ -125,6 +125,7 @@ Module Contents
                   relative to the original. By default, the original value is used unchanged.
 
    :raises ValueError: Duplicate column names in layers.
+   :raises ValueError: Fewer than two layers provided.
 
    :returns: GeoDataFrame with the geometries and attributes resulting from the overlay.
 
