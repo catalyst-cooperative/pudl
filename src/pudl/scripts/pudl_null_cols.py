@@ -10,12 +10,12 @@ import yaml
 
 from pudl.helpers import get_parquet_table
 from pudl.logging_helpers import get_logger
-from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE
+from pudl.metadata.classes import all_resources
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
 
-ALL_TABLES = [r.name for r in [*PUDL_PACKAGE.resources, *FERCEQR_PACKAGE.resources]]
+ALL_TABLES = [r.name for r in all_resources()]
 
 
 def max_eia860_year() -> int:

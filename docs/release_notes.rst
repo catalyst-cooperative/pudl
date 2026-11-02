@@ -43,6 +43,10 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
 * Updated ``dbt`` data validation to support FERC EQR, whose partitioned parquet outputs
   required several configuration changes. The ``external_location`` of each table is now
   generated automatically, row count tests accept string partition keys such as
@@ -51,7 +55,6 @@ New Data Tests & Validations
   files, and the FERC EQR deployment asset now runs the EQR validations before
   publishing. All FERC EQR tables get basic validation tests, including row counts. See
   :issue:`4864` and :pr:`5676`.
-
 * Validate that the net utility plant, total other property and investments, and total
   assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
@@ -68,8 +71,6 @@ Bug Fixes & Data Cleaning
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
   (``non_utility_property_asset``) meant the transform never picked it up. See
   :issue:`5566` and :pr:`5729`.
-* Added a missing territory entry to the :ref:`core_pudl__codes_subdivisions` table. See
-  :issue:`5696` and :pr:`5716`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
@@ -104,13 +105,19 @@ Bug Fixes & Data Cleaning
   numeric columns summed when de-duplicating EIA-923 generation fuel rows are
   explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
   :pr:`5719`.
-*
 * Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
   categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
   and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* Stop ``make_changelog()`` from dropping records whose values reverted to an earlier
+  state (e.g. ``OP`` -> ``OA`` -> ``OP``), leaving the intermediate value looking like a
+  permanent change. This adds 3-7% more rows to
+  :ref:`core_eia860m__changelog_generators` and the entity resolution forensics tables.
+  It also removes empty ``valid_until_date`` intervals, and ensures every series ends
+  on the same date -- one month past the entity's final report date. See :issue:`5730`
+  and :pr:`5731`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -128,6 +135,15 @@ Developer Experience
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
   non-empty. See issue :issue:`4338` and PR :pr:`5539`.
+* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, with
+  ``all_resources()`` and ``find_resource()`` helpers, so asset checks, the docs, the
+  data dictionary, dbt tooling and a DuckDB views database per package cover FERC EQR as
+  well as the main PUDL tables. Every ``<name>_datapackage`` asset now has blocking
+  checks that validate its descriptor and compare the declared fields with the columns
+  in its Parquet files, and Pandera schemas are strict. This exposed a redundant
+  ``filing_quarter`` column in :ref:`core_ferceqr__quarterly_identity` which was
+  removed. The datapackage and ``deploy_ferceqr`` assets also record richer Dagster
+  metadata. See :issue:`5279` and :pr:`5735`.
 
 .. _release-v2026.10.0:
 

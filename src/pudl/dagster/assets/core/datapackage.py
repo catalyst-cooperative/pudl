@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 import uuid
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -44,8 +45,13 @@ _SOURCES_WITH_DOCS: frozenset[str] = (
 )
 
 
-HASH_MAX_WORKERS = min(32, os.cpu_count() or 1)
-"""Default number of threads used to hash parquet files concurrently."""
+HASH_MAX_WORKERS = min(32, os.process_cpu_count() or 1)
+"""Default number of threads used to hash parquet files concurrently.
+
+Based on the CPUs this process is allowed to use (:func:`os.process_cpu_count`), which
+respects CPU affinity, unlike the total number of CPUs on the machine. It does not
+account for CPU time quotas such as those set by ``docker run --cpus``.
+"""
 
 
 def _collect_dagster_file_metadata(
@@ -205,34 +211,51 @@ class _PendingResource:
         return [file for _, file in self.found]
 
 
-def _plan_enrichment(
-    descriptor: dict,
-    dag_metadata: dict[str, dict],
-    parquet_path: Path,
-) -> tuple[int, list[_PendingResource]]:
-    """Fill in stats available from Dagster metadata and find files left to hash.
+def _apply_dagster_stats(descriptor: dict, dag_metadata: dict[str, dict]) -> set[str]:
+    """Copy file stats recorded by Dagster into single-file resource descriptors.
+
+    Args:
+        descriptor: Datapackage descriptor, modified in place.
+        dag_metadata: Per-resource ``bytes``/``hash`` recorded by Dagster.
 
     Returns:
-        The number of resources already enriched from *dag_metadata*, and the
-        resources that still need stats computed from the files on disk. Resources
-        with no files on disk are in neither.
+        The names of the resources that were enriched.
     """
-    enriched_count = 0
+    enriched: set[str] = set()
+    for resource_descriptor in descriptor.get("resources", []):
+        name = resource_descriptor.get("name")
+        if name in dag_metadata and len(_resource_paths(resource_descriptor)) == 1:
+            resource_descriptor["bytes"] = dag_metadata[name]["bytes"]
+            resource_descriptor["hash"] = dag_metadata[name]["hash"]
+            enriched.add(name)
+    return enriched
+
+
+def _find_pending_resources(
+    descriptor: dict, parquet_path: Path, skip: set[str]
+) -> list[_PendingResource]:
+    """Find the parquet files on disk that need stats computed for each resource.
+
+    Args:
+        descriptor: Datapackage descriptor.
+        parquet_path: Directory holding the parquet files.
+        skip: Names of resources that already have stats, which are left out.
+
+    Returns:
+        The resources with at least one file on disk. Resources with no files on disk
+        are not included.
+    """
     pending: list[_PendingResource] = []
     for resource_descriptor in descriptor.get("resources", []):
         name = resource_descriptor.get("name")
+        if name in skip:
+            continue
         paths = _resource_paths(resource_descriptor)
         if not paths:
             raise AssertionError(
                 f"Resource {name} has no path in the datapackage descriptor; "
                 "every parquet-backed resource must point at at least one file."
             )
-
-        if len(paths) == 1 and name in dag_metadata:
-            resource_descriptor["bytes"] = dag_metadata[name]["bytes"]
-            resource_descriptor["hash"] = dag_metadata[name]["hash"]
-            enriched_count += 1
-            continue
 
         # Check for parquet files on disk before getting stats. If a resource has not
         # been materialized, or not all partitions have been materialized, then there
@@ -249,7 +272,7 @@ def _plan_enrichment(
             )
         if found_paths:
             pending.append(_PendingResource(resource_descriptor, paths, found_paths))
-    return enriched_count, pending
+    return pending
 
 
 def _hash_files(files: Sequence[Path], max_workers: int) -> dict[Path, FileStats]:
@@ -311,13 +334,37 @@ def _enrich_resources(
         parquet_path: Directory holding the parquet files.
         max_workers: Maximum number of files hashed concurrently.
     """
-    enriched_count, pending = _plan_enrichment(descriptor, dag_metadata, parquet_path)
+    enriched = _apply_dagster_stats(descriptor, dag_metadata)
+    pending = _find_pending_resources(descriptor, parquet_path, skip=enriched)
     stats = _hash_files(
         [file for resource in pending for file in resource.files], max_workers
     )
     for resource in pending:
         _apply_stats(resource, stats)
-    return enriched_count + len(pending)
+    return len(enriched) + len(pending)
+
+
+def _summarize_resources(descriptor: dict) -> list[dict[str, Any]]:
+    """Summarize each enriched resource's fields, files, and size for asset metadata.
+
+    Resources without file stats (not materialized in this run) are reported with
+    zero files and bytes, so they stand out in the Dagster UI.
+    """
+    summaries = []
+    for resource in descriptor.get("resources", []):
+        if "parts" in resource:
+            n_files = len(resource["parts"])
+        else:
+            n_files = 1 if "bytes" in resource else 0
+        summaries.append(
+            {
+                "name": resource["name"],
+                "n_fields": len(resource["schema"]["fields"]),
+                "n_files": n_files,
+                "bytes": resource.get("bytes", 0),
+            }
+        )
+    return summaries
 
 
 def build_datapackage_asset(
@@ -325,6 +372,7 @@ def build_datapackage_asset(
     parquet_asset_keys: Sequence[dg.AssetKey],
     asset_name: str,
     group_name: str = "core_pudl",
+    # TODO(#5733): decide per upstream asset; a package can mix both kinds of resource.
     partitioned: bool = False,
 ) -> dg.AssetsDefinition:
     """Return a Dagster asset that writes ``datapackage.json`` for PUDL parquet outputs.
@@ -382,7 +430,9 @@ def build_datapackage_asset(
         _enrich_sources(descriptor, zenodo_dois, _docs_version_slug(package.version))
 
         parquet_path = context.resources.pudl_paths.parquet_path()
+        enrich_start = time.perf_counter()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)
+        enrich_seconds = time.perf_counter() - enrich_start
 
         total_resources = len(descriptor.get("resources", []))
         if enriched_count < total_resources:
@@ -398,11 +448,29 @@ def build_datapackage_asset(
         output_path.write_text(json.dumps(descriptor, indent=2))
         logger.info(f"Wrote datapackage descriptor to {output_path}")
 
+        resource_summaries = _summarize_resources(descriptor)
+        unenriched = [r["name"] for r in resource_summaries if r["n_files"] == 0]
+
         return dg.MaterializeResult(
             metadata={
                 "path": dg.MetadataValue.path(output_path),
+                "package_name": package.name,
+                "package_version": descriptor.get("version"),
+                "descriptor_id": descriptor["id"],
+                "git_sha": descriptor.get("git_sha"),
+                "partitioned": partitioned,
                 "resource_count": dg.MetadataValue.int(total_resources),
                 "enriched_resource_count": dg.MetadataValue.int(enriched_count),
+                "unenriched_resources": dg.MetadataValue.json(unenriched),
+                "parquet_file_count": dg.MetadataValue.int(
+                    sum(r["n_files"] for r in resource_summaries)
+                ),
+                "parquet_bytes": dg.MetadataValue.int(
+                    sum(r["bytes"] for r in resource_summaries)
+                ),
+                "resources": dg.MetadataValue.json(resource_summaries),
+                "enrichment_seconds": dg.MetadataValue.float(enrich_seconds),
+                # Size of the descriptor itself.
                 "bytes": dg.MetadataValue.int(output_path.stat().st_size),
             }
         )

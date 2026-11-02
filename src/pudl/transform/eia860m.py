@@ -124,6 +124,6 @@ def core_eia860m__changelog_generators(
         fill_through_freq="month",
     )
 
-    eia860m_changelog = make_changelog(eia860m_all, gens_idx)
+    eia860m_changelog = make_changelog(eia860m_all, gen_idx_no_date)
 
     return eia860m_changelog
