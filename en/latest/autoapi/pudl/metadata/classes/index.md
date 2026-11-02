@@ -18,6 +18,7 @@ Metadata data classes.
 | [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                  |
 | [`FERCEQR_PACKAGE`](#pudl.metadata.classes.FERCEQR_PACKAGE)  |                                                                                                                        |
 | [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                                |
+| [`DATAPACKAGES`](#pudl.metadata.classes.DATAPACKAGES)     | Registry of every datapackage PUDL distributes, keyed by package name.                                                 |
 
 ## Classes
 
@@ -41,12 +42,14 @@ Metadata data classes.
 
 ## Functions
 
-| [`_unique`](#pudl.metadata.classes._unique)(\*args) → list                         | Return a list of all unique values, in order of first appearance.   |
-|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(x[, identifier]) → str         | Format value for use in raw SQL(ite).                               |
-| [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir])         |                                                                     |
-| [`_check_unique`](#pudl.metadata.classes._check_unique)([value]) → list | None           | Check that input list has unique values.                            |
-| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)([value]) → list | None | Sort an enum constraint's values into a deterministic order.        |
+| [`_unique`](#pudl.metadata.classes._unique)(\*args) → list                         | Return a list of all unique values, in order of first appearance.          |
+|-------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(x[, identifier]) → str         | Format value for use in raw SQL(ite).                                      |
+| [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir])         |                                                                            |
+| [`_check_unique`](#pudl.metadata.classes._check_unique)([value]) → list | None           | Check that input list has unique values.                                   |
+| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)([value]) → list | None | Sort an enum constraint's values into a deterministic order.               |
+| [`all_resources`](#pudl.metadata.classes.all_resources)() → list[Resource]               | Return every resource in any registered datapackage, unique by name.       |
+| [`find_resource`](#pudl.metadata.classes.find_resource)(name) → Resource                 | Return the named resource from the first registered package containing it. |
 
 ## Module Contents
 
@@ -1698,11 +1701,10 @@ and keep an eye out for spooky data changes showing up in unexpected places.
 
 Convert to a Frictionless Datapackage.
 
-Allows filtering out specific resources by passing regex patterns to include
-or exclude resources by name. This is used to generate an independent
-‘datapackage.json’ file for `ferceqr` assets, which are distributed separately
-from the rest of PUDL. This method will only look for table names that exactly
-match the supplied patterns, not substring matches.
+The datapackage describes every resource in this package. Its sources,
+contributors, licenses and keywords are compiled from just those resources, so
+a package like `ferceqr`, which is distributed separately from the rest of
+PUDL, gets an independent descriptor that lists only what it uses.
 
 ### pudl.metadata.classes.FERCEQR_PACKAGE
 
@@ -1714,6 +1716,38 @@ This needs to happen after the definition of the Package class above, and it is 
 some of the class definitions below, but having it defined in the middle of this module
 is kind of obscure, so it is imported in the \_\_init_\_.py for this subpackage and then
 imported in other modules from that more prominent location.
+
+### pudl.metadata.classes.DATAPACKAGES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Package](#pudl.metadata.classes.Package)]*
+
+Registry of every datapackage PUDL distributes, keyed by package name.
+
+This is the single source of truth for which packages exist. Code that needs to see
+all of the tables, rather than the tables of one particular package, should go through
+this registry (or [`all_resources()`](#pudl.metadata.classes.all_resources) / [`find_resource()`](#pudl.metadata.classes.find_resource)) instead of naming
+individual packages, so that adding a package cannot leave a consumer behind.
+
+A resource may appear in more than one package. Nothing here assumes the packages are
+disjoint: lookups return the first match in registry order, and listings are
+deduplicated by resource name. A resource’s definition comes from `RESOURCE_METADATA`
+and does not depend on the package that contains it.
+
+### pudl.metadata.classes.all_resources() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)]
+
+Return every resource in any registered datapackage, unique by name.
+
+Resources are listed in registry order, then in package order. A resource that
+appears in several packages is listed once, using its first occurrence.
+
+### pudl.metadata.classes.find_resource(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Resource](#pudl.metadata.classes.Resource)
+
+Return the named resource from the first registered package containing it.
+
+Use this when you have a resource name but don’t know which package it belongs to.
+Code that is specific to one package, like building the PUDL SQLite database,
+should keep using that package directly.
+
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if no registered datapackage contains the resource.
 
 ### *class* pudl.metadata.classes.CodeMetadata(/, \*\*data: Any)
 

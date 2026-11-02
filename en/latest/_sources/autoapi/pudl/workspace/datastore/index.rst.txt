@@ -90,6 +90,14 @@ Module Contents
 
 
 
+   .. py:method:: get_checksum(name: str) -> str
+
+      Return the expected md5 checksum of the named resource.
+
+      :raises KeyError: if the datapackage has no resource with this name.
+
+
+
    .. py:method:: get_download_size() -> int
 
       Returns the total download size of all the resources in MB.
@@ -98,7 +106,9 @@ Module Contents
 
    .. py:method:: validate_checksum(name: str, content: str) -> None
 
-      Returns True if content matches checksum for given named resource.
+      Verify that in-memory content matches the checksum of a named resource.
+
+      :raises ChecksumMismatchError: if the content does not match the expected checksum.
 
 
 
@@ -112,8 +122,6 @@ Module Contents
 
       :param name: name of the resource as it appears in this datapackage descriptor.
       :param path: local path to the file whose contents should be checked.
-
-      :returns: The hex md5 digest of the file's contents.
 
       :raises ChecksumMismatchError: if the digest does not match the expected checksum.
 

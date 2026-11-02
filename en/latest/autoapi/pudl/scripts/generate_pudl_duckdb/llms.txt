@@ -1,13 +1,13 @@
 # PUDL
 
-> PUDL 2026.10.1.dev24 documentation
+> PUDL 2026.10.1.dev25 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
 
 ## Pages in this subsection
 
-- [pudl.scripts.generate_pudl_duckdb](index.html.md): Basic script to generate a duckdb file with views to local/nightly parquet files.
+- [pudl.scripts.generate_pudl_duckdb](index.html.md): Generate a DuckDB database of views onto Parquet files for each datapackage.
 
 ## Optional
 

@@ -4,12 +4,12 @@ Wrap DBT invocations so we can get custom behavior.
 
 ## Attributes
 
-| [`DBT_SOURCES`](#pudl.validate.dbt.DBT_SOURCES)         | Names of the dbt sources, each validated against its own set of Parquet outputs.   |
-|----------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`DEFAULT_DBT_SOURCE`](#pudl.validate.dbt.DEFAULT_DBT_SOURCE)  | The dbt source validated when none is specified.                                   |
-| [`ALL_DBT_SOURCES`](#pudl.validate.dbt.ALL_DBT_SOURCES)     | Selector value meaning every dbt source.                                           |
-| [`DBT_UNIT_TESTS_PATH`](#pudl.validate.dbt.DBT_UNIT_TESTS_PATH) | Path, relative to the dbt project, of the unit tests of our dbt macros.            |
-| [`logger`](#pudl.validate.dbt.logger)              |                                                                                    |
+| [`DBT_SOURCES`](#pudl.validate.dbt.DBT_SOURCES)         | one per datapackage, each validated against its own set                 |
+|----------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`DEFAULT_DBT_SOURCE`](#pudl.validate.dbt.DEFAULT_DBT_SOURCE)  | The dbt source validated when none is specified.                        |
+| [`ALL_DBT_SOURCES`](#pudl.validate.dbt.ALL_DBT_SOURCES)     | Selector value meaning every dbt source.                                |
+| [`DBT_UNIT_TESTS_PATH`](#pudl.validate.dbt.DBT_UNIT_TESTS_PATH) | Path, relative to the dbt project, of the unit tests of our dbt macros. |
+| [`logger`](#pudl.validate.dbt.logger)              |                                                                         |
 
 ## Classes
 
@@ -30,9 +30,13 @@ Wrap DBT invocations so we can get custom behavior.
 
 ## Module Contents
 
-### pudl.validate.dbt.DBT_SOURCES *= ('pudl', 'ferceqr')*
+### pudl.validate.dbt.DBT_SOURCES
 
-Names of the dbt sources, each validated against its own set of Parquet outputs.
+one per datapackage, each validated against its own set
+of Parquet outputs.
+
+* **Type:**
+  Names of the dbt sources
 
 ### pudl.validate.dbt.DEFAULT_DBT_SOURCE *= 'pudl'*
 
@@ -80,6 +84,10 @@ Combine overall result with any useful failure context.
 #### success *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
 #### failure_contexts *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeContext](#pudl.validate.dbt.NodeContext)]*
+
+#### status_counts *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]*
+
+Number of dbt nodes (tests and seeds) with each result status, e.g. `pass`.
 
 #### format_failure_contexts() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 

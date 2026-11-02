@@ -74,7 +74,9 @@ Return a Dagster asset check that validates a frictionless datapackage descripto
 The check reads `$PUDL_OUTPUT/parquet/datapackage.json` from the injected
 `pudl_paths` Dagster resource at run time and validates it recursively through
 resources, schemas, and fields against the frictionless spec using
-`frictionless.Package.metadata_validate()`.
+`frictionless.Package.metadata_validate()`. It also checks that the columns of
+every Parquet file on disk match the fields declared for its resource, using only
+the Parquet footer metadata.
 
 * **Parameters:**
   * **asset_key** – Key of the asset that produces the datapackage descriptor.

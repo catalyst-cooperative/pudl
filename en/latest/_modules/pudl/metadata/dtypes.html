@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.dtypes &#8212; PUDL 2026.10.1.dev24 documentation</title>
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.10.1.dev25 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=d1a24279"></script>
+    <script src="../../../_static/documentation_options.js?v=78e2361f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -883,15 +883,16 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resource</span>
 <span class="sd">schema is authoritative. That means resource-specific field typing and enum/category</span>
-<span class="sd">information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.</span>
+<span class="sd">information already encoded in the registered datapackages will be used directly where</span>
+<span class="sd">possible.</span>
 
 <span class="sd">Not every backend supports every canonical PUDL field type. In particular, some</span>
 <span class="sd">backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype</span>
 <span class="sd">helpers intentionally omit unsupported fields rather than returning an incompatible</span>
 <span class="sd">dtype mapping.</span>
 
-<span class="sd">This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper</span>
-<span class="sd">functions that need it, so the metadata class graph does not introduce a module import</span>
+<span class="sd">This module intentionally keeps the import of the datapackage registry local to the</span>
+<span class="sd">helper functions that need it, so the metadata class graph does not introduce a module import</span>
 <span class="sd">cycle.</span>
 <span class="sd">"""</span>
 
@@ -1139,9 +1140,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_pudl_resource_dtypes</span><span class="p">(</span>
-            <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span> <span class="n">dtype_backend</span><span class="o">=</span><span class="n">dtype_backend</span>
-        <span class="p">)</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_resource_dtypes</span><span class="p">(</span><span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span> <span class="n">dtype_backend</span><span class="o">=</span><span class="n">dtype_backend</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># This also covers the generic case in which field_namespace is None</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_pudl_namespace_dtypes</span><span class="p">(</span>
@@ -1196,9 +1195,9 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_get_pudl_resource_dtypes">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_resource_dtypes">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_pudl_resource_dtypes</span><span class="p">(</span>
+<div class="viewcode-block" id="_get_resource_dtypes">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_resource_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_resource_dtypes</span><span class="p">(</span>
     <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -1214,10 +1213,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        A mapping of PUDL field names to their associated data types.</span>
 <span class="sd">    """</span>
     <span class="c1"># This is here to avoid circular imports.</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_resource</span>
 
     <span class="c1"># We need to build up resource-specific dtypes</span>
-    <span class="n">resource_metadata</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+    <span class="n">resource_metadata</span> <span class="o">=</span> <span class="n">find_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">"pandas"</span><span class="p">:</span>
         <span class="c1"># Pandas is easy, because it defines all dtypes and we have a</span>
         <span class="c1"># resource-level helper method to get them all at once.</span>

@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_validation_quickstart.html.md" />
 <link rel="alternate" type="text/markdown" href="data_validation_quickstart.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Data validation quickstart &#8212; PUDL 2026.10.1.dev24 documentation</title>
+    <title>Data validation quickstart &#8212; PUDL 2026.10.1.dev25 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=d1a24279"></script>
+    <script src="../_static/documentation_options.js?v=78e2361f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -820,7 +820,7 @@ and allows us to use the <a class="reference external" href="https://docs.dagste
 <p>Example usage:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for all of the main PUDL tables (the default source), plus the dbt macro unit tests</span>
 dbt_helper<span class="w"> </span>validate
-<span class="c1"># for the FERC EQR tables (large, so not validated by default)</span>
+<span class="c1"># for the FERC EQR tables (large, so only validated on request and before deploys)</span>
 dbt_helper<span class="w"> </span>validate<span class="w"> </span>--source<span class="w"> </span>ferceqr
 <span class="c1"># for every source</span>
 dbt_helper<span class="w"> </span>validate<span class="w"> </span>--source<span class="w"> </span><span class="s2">"*"</span>

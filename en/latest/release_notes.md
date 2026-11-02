@@ -55,8 +55,6 @@
   [out_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.md#out-rus7-yearly-balance-sheet-assets). A typo in the column map
   (`non_utility_property_asset`) meant the transform never picked it up. See
   [#5566](https://github.com/catalyst-cooperative/pudl/issues/5566) and [#5729](https://github.com/catalyst-cooperative/pudl/pull/5729).
-* Added a missing territory entry to the [core_pudl_\_codes_subdivisions](data_dictionaries/pudl_db.md#core-pudl-codes-subdivisions) table. See
-  [#5696](https://github.com/catalyst-cooperative/pudl/issues/5696) and [#5716](https://github.com/catalyst-cooperative/pudl/pull/5716).
 * Added `plant_function` values to a few factoids in
   [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base). See [#5690](https://github.com/catalyst-cooperative/pudl/pull/5690).
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
@@ -112,6 +110,15 @@
   plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
   with other build outputs on `builds.catalyst.coop` and fail the ETL if they are
   non-empty. See issue [#4338](https://github.com/catalyst-cooperative/pudl/issues/4338) and PR [#5539](https://github.com/catalyst-cooperative/pudl/pull/5539).
+* Added a `DATAPACKAGES` registry of every datapackage PUDL distributes, with
+  `all_resources()` and `find_resource()` helpers, so asset checks, the docs, the
+  data dictionary, dbt tooling and a DuckDB views database per package cover FERC EQR as
+  well as the main PUDL tables. Every `<name>_datapackage` asset now has blocking
+  checks that validate its descriptor and compare the declared fields with the columns
+  in its Parquet files, and Pandera schemas are strict. This exposed a redundant
+  `filing_quarter` column in [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity) which was
+  removed. The datapackage and `deploy_ferceqr` assets also record richer Dagster
+  metadata. See [#5279](https://github.com/catalyst-cooperative/pudl/issues/5279) and [#5735](https://github.com/catalyst-cooperative/pudl/pull/5735).
 
 <a id="release-v2026-10-0"></a>
 

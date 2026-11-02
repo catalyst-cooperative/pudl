@@ -58,6 +58,8 @@ job when deployment handling is complete.
 | [`_datapackage_path`](#pudl.dagster.assets.deploy.ferceqr._datapackage_path)(context) → pathlib.Path                                                                            | Return the descriptor path recorded by the `ferceqr_datapackage` asset.                                                                      |
 | [`_deploy_source_partitions`](#pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions)(context) → list[str]                                                                       | Read the built partitions from run tags, empty when invoked outside a run.                                                                   |
 | [`_notify_ferceqr_outcome`](#pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome)(context, zulip, outcome[, ...]) → None                                                       | Send a deployment outcome notification, never raising on failure.                                                                            |
+| [`_source_backfill_id`](#pudl.dagster.assets.deploy.ferceqr._source_backfill_id)(context, source_run_id) → str | None                                                             | Return the backfill ID of the run being deployed, if it can be determined.                                                                   |
+| [`_deployment_metadata`](#pudl.dagster.assets.deploy.ferceqr._deployment_metadata)(context, \*, outcome, ...[, ...]) → dict[str, Any]                                              | Collect Dagster metadata describing what a deployment run did.                                                                               |
 | [`deploy_ferceqr`](#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr)(context)                                                                                              | Publish EQR outputs to configured deployment targets.                                                                                        |
 | [`handle_ferceqr_failure`](#pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure)(context)                                                                                      | Send notification if the FERC EQR build failed.                                                                                              |
 
@@ -305,6 +307,28 @@ up unrelated data left lying around, especially on local runs.
 ### pudl.dagster.assets.deploy.ferceqr.\_notify_ferceqr_outcome(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), zulip: [pudl.dagster.resources.ZulipNotificationResource](../../../resources/index.html.md#pudl.dagster.resources.ZulipNotificationResource), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Send a deployment outcome notification, never raising on failure.
+
+### pudl.dagster.assets.deploy.ferceqr.\_source_backfill_id(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), source_run_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Return the backfill ID of the run being deployed, if it can be determined.
+
+The deployment run is launched by a sensor and doesn’t carry the backfill tag
+itself, so it’s read from the source run that triggered the deployment.
+
+### pudl.dagster.assets.deploy.ferceqr.\_deployment_metadata(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), , outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), targets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[\_DeploymentTarget](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget)], table_files: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, deploy_seconds: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
+
+Collect Dagster metadata describing what a deployment run did.
+
+* **Parameters:**
+  * **context** – Execution context, used to look up the run tags.
+  * **outcome** – Whether data was published, or the build succeeded but no targets
+    were configured.
+  * **source_partitions** – The quarters built by the backfill being deployed.
+  * **validation_stages** – Results of the dbt validation run before deployment.
+  * **datapackage_path** – Local path of the datapackage descriptor.
+  * **targets** – The destinations data was published to. Empty when skipped.
+  * **table_files** – Local Parquet files published for each table, if any.
+  * **deploy_seconds** – Wall time of the staging and promotion, if it happened.
 
 ### pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext))
 

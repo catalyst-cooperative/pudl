@@ -27,7 +27,7 @@ Example usage:
 ```bash
 # for all of the main PUDL tables (the default source), plus the dbt macro unit tests
 dbt_helper validate
-# for the FERC EQR tables (large, so not validated by default)
+# for the FERC EQR tables (large, so only validated on request and before deploys)
 dbt_helper validate --source ferceqr
 # for every source
 dbt_helper validate --source "*"

@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.10.1.dev24 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.10.1.dev25 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=d1a24279"></script>
+    <script src="../../../_static/documentation_options.js?v=78e2361f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -995,6 +995,27 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="drop_duckdb_columns">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.drop_duckdb_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">drop_duckdb_columns</span><span class="p">(</span>
+    <span class="n">table_data</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Drop whichever of ``columns`` are present in a DuckDB relation.</span>
+
+<span class="sd">    Columns that are not in the relation are ignored rather than raising an error, so</span>
+<span class="sd">    a column that is only reported in some raw filings can be dropped unconditionally.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table_data: DuckDB relation containing the columns to drop.</span>
+<span class="sd">        columns: Names of the columns to drop.</span>
+<span class="sd">    """</span>
+    <span class="n">present</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">table_data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">present</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">table_data</span>
+    <span class="k">return</span> <span class="n">table_data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">duckdb</span><span class="o">.</span><span class="n">StarExpression</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="n">present</span><span class="p">))</span></div>
+
+
+
 <div class="viewcode-block" id="apply_column_transforms">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.apply_column_transforms">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_column_transforms</span><span class="p">(</span>
@@ -1114,6 +1135,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"company_identifier"</span><span class="p">:</span> <span class="s2">"company_id_ferc"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
+        <span class="c1"># The raw ident table reports the filing quarter as the YYYYMM of the</span>
+        <span class="c1"># quarter's last month (e.g. 201309 for 2013q3). It's redundant with</span>
+        <span class="c1"># year_quarter, which we add during extraction, and isn't in the schema.</span>
+        <span class="n">table_data</span> <span class="o">=</span> <span class="n">drop_duckdb_columns</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="p">[</span><span class="s2">"filing_quarter"</span><span class="p">])</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_duckdb_dtypes</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>

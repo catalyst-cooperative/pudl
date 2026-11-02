@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev24 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev25 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=d1a24279"></script>
+    <script src="../../../_static/documentation_options.js?v=78e2361f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -1636,9 +1636,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">rendered</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
             <span class="n">Encoder</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="c1"># just get the resolved resource summary &amp; drop all the other sections of the description</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span>
-                <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">find_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">csv_filepath</span><span class="o">=</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span> <span class="o">/</span> <span class="n">csv_subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.csv"</span><span class="p">),</span>
             <span class="n">is_header</span><span class="o">=</span><span class="n">is_header</span><span class="p">,</span>
         <span class="p">)</span>
@@ -2338,6 +2336,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
             <span class="p">},</span>
             <span class="n">unique</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">,</span>
+            <span class="c1"># Columns not declared in the schema are errors, not silently written.</span>
+            <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -4469,6 +4469,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            version: Version string for the package.</span>
 <span class="sd">            name: Name of the datapackage.</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">excluded_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">included_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">"ETL groups must be a collection of names, not a single string."</span>
+            <span class="p">)</span>
+
         <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span><span class="n">Resource</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">resource_ids</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">resolve_foreign_keys</span><span class="p">:</span>
             <span class="c1"># Add missing resources based on foreign keys</span>
@@ -4483,11 +4488,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">:</span>
                     <span class="n">resources</span> <span class="o">+=</span> <span class="p">[</span><span class="n">Resource</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">:]]</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">excluded_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">included_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">"ETL groups must be a collection of names, not a single string."</span>
-            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">excluded_etl_groups</span><span class="p">:</span>
             <span class="n">resources</span> <span class="o">=</span> <span class="p">[</span>
@@ -4690,11 +4690,10 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Convert to a Frictionless Datapackage.</span>
 
-<span class="sd">        Allows filtering out specific resources by passing regex patterns to include</span>
-<span class="sd">        or exclude resources by name. This is used to generate an independent</span>
-<span class="sd">        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately</span>
-<span class="sd">        from the rest of PUDL. This method will only look for table names that exactly</span>
-<span class="sd">        match the supplied patterns, not substring matches.</span>
+<span class="sd">        The datapackage describes every resource in this package. Its sources,</span>
+<span class="sd">        contributors, licenses and keywords are compiled from just those resources, so</span>
+<span class="sd">        a package like ``ferceqr``, which is distributed separately from the rest of</span>
+<span class="sd">        PUDL, gets an independent descriptor that lists only what it uses.</span>
 <span class="sd">        """</span>
         <span class="n">pudl_resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="p">)</span>
         <span class="n">compiled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile_from_resources</span><span class="p">(</span><span class="n">pudl_resources</span><span class="p">)</span>
@@ -4739,7 +4738,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"journalists, and policy makers that might not have the technical expertise "</span>
         <span class="s2">"to access it in its raw form, the time to clean and prepare the data for "</span>
         <span class="s2">"bulk analysis, or the means to purchase it from existing commercial "</span>
-        <span class="s2">"providers. FERC EQR data is included in PUDL, but handled and distributed"</span>
+        <span class="s2">"providers. FERC EQR data is included in PUDL, but handled and distributed "</span>
         <span class="s2">"separately due to its scale."</span>
     <span class="p">),</span>
     <span class="n">included_etl_groups</span><span class="o">=</span><span class="p">(</span><span class="s2">"ferceqr"</span><span class="p">,),</span>
@@ -4771,6 +4770,66 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">is kind of obscure, so it is imported in the __init__.py for this subpackage and then</span>
 <span class="sd">imported in other modules from that more prominent location.</span>
 <span class="sd">"""</span>
+
+<div class="viewcode-block" id="DATAPACKAGES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.DATAPACKAGES">[docs]</a>
+<span class="n">DATAPACKAGES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Package</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span>
+    <span class="n">FERCEQR_PACKAGE</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">FERCEQR_PACKAGE</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">"""Registry of every datapackage PUDL distributes, keyed by package name.</span>
+
+<span class="sd">This is the single source of truth for which packages exist. Code that needs to see</span>
+<span class="sd">all of the tables, rather than the tables of one particular package, should go through</span>
+<span class="sd">this registry (or :func:`all_resources` / :func:`find_resource`) instead of naming</span>
+<span class="sd">individual packages, so that adding a package cannot leave a consumer behind.</span>
+
+<span class="sd">A resource may appear in more than one package. Nothing here assumes the packages are</span>
+<span class="sd">disjoint: lookups return the first match in registry order, and listings are</span>
+<span class="sd">deduplicated by resource name. A resource's definition comes from ``RESOURCE_METADATA``</span>
+<span class="sd">and does not depend on the package that contains it.</span>
+<span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="all_resources">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.all_resources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">all_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Resource</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return every resource in any registered datapackage, unique by name.</span>
+
+<span class="sd">    Resources are listed in registry order, then in package order. A resource that</span>
+<span class="sd">    appears in several packages is listed once, using its first occurrence.</span>
+<span class="sd">    """</span>
+    <span class="n">unique</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">DATAPACKAGES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">package</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span>
+            <span class="n">unique</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">unique</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="find_resource">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.find_resource">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the named resource from the first registered package containing it.</span>
+
+<span class="sd">    Use this when you have a resource name but don't know which package it belongs to.</span>
+<span class="sd">    Code that is specific to one package, like building the PUDL SQLite database,</span>
+<span class="sd">    should keep using that package directly.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if no registered datapackage contains the resource.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">DATAPACKAGES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">package</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Unknown resource </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not part of any registered data package "</span>
+        <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATAPACKAGES</span><span class="p">)</span><span class="si">}</span><span class="s2">)."</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="CodeMetadata">

@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.core.datapackage &#8212; PUDL 2026.10.1.dev24 documentation</title>
+    <title>pudl.dagster.assets.core.datapackage &#8212; PUDL 2026.10.1.dev25 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../_static/documentation_options.js?v=d1a24279"></script>
+    <script src="../../../../../_static/documentation_options.js?v=78e2361f"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -887,6 +887,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
@@ -919,8 +920,13 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 
-<span class="n">HASH_MAX_WORKERS</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
-<span class="sd">"""Default number of threads used to hash parquet files concurrently."""</span>
+<span class="n">HASH_MAX_WORKERS</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">process_cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
+<span class="sd">"""Default number of threads used to hash parquet files concurrently.</span>
+
+<span class="sd">Based on the CPUs this process is allowed to use (:func:`os.process_cpu_count`), which</span>
+<span class="sd">respects CPU affinity, unlike the total number of CPUs on the machine. It does not</span>
+<span class="sd">account for CPU time quotas such as those set by ``docker run --cpus``.</span>
+<span class="sd">"""</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_collect_dagster_file_metadata</span><span class="p">(</span>
@@ -1080,34 +1086,51 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">found</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_plan_enrichment</span><span class="p">(</span>
-    <span class="n">descriptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">dag_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span>
-    <span class="n">parquet_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">_PendingResource</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Fill in stats available from Dagster metadata and find files left to hash.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_dagster_stats</span><span class="p">(</span><span class="n">descriptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dag_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Copy file stats recorded by Dagster into single-file resource descriptors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        descriptor: Datapackage descriptor, modified in place.</span>
+<span class="sd">        dag_metadata: Per-resource ``bytes``/``hash`` recorded by Dagster.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The number of resources already enriched from *dag_metadata*, and the</span>
-<span class="sd">        resources that still need stats computed from the files on disk. Resources</span>
-<span class="sd">        with no files on disk are in neither.</span>
+<span class="sd">        The names of the resources that were enriched.</span>
 <span class="sd">    """</span>
-    <span class="n">enriched_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">enriched</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">resource_descriptor</span> <span class="ow">in</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resources"</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">resource_descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dag_metadata</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">_resource_paths</span><span class="p">(</span><span class="n">resource_descriptor</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">resource_descriptor</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dag_metadata</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">"bytes"</span><span class="p">]</span>
+            <span class="n">resource_descriptor</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dag_metadata</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">"hash"</span><span class="p">]</span>
+            <span class="n">enriched</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">enriched</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_pending_resources</span><span class="p">(</span>
+    <span class="n">descriptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">skip</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_PendingResource</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Find the parquet files on disk that need stats computed for each resource.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        descriptor: Datapackage descriptor.</span>
+<span class="sd">        parquet_path: Directory holding the parquet files.</span>
+<span class="sd">        skip: Names of resources that already have stats, which are left out.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The resources with at least one file on disk. Resources with no files on disk</span>
+<span class="sd">        are not included.</span>
+<span class="sd">    """</span>
     <span class="n">pending</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_PendingResource</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">resource_descriptor</span> <span class="ow">in</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resources"</span><span class="p">,</span> <span class="p">[]):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">resource_descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="n">paths</span> <span class="o">=</span> <span class="n">_resource_paths</span><span class="p">(</span><span class="n">resource_descriptor</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> has no path in the datapackage descriptor; "</span>
                 <span class="s2">"every parquet-backed resource must point at at least one file."</span>
             <span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dag_metadata</span><span class="p">:</span>
-            <span class="n">resource_descriptor</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dag_metadata</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">"bytes"</span><span class="p">]</span>
-            <span class="n">resource_descriptor</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dag_metadata</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">"hash"</span><span class="p">]</span>
-            <span class="n">enriched_count</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">continue</span>
 
         <span class="c1"># Check for parquet files on disk before getting stats. If a resource has not</span>
         <span class="c1"># been materialized, or not all partitions have been materialized, then there</span>
@@ -1124,7 +1147,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">found_paths</span><span class="p">:</span>
             <span class="n">pending</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_PendingResource</span><span class="p">(</span><span class="n">resource_descriptor</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">found_paths</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">enriched_count</span><span class="p">,</span> <span class="n">pending</span>
+    <span class="k">return</span> <span class="n">pending</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_hash_files</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">FileStats</span><span class="p">]:</span>
@@ -1186,13 +1209,37 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        parquet_path: Directory holding the parquet files.</span>
 <span class="sd">        max_workers: Maximum number of files hashed concurrently.</span>
 <span class="sd">    """</span>
-    <span class="n">enriched_count</span><span class="p">,</span> <span class="n">pending</span> <span class="o">=</span> <span class="n">_plan_enrichment</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">dag_metadata</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span>
+    <span class="n">enriched</span> <span class="o">=</span> <span class="n">_apply_dagster_stats</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">dag_metadata</span><span class="p">)</span>
+    <span class="n">pending</span> <span class="o">=</span> <span class="n">_find_pending_resources</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">enriched</span><span class="p">)</span>
     <span class="n">stats</span> <span class="o">=</span> <span class="n">_hash_files</span><span class="p">(</span>
         <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">pending</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">files</span><span class="p">],</span> <span class="n">max_workers</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">:</span>
         <span class="n">_apply_stats</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">enriched_count</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">enriched</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_summarize_resources</span><span class="p">(</span><span class="n">descriptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Summarize each enriched resource's fields, files, and size for asset metadata.</span>
+
+<span class="sd">    Resources without file stats (not materialized in this run) are reported with</span>
+<span class="sd">    zero files and bytes, so they stand out in the Dagster UI.</span>
+<span class="sd">    """</span>
+    <span class="n">summaries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resources"</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="s2">"parts"</span> <span class="ow">in</span> <span class="n">resource</span><span class="p">:</span>
+            <span class="n">n_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resource</span><span class="p">[</span><span class="s2">"parts"</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_files</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="s2">"bytes"</span> <span class="ow">in</span> <span class="n">resource</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="n">resource</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
+                <span class="s2">"n_fields"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">resource</span><span class="p">[</span><span class="s2">"schema"</span><span class="p">][</span><span class="s2">"fields"</span><span class="p">]),</span>
+                <span class="s2">"n_files"</span><span class="p">:</span> <span class="n">n_files</span><span class="p">,</span>
+                <span class="s2">"bytes"</span><span class="p">:</span> <span class="n">resource</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bytes"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">summaries</span>
 
 
 <div class="viewcode-block" id="build_datapackage_asset">
@@ -1202,6 +1249,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">parquet_asset_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">],</span>
     <span class="n">asset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"core_pudl"</span><span class="p">,</span>
+    <span class="c1"># TODO(#5733): decide per upstream asset; a package can mix both kinds of resource.</span>
     <span class="n">partitioned</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetsDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a Dagster asset that writes ``datapackage.json`` for PUDL parquet outputs.</span>
@@ -1259,7 +1307,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_enrich_sources</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">zenodo_dois</span><span class="p">,</span> <span class="n">_docs_version_slug</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
 
         <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">()</span>
+        <span class="n">enrich_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="n">enriched_count</span> <span class="o">=</span> <span class="n">_enrich_resources</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">dag_metadata</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span>
+        <span class="n">enrich_seconds</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">enrich_start</span>
 
         <span class="n">total_resources</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"resources"</span><span class="p">,</span> <span class="p">[]))</span>
         <span class="k">if</span> <span class="n">enriched_count</span> <span class="o">&lt;</span> <span class="n">total_resources</span><span class="p">:</span>
@@ -1275,11 +1325,29 @@ window.runMermaid = runMermaid;</script>
         <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wrote datapackage descriptor to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
+        <span class="n">resource_summaries</span> <span class="o">=</span> <span class="n">_summarize_resources</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+        <span class="n">unenriched</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resource_summaries</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"n_files"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+
         <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">MaterializeResult</span><span class="p">(</span>
             <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">"path"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
+                <span class="s2">"package_name"</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">"package_version"</span><span class="p">:</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"version"</span><span class="p">),</span>
+                <span class="s2">"descriptor_id"</span><span class="p">:</span> <span class="n">descriptor</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+                <span class="s2">"git_sha"</span><span class="p">:</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"git_sha"</span><span class="p">),</span>
+                <span class="s2">"partitioned"</span><span class="p">:</span> <span class="n">partitioned</span><span class="p">,</span>
                 <span class="s2">"resource_count"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">total_resources</span><span class="p">),</span>
                 <span class="s2">"enriched_resource_count"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">enriched_count</span><span class="p">),</span>
+                <span class="s2">"unenriched_resources"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">unenriched</span><span class="p">),</span>
+                <span class="s2">"parquet_file_count"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"n_files"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resource_summaries</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">"parquet_bytes"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resource_summaries</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">"resources"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">resource_summaries</span><span class="p">),</span>
+                <span class="s2">"enrichment_seconds"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">enrich_seconds</span><span class="p">),</span>
+                <span class="c1"># Size of the descriptor itself.</span>
                 <span class="s2">"bytes"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">),</span>
             <span class="p">}</span>
         <span class="p">)</span>

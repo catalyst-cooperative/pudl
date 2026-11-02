@@ -73,6 +73,8 @@ Functions
    pudl.dagster.assets.deploy.ferceqr._datapackage_path
    pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions
    pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome
+   pudl.dagster.assets.deploy.ferceqr._source_backfill_id
+   pudl.dagster.assets.deploy.ferceqr._deployment_metadata
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
    pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure
 
@@ -388,6 +390,29 @@ Module Contents
 .. py:function:: _notify_ferceqr_outcome(context: dagster.AssetExecutionContext, zulip: pudl.dagster.resources.ZulipNotificationResource, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> None
 
    Send a deployment outcome notification, never raising on failure.
+
+
+.. py:function:: _source_backfill_id(context: dagster.AssetExecutionContext, source_run_id: str | None) -> str | None
+
+   Return the backfill ID of the run being deployed, if it can be determined.
+
+   The deployment run is launched by a sensor and doesn't carry the backfill tag
+   itself, so it's read from the source run that triggered the deployment.
+
+
+.. py:function:: _deployment_metadata(context: dagster.AssetExecutionContext, *, outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: list[str], validation_stages: list[ValidationStage], datapackage_path: pathlib.Path, targets: list[_DeploymentTarget], table_files: dict[str, list[pathlib.Path]] | None = None, deploy_seconds: float | None = None) -> dict[str, Any]
+
+   Collect Dagster metadata describing what a deployment run did.
+
+   :param context: Execution context, used to look up the run tags.
+   :param outcome: Whether data was published, or the build succeeded but no targets
+                   were configured.
+   :param source_partitions: The quarters built by the backfill being deployed.
+   :param validation_stages: Results of the dbt validation run before deployment.
+   :param datapackage_path: Local path of the datapackage descriptor.
+   :param targets: The destinations data was published to. Empty when skipped.
+   :param table_files: Local Parquet files published for each table, if any.
+   :param deploy_seconds: Wall time of the staging and promotion, if it happened.
 
 
 .. py:function:: deploy_ferceqr(context: dagster.AssetExecutionContext)

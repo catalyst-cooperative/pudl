@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev24 documentation</title>
+    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.10.1.dev25 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../_static/documentation_options.js?v=d1a24279"></script>
+    <script src="../../../../../_static/documentation_options.js?v=78e2361f"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev24 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -892,7 +892,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1704,7 +1704,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">def</span><span class="w"> </span><span class="nf">_status_handler_asset</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">_clear_status_files</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span><span class="p">)</span>
-                <span class="n">asset_fn</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">asset_fn</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"FERC EQR deployment handler failed!"</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
@@ -1793,6 +1793,92 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_source_backfill_id">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._source_backfill_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_source_backfill_id</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span> <span class="n">source_run_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the backfill ID of the run being deployed, if it can be determined.</span>
+
+<span class="sd">    The deployment run is launched by a sensor and doesn't carry the backfill tag</span>
+<span class="sd">    itself, so it's read from the source run that triggered the deployment.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">source_run_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">source_run_record</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">get_run_record_by_id</span><span class="p">(</span><span class="n">source_run_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_run_record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">source_run_record</span><span class="o">.</span><span class="n">dagster_run</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DAGSTER_BACKFILL_TAG</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_deployment_metadata">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._deployment_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deployment_metadata</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"DEPLOYED"</span><span class="p">,</span> <span class="s2">"SKIPPED"</span><span class="p">],</span>
+    <span class="n">source_partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">validation_stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">],</span>
+    <span class="n">datapackage_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_DeploymentTarget</span><span class="p">],</span>
+    <span class="n">table_files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deploy_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Collect Dagster metadata describing what a deployment run did.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context: Execution context, used to look up the run tags.</span>
+<span class="sd">        outcome: Whether data was published, or the build succeeded but no targets</span>
+<span class="sd">            were configured.</span>
+<span class="sd">        source_partitions: The quarters built by the backfill being deployed.</span>
+<span class="sd">        validation_stages: Results of the dbt validation run before deployment.</span>
+<span class="sd">        datapackage_path: Local path of the datapackage descriptor.</span>
+<span class="sd">        targets: The destinations data was published to. Empty when skipped.</span>
+<span class="sd">        table_files: Local Parquet files published for each table, if any.</span>
+<span class="sd">        deploy_seconds: Wall time of the staging and promotion, if it happened.</span>
+<span class="sd">    """</span>
+    <span class="n">run_tags</span> <span class="o">=</span> <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span> <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">partitions</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">source_partitions</span><span class="p">)</span>
+    <span class="n">source_run_id</span> <span class="o">=</span> <span class="n">run_tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FERCEQR_SOURCE_RUN_ID_TAG</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"outcome"</span><span class="p">:</span> <span class="n">outcome</span><span class="p">,</span>
+        <span class="s2">"source_run_id"</span><span class="p">:</span> <span class="n">source_run_id</span><span class="p">,</span>
+        <span class="s2">"source_backfill_id"</span><span class="p">:</span> <span class="n">_source_backfill_id</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">source_run_id</span><span class="p">),</span>
+        <span class="s2">"build_id"</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BUILD_ID"</span><span class="p">),</span>
+        <span class="s2">"partition_count"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)),</span>
+        <span class="s2">"first_partition"</span><span class="p">:</span> <span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">"last_partition"</span><span class="p">:</span> <span class="n">partitions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"datapackage_path"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">datapackage_path</span><span class="p">),</span>
+        <span class="s2">"targets"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">final</span><span class="p">)</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">]),</span>
+        <span class="s2">"validation"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">"stage"</span><span class="p">:</span> <span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">"success"</span><span class="p">:</span> <span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
+                    <span class="s2">"dbt_status_counts"</span><span class="p">:</span> <span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">status_counts</span><span class="p">,</span>
+                    <span class="s2">"failure_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">failure_contexts</span><span class="p">),</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">validation_stages</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">table_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table_bytes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">table</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">table_files</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"file_count"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">table_files</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"parquet_bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">table_bytes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"table_bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">table_bytes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">deploy_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"deploy_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">deploy_seconds</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+
 <span class="nd">@deployment_status_asset</span><span class="p">(</span><span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERCEQR_DATAPACKAGE_ASSET_KEY</span><span class="p">])</span>
 <div class="viewcode-block" id="deploy_ferceqr">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr">[docs]</a>
@@ -1866,11 +1952,21 @@ window.runMermaid = runMermaid;</script>
             <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SKIPPED"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
         <span class="p">)</span>
         <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">MaterializeResult</span><span class="p">(</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">_deployment_metadata</span><span class="p">(</span>
+                <span class="n">context</span><span class="p">,</span>
+                <span class="n">outcome</span><span class="o">=</span><span class="s2">"SKIPPED"</span><span class="p">,</span>
+                <span class="n">source_partitions</span><span class="o">=</span><span class="n">source_partitions</span><span class="p">,</span>
+                <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span><span class="p">,</span>
+                <span class="n">datapackage_path</span><span class="o">=</span><span class="n">datapackage_path</span><span class="p">,</span>
+                <span class="n">targets</span><span class="o">=</span><span class="p">[],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="n">table_files</span> <span class="o">=</span> <span class="n">_source_parquet_files</span><span class="p">(</span><span class="n">source_partitions</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR build successful, deploying FERC EQR data."</span><span class="p">)</span>
+    <span class="n">deploy_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># The per-target tasks below submit their per-file work to this same pool and</span>
         <span class="c1"># block on it. That deadlocks if the number of targets reaches the pool's</span>
@@ -1909,11 +2005,25 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_FAILURE"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
         <span class="k">raise</span>
 
+    <span class="n">deploy_seconds</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">deploy_start</span>
+
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR deployment succeeded. Notifying Zulip."</span><span class="p">)</span>
     <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span>
         <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
     <span class="p">)</span>
-    <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span></div>
+    <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">MaterializeResult</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">_deployment_metadata</span><span class="p">(</span>
+            <span class="n">context</span><span class="p">,</span>
+            <span class="n">outcome</span><span class="o">=</span><span class="s2">"DEPLOYED"</span><span class="p">,</span>
+            <span class="n">source_partitions</span><span class="o">=</span><span class="n">source_partitions</span><span class="p">,</span>
+            <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span><span class="p">,</span>
+            <span class="n">datapackage_path</span><span class="o">=</span><span class="n">datapackage_path</span><span class="p">,</span>
+            <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
+            <span class="n">table_files</span><span class="o">=</span><span class="n">table_files</span><span class="p">,</span>
+            <span class="n">deploy_seconds</span><span class="o">=</span><span class="n">deploy_seconds</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
 
 
 

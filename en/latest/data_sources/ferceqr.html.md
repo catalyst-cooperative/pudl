@@ -9,6 +9,19 @@
 | Unprocessed Source Data Archive | [10.5281/zenodo.18251901](https://doi.org/10.5281/zenodo.18251901)                                                                                                                                                                                                                                                                                                                                                                    |
 | Issues                          | [Open FERC Form 920 – Electric Quarterly Report (EQR) issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aferceqr)                                                                                                                                                                                                                                                              |
 
+## PUDL Database Tables
+
+We’ve segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+| Data Dictionary                                                                                                    | Browse Online                                                                                                                                           |
+|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_ferceqr_\_contracts](../data_dictionaries/pudl_db.html.md#core-ferceqr-contracts)                     | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_contracts](https://data.catalyst.coop/preview/pudl/core_ferceqr__contracts)                     |
+| [core_ferceqr_\_quarterly_identity](../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity)   | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_quarterly_identity](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_identity)   |
+| [core_ferceqr_\_quarterly_index_pub](../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub) | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_quarterly_index_pub](https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_index_pub) |
+| [core_ferceqr_\_transactions](../data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)               | [https://data.catalyst.coop/preview/pudl/core_ferceqr_\_transactions](https://data.catalyst.coop/preview/pudl/core_ferceqr__transactions)               |
+
 ## Background
 
 FERC’s Electric Quarterly Reports (EQR) record US electricity wholesale market activity
