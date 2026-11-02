@@ -43,6 +43,10 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
 * Updated ``dbt`` data validation to support FERC EQR, whose partitioned parquet outputs
   required several configuration changes. The ``external_location`` of each table is now
   generated automatically, row count tests accept string partition keys such as
@@ -107,6 +111,13 @@ Bug Fixes & Data Cleaning
   string comparisons, which would otherwise have left spurious null energy sources,
   null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
   :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* Stop ``make_changelog()`` from dropping records whose values reverted to an earlier
+  state (e.g. ``OP`` -> ``OA`` -> ``OP``), leaving the intermediate value looking like a
+  permanent change. This adds 3-7% more rows to
+  :ref:`core_eia860m__changelog_generators` and the entity resolution forensics tables.
+  It also removes empty ``valid_until_date`` intervals, and ensures every series ends
+  on the same date -- one month past the entity's final report date. See :issue:`5730`
+  and :pr:`5731`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
