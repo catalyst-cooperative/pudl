@@ -22,15 +22,17 @@ def __best_snapshot(
     duped_groups: pd.core.groupby.DataFrameGroupBy,
 ) -> pd.DataFrame:
     """Take the row that has most non-null values out of each group."""
-    # Ignore errors when dropping the "count" column since empty
-    # groupby won't have this column.
-    return duped_groups.apply(
-        lambda df: (
-            df.assign(count=df.count(axis="columns"))
-            .sort_values(by="count", ascending=True)
-            .tail(1)
-        )
-    ).drop(columns="count", errors="ignore")
+    # As of pandas 3 groupby(...).apply() excludes the grouping columns from both the
+    # frames it passes and its result, so rank the rows of the whole frame instead. A
+    # stable sort means that ties go to the most recently published row, since the
+    # input is already sorted by publication time.
+    return (
+        duped_groups.obj.assign(count=lambda df: df.count(axis="columns"))
+        .sort_values(by="count", ascending=True, kind="stable")
+        .groupby(duped_groups.keys, dropna=True)
+        .tail(1)
+        .drop(columns="count")
+    )
 
 
 def __compare_dedupe_methodologies(
@@ -112,7 +114,14 @@ def filter_for_freshest_data_xbrl(
     if (not xbrl_table.empty) and primary_keys:
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_keys if c not in filing_metadata_cols]
-        original = xbrl_table.sort_values("publication_time")
+        # The sort must be stable. Many rows share a publication_time (one filing has
+        # many rows) and the order of the rows is meaningful in some tables, e.g. the
+        # FERC 1 small plants table, whose multi-row plant records and header and note
+        # rows are identified by their position. Ties must keep the order in which they
+        # were extracted: the default sort scrambles them for object and datetime
+        # columns. (That extracted order is not always the order of the filing; see
+        # https://github.com/catalyst-cooperative/pudl/issues/5740)
+        original = xbrl_table.sort_values("publication_time", kind="stable")
         dupe_mask = original.duplicated(subset=xbrl_context_cols, keep=False)
         duped_groups = original.loc[dupe_mask].groupby(
             xbrl_context_cols, as_index=False, dropna=True

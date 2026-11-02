@@ -2,7 +2,6 @@
 
 import csv
 import json
-import warnings
 import zipfile
 from collections import defaultdict
 from collections.abc import Callable, Iterator
@@ -618,14 +617,7 @@ class FercDbfExtractor:
         """
         if not dfs:
             return None
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                action="ignore",
-                category=FutureWarning,
-                message="The behavior of DataFrame concatenation with empty or all-NA entries is deprecated",
-            )
-            aggregated_df = pd.concat([df.df for df in dfs])
-        return aggregated_df
+        return pd.concat([df.df for df in dfs])
 
     def load_table_data(self):
         """Loads all tables from fox pro database and writes them to sqlite."""
@@ -660,7 +652,9 @@ class FercDbfExtractor:
                 self.sqlite_engine,
                 if_exists="append",
                 chunksize=100000,
-                dtype=coltypes,
+                # SQLAlchemy column types are valid to_sql() dtypes, but pandas-stubs
+                # doesn't include them.
+                dtype=coltypes,  # type: ignore[bad-argument-type]
                 index=False,
             )
 

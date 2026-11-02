@@ -277,9 +277,9 @@ def backfill_zero_operator_id_phmsa(df: pd.DataFrame) -> pd.DataFrame:
         .sort_index()
     )
     still_zeros = (filled_in.operator_id_phmsa == 0).sum()
-    logger.info(
-        f"Backfilled {(og_zeros - still_zeros) / og_zeros:.1%} of zero's in operator_id_phmsa"
-    )
+    # When only some years are processed there may be no zeros to backfill.
+    backfilled_fraction = (og_zeros - still_zeros) / og_zeros if og_zeros else 0.0
+    logger.info(f"Backfilled {backfilled_fraction:.1%} of zero's in operator_id_phmsa")
     return filled_in
 
 
@@ -732,4 +732,4 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         lower=0
     )  # Based on communication from PHMSA on 08/26, negative mains/services values should be set to zero.
     _assert_install_decade_totals_match_expected(df)
-    return df.loc[non_total_decade_mask].copy()
+    return df.loc[non_total_decade_mask]
