@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -832,37 +832,34 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._get_csv" title="pudl.extract.ferceqr._get_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_csv</span></code></a>(base_path, year_quarter) → collections.abc.Generator[zipfile.ZipFile]</p></td>
-<td><p>Download CSV to a tempmorary directory to avoid reading into memory.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._clean_csv_name" title="pudl.extract.ferceqr._clean_csv_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_csv_name</span></code></a>(csv_path) → pathlib.Path</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._clean_csv_name" title="pudl.extract.ferceqr._clean_csv_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_csv_name</span></code></a>(csv_path) → pathlib.Path</p></td>
 <td><p>Strip characters from an extracted CSV's filename that would confuse duckdb.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._get_table_name" title="pudl.extract.ferceqr._get_table_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_table_name</span></code></a>(table_type, year_quarter) → str</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._get_table_name" title="pudl.extract.ferceqr._get_table_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_table_name</span></code></a>(table_type, year_quarter) → str</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._clear_raw_table_partition" title="pudl.extract.ferceqr._clear_raw_table_partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clear_raw_table_partition</span></code></a>(table_type, year_quarter) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._clear_raw_table_partition" title="pudl.extract.ferceqr._clear_raw_table_partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clear_raw_table_partition</span></code></a>(table_type, year_quarter) → None</p></td>
 <td><p>Delete any existing per-filing parquet output for one raw table+quarter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._extract_ident" title="pudl.extract.ferceqr._extract_ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_ident</span></code></a>(ident_csv, year_quarter, filing_name, ...) → str | None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._extract_ident" title="pudl.extract.ferceqr._extract_ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_ident</span></code></a>(ident_csv, year_quarter, filing_name, ...) → str | None</p></td>
 <td><p>Extract data from ident csv, write to parquet, and return CID from table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._extract_other_table" title="pudl.extract.ferceqr._extract_other_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_other_table</span></code></a>(table_type, csv_path, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._extract_other_table" title="pudl.extract.ferceqr._extract_other_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_other_table</span></code></a>(table_type, csv_path, ...)</p></td>
 <td><p>Extract data from a table other than ident and add year_quarter and CID columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._resolve_cid" title="pudl.extract.ferceqr._resolve_cid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_cid</span></code></a>(ident_path, year_quarter, filing_name, ...) → str | None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._resolve_cid" title="pudl.extract.ferceqr._resolve_cid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_cid</span></code></a>(ident_path, year_quarter, filing_name, ...) → str | None</p></td>
 <td><p>Extract one filing's ident table and return its CID, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._csvs_to_parquet" title="pudl.extract.ferceqr._csvs_to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_csvs_to_parquet</span></code></a>(csv_path, year_quarter, filing_name, ...) → frozenset[FercEqrTableType]</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._csvs_to_parquet" title="pudl.extract.ferceqr._csvs_to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_csvs_to_parquet</span></code></a>(csv_path, year_quarter, filing_name, ...) → frozenset[FercEqrTableType]</p></td>
 <td><p>Mirror CSVs in filing to a parquet file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._get_rejected_record_counts" title="pudl.extract.ferceqr._get_rejected_record_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_rejected_record_counts</span></code></a>(duckdb_connection) → dict[str, int]</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._get_rejected_record_counts" title="pudl.extract.ferceqr._get_rejected_record_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_rejected_record_counts</span></code></a>(duckdb_connection) → dict[str, int]</p></td>
 <td><p>Count rejected CSV records by DuckDB's reason for rejecting them.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._save_extract_errors" title="pudl.extract.ferceqr._save_extract_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_save_extract_errors</span></code></a>(year_quarter, duckdb_connection) → None</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr._save_extract_errors" title="pudl.extract.ferceqr._save_extract_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_save_extract_errors</span></code></a>(year_quarter, duckdb_connection) → None</p></td>
 <td><p>Persist DuckDB's CSV parsing errors for the quarter to parquet.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferceqr.extract_ferceqr" title="pudl.extract.ferceqr.extract_ferceqr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_ferceqr</span></code></a>(context[, ferceqr_archive])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferceqr.extract_ferceqr" title="pudl.extract.ferceqr.extract_ferceqr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_ferceqr</span></code></a>(context, ferceqr_archive)</p></td>
 <td><p>Extract year quarter from CSVs and load to parquet files.</p></td>
 </tr>
 </tbody>
@@ -896,12 +893,6 @@ this, a long-running extraction has no visible sign of progress in the logs.</p>
 <dd><p>Canonical list of all <a class="reference internal" href="#pudl.extract.ferceqr.FercEqrTableType" title="pudl.extract.ferceqr.FercEqrTableType"><code class="xref py py-data docutils literal notranslate"><span class="pre">FercEqrTableType</span></code></a> values, in extraction order.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ident</span></code> is extracted first so its CID can be attached to the other tables; see
 <a class="reference internal" href="#pudl.extract.ferceqr._extract_ident" title="pudl.extract.ferceqr._extract_ident"><code class="xref py py-func docutils literal notranslate"><span class="pre">_extract_ident()</span></code></a>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.extract.ferceqr._get_csv">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferceqr.</span></span><span class="sig-name descname"><span class="pre">_get_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">upath.UPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year_quarter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator" title="(in Python v3.15)"><span class="pre">collections.abc.Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.15)"><span class="pre">zipfile.ZipFile</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferceqr.html#_get_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferceqr._get_csv" title="Link to this definition">#</a></dt>
-<dd><p>Download CSV to a tempmorary directory to avoid reading into memory.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -1053,7 +1044,7 @@ write with the fast native writer.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.extract.ferceqr.extract_ferceqr">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferceqr.</span></span><span class="sig-name descname"><span class="pre">extract_ferceqr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext" title="(in Dagster)"><span class="pre">dagster.AssetExecutionContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ferceqr_archive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../dagster/resources/index.html#pudl.dagster.resources.FercEqrArchiveResource" title="pudl.dagster.resources.FercEqrArchiveResource"><span class="pre">pudl.dagster.resources.FercEqrArchiveResource</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">FercEqrArchiveResource()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/ferceqr.html#extract_ferceqr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferceqr.extract_ferceqr" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferceqr.</span></span><span class="sig-name descname"><span class="pre">extract_ferceqr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext" title="(in Dagster)"><span class="pre">dagster.AssetExecutionContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ferceqr_archive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../dagster/resources/index.html#pudl.dagster.resources.FercEqrArchiveResource" title="pudl.dagster.resources.FercEqrArchiveResource"><span class="pre">pudl.dagster.resources.FercEqrArchiveResource</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/ferceqr.html#extract_ferceqr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferceqr.extract_ferceqr" title="Link to this definition">#</a></dt>
 <dd><p>Extract year quarter from CSVs and load to parquet files.</p>
 <p>This method will loop through the nested EQR archive zipfiles and extract all tables
 from them, and write to parquet. It opens a duckdb connection at the top level to
@@ -1120,7 +1111,6 @@ on the <code class="docutils literal notranslate"><span class="pre">raw_ferceqr_
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr._PROGRESS_LOG_INTERVAL"><code class="docutils literal notranslate"><span class="pre">_PROGRESS_LOG_INTERVAL</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr.FercEqrTableType"><code class="docutils literal notranslate"><span class="pre">FercEqrTableType</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr._ALL_TABLE_TYPES"><code class="docutils literal notranslate"><span class="pre">_ALL_TABLE_TYPES</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr._get_csv"><code class="docutils literal notranslate"><span class="pre">_get_csv()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr._UNSAFE_CSV_NAME_CHARS_REGEX"><code class="docutils literal notranslate"><span class="pre">_UNSAFE_CSV_NAME_CHARS_REGEX</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr._clean_csv_name"><code class="docutils literal notranslate"><span class="pre">_clean_csv_name()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferceqr._get_table_name"><code class="docutils literal notranslate"><span class="pre">_get_table_name()</span></code></a></li>

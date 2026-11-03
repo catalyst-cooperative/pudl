@@ -49,6 +49,7 @@ Functions
 
    pudl.transform.ferceqr.apply_duckdb_dtypes
    pudl.transform.ferceqr.rename_duckdb_columns
+   pudl.transform.ferceqr.drop_duckdb_columns
    pudl.transform.ferceqr.apply_column_transforms
    pudl.transform.ferceqr._yn_to_bool
    pudl.transform.ferceqr._na_to_null
@@ -108,6 +109,17 @@ Module Contents
 
    :param table_data: DuckDB relation containing the columns to rename.
    :param mapping: Maps existing column names to their new names.
+
+
+.. py:function:: drop_duckdb_columns(table_data: duckdb.DuckDBPyRelation, columns: list[str]) -> duckdb.DuckDBPyRelation
+
+   Drop whichever of ``columns`` are present in a DuckDB relation.
+
+   Columns that are not in the relation are ignored rather than raising an error, so
+   a column that is only reported in some raw filings can be dropped unconditionally.
+
+   :param table_data: DuckDB relation containing the columns to drop.
+   :param columns: Names of the columns to drop.
 
 
 .. py:function:: apply_column_transforms(table_data: duckdb.DuckDBPyRelation, columns: list[str], transform: collections.abc.Callable[[str], duckdb.Expression]) -> duckdb.DuckDBPyRelation

@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.sensors &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.dagster.sensors &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -888,6 +888,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.deploy.ferceqr</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DAGSTER_BACKFILL_TAG</span><span class="p">,</span>
+    <span class="n">FERCEQR_DATAPACKAGE_ASSET_KEY</span><span class="p">,</span>
     <span class="n">FERCEQR_SOURCE_PARTITIONS_TAG</span><span class="p">,</span>
     <span class="n">FERCEQR_SOURCE_RUN_ID_TAG</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1001,10 +1002,12 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">source_partitions</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">run_key_prefix</span> <span class="o">=</span> <span class="s2">"ferceqr_deployment_failure_backfill"</span>
-        <span class="n">asset_name</span> <span class="o">=</span> <span class="s2">"handle_ferceqr_failure"</span>
+        <span class="c1"># Only trigger failure asset. Skip datapackage generation</span>
+        <span class="n">asset_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">(</span><span class="s2">"handle_ferceqr_failure"</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">run_key_prefix</span> <span class="o">=</span> <span class="s2">"ferceqr_deployment_success_backfill"</span>
-        <span class="n">asset_name</span> <span class="o">=</span> <span class="s2">"deploy_ferceqr"</span>
+        <span class="c1"># Trigger datapackage generation + deployment</span>
+        <span class="n">asset_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">FERCEQR_DATAPACKAGE_ASSET_KEY</span><span class="p">,</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">(</span><span class="s2">"deploy_ferceqr"</span><span class="p">)]</span>
 
     <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">FERCEQR_SOURCE_RUN_ID_TAG</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">dagster_run</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
@@ -1014,7 +1017,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">RunRequest</span><span class="p">(</span>
         <span class="n">run_key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">run_key_prefix</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
-        <span class="n">asset_selection</span><span class="o">=</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">(</span><span class="n">asset_name</span><span class="p">)],</span>
+        <span class="n">asset_selection</span><span class="o">=</span><span class="n">asset_keys</span><span class="p">,</span>
     <span class="p">)</span>
 
 

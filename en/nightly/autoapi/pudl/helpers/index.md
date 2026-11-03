@@ -97,7 +97,8 @@ with cleaning and restructuring dataframes.
 | [`_read_typed_csv_rejecting_narrowing`](#pudl.helpers._read_typed_csv_rejecting_narrowing)(conn, csv_path, ...) → duckdb.DuckDBPyRelation                                                       | Read a CSV with explicit column types, without silently rounding bad data.                                                                                                                                                                                        |
 | [`duckdb_extract_zipped_csv`](#pudl.helpers.duckdb_extract_zipped_csv)(dataset, partitions, pages, ...) → collections.abc.Generator[tuple[str, duckdb.DuckDBPyRelation]]              | Extract data from zipped CSV page(s) in a data archive.                                                                                                                                                                                                           |
 | [`normalize_year_fragments`](#pudl.helpers.normalize_year_fragments)(raw_year, min_valid_year, ...) → pandas.Series                                                                  | Normalize year fragments into 4-digit years using a rolling-century rule.                                                                                                                                                                                         |
-| [`make_changelog`](#pudl.helpers.make_changelog)(df_all, idx) → pandas.DataFrame                                                                                           | Make a changelog table with unique instances of values over time.                                                                                                                                                                                                 |
+| [`_valid_until`](#pudl.helpers._valid_until)(changes, series_cols) → pandas.Series                                                                                       | Find the date until which each changelog record is valid.                                                                                                                                                                                                         |
+| [`make_changelog`](#pudl.helpers.make_changelog)(df_all, id_cols) → pandas.DataFrame                                                                                       | Make a changelog table with unique instances of values over time.                                                                                                                                                                                                 |
 | [`parse_address`](#pudl.helpers.parse_address)(addr)                                                                                                                      | Parse a U.S. address into components.                                                                                                                                                                                                                             |
 | [`listify`](#pudl.helpers.listify)(x) → list[Any]                                                                                                                   | Listify an input that is sometimes a list and sometimes not.                                                                                                                                                                                                      |
 | [`env_var_is_true`](#pudl.helpers.env_var_is_true)(env_var) → bool                                                                                                          | Check that environment variable is a 'truthy' value.                                                                                                                                                                                                              |
@@ -1400,17 +1401,68 @@ For example, with `base_century=2000` and `max_valid_year=2026`:
   [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – If the valid year range is too wide to apply the rolling-century
   logic, or if any resulting year falls outside the valid range.
 
-### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.\_valid_until(changes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), series_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+
+Find the date until which each changelog record is valid.
+
+A record is valid until the next record in the same series begins, so the intervals
+`[report_date, valid_until_date)` are half-open. A series’ last record has no
+successor, and was still in force when the entity was last reported, so it is valid
+until one month past the entity’s last report date (`report_date_max`). Every
+series’ last record therefore ends on the same date. The month is fixed, and
+assumes monthly reporting.
+
+* **Parameters:**
+  * **changes** – One row per kept changelog record, with `report_date` and
+    `report_date_max` columns, sorted by `report_date` within each series.
+  * **series_cols** – Columns identifying a series (the groups within which records
+    succeed one another).
+* **Returns:**
+  The `valid_until_date` for each row of `changes`.
+
+### pudl.helpers.make_changelog(df_all: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), id_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Make a changelog table with unique instances of values over time.
 
-Each record is valid from its `report_date` until the `report_date` of the next
-distinct record in the same series. A series is a unique combination of the
-non-date `idx` columns and, if present, `column_name` (as in the “tall” forensics
-tables, where many different columns and values share one entity ID). Records
-reported on the entity’s last report date are valid for one more month.
+Three nested groupings of the input are used, each identified by its own columns:
+
+* An *entity* is the thing the data describes, identified by `id_cols` (e.g. a
+  plant, or a generator).
+* A *series* is one tracked quantity of an entity: the `id_cols` plus
+  `column_name`, if present (as in the “tall” forensics tables, where many
+  different columns and values share one entity ID). In a wide table with no
+  `column_name`, every column is tracked together, so each entity has a single
+  series and a change to any column starts a new record.
+* A *snapshot* is a series as reported on one `report_date`: the set of distinct
+  records reported for it on that date. This is usually just one record, but
+  conflicting reports of the same thing can yield several.
+
+A report date is kept in the changelog if it is the first for its series, or if its
+snapshot differs from the snapshot on the series’ *previous* report date. Comparing
+only with the previous date (rather than with every earlier one) means a value that
+changes and later reverts (`OP` -> `OA` -> `OP`) gets a new record for the
+reversion, so the changelog never claims that an outdated value is still in force.
+Missing values compare as equal to each other.
+
+Each kept record is valid over the half-open interval `[report_date,
+valid_until_date)`: `valid_until_date` is the first date it is *no longer* in
+force, which is the `report_date` of the next kept record in the same series.
+A series’ last record has no successor, and was still in force when the entity was
+last reported, so its `valid_until_date` is one month past the entity’s
+last `report_date` (`report_date_max`). The month is fixed, and assumes monthly
+reporting.
 
 The output is fully sorted, so it doesn’t depend on the order of the input rows.
+
+* **Parameters:**
+  * **df_all** – Records to summarize. Must contain `report_date` and the columns in
+    `id_cols`. May contain `column_name` and `record_value`.
+  * **id_cols** – Columns identifying an entity, not including `report_date`, e.g.
+    `["plant_id_eia", "generator_id"]`.
+* **Returns:**
+  The records at which a series’ snapshot changed, with the entity’s last report
+  date in `report_date_max` and the end of the record’s validity in
+  `valid_until_date`.
 
 ### pudl.helpers.parse_address(addr: [str](https://docs.python.org/3/builtins/stdtypes.html#str))
 

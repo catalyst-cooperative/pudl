@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.assets.core.datapackage &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.dagster.assets.core.datapackage &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -820,7 +820,7 @@ the PUDL documentation page for each data source.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset" title="pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_pudl_datapackage_asset</span></code></a>(parquet_asset_keys) → dagster.AssetsDefinition</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.assets.core.datapackage.build_datapackage_asset" title="pudl.dagster.assets.core.datapackage.build_datapackage_asset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_datapackage_asset</span></code></a>(package, parquet_asset_keys, ...) → dagster.AssetsDefinition</p></td>
 <td><p>Return a Dagster asset that writes <code class="docutils literal notranslate"><span class="pre">datapackage.json</span></code> for PUDL parquet outputs.</p></td>
 </tr>
 </tbody>
@@ -830,15 +830,24 @@ the PUDL documentation page for each data source.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.datapackage.</span></span><span class="sig-name descname"><span class="pre">build_pudl_datapackage_asset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parquet_asset_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey" title="(in Dagster)"><span class="pre">dagster.AssetKey</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/datapackage.html#build_pudl_datapackage_asset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.assets.core.datapackage.build_datapackage_asset">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.assets.core.datapackage.</span></span><span class="sig-name descname"><span class="pre">build_datapackage_asset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../../metadata/classes/index.html#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">pudl.metadata.classes.Package</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parquet_asset_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.15)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey" title="(in Dagster)"><span class="pre">dagster.AssetKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'core_pudl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitioned</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition" title="(in Dagster)"><span class="pre">dagster.AssetsDefinition</span></a></span></span><a class="reference internal" href="../../../../../../_modules/pudl/dagster/assets/core/datapackage.html#build_datapackage_asset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.assets.core.datapackage.build_datapackage_asset" title="Link to this definition">#</a></dt>
 <dd><p>Return a Dagster asset that writes <code class="docutils literal notranslate"><span class="pre">datapackage.json</span></code> for PUDL parquet outputs.</p>
 <p>The asset depends on every asset in <em>parquet_asset_keys</em> so Dagster will
 only run it once all parquet outputs for the current job are materialised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>parquet_asset_keys</strong> – Keys of all assets that write parquet files and
-should be described in the datapackage.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>package</strong> – Frictionless datapackage to enhance and return.</p></li>
+<li><p><strong>parquet_asset_keys</strong> – Keys of all assets that write parquet files and
+should be described in the datapackage.</p></li>
+<li><p><strong>asset_name</strong> – Name of the generated Dagster asset.</p></li>
+<li><p><strong>group_name</strong> – Dagster asset group the generated asset belongs to.</p></li>
+<li><p><strong>partitioned</strong> – Whether the upstream parquet assets are partitioned. When
+<code class="docutils literal notranslate"><span class="pre">True</span></code>, each dependency uses a <a class="reference external" href="https://dagster.io/docs/api/dagster/partitions/#dagster.AllPartitionMapping" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.AllPartitionMapping</span></code></a>
+so the descriptor is only written once all partitions of every
+upstream asset have been materialised.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -895,7 +904,7 @@ should be described in the datapackage.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset"><code class="docutils literal notranslate"><span class="pre">build_pudl_datapackage_asset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.assets.core.datapackage.build_datapackage_asset"><code class="docutils literal notranslate"><span class="pre">build_datapackage_asset()</span></code></a></li>
 </ul>
 </li>
 </ul>

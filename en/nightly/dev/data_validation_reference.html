@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_validation_reference.html.md" />
 <link rel="alternate" type="text/markdown" href="data_validation_reference.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Data validation reference &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>Data validation reference &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../_static/documentation_options.js?v=f113d892"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -1349,7 +1349,7 @@ not <code class="docutils literal notranslate"><span class="pre">--asset-select<
 <p>In this example, quantile 0.65 was expected to be between 0.5 and 0.6,
 but was instead 0.46, outside of the expected range.</p>
 <p>Locate the quantile check in the table’s <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> file.
-This will be at <code class="docutils literal notranslate"><span class="pre">dbt/models/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.</p>
+This will be at <code class="docutils literal notranslate"><span class="pre">dbt/models/&lt;dbt_source&gt;/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.</p>
 <p>Find the column name and the row condition in the failure output.
 In this example, the check we want is for column <code class="docutils literal notranslate"><span class="pre">capacity_factor</span></code>,
 and it’s the entry with the row condition
@@ -1377,7 +1377,7 @@ case it gets worse)</p></li>
 the <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> file associated with that table, and adding a new test specification
 to the <code class="docutils literal notranslate"><span class="pre">data_tests</span></code> section of either the table as a whole or an individual column.
 The <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> for <code class="docutils literal notranslate"><span class="pre">table_name</span></code> can be found at
-<code class="docutils literal notranslate"><span class="pre">dbt/models/{data_source}/{table_name}/schema.yml</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">dbt/models/{dbt_source}/{data_source}/{table_name}/schema.yml</span></code>.</p>
 <p>In general, table-level tests depend on multiple columns or test some property of the
 table as a whole, while column-level tests typically depend only on values with the
 column they are applied to.</p>
@@ -1387,7 +1387,7 @@ column they are applied to.</p>
 <a class="reference external" href="https://github.com/metaplane/dbt-expectations">dbt-expectations</a> as dependencies.
 These packages include a bunch of useful tests that can be applied to any table.
 There are several examples of applying tests from <code class="docutils literal notranslate"><span class="pre">dbt-expectations</span></code> in
-<code class="docutils literal notranslate"><span class="pre">dbt/models/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml</span></code>
+<code class="docutils literal notranslate"><span class="pre">dbt/models/pudl/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml</span></code>
 and in general they will look like the below. Each item in a <code class="docutils literal notranslate"><span class="pre">data_tests</span></code> section
 defines a single test, and may provide named parameters for the test. The tests whose
 names have the <code class="docutils literal notranslate"><span class="pre">dbt_expectations</span></code> prefix come from that package.</p>
@@ -1465,11 +1465,12 @@ files with the same name under <code class="docutils literal notranslate"><span 
 <section id="adding-new-tables">
 <span id="id4"></span><h2>Adding new tables<a class="headerlink" href="#adding-new-tables" title="Link to this heading">#</a></h2>
 <p>Our dbt schemas are defined within schema files at
-<code class="docutils literal notranslate"><span class="pre">dbt/models/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.
+<code class="docutils literal notranslate"><span class="pre">dbt/models/&lt;dbt_source&gt;/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.
 These are automatically generated by combining the resource
 definitions in <code class="docutils literal notranslate"><span class="pre">pudl.metadata.resources.RESOURCE_METADATA</span></code>
 with some human-generated data test definitions in
-<code class="docutils literal notranslate"><span class="pre">dbt/schema_inputs/&lt;data_source&gt;/&lt;table_name&gt;/schema.human.yml</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">dbt/schema_inputs/&lt;dbt_source&gt;/&lt;data_source&gt;/&lt;table_name&gt;/schema.human.yml</span></code>.
+<code class="docutils literal notranslate"><span class="pre">&lt;dbt_source&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">pudl</span></code> or <code class="docutils literal notranslate"><span class="pre">ferceqr</span></code>; see <a class="reference internal" href="data_validation_quickstart.html"><span class="doc">Data validation quickstart</span></a>.</p>
 <p>When adding a new table to dbt, we need to:</p>
 <ul class="simple">
 <li><p>add initial data tests</p></li>
@@ -1677,7 +1678,7 @@ use a column test (such as <code class="docutils literal notranslate"><span clas
 columns, you will need to calculate that ratio as a separate column.</p>
 <p>This can be done by creating a new <a class="reference external" href="https://docs.getdbt.com/docs/build/models">dbt model</a> that materializes an
 intermediate table you want to execute tests on. Add a SQL file to
-<code class="docutils literal notranslate"><span class="pre">dbt/models/{data_source}/{source_table_name}/{intermediate_table_name}.sql</span></code>
+<code class="docutils literal notranslate"><span class="pre">dbt/models/{dbt_source}/{data_source}/{source_table_name}/{intermediate_table_name}.sql</span></code>
 containing a <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> statement that builds your new table. For
 example, if you need to divide the <code class="docutils literal notranslate"><span class="pre">source_table_name.a</span></code> column by
 <code class="docutils literal notranslate"><span class="pre">source_table_name.b</span></code>:</p>

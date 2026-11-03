@@ -48,10 +48,11 @@ Module Contents
 ---------------
 
 .. py:data:: DBT_SOURCES
-   :value: ('pudl', 'ferceqr')
 
+   one per datapackage, each validated against its own set
+   of Parquet outputs.
 
-   Names of the dbt sources, each validated against its own set of Parquet outputs.
+   :type: Names of the dbt sources
 
 .. py:data:: DEFAULT_DBT_SOURCE
    :value: 'pudl'
@@ -119,6 +120,12 @@ Module Contents
 
    .. py:attribute:: failure_contexts
       :type:  list[NodeContext]
+
+
+   .. py:attribute:: status_counts
+      :type:  dict[str, int]
+
+      Number of dbt nodes (tests and seeds) with each result status, e.g. ``pass``.
 
 
    .. py:method:: format_failure_contexts() -> str

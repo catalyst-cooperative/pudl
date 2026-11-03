@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.dagster.assets &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -896,14 +896,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.output</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.transform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">eiaapi_electricity</span><span class="p">,</span> <span class="n">glue</span><span class="p">,</span> <span class="n">static</span><span class="p">,</span> <span class="n">unmapped_ids</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.core.datapackage</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_pudl_datapackage_asset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.core.datapackage</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_datapackage_asset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.deploy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr</span> <span class="k">as</span> <span class="n">deploy_ferceqr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.output.databases</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">build_pudl_duckdb_asset</span><span class="p">,</span>
     <span class="n">build_pudl_sqlite_asset</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets.raw</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferc_to_sqlite</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">FERCEQR_PACKAGE</span><span class="p">,</span> <span class="n">PUDL_PACKAGE</span>
 
 <div class="viewcode-block" id="raw_module_groups">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/assets/index.html#pudl.dagster.assets.raw_module_groups">[docs]</a>
@@ -1076,10 +1076,29 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="n">_sql_asset_keys</span> <span class="o">=</span> <span class="n">_find_sql_asset_keys</span><span class="p">(</span><span class="n">_base_assets</span><span class="p">)</span>
+<span class="n">_ferceqr_table_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">FERCEQR_PACKAGE</span><span class="o">.</span><span class="n">resources</span><span class="p">}</span>
 <div class="viewcode-block" id="default_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/assets/index.html#pudl.dagster.assets.default_assets">[docs]</a>
 <span class="n">default_assets</span> <span class="o">=</span> <span class="n">_base_assets</span> <span class="o">+</span> <span class="p">[</span>
-    <span class="n">build_pudl_datapackage_asset</span><span class="p">(</span><span class="n">_find_parquet_asset_keys</span><span class="p">(</span><span class="n">_base_assets</span><span class="p">)),</span>
+    <span class="n">build_datapackage_asset</span><span class="p">(</span>
+        <span class="n">package</span><span class="o">=</span><span class="n">PUDL_PACKAGE</span><span class="p">,</span>
+        <span class="n">parquet_asset_keys</span><span class="o">=</span><span class="n">_find_parquet_asset_keys</span><span class="p">(</span><span class="n">_base_assets</span><span class="p">),</span>
+        <span class="n">asset_name</span><span class="o">=</span><span class="s2">"pudl_datapackage"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">build_datapackage_asset</span><span class="p">(</span>
+        <span class="n">package</span><span class="o">=</span><span class="n">FERCEQR_PACKAGE</span><span class="p">,</span>
+        <span class="n">parquet_asset_keys</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">key</span>
+            <span class="k">for</span> <span class="n">asset_def</span> <span class="ow">in</span> <span class="n">_base_assets</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_def</span><span class="p">,</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetsDefinition</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">asset_def</span><span class="o">.</span><span class="n">specs</span>
+            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_ferceqr_table_names</span>
+        <span class="p">],</span>
+        <span class="n">asset_name</span><span class="o">=</span><span class="s2">"ferceqr_datapackage"</span><span class="p">,</span>
+        <span class="n">group_name</span><span class="o">=</span><span class="s2">"ferceqr_deployment"</span><span class="p">,</span>
+        <span class="c1"># TODO(#5733): partitioning is per asset, not per package.</span>
+        <span class="n">partitioned</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">),</span>
     <span class="n">build_pudl_sqlite_asset</span><span class="p">(</span><span class="n">_sql_asset_keys</span><span class="p">),</span>
     <span class="n">build_pudl_duckdb_asset</span><span class="p">(</span><span class="n">_sql_asset_keys</span><span class="p">),</span>
 <span class="p">]</span></div>

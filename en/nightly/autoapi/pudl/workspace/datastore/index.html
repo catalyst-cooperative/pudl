@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.workspace.datastore &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.workspace.datastore &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -923,6 +923,17 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_checksum">
+<span class="sig-name descname"><span class="pre">get_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_checksum" title="Link to this definition">#</a></dt>
+<dd><p>Return the expected md5 checksum of the named resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.15)"><strong>KeyError</strong></a> – if the datapackage has no resource with this name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_download_size">
 <span class="sig-name descname"><span class="pre">get_download_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_download_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_download_size" title="Link to this definition">#</a></dt>
 <dd><p>Returns the total download size of all the resources in MB.</p>
@@ -930,8 +941,33 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.validate_checksum">
-<span class="sig-name descname"><span class="pre">validate_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.validate_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum" title="Link to this definition">#</a></dt>
-<dd><p>Returns True if content matches checksum for given named resource.</p>
+<span class="sig-name descname"><span class="pre">validate_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.validate_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum" title="Link to this definition">#</a></dt>
+<dd><p>Verify that in-memory content matches the checksum of a named resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pudl.workspace.datastore.ChecksumMismatchError" title="pudl.workspace.datastore.ChecksumMismatchError"><strong>ChecksumMismatchError</strong></a> – if the content does not match the expected checksum.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.validate_file_checksum">
+<span class="sig-name descname"><span class="pre">validate_file_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.validate_file_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_file_checksum" title="Link to this definition">#</a></dt>
+<dd><p>Verify that a file on disk matches the checksum for a named resource.</p>
+<p>Hashes the file incrementally instead of reading it into memory, so it can be
+used on resources too large to buffer like the multi-gigabyte quarterly FERC
+EQR archives, which are streamed to local disk before being opened.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of the resource as it appears in this datapackage descriptor.</p></li>
+<li><p><strong>path</strong> – local path to the file whose contents should be checked.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pudl.workspace.datastore.ChecksumMismatchError" title="pudl.workspace.datastore.ChecksumMismatchError"><strong>ChecksumMismatchError</strong></a> – if the digest does not match the expected checksum.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1407,8 +1443,10 @@ cached. This triggers attempt to optimally cache these resources.</p></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.doi"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.doi</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._get_resource_metadata"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._get_resource_metadata()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_resource_path"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_resource_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_checksum"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_checksum()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_download_size"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_download_size()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.validate_checksum()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_file_checksum"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.validate_file_checksum()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._matches"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._matches()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._match_from_partition"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._match_from_partition()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_resources"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_resources()</span></code></a></li>

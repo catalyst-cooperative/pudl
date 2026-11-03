@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_access.html.md" />
 <link rel="alternate" type="text/markdown" href="data_access.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Data Access &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>Data Access &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=398103c9"></script>
+    <script src="_static/documentation_options.js?v=f113d892"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -1019,6 +1019,9 @@ tables are documented in the <a class="reference internal" href="data_dictionari
 <li><p><a class="reference internal" href="data_dictionaries/pudl_db.html#core-ferceqr-transactions"><span class="std std-ref">core_ferceqr__transactions</span></a></p></li>
 </ul>
 </div></blockquote>
+<p>A <a class="reference external" href="https://datapackage.org/">Frictionless Data Package v2</a> descriptor for the whole
+dataset, with the size and SHA-256 hash of every file, is published at
+<code class="docutils literal notranslate"><span class="pre">s3://pudl.catalyst.coop/ferceqr/datapackage.json</span></code>.</p>
 <p>The subdirectories contain a number of Parquet files (<code class="docutils literal notranslate"><span class="pre">2025q3.parquet</span></code>,
 <code class="docutils literal notranslate"><span class="pre">2025q2.parquet</span></code>, etc.), each containing one quarter of data for that table. Most
 tools for reading Parquet files out of cloud storage are able to query and read from

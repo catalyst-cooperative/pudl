@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -842,8 +842,14 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes.ETL_GROUPS" title="pudl.metadata.classes.ETL_GROUPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ETL_GROUPS</span></code></a></p></td>
 <td><p>All valid PUDL ETL group identifiers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.PUDL_PACKAGE" title="pudl.metadata.classes.PUDL_PACKAGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PUDL_PACKAGE</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.FERCEQR_PACKAGE" title="pudl.metadata.classes.FERCEQR_PACKAGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FERCEQR_PACKAGE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes.PUDL_PACKAGE" title="pudl.metadata.classes.PUDL_PACKAGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PUDL_PACKAGE</span></code></a></p></td>
 <td><p>Define a global PUDL package object for use across the entire codebase.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.DATAPACKAGES" title="pudl.metadata.classes.DATAPACKAGES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATAPACKAGES</span></code></a></p></td>
+<td><p>Registry of every datapackage PUDL distributes, keyed by package name.</p></td>
 </tr>
 </tbody>
 </table>
@@ -923,6 +929,12 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._sort_deterministically" title="pudl.metadata.classes._sort_deterministically"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_deterministically</span></code></a>([value]) → list | None</p></td>
 <td><p>Sort an enum constraint's values into a deterministic order.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.all_resources" title="pudl.metadata.classes.all_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_resources</span></code></a>() → list[Resource]</p></td>
+<td><p>Return every resource in any registered datapackage, unique by name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes.find_resource" title="pudl.metadata.classes.find_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_resource</span></code></a>(name) → Resource</p></td>
+<td><p>Return the named resource from the first registered package containing it.</p></td>
 </tr>
 </tbody>
 </table>
@@ -3060,7 +3072,7 @@ any duplicates. We may also get values directly from the Package inputs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Package.from_resource_ids">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_resource_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">tuple(sorted(RESOURCE_METADATA))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_foreign_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_etl_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">Package</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Package.from_resource_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Package.from_resource_ids" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_resource_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">tuple(sorted(RESOURCE_METADATA))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_foreign_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_etl_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">included_etl_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pudl'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">Package</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Package.from_resource_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Package.from_resource_ids" title="Link to this definition">#</a></dt>
 <dd><p>Construct a collection of Resources from PUDL identifiers (<cite>resource.name</cite>).</p>
 <p>Identify any fields that have foreign key relationships referencing the
 coding tables defined in <a class="reference internal" href="../codes/index.html#module-pudl.metadata.codes" title="pudl.metadata.codes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.metadata.codes</span></code></a> and if so, associate the
@@ -3077,9 +3089,12 @@ return value caching through lru_cache.</p></li>
 foreign keys.</p></li>
 <li><p><strong>excluded_etl_groups</strong> – Collection of ETL groups used to filter resources
 out of Package.</p></li>
+<li><p><strong>included_etl_groups</strong> – Collection of ETL groups used to filter resources
+in Package.</p></li>
 <li><p><strong>title</strong> – Human-readable title for the package.</p></li>
 <li><p><strong>description</strong> – Human-readable description of the package.</p></li>
 <li><p><strong>version</strong> – Version string for the package.</p></li>
+<li><p><strong>name</strong> – Name of the datapackage.</p></li>
 </ul>
 </dd>
 </dl>
@@ -3174,24 +3189,20 @@ and keep an eye out for spooky data changes showing up in unexpected places.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Package.to_frictionless">
-<span class="sig-name descname"><span class="pre">to_frictionless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude_pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/re.html#re.Pattern" title="(in Python v3.15)"><span class="pre">re.Pattern</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/re.html#re.Pattern" title="(in Python v3.15)"><span class="pre">re.Pattern</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">frictionless.Package</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Package.to_frictionless"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Package.to_frictionless" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_frictionless</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">frictionless.Package</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Package.to_frictionless"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Package.to_frictionless" title="Link to this definition">#</a></dt>
 <dd><p>Convert to a Frictionless Datapackage.</p>
-<p>Allows filtering out specific resources by passing regex patterns to include
-or exclude resources by name. This is used to generate an independent
-‘datapackage.json’ file for <code class="docutils literal notranslate"><span class="pre">ferceqr</span></code> assets, which are distributed separately
-from the rest of PUDL. This method will only look for table names that exactly
-match the supplied patterns, not substring matches.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>exclude_pattern</strong> – Exclude resources whose names exactly match this pattern.</p></li>
-<li><p><strong>include_pattern</strong> – Only include resources whose names exactly match this pattern.</p></li>
-</ul>
-</dd>
-</dl>
+<p>The datapackage describes every resource in this package. Its sources,
+contributors, licenses and keywords are compiled from just those resources, so
+a package like <code class="docutils literal notranslate"><span class="pre">ferceqr</span></code>, which is distributed separately from the rest of
+PUDL, gets an independent descriptor that lists only what it uses.</p>
 </dd></dl>
 
 </dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.classes.FERCEQR_PACKAGE">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">FERCEQR_PACKAGE</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FERCEQR_PACKAGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FERCEQR_PACKAGE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.metadata.classes.PUDL_PACKAGE">
@@ -3201,6 +3212,42 @@ match the supplied patterns, not substring matches.</p>
 some of the class definitions below, but having it defined in the middle of this module
 is kind of obscure, so it is imported in the __init__.py for this subpackage and then
 imported in other modules from that more prominent location.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.classes.DATAPACKAGES">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">DATAPACKAGES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">Package</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#DATAPACKAGES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.DATAPACKAGES" title="Link to this definition">#</a></dt>
+<dd><p>Registry of every datapackage PUDL distributes, keyed by package name.</p>
+<p>This is the single source of truth for which packages exist. Code that needs to see
+all of the tables, rather than the tables of one particular package, should go through
+this registry (or <a class="reference internal" href="#pudl.metadata.classes.all_resources" title="pudl.metadata.classes.all_resources"><code class="xref py py-func docutils literal notranslate"><span class="pre">all_resources()</span></code></a> / <a class="reference internal" href="#pudl.metadata.classes.find_resource" title="pudl.metadata.classes.find_resource"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_resource()</span></code></a>) instead of naming
+individual packages, so that adding a package cannot leave a consumer behind.</p>
+<p>A resource may appear in more than one package. Nothing here assumes the packages are
+disjoint: lookups return the first match in registry order, and listings are
+deduplicated by resource name. A resource’s definition comes from <code class="docutils literal notranslate"><span class="pre">RESOURCE_METADATA</span></code>
+and does not depend on the package that contains it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.metadata.classes.all_resources">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">all_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.Resource" title="pudl.metadata.classes.Resource"><span class="pre">Resource</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#all_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.all_resources" title="Link to this definition">#</a></dt>
+<dd><p>Return every resource in any registered datapackage, unique by name.</p>
+<p>Resources are listed in registry order, then in package order. A resource that
+appears in several packages is listed once, using its first occurrence.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.metadata.classes.find_resource">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">find_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.classes.Resource" title="pudl.metadata.classes.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#find_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.find_resource" title="Link to this definition">#</a></dt>
+<dd><p>Return the named resource from the first registered package containing it.</p>
+<p>Use this when you have a resource name but don’t know which package it belongs to.
+Code that is specific to one package, like building the PUDL SQLite database,
+should keep using that package directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – if no registered datapackage contains the resource.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -3590,7 +3637,11 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Package.to_frictionless"><code class="docutils literal notranslate"><span class="pre">Package.to_frictionless()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FERCEQR_PACKAGE"><code class="docutils literal notranslate"><span class="pre">FERCEQR_PACKAGE</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PUDL_PACKAGE"><code class="docutils literal notranslate"><span class="pre">PUDL_PACKAGE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.DATAPACKAGES"><code class="docutils literal notranslate"><span class="pre">DATAPACKAGES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.all_resources"><code class="docutils literal notranslate"><span class="pre">all_resources()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.find_resource"><code class="docutils literal notranslate"><span class="pre">find_resource()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.CodeMetadata"><code class="docutils literal notranslate"><span class="pre">CodeMetadata</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.CodeMetadata.encoder_list"><code class="docutils literal notranslate"><span class="pre">CodeMetadata.encoder_list</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.CodeMetadata.from_code_ids"><code class="docutils literal notranslate"><span class="pre">CodeMetadata.from_code_ids()</span></code></a></li>

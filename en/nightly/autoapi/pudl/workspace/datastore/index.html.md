@@ -60,13 +60,37 @@ A simple wrapper providing access to datapackage.json contents.
 
 Returns zenodo url that holds contents of given named resource.
 
+#### get_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+Return the expected md5 checksum of the named resource.
+
+* **Raises:**
+  [**KeyError**](https://docs.python.org/3/builtins/exceptions.html#KeyError) – if the datapackage has no resource with this name.
+
 #### get_download_size() → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Returns the total download size of all the resources in MB.
 
-#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
+#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
-Returns True if content matches checksum for given named resource.
+Verify that in-memory content matches the checksum of a named resource.
+
+* **Raises:**
+  [**ChecksumMismatchError**](#pudl.workspace.datastore.ChecksumMismatchError) – if the content does not match the expected checksum.
+
+#### validate_file_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Verify that a file on disk matches the checksum for a named resource.
+
+Hashes the file incrementally instead of reading it into memory, so it can be
+used on resources too large to buffer like the multi-gigabyte quarterly FERC
+EQR archives, which are streamed to local disk before being opened.
+
+* **Parameters:**
+  * **name** – name of the resource as it appears in this datapackage descriptor.
+  * **path** – local path to the file whose contents should be checked.
+* **Raises:**
+  [**ChecksumMismatchError**](#pudl.workspace.datastore.ChecksumMismatchError) – if the digest does not match the expected checksum.
 
 #### \_matches(res: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), \*\*filters: Any)
 

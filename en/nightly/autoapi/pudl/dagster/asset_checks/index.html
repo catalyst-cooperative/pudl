@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -899,7 +899,9 @@ a LazyFrame, then handled exactly the same as a typical asset.</p>
 <p>The check reads <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT/parquet/datapackage.json</span></code> from the injected
 <code class="docutils literal notranslate"><span class="pre">pudl_paths</span></code> Dagster resource at run time and validates it recursively through
 resources, schemas, and fields against the frictionless spec using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">frictionless.Package.metadata_validate()</span></code>.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">frictionless.Package.metadata_validate()</span></code>. It also checks that the columns of
+every Parquet file on disk match the fields declared for its resource, using only
+the Parquet footer metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.validate.dbt &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.validate.dbt &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -810,7 +810,7 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.validate.dbt.DBT_SOURCES" title="pudl.validate.dbt.DBT_SOURCES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DBT_SOURCES</span></code></a></p></td>
-<td><p>Names of the dbt sources, each validated against its own set of Parquet outputs.</p></td>
+<td><p>one per datapackage, each validated against its own set</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.validate.dbt.DEFAULT_DBT_SOURCE" title="pudl.validate.dbt.DEFAULT_DBT_SOURCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_DBT_SOURCE</span></code></a></p></td>
 <td><p>The dbt source validated when none is specified.</p></td>
@@ -875,8 +875,14 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.validate.dbt.DBT_SOURCES">
-<span class="sig-prename descclassname"><span class="pre">pudl.validate.dbt.</span></span><span class="sig-name descname"><span class="pre">DBT_SOURCES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('pudl',</span> <span class="pre">'ferceqr')</span></span><a class="reference internal" href="../../../../_modules/pudl/validate/dbt.html#DBT_SOURCES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.validate.dbt.DBT_SOURCES" title="Link to this definition">#</a></dt>
-<dd><p>Names of the dbt sources, each validated against its own set of Parquet outputs.</p>
+<span class="sig-prename descclassname"><span class="pre">pudl.validate.dbt.</span></span><span class="sig-name descname"><span class="pre">DBT_SOURCES</span></span><a class="reference internal" href="../../../../_modules/pudl/validate/dbt.html#DBT_SOURCES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.validate.dbt.DBT_SOURCES" title="Link to this definition">#</a></dt>
+<dd><p>one per datapackage, each validated against its own set
+of Parquet outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Names of the dbt sources</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py data">
@@ -949,6 +955,12 @@ side effects on the global logging configuration.</p>
 <dt class="sig sig-object py" id="pudl.validate.dbt.BuildResult.failure_contexts">
 <span class="sig-name descname"><span class="pre">failure_contexts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.validate.dbt.NodeContext" title="pudl.validate.dbt.NodeContext"><span class="pre">NodeContext</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/validate/dbt.html#BuildResult.failure_contexts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.validate.dbt.BuildResult.failure_contexts" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.validate.dbt.BuildResult.status_counts">
+<span class="sig-name descname"><span class="pre">status_counts</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/validate/dbt.html#BuildResult.status_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.validate.dbt.BuildResult.status_counts" title="Link to this definition">#</a></dt>
+<dd><p>Number of dbt nodes (tests and seeds) with each result status, e.g. <code class="docutils literal notranslate"><span class="pre">pass</span></code>.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.validate.dbt.BuildResult.format_failure_contexts">
@@ -1088,6 +1100,7 @@ manifest via <code class="docutils literal notranslate"><span class="pre">dbt</s
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.validate.dbt.BuildResult"><code class="docutils literal notranslate"><span class="pre">BuildResult</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.validate.dbt.BuildResult.success"><code class="docutils literal notranslate"><span class="pre">BuildResult.success</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.validate.dbt.BuildResult.failure_contexts"><code class="docutils literal notranslate"><span class="pre">BuildResult.failure_contexts</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.validate.dbt.BuildResult.status_counts"><code class="docutils literal notranslate"><span class="pre">BuildResult.status_counts</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.validate.dbt.BuildResult.format_failure_contexts"><code class="docutils literal notranslate"><span class="pre">BuildResult.format_failure_contexts()</span></code></a></li>
 </ul>
 </li>

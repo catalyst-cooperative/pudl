@@ -25,7 +25,9 @@ Attributes
    pudl.metadata.classes.FIELD_NAMESPACES
    pudl.metadata.classes.EtlGroup
    pudl.metadata.classes.ETL_GROUPS
+   pudl.metadata.classes.FERCEQR_PACKAGE
    pudl.metadata.classes.PUDL_PACKAGE
+   pudl.metadata.classes.DATAPACKAGES
 
 
 Classes
@@ -61,6 +63,8 @@ Functions
    pudl.metadata.classes._get_jinja_environment
    pudl.metadata.classes._check_unique
    pudl.metadata.classes._sort_deterministically
+   pudl.metadata.classes.all_resources
+   pudl.metadata.classes.find_resource
 
 
 Module Contents
@@ -2265,7 +2269,7 @@ Module Contents
 
 
 
-   .. py:method:: from_resource_ids(resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str, ...] = (), title: str | None = None, description: str | None = None, version: str | None = None) -> Package
+   .. py:method:: from_resource_ids(resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str, ...] = (), included_etl_groups: tuple[str, ...] = (), title: str | None = None, description: str | None = None, version: str | None = None, name: str = 'pudl') -> Package
       :classmethod:
 
 
@@ -2285,9 +2289,12 @@ Module Contents
                                    foreign keys.
       :param excluded_etl_groups: Collection of ETL groups used to filter resources
                                   out of Package.
+      :param included_etl_groups: Collection of ETL groups used to filter resources
+                                  in Package.
       :param title: Human-readable title for the package.
       :param description: Human-readable description of the package.
       :param version: Version string for the package.
+      :param name: Name of the datapackage.
 
 
 
@@ -2366,20 +2373,18 @@ Module Contents
 
 
 
-   .. py:method:: to_frictionless(exclude_pattern: str | re.Pattern[str] | None = None, include_pattern: str | re.Pattern[str] | None = None) -> frictionless.Package
+   .. py:method:: to_frictionless() -> frictionless.Package
 
       Convert to a Frictionless Datapackage.
 
-      Allows filtering out specific resources by passing regex patterns to include
-      or exclude resources by name. This is used to generate an independent
-      'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
-      from the rest of PUDL. This method will only look for table names that exactly
-      match the supplied patterns, not substring matches.
-
-      :param exclude_pattern: Exclude resources whose names exactly match this pattern.
-      :param include_pattern: Only include resources whose names exactly match this pattern.
+      The datapackage describes every resource in this package. Its sources,
+      contributors, licenses and keywords are compiled from just those resources, so
+      a package like ``ferceqr``, which is distributed separately from the rest of
+      PUDL, gets an independent descriptor that lists only what it uses.
 
 
+
+.. py:data:: FERCEQR_PACKAGE
 
 .. py:data:: PUDL_PACKAGE
 
@@ -2389,6 +2394,40 @@ Module Contents
    some of the class definitions below, but having it defined in the middle of this module
    is kind of obscure, so it is imported in the __init__.py for this subpackage and then
    imported in other modules from that more prominent location.
+
+.. py:data:: DATAPACKAGES
+   :type:  dict[str, Package]
+
+   Registry of every datapackage PUDL distributes, keyed by package name.
+
+   This is the single source of truth for which packages exist. Code that needs to see
+   all of the tables, rather than the tables of one particular package, should go through
+   this registry (or :func:`all_resources` / :func:`find_resource`) instead of naming
+   individual packages, so that adding a package cannot leave a consumer behind.
+
+   A resource may appear in more than one package. Nothing here assumes the packages are
+   disjoint: lookups return the first match in registry order, and listings are
+   deduplicated by resource name. A resource's definition comes from ``RESOURCE_METADATA``
+   and does not depend on the package that contains it.
+
+.. py:function:: all_resources() -> list[Resource]
+
+   Return every resource in any registered datapackage, unique by name.
+
+   Resources are listed in registry order, then in package order. A resource that
+   appears in several packages is listed once, using its first occurrence.
+
+
+.. py:function:: find_resource(name: str) -> Resource
+
+   Return the named resource from the first registered package containing it.
+
+   Use this when you have a resource name but don't know which package it belongs to.
+   Code that is specific to one package, like building the PUDL SQLite database,
+   should keep using that package directly.
+
+   :raises ValueError: if no registered datapackage contains the resource.
+
 
 .. py:class:: CodeMetadata(/, **data: Any)
 

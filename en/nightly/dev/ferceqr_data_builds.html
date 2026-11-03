@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="ferceqr_data_builds.html.md" />
 <link rel="alternate" type="text/markdown" href="ferceqr_data_builds.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>FERC EQR Data Builds &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>FERC EQR Data Builds &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../_static/documentation_options.js?v=f113d892"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -817,6 +817,16 @@ difference from the nightly builds is where data will be published. Due to the l
 size of the FERC EQR dataset, we do not maintain multiple versions of the data in S3,
 and instead have just one version, which will be overwritten each time a build is
 executed successfully. This version can be found at <code class="docutils literal notranslate"><span class="pre">s3://pudl.catalyst.coop/ferceqr</span></code>.</p>
+<p>Before anything is published, the <code class="docutils literal notranslate"><span class="pre">deploy_ferceqr</span></code> asset runs the dbt data
+validations for the FERC EQR tables (see <a class="reference internal" href="data_validation_quickstart.html"><span class="doc">Data validation quickstart</span></a>). If any
+fail, nothing is deployed and the build is reported as failed. The
+<code class="docutils literal notranslate"><span class="pre">ferceqr_datapackage</span></code> asset writes the Frictionless <code class="docutils literal notranslate"><span class="pre">datapackage.json</span></code> describing
+the outputs, which is published next to the data at
+<code class="docutils literal notranslate"><span class="pre">s3://pudl.catalyst.coop/ferceqr/datapackage.json</span></code>.</p>
+<p>Each quarterly input archive is also verified against the md5 checksum recorded in the
+FERC EQR metadata archived on Zenodo before it is extracted. Extracting every quarter
+downloads ~100 GB, so reading from remote storage must be enabled explicitly with
+<code class="docutils literal notranslate"><span class="pre">PUDL_FERCEQR_ALLOW_DOWNLOADS=true</span></code>, which the build workflow sets.</p>
 <p>The EQR extraction and transformation are implemented in DuckDB rather than pandas, so
 unlike the nightly build this pipeline is limited more by CPU parallelism than by
 memory. Its Batch VM is sized accordingly, with proportionally more CPU and less RAM

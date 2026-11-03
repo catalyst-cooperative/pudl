@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.10.1.dev23 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.10.1.dev27 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=398103c9"></script>
+    <script src="../../../_static/documentation_options.js?v=f113d892"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -877,15 +877,12 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">get_args</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">duckdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DuckDBPyConnection</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercEqrArchiveResource</span>
@@ -922,33 +919,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">``ident`` is extracted first so its CID can be attached to the other tables; see</span>
 <span class="sd">:func:`_extract_ident`.</span>
 <span class="sd">"""</span>
-
-
-<span class="nd">@contextmanager</span>
-<div class="viewcode-block" id="_get_csv">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_csv">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_csv</span><span class="p">(</span><span class="n">base_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Download CSV to a tempmorary directory to avoid reading into memory."""</span>
-    <span class="n">zip_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"ferceqr-</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">.zip"</span>
-    <span class="n">remote_path</span> <span class="o">=</span> <span class="n">base_path</span> <span class="o">/</span> <span class="n">zip_name</span>
-
-    <span class="c1"># Create temp directory to download zip to</span>
-    <span class="k">with</span> <span class="p">(</span>
-        <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="c1"># Stream the download to disk. Recent quarterly archives are 3-4 GB and many</span>
-        <span class="c1"># partition runs start at once, so ``read_bytes()`` (which holds the whole</span>
-        <span class="c1"># archive in memory first) can exhaust the VM's RAM.</span>
-        <span class="n">local_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">zip_name</span>
-        <span class="n">remote_path</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
-            <span class="n">remote_path</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">),</span>
-            <span class="n">concurrency</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>  <span class="c1"># default 4: parallel ranged reads per file</span>
-        <span class="p">)</span>
-        <span class="c1"># Yield open zipfile</span>
-        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">zf</span></div>
-
 
 
 <div class="viewcode-block" id="_UNSAFE_CSV_NAME_CHARS_REGEX">
@@ -1335,7 +1305,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.extract_ferceqr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_ferceqr</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
-    <span class="n">ferceqr_archive</span><span class="p">:</span> <span class="n">FercEqrArchiveResource</span> <span class="o">=</span> <span class="n">FercEqrArchiveResource</span><span class="p">(),</span>
+    <span class="n">ferceqr_archive</span><span class="p">:</span> <span class="n">FercEqrArchiveResource</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Extract year quarter from CSVs and load to parquet files.</span>
 
@@ -1365,7 +1335,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># millions of rows and are processed one at a time in the loop below, so</span>
     <span class="c1"># DuckDB's parallel CSV reader earns its keep there.</span>
     <span class="k">with</span> <span class="p">(</span>
-        <span class="n">_get_csv</span><span class="p">(</span><span class="n">ferceqr_archive</span><span class="o">.</span><span class="n">upath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)</span> <span class="k">as</span> <span class="n">quarter_archive</span><span class="p">,</span>
+        <span class="n">ferceqr_archive</span><span class="o">.</span><span class="n">open_quarter_archive</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">)</span> <span class="k">as</span> <span class="n">quarter_archive</span><span class="p">,</span>
         <span class="n">duckdb_connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="c1"># Loop through all nested zipfiles (one for each filing in the quarter)</span>

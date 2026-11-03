@@ -37,6 +37,7 @@ is partitioned by `year_quarter`:
 | [`apply_duckdb_dtypes`](#pudl.transform.ferceqr.apply_duckdb_dtypes)(table_data, table_name, conn)                                                   | Cast each column to the dtype declared in the PUDL metadata schema for the table.      |
 |------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
 | [`rename_duckdb_columns`](#pudl.transform.ferceqr.rename_duckdb_columns)(table_data, mapping) → duckdb.DuckDBPyRelation                                | Rename one or more columns in a DuckDB relation, passing all others through unchanged. |
+| [`drop_duckdb_columns`](#pudl.transform.ferceqr.drop_duckdb_columns)(table_data, columns) → duckdb.DuckDBPyRelation                                  | Drop whichever of `columns` are present in a DuckDB relation.                          |
 | [`apply_column_transforms`](#pudl.transform.ferceqr.apply_column_transforms)(table_data, columns, transform) → duckdb.DuckDBPyRelation                   | Apply a DuckDB expression factory to a set of columns, replacing each in place.        |
 | [`_yn_to_bool`](#pudl.transform.ferceqr._yn_to_bool)(col) → duckdb.Expression                                                                | Return a DuckDB expression that converts `'Y'`/`'N'` strings to booleans.              |
 | [`_na_to_null`](#pudl.transform.ferceqr._na_to_null)(col_name) → duckdb.Expression                                                           | Return a DuckDB expression that converts `'N/A'` or `'NA'` strings to NULL.            |
@@ -90,6 +91,17 @@ Rename one or more columns in a DuckDB relation, passing all others through unch
 * **Parameters:**
   * **table_data** – DuckDB relation containing the columns to rename.
   * **mapping** – Maps existing column names to their new names.
+
+### pudl.transform.ferceqr.drop_duckdb_columns(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
+
+Drop whichever of `columns` are present in a DuckDB relation.
+
+Columns that are not in the relation are ignored rather than raising an error, so
+a column that is only reported in some raw filings can be dropped unconditionally.
+
+* **Parameters:**
+  * **table_data** – DuckDB relation containing the columns to drop.
+  * **columns** – Names of the columns to drop.
 
 ### pudl.transform.ferceqr.apply_column_transforms(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], transform: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
 

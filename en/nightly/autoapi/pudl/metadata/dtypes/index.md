@@ -13,15 +13,16 @@ This module serves two related purposes:
 
 When a concrete `resource` is provided to [`get_pudl_dtypes()`](#pudl.metadata.dtypes.get_pudl_dtypes), the resource
 schema is authoritative. That means resource-specific field typing and enum/category
-information already encoded in `PUDL_PACKAGE` will be used directly where possible.
+information already encoded in the registered datapackages will be used directly where
+possible.
 
 Not every backend supports every canonical PUDL field type. In particular, some
 backends do not yet support PUDL’s `geometry` fields. In those cases the dtype
 helpers intentionally omit unsupported fields rather than returning an incompatible
 dtype mapping.
 
-This module intentionally keeps the import of `PUDL_PACKAGE` local to the helper
-functions that need it, so the metadata class graph does not introduce a module import
+This module intentionally keeps the import of the datapackage registry local to the
+helper functions that need it, so the metadata class graph does not introduce a module import
 cycle.
 
 ## Attributes
@@ -45,7 +46,7 @@ cycle.
 |---------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | [`get_pudl_dtypes`](#pudl.metadata.dtypes.get_pudl_dtypes)([field_namespace, resource, dtype_backend]) → dict[str, Any]                           | Compile a dictionary of field dtypes.                                             |
 | [`_get_pudl_namespace_dtypes`](#pudl.metadata.dtypes._get_pudl_namespace_dtypes)([field_namespace, ...]) → dict[str, Any]                                    | Compile a dictionary of field dtypes based on the namespace-level field metadata. |
-| [`_get_pudl_resource_dtypes`](#pudl.metadata.dtypes._get_pudl_resource_dtypes)(resource[, dtype_backend]) → dict[str, Any]                                  | Compile a dictionary of field dtypes for a specific PUDL resource.                |
+| [`_get_resource_dtypes`](#pudl.metadata.dtypes._get_resource_dtypes)(resource[, dtype_backend]) → dict[str, Any]                                       | Compile a dictionary of field dtypes for a specific PUDL resource.                |
 | [`apply_pudl_dtypes`](#pudl.metadata.dtypes.apply_pudl_dtypes)(df[, field_namespace, resource, strict]) → pandas.DataFrame | geopandas.GeoDataFrame | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
 | [`apply_pudl_dtypes_polars`](#pudl.metadata.dtypes.apply_pudl_dtypes_polars)(lf[, field_namespace, ...]) → polars.LazyFrame                                | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
 
@@ -147,7 +148,7 @@ If no field_namespace is provided, the global PUDL field metadata is used.
 * **Returns:**
   A mapping of PUDL field names to their associated data types.
 
-### pudl.metadata.dtypes.\_get_pudl_resource_dtypes(resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
+### pudl.metadata.dtypes.\_get_resource_dtypes(resource: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dtype_backend: [PudlDtypeBackend](#pudl.metadata.dtypes.PudlDtypeBackend) = 'pandas') → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Compile a dictionary of field dtypes for a specific PUDL resource.
 
