@@ -1,0 +1,19 @@
+=====================================================================================================
+PUDL Usage Warnings
+=====================================================================================================
+
+The following warnings apply to one or more tables in PUDL. This page tabulates
+general information about how each warning is applied. Specific information
+about how a warning applies to a particular table is recorded in the Additional
+Details section for the table in the PUDL Data Dictionary.
+
+{% for warning in warnings %}
+.. _{{ warning.key }}:
+
+{{ warning.title }}:
+  {{ warning.description }}
+{%- if warning.details %}
+
+  {{ warning.details|indent(2) }}
+{%- endif %}
+{% endfor %}
