@@ -10,7 +10,6 @@ from functools import cached_property, lru_cache
 from hashlib import sha1
 from importlib.metadata import version as _get_version
 from pathlib import Path
-from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 
 import duckdb
@@ -614,9 +613,7 @@ class Encoder(PudlMeta):
         rendered = template.render(
             Encoder=self,
             # just get the resolved resource summary & drop all the other sections of the description
-            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
-                "\n\n"
-            )[0],
+            description=find_resource(self.name).description.partition("\n\n")[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -1169,6 +1166,8 @@ class Schema(PudlMeta):
                 for field in self.fields
             },
             unique=self.primary_key,
+            # Columns not declared in the schema are errors, not silently written.
+            strict=True,
         )
 
 
@@ -2059,7 +2058,7 @@ class Resource(PudlMeta):
             name=self.name,
             title=self.title,
             description=self.description,
-            sources=[s.to_frictionless() for s in self.sources],
+            sources=[{"title": source.title} for source in self.sources],
             licenses=[
                 lic.model_dump(mode="json", exclude_none=True) for lic in self.licenses
             ],
@@ -2808,9 +2807,11 @@ class Package(PudlMeta):
         resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
         excluded_etl_groups: tuple[str, ...] = (),
+        included_etl_groups: tuple[str, ...] = (),
         title: str | None = None,
         description: str | None = None,
         version: str | None = None,
+        name: str = "pudl",
     ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2829,10 +2830,18 @@ class Package(PudlMeta):
                 foreign keys.
             excluded_etl_groups: Collection of ETL groups used to filter resources
                 out of Package.
+            included_etl_groups: Collection of ETL groups used to filter resources
+                in Package.
             title: Human-readable title for the package.
             description: Human-readable description of the package.
             version: Version string for the package.
+            name: Name of the datapackage.
         """
+        if isinstance(excluded_etl_groups, str) or isinstance(included_etl_groups, str):
+            raise TypeError(
+                "ETL groups must be a collection of names, not a single string."
+            )
+
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
             # Add missing resources based on foreign keys
@@ -2855,8 +2864,15 @@ class Package(PudlMeta):
                 if resource["etl_group"] not in excluded_etl_groups
             ]
 
+        if included_etl_groups:
+            resources = [
+                resource
+                for resource in resources
+                if resource["etl_group"] in included_etl_groups
+            ]
+
         return cls(
-            name="pudl",
+            name=name,
             title=title,
             description=description,
             version=version,
@@ -2894,7 +2910,7 @@ class Package(PudlMeta):
             )
         return self.resources[names.index(name)]
 
-    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: Path | None) -> None:
         """Output to an RST file."""
         template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
         rendered = template.render(package=self)
@@ -3015,33 +3031,15 @@ class Package(PudlMeta):
 
     def to_frictionless(
         self,
-        exclude_pattern: str | Pattern[str] | None = None,
-        include_pattern: str | Pattern[str] | None = None,
     ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage.
 
-        Allows filtering out specific resources by passing regex patterns to include
-        or exclude resources by name. This is used to generate an independent
-        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
-        from the rest of PUDL. This method will only look for table names that exactly
-        match the supplied patterns, not substring matches.
-
-        Args:
-            exclude_pattern: Exclude resources whose names exactly match this pattern.
-            include_pattern: Only include resources whose names exactly match this pattern.
+        The datapackage describes every resource in this package. Its sources,
+        contributors, licenses and keywords are compiled from just those resources, so
+        a package like ``ferceqr``, which is distributed separately from the rest of
+        PUDL, gets an independent descriptor that lists only what it uses.
         """
         pudl_resources = list(self.resources)
-        if exclude_pattern is not None:
-            pudl_resources = [
-                r for r in pudl_resources if re.match(exclude_pattern, r.name) is None
-            ]
-        if include_pattern is not None:
-            pudl_resources = [
-                r
-                for r in pudl_resources
-                if re.match(include_pattern, r.name) is not None
-            ]
-
         compiled = self._compile_from_resources(pudl_resources)
 
         package = frictionless.Package(
@@ -3060,15 +3058,31 @@ class Package(PudlMeta):
             ],
             keywords=list(compiled["keywords"]),
             resources=[r.to_frictionless() for r in pudl_resources],
-            sources=[
-                DataSource.from_id(name).to_frictionless() for name in sorted(SOURCES)
-            ],
+            sources=[s.to_frictionless() for s in compiled["sources"]],
         )
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
         )
         package.custom["unit_registry"] = unit_registry_to_frictionless()
         return package
+
+
+FERCEQR_PACKAGE = Package.from_resource_ids(
+    name="ferceqr",
+    title="The Public Utility Data Liberation Project (PUDL) FERC EQR Data",
+    version=_get_version("catalystcoop.pudl"),
+    description=(
+        "PUDL is a data processing pipeline created by Catalyst Cooperative that "
+        "cleans, integrates, and standardizes some of the most widely used public "
+        "energy datasets in the US. The data serve researchers, activists, "
+        "journalists, and policy makers that might not have the technical expertise "
+        "to access it in its raw form, the time to clean and prepare the data for "
+        "bulk analysis, or the means to purchase it from existing commercial "
+        "providers. FERC EQR data is included in PUDL, but handled and distributed "
+        "separately due to its scale."
+    ),
+    included_etl_groups=("ferceqr",),
+)
 
 
 PUDL_PACKAGE = Package.from_resource_ids(
@@ -3083,6 +3097,7 @@ PUDL_PACKAGE = Package.from_resource_ids(
         "bulk analysis, or the means to purchase it from existing commercial "
         "providers."
     ),
+    excluded_etl_groups=("ferceqr",),
 )
 """Define a global PUDL package object for use across the entire codebase.
 
@@ -3091,6 +3106,57 @@ some of the class definitions below, but having it defined in the middle of this
 is kind of obscure, so it is imported in the __init__.py for this subpackage and then
 imported in other modules from that more prominent location.
 """
+
+DATAPACKAGES: dict[str, Package] = {
+    PUDL_PACKAGE.name: PUDL_PACKAGE,
+    FERCEQR_PACKAGE.name: FERCEQR_PACKAGE,
+}
+"""Registry of every datapackage PUDL distributes, keyed by package name.
+
+This is the single source of truth for which packages exist. Code that needs to see
+all of the tables, rather than the tables of one particular package, should go through
+this registry (or :func:`all_resources` / :func:`find_resource`) instead of naming
+individual packages, so that adding a package cannot leave a consumer behind.
+
+A resource may appear in more than one package. Nothing here assumes the packages are
+disjoint: lookups return the first match in registry order, and listings are
+deduplicated by resource name. A resource's definition comes from ``RESOURCE_METADATA``
+and does not depend on the package that contains it.
+"""
+
+
+def all_resources() -> list[Resource]:
+    """Return every resource in any registered datapackage, unique by name.
+
+    Resources are listed in registry order, then in package order. A resource that
+    appears in several packages is listed once, using its first occurrence.
+    """
+    unique: dict[str, Resource] = {}
+    for package in DATAPACKAGES.values():
+        for resource in package.resources:
+            unique.setdefault(resource.name, resource)
+    return list(unique.values())
+
+
+def find_resource(name: str) -> Resource:
+    """Return the named resource from the first registered package containing it.
+
+    Use this when you have a resource name but don't know which package it belongs to.
+    Code that is specific to one package, like building the PUDL SQLite database,
+    should keep using that package directly.
+
+    Raises:
+        ValueError: if no registered datapackage contains the resource.
+    """
+    for package in DATAPACKAGES.values():
+        try:
+            return package.get_resource(name)
+        except ValueError:
+            continue
+    raise ValueError(
+        f"Unknown resource {name!r} is not part of any registered data package "
+        f"({', '.join(DATAPACKAGES)})."
+    )
 
 
 class CodeMetadata(PudlMeta):

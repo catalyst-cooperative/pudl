@@ -468,9 +468,7 @@ def test_from_table_name_includes_foreign_key_data_tests(mocker):
             {"fields": ["fk_id"], "reference": {"resource": "parent", "fields": ["id"]}}
         ],
     )
-    # Patched on the class, not the (frozen) PUDL_PACKAGE instance, since pydantic's
-    # frozen models reject instance-level attribute patching.
-    mocker.patch("pudl.metadata.classes.Package.get_resource", return_value=resource)
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
 
     table = DbtTable.from_table_name("child")
 

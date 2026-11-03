@@ -2,8 +2,12 @@
 
 import pathlib
 import sys
+from typing import TYPE_CHECKING
 
 import click
+
+if TYPE_CHECKING:
+    from pudl.logging_helpers import LogLevel
 
 
 @click.command(
@@ -64,8 +68,8 @@ def main(
     skip: list[str],
     output: pathlib.Path,
     docs_dir: pathlib.Path,
-    logfile: pathlib.Path,
-    loglevel: str,
+    logfile: pathlib.Path | None,
+    loglevel: LogLevel,
 ) -> int:
     """Export PUDL table and field metadata to RST for use in documentation.
 
