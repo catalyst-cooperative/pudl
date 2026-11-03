@@ -55,6 +55,7 @@ from pudl.deploy.pudl import (
     update_pudl_viewer,
     upload_outputs,
 )
+from pudl.deploy.pudl_diff import prepare_diff_reports
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -184,11 +185,13 @@ def main(
     0. Resolve the deployment plan and find the build associated with git_tag
     1. Download build outputs from the builds bucket
     2. Prepare outputs (compress SQLite, create parquet archive)
-    3. Upload to cloud storage (GCS and S3)
-    4. Redeploy the PUDL Viewer (nightly only)
-    5. Update git branches (skipped for branch builds)
-    6. Trigger Zenodo release (skipped for branch builds)
-    7. Set GCS temporary hold for versioned releases (stable + production only)
+    3. Prepare PUDL Diff reports (stable releases get a new comparison against the
+       previous release, which blocks the deployment if it fails)
+    4. Upload to cloud storage (GCS and S3)
+    5. Redeploy the PUDL Viewer (nightly only)
+    6. Update git branches (skipped for branch builds)
+    7. Trigger Zenodo release (skipped for branch builds)
+    8. Set GCS temporary hold for versioned releases (stable + production only)
 
     Saves a log of the deployment and a Zulip stage-status notification, mirroring
     the nightly build's own reporting -- including if step 0 itself fails, e.g. due
@@ -250,6 +253,14 @@ def main(
             stage_results=stage_results,
             local_path=local_copy_path,
             build_path=build_path,
+        )
+
+        run_stage(
+            stage_fn=prepare_diff_reports,
+            stage_name=DeployStage.PUDL_DIFF_REPORTS,
+            stage_results=stage_results,
+            local_path=local_copy_path,
+            plan=plan,
         )
 
         _deploy_outputs(
