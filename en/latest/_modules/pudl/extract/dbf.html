@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.dbf &#8212; PUDL 2026.10.1.dev27 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.10.1.dev28 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=f113d892"></script>
+    <script src="../../../_static/documentation_options.js?v=536429d5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev28 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -1074,6 +1074,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">obj_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OBJECTNAME"</span><span class="p">)</span>
                 <span class="n">obj_type</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OBJECTTYPE"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">"Table"</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"Table </span><span class="si">{</span><span class="n">obj_id</span><span class="si">}</span><span class="s2"> has no name."</span>
                     <span class="n">table_names</span><span class="p">[</span><span class="n">obj_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj_name</span>
                 <span class="k">elif</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">"Field"</span><span class="p">:</span>
                     <span class="n">parent_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PARENTID"</span><span class="p">)</span>
@@ -1118,7 +1119,15 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"DBF field name mismatch: </span><span class="si">{</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">long_name</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
-            <span class="n">col_type</span> <span class="o">=</span> <span class="n">DBF_TYPES</span><span class="p">[</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dbf_col</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DBF_TYPES</span><span class="p">:</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="n">UNSUPPORTED_DBF_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">"unknown type"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"DBF field type </span><span class="si">{</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s2">) of </span><span class="si">{</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> is not supported."</span>
+                <span class="p">)</span>
+            <span class="n">col_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">]</span> <span class="o">|</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span> <span class="o">=</span> <span class="n">DBF_TYPES</span><span class="p">[</span>
+                <span class="n">dbf_col</span><span class="o">.</span><span class="n">type</span>
+            <span class="p">]</span>
             <span class="k">if</span> <span class="n">col_type</span> <span class="o">==</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">:</span>
                 <span class="n">col_type</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
             <span class="n">schema</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">long_name</span><span class="p">,</span> <span class="n">col_type</span><span class="p">,</span> <span class="n">short_name</span><span class="o">=</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -1224,7 +1233,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DBF_TYPES">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DBF_TYPES">[docs]</a>
-<span class="n">DBF_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">DBF_TYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"C"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
     <span class="s2">"D"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
     <span class="s2">"F"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
@@ -1234,11 +1243,6 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"N"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
     <span class="s2">"T"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">,</span>
     <span class="s2">"0"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>  <span class="c1"># based on dbf2sqlite mapping</span>
-    <span class="s2">"B"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># .DBT block number, binary string</span>
-    <span class="s2">"@"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># Timestamp... Date = Julian Day, Time is in milliseconds?</span>
-    <span class="s2">"+"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># Autoincrement (e.g. for IDs)</span>
-    <span class="s2">"O"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># Double, 8 bytes</span>
-    <span class="s2">"G"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># OLE 10 digit/byte number of a .DBT block, stored as string</span>
 <span class="p">}</span></div>
 
 <span class="sd">"""Dict: A mapping of DBF field types to SQLAlchemy Column types.</span>
@@ -1248,8 +1252,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">combination of the dbfread example program dbf2sqlite and this DBF file format</span>
 <span class="sd">documentation page:</span>
 <span class="sd">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</span>
-<span class="sd">: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'</span>
-<span class="sd">which should result in an error if encountered.</span>
+
+<span class="sd">Field types that are not mapped are in :data:`UNSUPPORTED_DBF_TYPES`.</span>
+<span class="sd">"""</span>
+
+<div class="viewcode-block" id="UNSUPPORTED_DBF_TYPES">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES">[docs]</a>
+<span class="n">UNSUPPORTED_DBF_TYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"B"</span><span class="p">:</span> <span class="s2">".DBT block number, binary string"</span><span class="p">,</span>
+    <span class="s2">"@"</span><span class="p">:</span> <span class="s2">"Timestamp... Date = Julian Day, Time is in milliseconds?"</span><span class="p">,</span>
+    <span class="s2">"+"</span><span class="p">:</span> <span class="s2">"Autoincrement (e.g. for IDs)"</span><span class="p">,</span>
+    <span class="s2">"O"</span><span class="p">:</span> <span class="s2">"Double, 8 bytes"</span><span class="p">,</span>
+    <span class="s2">"G"</span><span class="p">:</span> <span class="s2">"OLE 10 digit/byte number of a .DBT block, stored as string"</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">"""Dict: DBF field types that are not mapped to SQLAlchemy types, with descriptions.</span>
+
+<span class="sd">A :class:`NotImplementedError` is raised if a field of one of these types is</span>
+<span class="sd">encountered.</span>
 <span class="sd">"""</span>
 
 
@@ -1758,7 +1778,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">,</span>
                 <span class="n">if_exists</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
                 <span class="n">chunksize</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="n">coltypes</span><span class="p">,</span>
+                <span class="c1"># pandas-stubs only allows pandas dtypes, but SQLAlchemy types work.</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">coltypes</span><span class="p">,</span>  <span class="c1"># type: ignore[bad-argument-type]</span>
                 <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span></div>
 

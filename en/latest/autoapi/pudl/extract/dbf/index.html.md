@@ -4,9 +4,10 @@ Generalized DBF extractor for FERC data.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.dbf.logger)    |                                                          |
-|------------------------------------------------------------|----------------------------------------------------------|
-| [`DBF_TYPES`](#pudl.extract.dbf.DBF_TYPES) | A mapping of DBF field types to SQLAlchemy Column types. |
+| [`logger`](#pudl.extract.dbf.logger)                |                                                                             |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`DBF_TYPES`](#pudl.extract.dbf.DBF_TYPES)             | A mapping of DBF field types to SQLAlchemy Column types.                    |
+| [`UNSUPPORTED_DBF_TYPES`](#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES) | DBF field types that are not mapped to SQLAlchemy types, with descriptions. |
 
 ## Exceptions
 
@@ -170,7 +171,7 @@ all these fields to be cast to numeric values.
   * **field** – The DBF field being parsed.
   * **data** – Binary data (bytes) read from the DBF file.
 
-### pudl.extract.dbf.DBF_TYPES
+### pudl.extract.dbf.DBF_TYPES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]]*
 
 A mapping of DBF field types to SQLAlchemy Column types.
 
@@ -179,8 +180,18 @@ to the corresponding generic SQLAlchemy Column types: These definitions come fro
 combination of the dbfread example program dbf2sqlite and this DBF file format
 documentation page:
 [http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm](http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm)
-: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as ‘XXX’
-which should result in an error if encountered.
+
+Field types that are not mapped are in [`UNSUPPORTED_DBF_TYPES`](#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES).
+
+* **Type:**
+  Dict
+
+### pudl.extract.dbf.UNSUPPORTED_DBF_TYPES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+DBF field types that are not mapped to SQLAlchemy types, with descriptions.
+
+A [`NotImplementedError`](https://docs.python.org/3/builtins/exceptions.html#NotImplementedError) is raised if a field of one of these types is
+encountered.
 
 * **Type:**
   Dict
