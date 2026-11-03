@@ -3,14 +3,61 @@
 from typing import Literal
 
 import pandas as pd
+import polars as pl
 
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
 import pudl.logging_helpers
 from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
+from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def get_train_plant_ids_eia() -> list[int]:
+    """Get the ``plant_id_eia`` of every EIA plant referenced by the training data.
+
+    The ``record_id_eia`` values in the training CSVs start with the EIA plant ID.
+    """
+    record_ids = pd.concat(
+        [
+            pd.read_csv(PUDL_PACKAGE_DATA_PATH / "glue" / csv_name)["record_id_eia"]
+            for csv_name in ["eia_ferc1_train.csv", "eia_ferc1_one_to_many.csv"]
+        ]
+    ).dropna()
+    return sorted({int(record_id.split("_")[0]) for record_id in record_ids})
+
+
+def select_plant_parts_eia(plant_parts_eia: pl.LazyFrame) -> pl.LazyFrame:
+    """Select the EIA plant parts records that the record linkage needs.
+
+    The full plant parts table has millions of rows, but the model only uses the
+    distinct records (see :func:`pudl.analysis.plant_parts_eia.plant_parts_eia_distinct`)
+    and the training data only refers to a few plants.
+
+    Args:
+        plant_parts_eia: The EIA plant parts table, from
+            :ref:`out_eia__yearly_plant_parts`.
+
+    Returns:
+        The distinct plant parts, plus every plant part of the plants in the training
+        data, which :func:`prep_train_connections` needs.
+    """
+    return plant_parts_eia.filter(
+        (pl.col("true_gran") & ~pl.col("ownership_dupe"))
+        | pl.col("plant_id_eia").is_in(get_train_plant_ids_eia())
+    )
+
+
+def load_plant_parts_eia(plant_parts_eia: pl.LazyFrame) -> pd.DataFrame:
+    """Read the plant parts the record linkage needs into a pandas DataFrame.
+
+    Filtering the LazyFrame before collecting it means the rest of the table is never
+    read into memory. See :func:`select_plant_parts_eia`.
+    """
+    plant_parts = select_plant_parts_eia(plant_parts_eia).collect().to_pandas()
+    return Resource.from_id("out_eia__yearly_plant_parts").enforce_schema(plant_parts)
 
 
 class InputManager:
@@ -191,6 +238,17 @@ class InputManager:
             )
         return self.train_ferc1
 
+    def release_raw_inputs(self) -> None:
+        """Replace the tables that the compiled inputs were derived from with empty ones.
+
+        Once :meth:`execute` has run, everything downstream uses the compiled inputs,
+        so keeping the raw tables around only makes this object larger to pass between
+        Dagster ops.
+        """
+        self.plant_parts_eia = pd.DataFrame()
+        self.plants_all_ferc1 = pd.DataFrame()
+        self.fbp_ferc1 = pd.DataFrame()
+
     def execute(self, clobber: bool = False):
         """Compile all the inputs.
 
@@ -245,7 +303,7 @@ def restrict_train_connections_on_date_range(
     logger.info(f"Restricting training data on years: {date_range_years_str}")
     train_df = train_df.assign(
         year_in_date_range=lambda x: x[id_col].str.extract(
-            r"_{1}" + f"({date_range_years_str})" + "_{1}"
+            r"_{1}" + f"({date_range_years_str})" + "_{1}", expand=False
         )
     )
     # pd.drop returns a copy, so no need to copy this portion of train_df

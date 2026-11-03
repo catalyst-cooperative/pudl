@@ -1,14 +1,17 @@
 """Define a record linkage model interface and implement common functionality."""
 
+from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import cast
 
 import mlflow
 import numpy as np
 import pandas as pd
+import scipy.sparse
 from dagster import Config, Out, graph, op
 from numba import njit
-from numba.typed import List
+from numba.typed.typedlist import List
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from sklearn.metrics import pairwise_distances_chunked
 from sklearn.neighbors import NearestNeighbors
@@ -49,7 +52,7 @@ class DistanceMatrix:
 
     def __init__(
         self,
-        feature_matrix: np.ndarray,
+        feature_matrix: np.ndarray | scipy.sparse.csr_matrix,
         original_df: pd.DataFrame,
         config: PenalizeReportYearDistanceConfig,
     ):
@@ -67,6 +70,8 @@ class DistanceMatrix:
         # Compute distances in chunks and write to memmap
         row_start = 0
         for chunk in pairwise_distances_chunked(feature_matrix, metric=config.metric):
+            # Without a reduce_func each chunk is a dense array of distances.
+            chunk = cast(np.ndarray, chunk)
             self.distance_matrix[row_start : row_start + len(chunk), :] = np.round(
                 chunk, _DISTANCE_DECIMALS
             )
@@ -107,7 +112,7 @@ def get_cluster_distance_matrix(
 @njit
 def get_average_distance_matrix(
     distance_matrix: np.ndarray,
-    cluster_groups: list[list[int]],
+    cluster_groups: List,
 ) -> np.ndarray:
     """Compute average distance between two clusters of records given indices of each cluster."""
     # Prepare a distance matrix of (n_clusters x n_clusters)
@@ -207,7 +212,7 @@ def split_clusters(
     much faster and uses much less memory.
     """
 
-    def _generate_cluster_ids(max_cluster_id: int) -> int:
+    def _generate_cluster_ids(max_cluster_id: int) -> Iterator[int]:
         """Get new unique cluster id."""
         while True:
             max_cluster_id += 1
