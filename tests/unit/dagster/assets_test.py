@@ -11,6 +11,7 @@ import dagster as dg
 import pytest
 from pytest_mock import MockerFixture
 
+import pudl.dagster.assets as pudl_assets
 from pudl.dagster.assets import default_assets
 from pudl.dagster.assets.core import datapackage
 from pudl.dagster.assets.core.datapackage import (
@@ -22,7 +23,7 @@ from pudl.dagster.assets.core.datapackage import (
     _resource_paths,
     build_datapackage_asset,
 )
-from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE
+from pudl.metadata.classes import FERCEQR_PACKAGE, PUDL_PACKAGE, Package, Resource
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 MODULE = "pudl.dagster.assets.core.datapackage"
@@ -271,6 +272,32 @@ def test_partitioned_asset_definition():
     assert all(
         isinstance(dep.partition_mapping, dg.AllPartitionMapping) for dep in spec.deps
     )
+
+
+def test_find_sql_asset_keys_filters_to_database_tables(
+    mocker: MockerFixture,
+) -> None:
+    """Only parquet asset keys naming a table in the database schema are returned."""
+    included = Resource(
+        name="included",
+        schema={
+            "fields": [{"name": "id", "type": "integer", "description": "id"}],
+            "primary_key": ["id"],
+        },
+        description="Included in the database schema",
+    )
+    test_pkg = Package(name="test", resources=[included])
+    mocker.patch.object(pudl_assets, "PUDL_PACKAGE", test_pkg)
+
+    included_key = dg.AssetKey(["included"])
+    excluded_key = dg.AssetKey(["excluded"])
+    mocker.patch.object(
+        pudl_assets,
+        "_find_parquet_asset_keys",
+        return_value=[excluded_key, included_key],
+    )
+
+    assert pudl_assets._find_sql_asset_keys(assets=[]) == [included_key]
 
 
 @pytest.mark.parametrize(
