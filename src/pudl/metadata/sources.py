@@ -477,7 +477,7 @@ SOURCES: dict[str, Any] = {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
         "path": "https://campd.epa.gov/",
         "description": (
-            "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
+            "US EPA hourly Continuous Emissions Monitoring System (CEMS) data. "
             "Hourly CO2, SO2, NOx emissions and gross load."
         ),
         "concept_doi": "10.5281/zenodo.10233185",
@@ -516,24 +516,13 @@ SOURCES: dict[str, Any] = {
         "title": "EPA MATS -- Mercury and Air Toxics Standards",
         "path": "https://www.epa.gov/stationary-sources-air-pollution/mercury-and-air-toxics-standards",
         "description": (
-            "The EPA Mercury and Air Toxics Standards (MATS) dataset provides "
-            "detailed information on emissions of hazardous air pollutants, "
-            "specifically mercury and other toxic substances, from power plants in "
-            "the United States. Established by the U.S. Environmental Protection "
-            "Agency (EPA) under the Clean Air Act, MATS aims to reduce air "
-            "pollution and its associated health risks by setting limits on the "
-            "emissions of mercury, arsenic, acid gases, and other pollutants from "
-            "coal- and oil-fired power plants. The dataset typically includes "
-            "metrics such as emission levels, compliance testing results, facility "
-            "locations, and operational data. It serves as a critical resource for "
-            "policymakers, researchers, and environmental organizations to assess "
-            "the effectiveness of pollution control measures, monitor compliance, "
-            "and evaluate the environmental and public health impacts of power "
-            "plant emissions."
+            "US EPA hourly Mercury and Air Toxics Standards (MATS) data. "
+            "Hourly Hg and HCl emissions, Hg/HCl/SO2/NOx/PM controls, and gross load."
         ),
         "concept_doi": "10.5281/zenodo.14783043",
         "source_file_dict": {
-            "respondents": "Power plants over 25MW",
+            "respondents": "Coal- and oil-fired plants over 25MW",
+            "records_liberated": "~40 million",
             "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {
