@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.extract.dbf &#8212; PUDL 2026.10.1.dev27 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.10.1.dev28 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=f113d892"></script>
+    <script src="../../../../_static/documentation_options.js?v=536429d5"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev28 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -815,6 +815,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.DBF_TYPES" title="pudl.extract.dbf.DBF_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DBF_TYPES</span></code></a></p></td>
 <td><p>A mapping of DBF field types to SQLAlchemy Column types.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES" title="pudl.extract.dbf.UNSUPPORTED_DBF_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNSUPPORTED_DBF_TYPES</span></code></a></p></td>
+<td><p>DBF field types that are not mapped to SQLAlchemy types, with descriptions.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1101,15 +1104,27 @@ all these fields to be cast to numeric values.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.extract.dbf.DBF_TYPES">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DBF_TYPES</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DBF_TYPES" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DBF_TYPES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../metadata/classes/index.html#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DBF_TYPES" title="Link to this definition">#</a></dt>
 <dd><p>A mapping of DBF field types to SQLAlchemy Column types.</p>
 <p>This dictionary maps the strings which are used to denote field types in the DBF objects
 to the corresponding generic SQLAlchemy Column types: These definitions come from a
 combination of the dbfread example program dbf2sqlite and this DBF file format
 documentation page:
-<a class="reference external" href="http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</a>
-: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as ‘XXX’
-which should result in an error if encountered.</p>
+<a class="reference external" href="http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</a></p>
+<p>Field types that are not mapped are in <a class="reference internal" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES" title="pudl.extract.dbf.UNSUPPORTED_DBF_TYPES"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNSUPPORTED_DBF_TYPES</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.extract.dbf.UNSUPPORTED_DBF_TYPES">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">UNSUPPORTED_DBF_TYPES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#UNSUPPORTED_DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES" title="Link to this definition">#</a></dt>
+<dd><p>DBF field types that are not mapped to SQLAlchemy types, with descriptions.</p>
+<p>A <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#NotImplementedError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> is raised if a field of one of these types is
+encountered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dict</p>
@@ -1565,6 +1580,7 @@ either be present, or it will be derived from partition[“year”].</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.DBF_TYPES"><code class="docutils literal notranslate"><span class="pre">DBF_TYPES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES"><code class="docutils literal notranslate"><span class="pre">UNSUPPORTED_DBF_TYPES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.PartitionedDataFrame"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.PartitionedDataFrame.df"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame.df</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.PartitionedDataFrame.partition"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame.partition</span></code></a></li>
