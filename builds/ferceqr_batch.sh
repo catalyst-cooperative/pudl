@@ -130,6 +130,19 @@ function send_zulip_notification() {
     set -x
 }
 
+function trigger_eel_hole_deployment() {
+    # Redeploy the PUDL Viewer (Eel Hole) so it picks up the newly published
+    # production FERC EQR outputs. Best-effort: the data is already deployed, so a
+    # failure here warns rather than failing the build.
+    echo "Triggering the Eel Hole production deployment using the GitHub CLI"
+    set +x
+    GH_TOKEN="${PUDL_BOT_PAT}" gh workflow run build-deploy.yml \
+        --repo catalyst-cooperative/eel-hole \
+        --ref main ||
+        echo "Warning: Eel Hole deployment trigger failed." >&2
+    set -x
+}
+
 function cleanup_on_exit() {
     local exit_code=$?
     # Send a Zulip notification if we failed before the ETL ever started,
@@ -248,3 +261,11 @@ if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
 fi
 
 echo "FERC EQR Build succeeded!"
+
+# Only a production deployment publishes data the Eel Hole serves. Test and "none"
+# builds must not redeploy it.
+if [[ "${FERCEQR_DEPLOYMENT_MODE:-}" == "production" ]]; then
+    trigger_eel_hole_deployment
+else
+    echo "Skipping Eel Hole redeployment (FERCEQR_DEPLOYMENT_MODE=${FERCEQR_DEPLOYMENT_MODE:-unset})."
+fi
