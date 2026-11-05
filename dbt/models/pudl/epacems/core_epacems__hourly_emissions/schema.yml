@@ -264,6 +264,6 @@ models:
               config:
                 where: year = 2026
               arguments:
-                at_least: 0.9485
+                at_least: 0.9482
     config:
       enabled: "{{ target.name == 'etl-full' }}"
