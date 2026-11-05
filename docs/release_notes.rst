@@ -25,6 +25,12 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data through August 2026. See issue
+  :issue:`5742` and PR :pr:`5743`.
+
 EIA-860M
 ~~~~~~~~
 
@@ -36,6 +42,52 @@ EIA-923
 
 * Added :doc:`EIA-923 <data_sources/eia923>` data through August 2026. See
   PR :pr:`5732`.
+
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data through the beginning of November
+  2026. See issue :issue:`5742` and PR :pr:`5743`.
+
+EIA API Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`EIA API <data_sources/eiaapi>` bulk electricity data through August
+  2026. See issue :issue:`5742` and PR :pr:`5743`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with revised records. The
+  archive still ends with 2026 Q2 (June 2026), as the EPA has not yet published later
+  data. See issue :issue:`5742` and PR :pr:`5743`.
+
+EPA MATS
+~~~~~~~~
+
+* Updated the raw EPA MATS archive with revised records. The archive still ends with
+  2026 Q2 (June 2026), as the EPA has not yet published later data. This data is not
+  yet deeply integrated into PUDL. See issue :issue:`5742` and PR :pr:`5743`.
+
+FERC CID
+~~~~~~~~
+
+* Updated the FERC company identifiers to the October 2026 release. See issue
+  :issue:`5742` and PR :pr:`5743`.
+
+FERC Forms 2 and 6
+~~~~~~~~~~~~~~~~~~
+
+* Re-archived the raw :ref:`FERC Form 2 <data-ferc2>` and :ref:`FERC Form 6
+  <data-ferc6>` XBRL data. Coverage still ends with 2025. This data is converted to
+  SQLite, but not deeply integrated into PUDL. See issue :issue:`5742` and PR
+  :pr:`5743`.
+
+PHMSA
+~~~~~
+
+* Updated the raw :doc:`PHMSA <data_sources/phmsagas>` archive with revised records.
+  Coverage still ends with 2025. See issue :issue:`5742` and PR :pr:`5743`.
 
 Documentation
 ^^^^^^^^^^^^^
