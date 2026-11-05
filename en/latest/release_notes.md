@@ -18,6 +18,11 @@
 
 ### Expanded Data Coverage
 
+#### EIA-191
+
+* Updated [EIA-191](data_sources/eia191.md) data through August 2026. See issue
+  [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
 #### EIA-860M
 
 * Added [EIA-860m](data_sources/eia860.md) data through September 2026. See
@@ -27,6 +32,44 @@
 
 * Added [EIA-923](data_sources/eia923.md) data through August 2026. See
   PR [#5732](https://github.com/catalyst-cooperative/pudl/pull/5732).
+
+#### EIA-930
+
+* Updated [EIA-930](data_sources/eia930.md) data through the beginning of November
+  2026. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### EIA API Bulk Electricity Data
+
+* Updated the [EIA API](data_sources/eiaapi.md) bulk electricity data through August
+  2026. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### EPA CEMS
+
+* Updated the [EPA CEMS](data_sources/epacems.md) data with revised records. The
+  archive still ends with 2026 Q2 (June 2026), as the EPA has not yet published later
+  data. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### EPA MATS
+
+* Updated the raw EPA MATS archive with revised records. The archive still ends with
+  2026 Q2 (June 2026), as the EPA has not yet published later data. This data is not
+  yet deeply integrated into PUDL. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### FERC CID
+
+* Updated the FERC company identifiers to the October 2026 release. See issue
+  [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### FERC Forms 2 and 6
+
+* Re-archived the raw [FERC Form 2](data_sources/other_data.md#data-ferc2) and [FERC Form 6](data_sources/other_data.md#data-ferc6) XBRL data. Coverage still ends with 2025. This data is converted to
+  SQLite, but not deeply integrated into PUDL. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR
+  [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### PHMSA
+
+* Updated the raw [PHMSA](data_sources/phmsagas.md) archive with revised records.
+  Coverage still ends with 2025. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
 
 ### Documentation
 
