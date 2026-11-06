@@ -1732,7 +1732,7 @@ core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
 core_epa__assn_eia_epacamd,2024,6340
-core_epa__assn_eia_epacamd_subplant_ids,,45395
+core_epa__assn_eia_epacamd_subplant_ids,,45398
 core_epacems__hourly_emissions,1995,3846120
 core_epacems__hourly_emissions,1996,3645432
 core_epacems__hourly_emissions,1997,17660784
@@ -1764,7 +1764,7 @@ core_epacems__hourly_emissions,2022,35166792
 core_epacems__hourly_emissions,2023,34800312
 core_epacems__hourly_emissions,2024,34399800
 core_epacems__hourly_emissions,2025,33995328
-core_epacems__hourly_emissions,2026,16858752
+core_epacems__hourly_emissions,2026,25538256
 core_epamats__hourly_emissions,2015,1675152
 core_epamats__hourly_emissions,2016,4007232
 core_epamats__hourly_emissions,2017,4596456
@@ -1776,7 +1776,7 @@ core_epamats__hourly_emissions,2022,3325824
 core_epamats__hourly_emissions,2023,3056952
 core_epamats__hourly_emissions,2024,2949120
 core_epamats__hourly_emissions,2025,2833512
-core_epamats__hourly_emissions,2026,1340040
+core_epamats__hourly_emissions,2026,2015688
 core_ferc1__codes_power_purchase_types,,9
 core_ferc1__yearly_balance_sheet_assets_sched110,1994,9096
 core_ferc1__yearly_balance_sheet_assets_sched110,1995,8769
