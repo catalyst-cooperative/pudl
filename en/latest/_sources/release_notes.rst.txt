@@ -58,16 +58,15 @@ EIA API Bulk Electricity Data
 EPA CEMS
 ~~~~~~~~
 
-* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with revised records. The
-  archive still ends with 2026 Q2 (June 2026), as the EPA has not yet published later
-  data. See issue :issue:`5742` and PR :pr:`5743`.
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` with data through 2026 Q3
+  (September, 2026). See issue :issue:`5742` and PR :pr:`5748`.
 
 EPA MATS
 ~~~~~~~~
 
-* Updated the raw EPA MATS archive with revised records. The archive still ends with
-  2026 Q2 (June 2026), as the EPA has not yet published later data. This data is not
-  yet deeply integrated into PUDL. See issue :issue:`5742` and PR :pr:`5743`.
+* Updated the raw EPA MATS archive with data through 2026 Q3 (September, 2026). This
+  data is not yet deeply integrated into PUDL. See issue :issue:`5742` and PR
+  :pr:`5748`.
 
 FERC CID
 ~~~~~~~~
