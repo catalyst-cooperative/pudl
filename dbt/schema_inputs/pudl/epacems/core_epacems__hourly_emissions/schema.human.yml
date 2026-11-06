@@ -48,7 +48,8 @@ models:
           subplant crosswalk. Tested below with one dbt_utils.not_null_proportion test
           per CEMS reporting year, each with its own threshold, so a regression confined
           to a single year isn't diluted away by all the other years and can be debugged
-          quickly. Matched non-null fractions were calculated 2026-08-30 and test
+          quickly. Matched non-null fractions were calculated 2026-08-30 (2026
+          recalculated 2026-11-06 with 2026Q3 data) and test
           thresholds set 0.5% below the measured value for each year; revisit when this
           table is next reprocessed with a new year of data. Tests pass when there is no
           data for the given year, as is mostly the case in the fast ETL.
@@ -244,4 +245,4 @@ models:
               config:
                 where: "year = 2026"
               arguments:
-                at_least: 0.9482
+                at_least: 0.9426
