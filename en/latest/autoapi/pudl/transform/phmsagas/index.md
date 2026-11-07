@@ -15,7 +15,7 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 
 ## Functions
 
-| [`_check_all_raw_columns_being_transformed`](#pudl.transform.phmsagas._check_all_raw_columns_being_transformed)(raw_df)                                 | Check to ensure that we are transforming all of the raw columns.                        |
+| [`_check_all_raw_columns_being_transformed`](#pudl.transform.phmsagas._check_all_raw_columns_being_transformed)(raw_df) → dagster.AssetCheckResult      | Check to ensure that we are transforming all of the raw columns.                        |
 |-----------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | [`_dedupe_year_distribution_idx`](#pudl.transform.phmsagas._dedupe_year_distribution_idx)(...) → pandas.DataFrame                            | Remove the rare duplicates in the expected primary key.                                 |
 | [`_assign_cols_from_patterns`](#pudl.transform.phmsagas._assign_cols_from_patterns)(df, col_patterns, pattern_col) → pandas.DataFrame     | Add new columns based on regex patterns within an existing column.                      |
@@ -50,14 +50,14 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 
 ### pudl.transform.phmsagas.MELT_PATTERNS
 
-### pudl.transform.phmsagas.\_check_all_raw_columns_being_transformed(raw_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+### pudl.transform.phmsagas.\_check_all_raw_columns_being_transformed(raw_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dagster.AssetCheckResult](https://dagster.io/docs/api/dagster/asset-checks/#dagster.AssetCheckResult)
 
 Check to ensure that we are transforming all of the raw columns.
 
 Because we are using a lot of regex patterns to identify the columns
 to transform into various tables, we run this check to make sure the
 we are actually finding all of the raw columns. If a column is flagged
-here, check the column mapping and the patterns in MELT_PATTERNS.1
+here, check the column mapping and the patterns in MELT_PATTERNS.
 
 ### pudl.transform.phmsagas.\_dedupe_year_distribution_idx(raw_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

@@ -71,7 +71,7 @@ Return the expected md5 checksum of the named resource.
 
 Returns the total download size of all the resources in MB.
 
-#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Verify that in-memory content matches the checksum of a named resource.
 
@@ -275,17 +275,17 @@ Returns list of supported datasets.
 
 Fetch datapackage descriptor for dataset either from cache or Zenodo.
 
-#### get_resources(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cached_only: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]]
+#### get_resources(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filters: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, , cached_only: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]]
 
 Return content of the matching resources.
 
 * **Parameters:**
   * **dataset** – name of the dataset to query.
+  * **filters** – only return resources that match the key-value mapping in their
+    metadata[“parts”].
   * **cached_only** – if True, only retrieve resources that are present in the cache.
   * **skip_optimally_cached** – if True, only retrieve resources that are not optimally
     cached. This triggers attempt to optimally cache these resources.
-  * **filters** (*key=val*) – only return resources that match the key-value mapping in their
-  * **metadata****[****"parts"****]****.**
 * **Yields:**
   (PudlResourceKey, io.BytesIO) holding content for each matching resource
 

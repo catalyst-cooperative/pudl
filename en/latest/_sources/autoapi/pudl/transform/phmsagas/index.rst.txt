@@ -70,14 +70,14 @@ Module Contents
 
 .. py:data:: MELT_PATTERNS
 
-.. py:function:: _check_all_raw_columns_being_transformed(raw_df: pandas.DataFrame)
+.. py:function:: _check_all_raw_columns_being_transformed(raw_df: pandas.DataFrame) -> dagster.AssetCheckResult
 
    Check to ensure that we are transforming all of the raw columns.
 
    Because we are using a lot of regex patterns to identify the columns
    to transform into various tables, we run this check to make sure the
    we are actually finding all of the raw columns. If a column is flagged
-   here, check the column mapping and the patterns in MELT_PATTERNS.1
+   here, check the column mapping and the patterns in MELT_PATTERNS.
 
 
 .. py:function:: _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution: pandas.DataFrame) -> pandas.DataFrame
