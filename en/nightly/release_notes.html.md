@@ -45,15 +45,14 @@
 
 #### EPA CEMS
 
-* Updated the [EPA CEMS](data_sources/epacems.html.md) data with revised records. The
-  archive still ends with 2026 Q2 (June 2026), as the EPA has not yet published later
-  data. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+* Updated the [EPA CEMS](data_sources/epacems.html.md) with data through 2026 Q3
+  (September, 2026). See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5748](https://github.com/catalyst-cooperative/pudl/pull/5748).
 
 #### EPA MATS
 
-* Updated the raw EPA MATS archive with revised records. The archive still ends with
-  2026 Q2 (June 2026), as the EPA has not yet published later data. This data is not
-  yet deeply integrated into PUDL. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+* Updated the raw EPA MATS archive with data through 2026 Q3 (September, 2026). This
+  data is not yet deeply integrated into PUDL. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR
+  [#5748](https://github.com/catalyst-cooperative/pudl/pull/5748).
 
 #### FERC CID
 
