@@ -1,6 +1,5 @@
 """A collection of denormalized EIA assets."""
 
-import numpy as np
 import pandas as pd
 from dagster import Field, asset
 
@@ -965,7 +964,7 @@ def max_unit_id_by_plant(gens_df: pd.DataFrame) -> pd.DataFrame:
 
 def _append_masked_units(
     gens_df: pd.DataFrame,
-    row_mask: np.ndarray,
+    row_mask: pd.Series,
     unit_ids: pd.DataFrame,
     on: str | list[str],
 ) -> pd.DataFrame:
@@ -990,15 +989,18 @@ def _append_masked_units(
     Returns:
         A DataFrame with unit IDs.
     """
-    return gens_df.loc[~row_mask].append(
-        gens_df.loc[row_mask]
-        .drop(["unit_id_pudl", "bga_source"], axis="columns")
-        .merge(
-            unit_ids,
-            on=on,
-            how="left",
-            validate="many_to_one",
-        )
+    return pd.concat(
+        [
+            gens_df.loc[~row_mask],
+            gens_df.loc[row_mask]
+            .drop(["unit_id_pudl", "bga_source"], axis="columns")
+            .merge(
+                unit_ids,
+                on=on,
+                how="left",
+                validate="many_to_one",
+            ),
+        ]
     )
 
 
