@@ -14,6 +14,95 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: EXTRACT(YEAR FROM report_date)
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - utility_plant_in_service
+                  - construction_work_in_progress
+                total_label: total_utility_plant
+                tolerance: 10
+              description: Check that total utility plant equals the sum of its components.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - total_utility_plant
+                negative_subcomponents_list:
+                  - depreciation_and_amortization
+                total_label: net_utility_plant
+                tolerance: 10
+              description: |-
+                Check that net utility plant equals total utility plant less depreciation and
+                amortization.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - cash_general_funds
+                  - cash_construction_funds_trustee
+                  - special_deposits
+                  - investments_temporary
+                  - notes_receivable
+                  - accounts_receivable_sales_of_energy
+                  - accounts_receivable_other
+                  - renewable_energy_credits
+                  - fuel_stock
+                  - materials_and_supplies
+                  - prepayments
+                  - other_current_and_accrued
+                total_label: total_current_and_accrued
+                tolerance: 10
+              description: Check that total current and accrued assets equal the sum of their components.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - non_utility_property_asset
+                  - investments_subsidiary_companies
+                  - investments_associated_orgs_patronage_capital
+                  - investments_associated_orgs_other_general_funds
+                  - investments_associated_orgs_other_non_general_funds
+                  - investments_economic_development
+                  - investments_other
+                  - special_funds
+                total_label: total_other_property_and_investments
+                tolerance: 10
+              config:
+                error_if: ">212"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - net_utility_plant
+                  - total_other_property_and_investments
+                  - total_current_and_accrued
+                  - unamortized_debt_discount_property_losses
+                  - regulatory
+                  - other_deferred_debits
+                  - accumulated_deferred_income_taxes_debits
+                total_label: total
+                tolerance: 10
         columns:
           - name: report_date
           - name: borrower_id_rus
