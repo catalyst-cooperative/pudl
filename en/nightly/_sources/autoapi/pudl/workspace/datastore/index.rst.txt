@@ -104,7 +104,7 @@ Module Contents
 
 
 
-   .. py:method:: validate_checksum(name: str, content: str) -> None
+   .. py:method:: validate_checksum(name: str, content: bytes) -> None
 
       Verify that in-memory content matches the checksum of a named resource.
 
@@ -421,17 +421,16 @@ Module Contents
 
 
 
-   .. py:method:: get_resources(dataset: str, cached_only: bool = False, skip_optimally_cached: bool = False, **filters: Any) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, bytes]]
+   .. py:method:: get_resources(dataset: str, filters: collections.abc.Mapping[str, Any] | None = None, *, cached_only: bool = False, skip_optimally_cached: bool = False) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, bytes]]
 
       Return content of the matching resources.
 
       :param dataset: name of the dataset to query.
+      :param filters: only return resources that match the key-value mapping in their
+                      metadata["parts"].
       :param cached_only: if True, only retrieve resources that are present in the cache.
       :param skip_optimally_cached: if True, only retrieve resources that are not optimally
                                     cached. This triggers attempt to optimally cache these resources.
-      :param filters: only return resources that match the key-value mapping in their
-      :type filters: key=val
-      :param metadata["parts"].:
 
       :Yields: (PudlResourceKey, io.BytesIO) holding content for each matching resource
 
