@@ -1,11 +1,4 @@
 year_index,report_year,plant_id_eia,plant_state,eia_sector,naics_code,plant_name_eia,associated_combined_heat_power,reporting_frequency_code,early_release,report_month
-2017,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,,
-2018,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2019,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2020,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2021,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2022,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2023,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2024,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2025,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,,
-2026,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,,month
+2017,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,-1,-1
+2018,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,respondent_frequency,-1,-1
+2026,year,plant_id,plant_state,sector_number,naics_code,plant_name,combined_heat_and_power_status,reporting_frequency,-1,month

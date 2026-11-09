@@ -1,6 +1,16 @@
 {
   "errors": [
     {
+      "path": "src/pudl/transform/phmsagas.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `(raw_df: DataFrame) -> None` is not assignable to parameter with type `(...) -> AssetCheckResult`"
+    },
+    {
+      "path": "src/pudl/helpers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `AssetKey` is not assignable to parameter `*s` with type `Iterable[@_]` in function `set.union`"
+    },
+    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Categorical | DataType | ExtensionDtype | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`"
@@ -41,6 +51,11 @@
       "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"
     },
     {
+      "path": "src/pudl/output/eia.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Series[bool]` is not assignable to parameter `row_mask` with type `ndarray` in function `_append_masked_units`"
+    },
+    {
       "path": "src/pudl/transform/sec10k.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Series[str]` is not assignable to parameter `df` with type `DataFrame` in function `pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning`"
@@ -51,6 +66,16 @@
       "concise_description": "Argument `Series` is not assignable to parameter `df` with type `DataFrame` in function `pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning`"
     },
     {
+      "path": "src/pudl/workspace/datastore.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `bytes | Any` is not assignable to parameter `content` with type `str` in function `DatapackageDescriptor.validate_checksum`"
+    },
+    {
+      "path": "src/pudl/workspace/datastore.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `bytes` is not assignable to parameter `content` with type `str` in function `DatapackageDescriptor.validate_checksum`"
+    },
+    {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `csr_matrix | ndarray` is not assignable to parameter `feature_matrix` with type `ndarray` in function `DistanceMatrix.__init__`"
@@ -59,6 +84,11 @@
       "path": "src/pudl/dagster/io_managers.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `dict[str, TypeEngine[Any]]` is not assignable to parameter `dtype` with type `ExtensionDtype | Mapping[Hashable, ExtensionDtype | dtype[generic] | str | type[bool | complex | object | str]] | dtype[generic] | str | type[bool | complex | object | str] | None` in function `pandas.core.generic.NDFrame.to_sql`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
@@ -81,6 +111,11 @@
       "concise_description": "Argument `str` is not assignable to parameter `db_path` with type `Path` in function `convert_db_into_parquet`"
     },
     {
+      "path": "src/pudl/workspace/datastore.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `str` is not assignable to parameter `obj` with type `Buffer` in function `_hashlib.HASH.update`"
+    },
+    {
       "path": "src/pudl/transform/eiaaeo.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `tuple[Literal['Electricity : Electric Power Sector : Capacity'], Literal['Electricity : Electric Power Sector : Generation'], Literal['Electricity : Electric Power Sector : Cumulative Retirements'], Literal['Electricity : Electric Power Sector : Cumulative Planned Additions'], Literal['Electricity : Electric Power Sector : Cumulative Unplanned Additions'], Literal['Electricity : Electric Power Sector : Cumulative Total Additions']]` is not assignable to parameter `relevant_series_names` with type `tuple[str]` in function `filter_enrich_sanitize`"
@@ -96,9 +131,24 @@
       "concise_description": "Argument `tuple[Literal['Energy Use : Commercial'], Literal['Energy Use : Electric Power'], Literal['Energy Use : Industrial'], Literal['Energy Use : Residential'], Literal['Energy Use : Total'], Literal['Energy Use : Transportation'], Literal['Energy Use : Unspecified']]` is not assignable to parameter `relevant_series_names` with type `tuple[str]` in function `filter_enrich_sanitize`"
     },
     {
-      "path": "src/pudl/extract/excel.py",
-      "name": "bad-override-mutable-attribute",
-      "concise_description": "Class member `ExcelExtractor.METADATA` overrides parent class `GenericExtractor` in an inconsistent manner"
+      "path": "src/pudl/workspace/datastore.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `type[BadZipFile]` is not assignable to parameter `retry_on` with type `tuple[type[BaseException], ...]` in function `pudl.helpers.retry`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `type[Boolean] | type[Date] | type[DateTime] | type[Float] | type[Integer] | type[String] | type[Text] | String | str` is not assignable to parameter `col_type` with type `TypeEngine[Unknown] | type[TypeEngine[Unknown]]` in function `DbfTableSchema.add_column`"
+    },
+    {
+      "path": "src/pudl/extract/dbf.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `dict[Any, str]`"
+    },
+    {
+      "path": "src/pudl/metadata/classes.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `dict[str, set[str]]`"
     },
     {
       "path": "src/pudl/metadata/classes.py",
@@ -109,6 +159,11 @@
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "not-callable",
       "concise_description": "Expected a callable, got `ModuleType`"
+    },
+    {
+      "path": "src/pudl/output/eia.py",
+      "name": "not-callable",
+      "concise_description": "Expected a callable, got `Series`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
@@ -164,46 +219,6 @@
       "path": "src/pudl/validate/dbt.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `BaseResult` has no attribute `node`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `_page_part_map`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_file_name`"
-    },
-    {
-      "path": "src/pudl/extract/phmsagas.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_form`"
-    },
-    {
-      "path": "src/pudl/extract/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_sheet_name`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_sheet_name`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skipfooter`"
-    },
-    {
-      "path": "src/pudl/extract/eia923.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
-    },
-    {
-      "path": "src/pudl/extract/excel.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
     },
     {
       "path": "src/pudl/transform/eia176.py",
@@ -276,19 +291,14 @@
       "concise_description": "Returned type `FercDbfToSqliteDataConfig | FercGenericXbrlToSqliteDataConfig | None` is not assignable to declared return type `FercDbfToSqliteDataConfig`"
     },
     {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-return",
+      "concise_description": "Returned type `Sequence[str]` is not assignable to declared return type `str`"
+    },
+    {
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
       "name": "bad-return",
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
-    },
-    {
-      "path": "src/pudl/extract/rus12.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
-    },
-    {
-      "path": "src/pudl/extract/rus7.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
     },
     {
       "path": "src/pudl/extract/extractor.py",
@@ -301,19 +311,29 @@
       "concise_description": "Returned type `tuple[dict[Unknown, Unknown], ...]` is not assignable to declared return type `tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]`"
     },
     {
-      "path": "src/pudl/extract/excel.py",
-      "name": "bad-assignment",
-      "concise_description": "`None` is not assignable to `ExcelMetadata`"
+      "path": "src/pudl/workspace/datastore.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `int | str` is not assignable to parameter `cached_only` with type `bool` in function `Datastore.get_resources`"
     },
     {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "bad-assignment",
-      "concise_description": "`None` is not assignable to `GenericMetadata`"
+      "path": "src/pudl/workspace/datastore.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `int | str` is not assignable to parameter `skip_optimally_cached` with type `bool` in function `Datastore.get_resources`"
+    },
+    {
+      "path": "src/pudl/scripts/dbt_helper.py",
+      "name": "unsupported-operation",
+      "concise_description": "`None` is not subscriptable"
     },
     {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "unbound-name",
       "concise_description": "`all_multi_matches_list` may be uninitialized"
+    },
+    {
+      "path": "src/pudl/helpers.py",
+      "name": "unbound-name",
+      "concise_description": "`dates` may be uninitialized"
     },
     {
       "path": "src/pudl/transform/params/ferc1.py",
