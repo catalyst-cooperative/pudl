@@ -24,6 +24,7 @@ from pudl.metadata.classes import (
     DATAPACKAGES,
     FERCEQR_PACKAGE,
     PUDL_PACKAGE,
+    PUDL_SOURCES_WITHOUT_TABLES,
     DataSource,
     Field,
     FieldConstraints,
@@ -954,6 +955,58 @@ def test_frictionless_data_package_non_empty():
     assert len(pudl_datapackage.resources + ferceqr_datapackage.resources) == len(
         RESOURCE_METADATA
     )
+
+
+def _descriptor_source_names(package: Package) -> list[str]:
+    return [
+        s["name"] for s in json.loads(package.to_frictionless().to_json())["sources"]
+    ]
+
+
+def test_package_sources_default_to_resource_sources():
+    """With no extra sources, package sources are the union of resource sources."""
+    package = Package.from_resource_ids(
+        resource_ids=("core_eia__codes_averaging_periods",), name="test"
+    )
+    expected = {s.name for r in package.resources for s in r.sources}
+    assert set(_descriptor_source_names(package)) == expected
+
+
+def test_package_extra_source_ids_are_added_and_sorted():
+    package = Package.from_resource_ids(
+        included_etl_groups=("ferceqr",),
+        name="test",
+        extra_source_ids=("ferc60", "ferc2"),
+    )
+    assert [s.name for s in package.sources] == ["ferc2", "ferc60", "ferceqr"]
+    assert _descriptor_source_names(package) == ["ferc2", "ferc60", "ferceqr"]
+
+
+def test_package_extra_source_id_already_used_by_resources_raises():
+    with pytest.raises(ValueError, match=r"already use: \['ferceqr'\]"):
+        Package.from_resource_ids(
+            included_etl_groups=("ferceqr",),
+            name="test",
+            extra_source_ids=("ferc2", "ferceqr"),
+        )
+
+
+def test_package_unknown_extra_source_id_raises():
+    with pytest.raises(ValueError, match="Unknown data source IDs"):
+        Package.from_resource_ids(extra_source_ids=("not_a_source",), name="bad")
+
+
+def test_sources_without_tables_are_not_used_by_any_resource():
+    """Sources that gain a table must be removed from the explicit list."""
+    used = {s.name for r in all_resources() for s in r.sources}
+    assert used.isdisjoint(PUDL_SOURCES_WITHOUT_TABLES)
+
+
+def test_pudl_package_lists_sources_without_tables():
+    names = set(_descriptor_source_names(PUDL_PACKAGE))
+    assert set(PUDL_SOURCES_WITHOUT_TABLES) <= names
+    assert "ferceqr" not in names
+    assert _descriptor_source_names(FERCEQR_PACKAGE) == ["ferceqr"]
 
 
 METADATA_OVERRIDE_KEYS = [
