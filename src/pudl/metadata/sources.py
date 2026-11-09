@@ -455,24 +455,6 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "eiawater": {
-        "title": "EIA Thermoelectric Cooling Water",
-        "path": "https://www.eia.gov/electricity/data/water",
-        "description": (
-            "Monthly cooling water usage by generator and boiler. Data "
-            "collected in conjunction with the EIA-860 and EIA-923."
-        ),
-        "concept_doi": "10.5281/zenodo.7683135",
-        "keywords": sorted(
-            set(KEYWORDS["eia"] + KEYWORDS["us_govt"] + KEYWORDS["eia_water"])
-        ),
-        "license_raw": LICENSES["us-govt"],
-        "license_pudl": LICENSES["cc-by-4.0"],
-        "email": "infoelectric@eia.gov",
-        "contributors": [
-            CONTRIBUTORS["catalyst-cooperative"],
-        ],
-    },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
         "path": "https://campd.epa.gov/",
@@ -890,23 +872,6 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
         ],
         "email": "elaine@sylvan.energy",
-    },
-    "mshamines": {
-        "title": "Mine Safety and Health Administration (MSHA) Mines",
-        "path": "https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp",
-        "description": (
-            "The Mine dataset lists all Coal and Metal/Non-Metal mines under MSHA's "
-            "jurisdiction. It includes such information as the current status of each "
-            "mine (Active, Abandoned, NonProducing, etc.), the current owner and "
-            "operating company, commodity codes and physical attributes of the mine."
-        ),
-        "concept_doi": "10.5281/zenodo.7683517",
-        "keywords": sorted(set(KEYWORDS["msha"] + KEYWORDS["us_govt"])),
-        "license_raw": LICENSES["us-govt"],
-        "license_pudl": LICENSES["cc-by-4.0"],
-        "contributors": [
-            CONTRIBUTORS["catalyst-cooperative"],
-        ],
     },
     "nrelatb": {
         "title": "NREL Annual Technology Baseline (ATB) for Electricity",
