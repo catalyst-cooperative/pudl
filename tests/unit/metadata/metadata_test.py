@@ -1291,6 +1291,7 @@ EXPECT_NO_AVAILABILITY = {
     "core_eia__entity_generators",
     "core_eia__entity_plants",
     "core_eia__entity_utilities",
+    "core_eia923__entity_coalmine",
     "core_ferc__entity_companies",
     "core_gridpathratoolkit__assn_generator_aggregation_group",
     "core_pudl__assn_eia_pudl_plants",

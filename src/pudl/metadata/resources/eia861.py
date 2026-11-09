@@ -853,7 +853,7 @@ Utilities report on Form EIA-861S if they:
             ],
         },
         "field_namespace": "eia",
-        "sources": ["eia861"],
+        "sources": ["eia861", "censuspep"],
         "etl_group": "eia861",
     },
     "core_eia861__assn_utility": {
