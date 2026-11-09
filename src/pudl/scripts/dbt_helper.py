@@ -112,6 +112,8 @@ def update_row_counts(
     """Generate updated row counts per partition and write to csv file within dbt project."""
     schema_path = insert_data_source(dbt_root / "models", table_name) / "schema.yml"
     schema = DbtSchema.from_yaml(schema_path)
+    if not schema.sources or not schema.sources[0].tables:
+        raise ValueError(f"{schema_path} does not define any source tables.")
     table = schema.sources[0].tables[0]
 
     partition_expressions = _extract_row_count_partitions(table)

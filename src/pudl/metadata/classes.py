@@ -1319,11 +1319,6 @@ class DataSource(PudlMeta):
         if datastore is None:
             datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
         dp_desc = datastore.get_datapackage_descriptor(self.name)
-        partitions = dp_desc.get_partitions()
-        if "year" in partitions:
-            partitions["years"] = partitions["year"]
-        elif "year_month" in partitions:
-            partitions["year_month"] = max(partitions["year_month"])
         self.source_file_dict["download_size"] = dp_desc.get_download_size()
 
     def to_rst(

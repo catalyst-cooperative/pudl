@@ -28,6 +28,11 @@ Expanded Data Coverage
 * :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
   onward. The raw files were always in the archives, but our metadata marked them as
   missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data through August 2026. See issue
+  :issue:`5742` and PR :pr:`5743`.
 
 EIA-860M
 ~~~~~~~~
@@ -40,6 +45,51 @@ EIA-923
 
 * Added :doc:`EIA-923 <data_sources/eia923>` data through August 2026. See
   PR :pr:`5732`.
+
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data through the beginning of November
+  2026. See issue :issue:`5742` and PR :pr:`5743`.
+
+EIA API Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`EIA API <data_sources/eiaapi>` bulk electricity data through August
+  2026. See issue :issue:`5742` and PR :pr:`5743`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` with data through 2026 Q3
+  (September, 2026). See issue :issue:`5742` and PR :pr:`5748`.
+
+EPA MATS
+~~~~~~~~
+
+* Updated the raw EPA MATS archive with data through 2026 Q3 (September, 2026). This
+  data is not yet deeply integrated into PUDL. See issue :issue:`5742` and PR
+  :pr:`5748`.
+
+FERC CID
+~~~~~~~~
+
+* Updated the FERC company identifiers to the October 2026 release. See issue
+  :issue:`5742` and PR :pr:`5743`.
+
+FERC Forms 2 and 6
+~~~~~~~~~~~~~~~~~~
+
+* Re-archived the raw :ref:`FERC Form 2 <data-ferc2>` and :ref:`FERC Form 6
+  <data-ferc6>` XBRL data. Coverage still ends with 2025. This data is converted to
+  SQLite, but not deeply integrated into PUDL. See issue :issue:`5742` and PR
+  :pr:`5743`.
+
+PHMSA
+~~~~~
+
+* Updated the raw :doc:`PHMSA <data_sources/phmsagas>` archive with revised records.
+  Coverage still ends with 2025. See issue :issue:`5742` and PR :pr:`5743`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -135,6 +185,10 @@ Developer Experience
   annual updates less tedious, and standardizes ``-1`` as the marker for data that
   doesn't exist. New tests check that the files agree with each other, and keep a list
   of the mapping still left to do. See :issue:`5289` and :pr:`5724`.
+* The FERC DBF field types we can't convert to SQL column types are now listed apart
+  from the ones we can, instead of being mixed in as placeholder strings. A field of an
+  unsupported type fails immediately with an error naming the type, field and table.
+  See :pr:`5734`.
 * Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
   instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
   ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the

@@ -1781,6 +1781,10 @@ def standardize_percentages_ratio(
             dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
                 frac_df.report_date.dt.year <= max(years_to_standardize)
             )
+        else:
+            raise AssertionError(
+                "Standardization requires a report_year or report_date column."
+            )
         frac_df.loc[dates, col] = frac_df.loc[dates, col] / 100
         if frac_df[col].max() > 1:
             raise AssertionError(
@@ -1979,13 +1983,13 @@ def get_asset_keys(
     Returns:
         A set of asset keys.
     """
-    asset_keys = set()
+    asset_keys: set[AssetKey] = set()
     for asset in assets:
         if isinstance(asset, AssetSpec):
             if not exclude_asset_specs:
-                asset_keys = asset_keys.union(asset.key)
+                asset_keys.add(asset.key)
         else:
-            asset_keys = asset_keys.union(asset.keys)
+            asset_keys.update(asset.keys)
     return asset_keys
 
 
