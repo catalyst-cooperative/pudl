@@ -25,9 +25,6 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-* :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
-  onward. The raw files were always in the archives, but our metadata marked them as
-  missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
 EIA-191
 ~~~~~~~
 
@@ -39,6 +36,13 @@ EIA-860M
 
 * Added :doc:`EIA-860m <data_sources/eia860>` data through September 2026. See
   PR :pr:`5732`.
+
+EIA-861
+~~~~~~~~
+
+* :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
+  onward. The raw files were always in the archives, but our metadata marked them as
+  missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
 
 EIA-923
 ~~~~~~~
