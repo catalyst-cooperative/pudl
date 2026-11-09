@@ -934,6 +934,20 @@ def test_resource_descriptor_schema_failures_w_geometry(
         dummy_pandera_schema_w_geometry.validate(data)
 
 
+def test_resource_sources_are_all_known_data_sources():
+    """Every source ID in the resource metadata must be a key in SOURCES.
+
+    Resource construction silently drops unknown source IDs, so a typo would
+    otherwise leave a resource without the source it was meant to cite.
+    """
+    unknown = {
+        name: sorted(set(resource.get("sources", [])) - set(SOURCES))
+        for name, resource in RESOURCE_METADATA.items()
+    }
+    unknown = {name: ids for name, ids in unknown.items() if ids}
+    assert not unknown, f"Resources cite sources not in SOURCES: {unknown}"
+
+
 def test_frictionless_data_package_non_empty():
     pudl_datapackage = PUDL_PACKAGE.to_frictionless()
     ferceqr_datapackage = FERCEQR_PACKAGE.to_frictionless()
