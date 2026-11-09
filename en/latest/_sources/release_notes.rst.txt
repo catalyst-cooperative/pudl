@@ -122,6 +122,12 @@ Bug Fixes & Data Cleaning
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
   (``non_utility_property_asset``) meant the transform never picked it up. See
   :issue:`5566` and :pr:`5729`.
+* Restored non-utility property (RUS Form 12 Section B, line 6) to
+  :ref:`core_rus12__yearly_balance_sheet_assets` and
+  :ref:`out_rus12__yearly_balance_sheet_assets`. As in RUS 7, a typo in the column map
+  (``non_utility_property_asset``) meant the transform never picked it up, and the
+  RUS 12 ``asset_type`` values are corrected to match. See :pr:`5737`, a follow-up to
+  :pr:`5729`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
