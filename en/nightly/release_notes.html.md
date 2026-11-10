@@ -101,6 +101,12 @@
   [out_rus7_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-assets). A typo in the column map
   (`non_utility_property_asset`) meant the transform never picked it up. See
   [#5566](https://github.com/catalyst-cooperative/pudl/issues/5566) and [#5729](https://github.com/catalyst-cooperative/pudl/pull/5729).
+* Restored non-utility property (RUS Form 12 Section B, line 6) to
+  [core_rus12_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#core-rus12-yearly-balance-sheet-assets) and
+  [out_rus12_\_yearly_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-rus12-yearly-balance-sheet-assets). As in RUS 7, a typo in the column map
+  (`non_utility_property_asset`) meant the transform never picked it up, and the
+  RUS 12 `asset_type` values are corrected to match. See [#5737](https://github.com/catalyst-cooperative/pudl/pull/5737), a follow-up to
+  [#5729](https://github.com/catalyst-cooperative/pudl/pull/5729).
 * Added `plant_function` values to a few factoids in
   [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). See [#5690](https://github.com/catalyst-cooperative/pudl/pull/5690).
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
