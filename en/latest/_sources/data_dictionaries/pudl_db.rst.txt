@@ -21802,9 +21802,9 @@ Columns
     - 
     - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
   * - supplier_code_rus
-    - string
+    - integer
     - 
-    - Unique numeric identifier for the utility supplying energy to a RUS borrower.
+    - Unique numeric identifier for the utility supplying energy to a RUS borrower. Codes below 600000 are EIA utility IDs (`utility_id_eia`). Codes of 600000 and above are RUS-specific and have no EIA counterpart, e.g. placeholders for adjustments, miscellaneous and renewable energy suppliers.
   * - utility_name_eia
     - string
     - 
@@ -53026,9 +53026,9 @@ Columns
     - 
     - Date reported.
   * - supplier_code_rus
-    - string
+    - integer
     - 
-    - Unique numeric identifier for the utility supplying energy to a RUS borrower.
+    - Unique numeric identifier for the utility supplying energy to a RUS borrower. Codes below 600000 are EIA utility IDs (`utility_id_eia`). Codes of 600000 and above are RUS-specific and have no EIA counterpart, e.g. placeholders for adjustments, miscellaneous and renewable energy suppliers.
   * - utility_name_eia
     - string
     - 

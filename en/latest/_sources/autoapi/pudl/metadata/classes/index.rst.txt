@@ -484,7 +484,7 @@ Module Contents
 
    >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
    >>> field.to_pandas_dtype()
-   CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+   CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
    >>> field.to_sql()
    Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
    >>> field = Field.from_id('utility_id_eia')
@@ -2358,16 +2358,11 @@ Module Contents
       when the Package is instantiated so it can be reused.
 
 
-   .. py:method:: encode(df: pandas.DataFrame, copy: bool = True) -> pandas.DataFrame
+   .. py:method:: encode(df: pandas.DataFrame) -> pandas.DataFrame
 
       Clean up all coded columns in a dataframe based on PUDL coding tables.
 
-      Running with ``copy=False`` is intended for memory-intensive data frames where no
-      upstream process retains a reference to the data. Use care with this option,
-      and keep an eye out for spooky data changes showing up in unexpected places.
-
       :param df: DataFrame whose code columns are being cleaned up.
-      :param copy: (Default True) Return a copy, making no changes to the original data.
 
       :returns: A dataframe with clean code columns.
 

@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.10.1.dev33 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.10.1.dev34 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=9df987d0"></script>
+    <script src="../../../_static/documentation_options.js?v=75dac660"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev33 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev33 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev34 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev34 documentation - Home"/>
   
   
 </a></div>
@@ -1392,7 +1392,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># filter out any columns that don't match the pattern</span>
     <span class="n">df_out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">idx_cols</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">pat</span><span class="p">)</span>
     <span class="c1"># check if there are unexpected columns being dropped</span>
-    <span class="n">dropped_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_out</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">kept_cols</span> <span class="o">=</span> <span class="p">{</span><span class="o">*</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">idx_cols</span> <span class="ow">or</span> <span class="p">[]),</span> <span class="o">*</span><span class="n">df_out</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
+    <span class="n">dropped_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kept_cols</span><span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dropping: </span><span class="si">{</span><span class="n">dropped_cols</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">expected_drop_cols</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dropped_cols</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
@@ -1408,7 +1409,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># pandas-stubs can't statically tell that stack() here returns a DataFrame</span>
     <span class="c1"># rather than a Series, so .loc[:, ...] looks like Series-style indexing.</span>
     <span class="n">df_out</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">stacked_column_name</span><span class="p">,</span> <span class="n">future_stack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore[bad-index]</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">stacked_column_name</span><span class="p">)</span>  <span class="c1"># type: ignore[bad-index]</span>
         <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">params</span><span class="o">.</span><span class="n">value_types</span><span class="p">]</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="p">)</span>
@@ -1705,7 +1706,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># now select only the rows which contain the categories we want to include in the</span>
     <span class="c1"># column that we care about. Copy bc this is a slice of the og dataframe.</span>
     <span class="n">category_mask</span> <span class="o">=</span> <span class="n">processed_dbf</span><span class="p">[</span><span class="n">params</span><span class="o">.</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">categories_to_select</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">processed_dbf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">category_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">processed_dbf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">category_mask</span><span class="p">]</span></div>
 
 
 
@@ -2827,9 +2828,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="c1"># return a df instead of a series</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">"is_not_close"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_not_close</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">groupby_cols</span><span class="p">(),</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">groupby_cols</span><span class="p">(),</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ErrorMetric._snake_case_metric_name">
@@ -2942,7 +2941,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">row_type_xbrl</span> <span class="o">==</span> <span class="s2">"calculated_value"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groupby_cols</span><span class="p">(),</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -3008,7 +3007,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">atol</span><span class="o">=</span><span class="n">is_close_tolerance</span><span class="o">.</span><span class="n">isclose_atol</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">&amp;</span> <span class="n">calculated_df</span><span class="p">[</span><span class="s2">"abs_diff"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="p">]</span>
     <span class="c1"># fill in the nulls with zeros so we get a correction for records</span>
     <span class="n">corrections</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrections</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">-</span> <span class="n">corrections</span><span class="p">[</span>
         <span class="s2">"calculated_value"</span>
@@ -3195,6 +3194,50 @@ window.runMermaid = runMermaid;</script>
         <span class="sa">f</span><span class="s2">" we have </span><span class="si">{</span><span class="n">len_out</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">len_og</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of the original table."</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="sort_xbrl_rows_by_order_number">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.sort_xbrl_rows_by_order_number">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sort_xbrl_rows_by_order_number</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Put the rows of each XBRL filing in the order the utility reported them.</span>
+
+<span class="sd">    The XBRL extractor does not preserve the order of the rows in a filing, e.g. the</span>
+<span class="sd">    rows of the small plants table come out alphabetized by plant name. Some tables</span>
+<span class="sd">    identify header, note and total rows, and the rows that belong together, by their</span>
+<span class="sd">    position, so they need the order recorded in the ``order_number`` column. The total</span>
+<span class="sd">    row of a filing goes last, because its ``order_number`` can repeat that of the first</span>
+<span class="sd">    row, which would put it between a header and the plants below it. Rows with the same</span>
+<span class="sd">    ``order_number`` keep their relative order, and rows without one go last, in their</span>
+<span class="sd">    original order.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: XBRL data with ``utility_id_ferc1_xbrl``, ``report_year``, ``order_number``</span>
+<span class="sd">            and ``generating_plant_statistics`` columns.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The rows sorted by utility, year, total row and ``order_number``, with a new</span>
+<span class="sd">        index.</span>
+<span class="sd">    """</span>
+    <span class="c1"># A nullable boolean series indicating which rows are the total row of a filing.</span>
+    <span class="n">is_total</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"generating_plant_statistics"</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"grand total"</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">_is_total</span><span class="o">=</span><span class="n">is_total</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+            <span class="c1"># Sorting by _is_total puts the total row last, because False &lt; True.</span>
+            <span class="c1"># Put NA values last so rows w/o an order_number sort to the bottom.</span>
+            <span class="p">[</span><span class="s2">"utility_id_ferc1_xbrl"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">,</span> <span class="s2">"_is_total"</span><span class="p">,</span> <span class="s2">"order_number"</span><span class="p">],</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">"stable"</span><span class="p">,</span>
+            <span class="n">na_position</span><span class="o">=</span><span class="s2">"last"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"_is_total"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span></div>
 
 
 
@@ -4021,8 +4064,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            xbrl_metadata_converted: Dataframe of relatively unprocessed metadata.</span>
 <span class="sd">                Result of :meth:`convert_xbrl_metadata_json_to_df`.</span>
 <span class="sd">        """</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">xbrl_metadata_converted</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">"calculations"</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">calculations</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">xbrl_metadata_converted</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Convert the calculations JSON column to type object. On pandas 3, calculations</span>
+        <span class="c1"># is a pyarrow-backed string column and left that way apply would infer an Arrow</span>
+        <span class="c1"># list dtype from the parsed JSON. However, When every calculation list is empty</span>
+        <span class="c1"># that dtype is list&lt;null&gt;, which explode() can't handle.</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"calculations"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"calculations"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="c1"># reset the index post calc explosion so we can merge on index later</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">"calculations"</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">calculations</span><span class="o">.</span><span class="n">isnull</span><span class="p">()):</span>
@@ -4314,7 +4363,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="s2">"report_prd"</span> <span class="ow">in</span> <span class="n">df</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_prd</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">!=</span> <span class="p">[</span><span class="mi">12</span><span class="p">]:</span>
             <span class="n">len_og</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">report_prd</span> <span class="o">==</span> <span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">report_prd</span> <span class="o">==</span> <span class="mi">12</span><span class="p">]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: After selection of only annual records,"</span>
                 <span class="sa">f</span><span class="s2">" we have </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">len_og</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of the original table."</span>
@@ -4537,6 +4586,8 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">],</span>
                     <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">,</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+                <span class="c1"># Consolidate the per-column blocks left by concat(axis="columns").</span>
+                <span class="n">out_df</span> <span class="o">=</span> <span class="n">out_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">out_df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">Ferc1DataConfig</span><span class="p">()</span><span class="o">.</span><span class="n">xbrl_years</span><span class="p">)]</span></div>
 
@@ -4948,7 +4999,9 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">date_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attestation_date"</span><span class="p">,</span> <span class="s2">"filing_date"</span><span class="p">,</span> <span class="s2">"name_change_date"</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">date_cols</span><span class="p">:</span>
-            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">null_dates_outside_ns_bounds</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="n">to_null</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">""</span><span class="p">,</span>
@@ -5209,7 +5262,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        https://world-nuclear.org/information-library/facts-and-figures/heat-values-of-various-fuels.aspx</span>
 <span class="sd">        """</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">FuelFix</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"FuelFix"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"fuel"</span><span class="p">,</span> <span class="s2">"from_unit"</span><span class="p">,</span> <span class="s2">"to_unit"</span><span class="p">,</span> <span class="s2">"mult"</span><span class="p">])</span>
         <span class="n">fuel_fixes</span> <span class="o">=</span> <span class="p">[</span>
@@ -5287,8 +5340,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">dupe_mask</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">pk_cols</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">multi_unit_mask</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="o">.</span><span class="n">fuel_units_count</span> <span class="o">!=</span> <span class="mi">1</span>
 
-        <span class="n">fuel_pk_dupes</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="p">[</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">multi_unit_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">fuel_multi_unit</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="p">[</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="n">multi_unit_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">fuel_pk_dupes</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="p">[</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">multi_unit_mask</span><span class="p">]</span>
+        <span class="n">fuel_multi_unit</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="p">[</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="n">multi_unit_mask</span><span class="p">]</span>
         <span class="n">fuel_non_dupes</span> <span class="o">=</span> <span class="n">fuel_xbrl</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">multi_unit_mask</span><span class="p">]</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -5461,7 +5514,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Dropping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dropping</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicate record with null data in </span><span class="si">{</span><span class="n">null_columns</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="n">null_masks</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="n">null_masks</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">df</span></div>
 </div>
 
@@ -5770,6 +5823,25 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">df</span></div>
+
+
+    <span class="nd">@cache_df</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"xbrl"</span><span class="p">)</span>
+<div class="viewcode-block" id="SmallPlantsTableTransformer.process_xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.SmallPlantsTableTransformer.process_xbrl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_xbrl</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_xbrl_instant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">raw_xbrl_duration</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Process the XBRL data, then restore the order of the rows in each filing.</span>
+
+<span class="sd">        The header, note and total rows, and the multi-row plant records, of this table</span>
+<span class="sd">        are identified by their position in the filing. See</span>
+<span class="sd">        :func:`sort_xbrl_rows_by_order_number`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">sort_xbrl_rows_by_order_number</span><span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process_xbrl</span><span class="p">(</span><span class="n">raw_xbrl_instant</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SmallPlantsTableTransformer.remove_messy_plant_name_duplicates">
@@ -6208,7 +6280,12 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">util_groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"utility_id_ferc1"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">util_groups</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_note_rows_group</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
+        <span class="c1"># As of pandas 3 groupby(...).apply() no longer includes the grouping</span>
+        <span class="c1"># columns in the result, only as index levels. Restore them as columns so</span>
+        <span class="c1"># downstream code can continue to group by utility_id_ferc1/report_year.</span>
+        <span class="k">return</span> <span class="n">util_groups</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_note_rows_group</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_ferc1"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">]</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SmallPlantsTableTransformer._label_total_rows">
@@ -6669,7 +6746,12 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="c1"># Group by year and utility and run footnote association</span>
         <span class="n">groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"report_year"</span><span class="p">,</span> <span class="s2">"utility_id_ferc1"</span><span class="p">])</span>
-        <span class="n">sg_notes</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">associate_notes_with_values_group</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="c1"># As of pandas 3 groupby(...).apply() no longer includes the grouping</span>
+        <span class="c1"># columns in the result, only as index levels. Restore them as columns so</span>
+        <span class="c1"># downstream code can continue to use report_year/utility_id_ferc1.</span>
+        <span class="n">sg_notes</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">associate_notes_with_values_group</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">,</span> <span class="s2">"utility_id_ferc1"</span><span class="p">])</span>
         <span class="c1"># Remove footnote column now that rows are associated</span>
         <span class="n">sg_notes</span> <span class="o">=</span> <span class="n">sg_notes</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"footnote"</span><span class="p">])</span>
 
@@ -6713,10 +6795,14 @@ window.runMermaid = runMermaid;</script>
             <span class="n">df</span><span class="p">[</span><span class="s2">"plant_name_ferc1"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"intrepid wind farm (107 units @ 1.5 mw each)"</span>
         <span class="p">)</span>
 
-        <span class="c1"># Replace row missing information with data from row containing information</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">row_missing_info</span><span class="p">,</span> <span class="n">cols_to_change</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">row_with_info</span><span class="p">][</span>
-            <span class="n">cols_to_change</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="c1"># Replace row missing information with data from row containing information.</span>
+        <span class="c1"># Only do this when both rows exist: when the 2004 data isn't being processed</span>
+        <span class="c1"># (e.g. the fast ETL) both masks are empty, and pandas 3 raises a TypeError</span>
+        <span class="c1"># when assigning an empty object array into an int64 column.</span>
+        <span class="k">if</span> <span class="n">row_with_info</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">and</span> <span class="n">row_missing_info</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">row_missing_info</span><span class="p">,</span> <span class="n">cols_to_change</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">row_with_info</span><span class="p">][</span>
+                <span class="n">cols_to_change</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
         <span class="c1"># Remove row_with_info so there is no duplicate information</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">row_with_info</span><span class="p">]</span>
@@ -7133,10 +7219,8 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"long_term_portion_of_derivative_instrument_liabilities"</span><span class="p">,</span>
             <span class="s2">"long_term_portion_of_derivative_instrument_liabilities_hedges"</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="n">new_data</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)]</span>
-            <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">liability_type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">liability_type</span><span class="p">)</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">liability_type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">liability_type</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">new_data</span><span class="p">])</span></div>
@@ -7162,14 +7246,12 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"long_term_portion_of_derivative_instrument_liabilities"</span><span class="p">,</span>
             <span class="s2">"long_term_portion_of_derivative_instrument_liabilities_hedges"</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="n">duplicated_facts</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">tbl_meta</span><span class="p">[</span><span class="n">tbl_meta</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)]</span>
-            <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">xbrl_factoid</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="p">,</span>
-                <span class="n">xbrl_factoid_original</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid_original</span><span class="p">,</span>
-                <span class="n">balance</span><span class="o">=</span><span class="s2">"credit"</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">duplicated_facts</span> <span class="o">=</span> <span class="n">tbl_meta</span><span class="p">[</span>
+            <span class="n">tbl_meta</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">xbrl_factoid</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="p">,</span>
+            <span class="n">xbrl_factoid_original</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid_original</span><span class="p">,</span>
+            <span class="n">balance</span><span class="o">=</span><span class="s2">"credit"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">facts_to_add</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
@@ -7226,10 +7308,8 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"derivative_instrument_assets_long_term"</span><span class="p">,</span>
             <span class="s2">"derivative_instrument_assets_hedges_long_term"</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="n">new_data</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)]</span>
-            <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">asset_type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">asset_type</span><span class="p">)</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">asset_type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">asset_type</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">new_data</span><span class="p">])</span></div>
 
@@ -7256,14 +7336,12 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"derivative_instrument_assets_long_term"</span><span class="p">,</span>
             <span class="s2">"derivative_instrument_assets_hedges_long_term"</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="n">duplicated_facts</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">tbl_meta</span><span class="p">[</span><span class="n">tbl_meta</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)]</span>
-            <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">xbrl_factoid</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="p">,</span>
-                <span class="n">xbrl_factoid_original</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid_original</span><span class="p">,</span>
-                <span class="n">balance</span><span class="o">=</span><span class="s2">"credit"</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">duplicated_facts</span> <span class="o">=</span> <span class="n">tbl_meta</span><span class="p">[</span>
+            <span class="n">tbl_meta</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">facts_to_duplicate</span><span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">xbrl_factoid</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid</span><span class="p">,</span>
+            <span class="n">xbrl_factoid_original</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"less_"</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">xbrl_factoid_original</span><span class="p">,</span>
+            <span class="n">balance</span><span class="o">=</span><span class="s2">"credit"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">facts_to_add</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
@@ -7353,7 +7431,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">raw_dbf</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="mi">2003</span><span class="p">)</span>
                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">raw_dbf</span><span class="o">.</span><span class="n">row_number</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">known_bad_income2_rows</span><span class="p">))</span>
             <span class="p">)</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Dropped </span><span class="si">{</span><span class="n">len_og</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">raw_dbf</span><span class="p">)</span><span class="si">}</span><span class="s2"> records (</span><span class="si">{</span><span class="p">(</span><span class="n">len_og</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">raw_dbf</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">len_og</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of"</span>
             <span class="s2">"total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "</span>
@@ -8388,7 +8466,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">&amp;</span> <span class="p">((</span><span class="n">df</span><span class="o">.</span><span class="n">dollar_value</span> <span class="o">==</span> <span class="mf">3.33e8</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">dollar_value</span> <span class="o">==</span> <span class="mf">3.333e9</span><span class="p">))</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span><span class="p">]</span></div>
 </div>
 
 
@@ -8454,7 +8532,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">len_dupes</span> <span class="o">:=</span> <span class="n">dupe_mask</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="kc">True</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected to find 1 duplicate record. Found </span><span class="si">{</span><span class="n">len_dupes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span><span class="p">]</span></div>
 
 
     <span class="nd">@cache_df</span><span class="p">(</span><span class="s2">"main"</span><span class="p">)</span>
@@ -9370,7 +9448,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            the parental dimensions or the child dimensions.</span>
 <span class="sd">    """</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Adding </span><span class="si">{</span><span class="n">dimensions</span><span class="si">=}</span><span class="s2"> into calculation component table."</span><span class="p">)</span>
-    <span class="n">df_w_dims</span> <span class="o">=</span> <span class="n">df_w_xbrl_factoid</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df_w_dims</span> <span class="o">=</span> <span class="n">df_w_xbrl_factoid</span>
 
     <span class="n">on_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"xbrl_factoid"</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">parent</span><span class="p">:</span>

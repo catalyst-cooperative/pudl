@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev33 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.10.1.dev34 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=9df987d0"></script>
+    <script src="../../_static/documentation_options.js?v=75dac660"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev33 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev33 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.1.dev34 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.1.dev34 documentation - Home"/>
   
   
 </a></div>
@@ -947,6 +947,40 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="UNICODE_WHITESPACE_REGEX">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.UNICODE_WHITESPACE_REGEX">[docs]</a>
+<span class="n">UNICODE_WHITESPACE_REGEX</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"[</span><span class="se">\\</span><span class="s2">s</span><span class="se">\u00a0\u1680\u2000</span><span class="s2">-</span><span class="se">\u200a\u2028\u2029\u202f\u205f\u3000\x85</span><span class="s2">]+"</span>
+<span class="p">)</span></div>
+
+<span class="sd">"""Regex matching a run of ASCII or Unicode whitespace characters.</span>
+
+<span class="sd">Python's :mod:`re` matches Unicode whitespace like the non-breaking space with ``\\s``,</span>
+<span class="sd">but the RE2 engine that pyarrow uses for pandas' default ``str`` dtype only matches</span>
+<span class="sd">ASCII whitespace. Listing the characters explicitly gives the same result for ``object``,</span>
+<span class="sd">``string`` and ``str`` columns.</span>
+<span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="null_dates_outside_ns_bounds">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.null_dates_outside_ns_bounds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">null_dates_outside_ns_bounds</span><span class="p">(</span><span class="n">dates</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Set datetimes that can't be represented with nanosecond resolution to ``NaT``.</span>
+
+<span class="sd">    Pandas 2 always parsed datetimes at nanosecond resolution, so implausible dates</span>
+<span class="sd">    outside of 1677-09-21 to 2262-04-11 (typically typos like the year ``0006``)</span>
+<span class="sd">    overflowed and were coerced to ``NaT``. Pandas 3 infers a coarser resolution</span>
+<span class="sd">    and keeps them. This preserves the original behavior.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dates: A datetime Series, e.g. from ``pd.to_datetime(..., errors="coerce")``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Series with out-of-bounds datetimes replaced by ``NaT``.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">dates</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dates</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="o">.</span><span class="n">max</span><span class="p">))</span></div>
+
+
 
 <div class="viewcode-block" id="run_git">
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.run_git">[docs]</a>
@@ -1083,7 +1117,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_frame</span><span class="p">(</span>
         <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="n">match_names</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">unstack_level</span><span class="p">,</span> <span class="n">future_stack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">unstack_level</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="c1"># remove the remaining multi-index</span>
     <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"all"</span><span class="p">)</span>
@@ -1369,12 +1403,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        state_col: state column name - default is state.</span>
 <span class="sd">        county_col: state column name - default is county.</span>
 <span class="sd">    """</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="c1"># Condense multiple whitespace chars.</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">UNICODE_WHITESPACE_REGEX</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^St "</span><span class="p">,</span> <span class="s2">"St. "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Standardize abbreviation.</span>
         <span class="c1"># Standardize abbreviation.</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^Ste "</span><span class="p">,</span> <span class="s2">"Ste. "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1401,7 +1435,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">fixes</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
         <span class="n">state_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">fix</span><span class="o">.</span><span class="n">state</span>
         <span class="n">county_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">county_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">fix</span><span class="o">.</span><span class="n">eia_county</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">state_mask</span> <span class="o">&amp;</span> <span class="n">county_mask</span><span class="p">,</span> <span class="n">county_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">fips_county</span>
+        <span class="c1"># itertuples() attributes are typed as the union of all scalar types.</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">state_mask</span> <span class="o">&amp;</span> <span class="n">county_mask</span><span class="p">,</span> <span class="n">county_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">fips_county</span>  <span class="c1"># type: ignore[unsupported-operation]</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1427,7 +1462,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        The altered DataFrame.</span>
 <span class="sd">    """</span>
-    <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
         <span class="c1"># Force column to be numeric if possible, NaN otherwise:</span>
         <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out_df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
@@ -1682,7 +1717,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">separate_date_cols</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col_name</span><span class="p">,</span> <span class="n">date_on</span><span class="p">):</span>
-        <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">date_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">out_df</span><span class="p">[</span><span class="n">date_col_name</span><span class="p">])</span>
         <span class="k">if</span> <span class="s2">"year_temp_for_merge"</span> <span class="ow">in</span> <span class="n">date_on</span><span class="p">:</span>
             <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"year_temp_for_merge"</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_df</span><span class="p">[</span><span class="n">date_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
@@ -1798,7 +1833,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">end_dates</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()])</span>
         <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">date_col</span><span class="p">)</span>
         <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">key_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
         <span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="p">)</span>
@@ -1838,9 +1873,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="simplify_strings">
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.simplify_strings">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">simplify_strings</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simplify_strings</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Simplify the strings contained in a set of dataframe columns.</span>
 
 <span class="sd">    Performs several operations to simplify strings for comparison and parsing purposes.</span>
@@ -1850,19 +1883,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Leaves null values unaltered. Casts other values with astype(str).</span>
 
-<span class="sd">    Running with ``copy=False`` is intended for memory-intensive data frames where no</span>
-<span class="sd">    upstream process retains a reference to the data. Use care with this option,</span>
-<span class="sd">    and keep an eye out for spooky data changes showing up in unexpected places.</span>
-
 <span class="sd">    Args:</span>
 <span class="sd">        df: DataFrame whose columns are being cleaned up.</span>
 <span class="sd">        columns: The labels of the string columns to be simplified.</span>
-<span class="sd">        copy: (Default True) Return a copy, making no changes to the original data.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The whole DataFrame that was passed in, with the string columns cleaned up.</span>
 <span class="sd">    """</span>
-    <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="n">df</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">out_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">out_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
@@ -1873,7 +1901,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[\x00-\x1f\x7f-\x9f]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                     <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">UNICODE_WHITESPACE_REGEX</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="p">)</span>
     <span class="k">return</span> <span class="n">out_df</span></div>
 
@@ -1909,7 +1937,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">simplify</span><span class="p">:</span>
         <span class="n">col</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">UNICODE_WHITESPACE_REGEX</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">str_map</span><span class="p">:</span>
             <span class="n">str_map</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">str_map</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
@@ -1926,7 +1957,8 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># leftover strings to fix -- otherwise it runs forever because we</span>
         <span class="c1"># are replacing nothing with nothing.</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">badstrings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">badstrings</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">unmapped</span><span class="p">)</span>
+            <span class="c1"># pandas-stubs' Series.replace() does not accept pd.NA as the new value.</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">badstrings</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">unmapped</span><span class="p">)</span>  <span class="c1"># type: ignore[no-matching-overload]</span>
 
     <span class="k">return</span> <span class="n">col</span></div>
 
@@ -1972,7 +2004,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        The function returns a new DataFrame containing the cleaned strings.</span>
 <span class="sd">    """</span>
-    <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">str_map</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">stringmaps</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">out_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleanstrings_series</span><span class="p">(</span>
             <span class="n">out_df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">str_map</span><span class="p">,</span> <span class="n">unmapped</span><span class="o">=</span><span class="n">unmapped</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="n">simplify</span>
@@ -2056,53 +2088,33 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        A DataFrame in which the year/month fields have been converted into Date fields.</span>
 <span class="sd">    """</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">month_regex</span> <span class="o">=</span> <span class="s2">"_month$"</span>
-    <span class="n">year_regex</span> <span class="o">=</span> <span class="s2">"_year$"</span>
-    <span class="c1"># Columns that match our month or year patterns.</span>
-    <span class="n">month_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">month_regex</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-    <span class="n">year_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">year_regex</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="c1"># Base names (the part before _month/_year) of columns that have BOTH a month and</span>
+    <span class="c1"># a year -- otherwise there's no point in creating a Date.</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">months_base</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">cols</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_month"</span><span class="p">)]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_month"</span><span class="p">)</span>
+    <span class="n">years_base</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="n">cols</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_year"</span><span class="p">)]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_year"</span><span class="p">))</span>
+    <span class="n">date_bases</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">months_base</span> <span class="k">if</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">years_base</span><span class="p">]</span>
 
-    <span class="c1"># Base column names that don't include the month or year pattern</span>
-    <span class="n">months_base</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">month_regex</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">month_cols</span><span class="p">]</span>
-    <span class="n">years_base</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">year_regex</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">year_cols</span><span class="p">]</span>
-
-    <span class="c1"># We only want to retain columns that have BOTH month and year</span>
-    <span class="c1"># matches -- otherwise there's no point in creating a Date.</span>
-    <span class="n">date_base</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">months_base</span> <span class="k">if</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">years_base</span><span class="p">]</span>
-
-    <span class="c1"># For each base column that DOES have both a month and year,</span>
-    <span class="c1"># We need to grab the real column names corresponding to each,</span>
-    <span class="c1"># so we can access the values in the data frame, and use them</span>
-    <span class="c1"># to create a corresponding Date column named [BASE]_date</span>
-    <span class="n">month_year_date</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">date_base</span><span class="p">:</span>
-        <span class="n">base_month_regex</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"^</span><span class="si">{</span><span class="n">base</span><span class="si">}{</span><span class="n">month_regex</span><span class="si">}</span><span class="s2">"</span>
-        <span class="n">month_col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">base_month_regex</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">month_col</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span>
-        <span class="n">month_col</span> <span class="o">=</span> <span class="n">month_col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">base_year_regex</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"^</span><span class="si">{</span><span class="n">base</span><span class="si">}{</span><span class="n">year_regex</span><span class="si">}</span><span class="s2">"</span>
-        <span class="n">year_col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">base_year_regex</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">year_col</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span>
-        <span class="n">year_col</span> <span class="o">=</span> <span class="n">year_col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">date_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_date"</span>
-        <span class="n">month_year_date</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">month_col</span><span class="p">,</span> <span class="n">year_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">))</span>
-
-    <span class="k">for</span> <span class="n">month_col</span><span class="p">,</span> <span class="n">year_col</span><span class="p">,</span> <span class="n">date_col</span> <span class="ow">in</span> <span class="n">month_year_date</span><span class="p">:</span>
-        <span class="n">date_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">year_col</span><span class="p">,</span> <span class="n">month_col</span><span class="p">]]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span>
-        <span class="n">years</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">date_mask</span><span class="p">,</span> <span class="n">year_col</span><span class="p">]</span>
-        <span class="n">months</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">date_mask</span><span class="p">,</span> <span class="n">month_col</span><span class="p">]</span>
-
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">date_mask</span><span class="p">,</span> <span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">"year"</span><span class="p">:</span> <span class="n">years</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">:</span> <span class="n">months</span><span class="p">,</span> <span class="s2">"day"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span>
+    <span class="c1"># Casting to float64 turns NA in nullable integer columns into NaN, which</span>
+    <span class="c1"># to_datetime(errors="coerce") turns into NaT. (With NA present, to_datetime</span>
+    <span class="c1"># raises on nullable integers.)</span>
+    <span class="n">new_dates</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_date"</span><span class="p">:</span> <span class="n">null_dates_outside_ns_bounds</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"year"</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_year"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">),</span>
+                    <span class="s2">"month"</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_month"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float64"</span><span class="p">),</span>
+                    <span class="s2">"day"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">date_bases</span>
+    <span class="p">}</span>
 
-        <span class="c1"># Now that we've replaced these fields with a date, we drop them.</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">month_col</span><span class="p">,</span> <span class="n">year_col</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">df</span></div>
+    <span class="c1"># Replace the month/year fields with the new date fields.</span>
+    <span class="n">old_cols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">date_bases</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"month"</span><span class="p">,</span> <span class="s2">"year"</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">old_cols</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="n">new_dates</span><span class="p">)</span></div>
 
 
 
@@ -2116,7 +2128,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">day_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"report_day"</span><span class="p">,</span>
     <span class="n">month_na_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">day_na_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Convert specified year, month or day columns into a datetime object.</span>
 
@@ -2124,10 +2135,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    conversion is applied, and the original dataframe is returned unchanged.</span>
 <span class="sd">    Otherwise the constructed date is placed in that column, and the columns</span>
 <span class="sd">    which were used to create the date are dropped.</span>
-
-<span class="sd">    Running with ``copy=False`` is intended for memory-intensive data frames where no</span>
-<span class="sd">    upstream process retains a reference to the data. Use care with this option,</span>
-<span class="sd">    and keep an eye out for spooky data changes showing up in unexpected places.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df: dataframe to convert</span>
@@ -2138,14 +2145,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        month_na_value: generated month if no month exists or if the month</span>
 <span class="sd">            value is NA.</span>
 <span class="sd">        day_na_value: generated day if no day exists or if the day value is NA.</span>
-<span class="sd">        copy: (default True) return a copy, making no changes to the original data.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A DataFrame in which the year, month, day columns values have been converted</span>
 <span class="sd">        into datetime objects.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">date_col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">df</span>
 
@@ -2159,12 +2164,14 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">day</span> <span class="o">=</span> <span class="n">day_na_value</span> <span class="k">if</span> <span class="n">day_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">day_col</span><span class="p">]</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">({</span><span class="s2">"year"</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">:</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"day"</span><span class="p">:</span> <span class="n">day</span><span class="p">})</span>
+    <span class="n">dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">({</span><span class="s2">"year"</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">:</span> <span class="n">month</span><span class="p">,</span> <span class="s2">"day"</span><span class="p">:</span> <span class="n">day</span><span class="p">})</span>
     <span class="n">cols_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">day_col</span><span class="p">,</span> <span class="n">year_col</span><span class="p">,</span> <span class="n">month_col</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa: PD002</span>
+    <span class="c1"># In pandas 3 drop() leaves one block per column, so consolidate with a deep copy</span>
+    <span class="c1"># before inserting the date column to avoid a PerformanceWarning on the insert</span>
+    <span class="c1"># (and on later inserts into the returned frame).</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">dates</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -2260,7 +2267,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^0-9a-zA-Z]+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">UNICODE_WHITESPACE_REGEX</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -2572,7 +2579,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">())</span>
             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">UNICODE_WHITESPACE_REGEX</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -2615,7 +2622,8 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Remove any whitespace</span>
         <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># Replace anything that's not entirely digits with NA</span>
-        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^\d]+"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># pandas-stubs' Series.replace() does not accept pd.NA as the new value.</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^\d]+"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore[no-matching-overload]</span>
         <span class="c1"># Set any string longer than n_digits to NA</span>
         <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="se">\\</span><span class="s2">d]</span><span class="se">{{</span><span class="si">{</span><span class="n">n_digits</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">,</span><span class="se">}}</span><span class="s2">"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># Pad the numeric string with leading zeroes to n_digits length</span>
@@ -3091,9 +3099,9 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Set values as true or value. Astype boolean should preserve NA values.</span>
     <span class="c1"># This is easier than building an input dictionary for pandas map or replace</span>
     <span class="c1"># functions.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="c1"># Build the boolean column as a whole rather than assigning True/False into the</span>
-    <span class="c1"># existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.</span>
+    <span class="c1"># existing (possibly string) column, which pandas 3 rejects as a lossy setitem.</span>
     <span class="n">bool_col</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"boolean"</span><span class="p">)</span>
     <span class="n">bool_col</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">true_values</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">bool_col</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">false_values</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">False</span>
@@ -3265,13 +3273,13 @@ window.runMermaid = runMermaid;</script>
     <span class="n">gens</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="n">gens</span><span class="p">,</span>
-            <span class="n">gens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fraction_owned</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ownership_record_type</span><span class="o">=</span><span class="s2">"total"</span><span class="p">),</span>
+            <span class="n">gens</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fraction_owned</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ownership_record_type</span><span class="o">=</span><span class="s2">"total"</span><span class="p">),</span>
         <span class="p">]</span>
     <span class="p">)</span>
     <span class="c1"># Scaling by a fractional ownership share is inherently fractional, so the scaled</span>
     <span class="c1"># columns are always float64. We deliberately assign with ``gens[scale_cols] =``</span>
     <span class="c1"># rather than ``gens.loc[:, scale_cols] =``: ``.loc`` writes into the existing</span>
-    <span class="c1"># columns in place and so keeps their dtype, and pandas 3.0 raises when that would</span>
+    <span class="c1"># columns in place and so keeps their dtype, and pandas 3 raises when that would</span>
     <span class="c1"># put float results into an integer column. Plain ``[]`` assignment replaces the</span>
     <span class="c1"># columns wholesale, letting their dtype change. The explicit cast before the</span>
     <span class="c1"># multiply makes the output dtype independent of the input dtype.</span>

@@ -99,6 +99,7 @@ transformations.
 | [`check_calculation_metrics`](#pudl.transform.ferc1.check_calculation_metrics)(calculated_df, ...) → pandas.DataFrame                       | Run the calculation metrics and determine if calculations are within tolerance.                                                     |
 | [`add_corrections`](#pudl.transform.ferc1.add_corrections)(calculated_df, value_col, ...) → pandas.DataFrame                      | Add corrections to discrepancies between reported & calculated values.                                                              |
 | [`select_current_year_annual_records_duration_xbrl`](#pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl)(df, ...)                              | Select for annual records within their report_year.                                                                                 |
+| [`sort_xbrl_rows_by_order_number`](#pudl.transform.ferc1.sort_xbrl_rows_by_order_number)(df) → pandas.DataFrame                                  | Put the rows of each XBRL filing in the order the utility reported them.                                                            |
 | [`get_ferc1_dbf_rows_to_map`](#pudl.transform.ferc1.get_ferc1_dbf_rows_to_map)(ferc1_engine) → pandas.DataFrame                             | Identify DBF rows that need to be mapped to XBRL columns.                                                                           |
 | [`update_dbf_to_xbrl_map`](#pudl.transform.ferc1.update_dbf_to_xbrl_map)(ferc1_engine) → pandas.DataFrame                                | Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.                                                              |
 | [`read_dbf_to_xbrl_map`](#pudl.transform.ferc1.read_dbf_to_xbrl_map)(dbf_table_names) → pandas.DataFrame                               | Read the manually compiled DBF row to XBRL column mapping for a given table.                                                        |
@@ -1026,6 +1027,26 @@ Select for annual records within their report_year.
 Select only records that have a start_date at beginning of the report_year and
 have an end_date at the end of the report_year.
 
+### pudl.transform.ferc1.sort_xbrl_rows_by_order_number(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Put the rows of each XBRL filing in the order the utility reported them.
+
+The XBRL extractor does not preserve the order of the rows in a filing, e.g. the
+rows of the small plants table come out alphabetized by plant name. Some tables
+identify header, note and total rows, and the rows that belong together, by their
+position, so they need the order recorded in the `order_number` column. The total
+row of a filing goes last, because its `order_number` can repeat that of the first
+row, which would put it between a header and the plants below it. Rows with the same
+`order_number` keep their relative order, and rows without one go last, in their
+original order.
+
+* **Parameters:**
+  **df** – XBRL data with `utility_id_ferc1_xbrl`, `report_year`, `order_number`
+  and `generating_plant_statistics` columns.
+* **Returns:**
+  The rows sorted by utility, year, total row and `order_number`, with a new
+  index.
+
 ### pudl.transform.ferc1.get_ferc1_dbf_rows_to_map(ferc1_engine: sqlalchemy.Engine) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Identify DBF rows that need to be mapped to XBRL columns.
@@ -1872,6 +1893,14 @@ Params:
 * **Returns:**
   A single transformed table concatenating multiple years of cleaned data
   derived from the raw DBF and/or XBRL inputs.
+
+#### process_xbrl(raw_xbrl_instant: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Process the XBRL data, then restore the order of the rows in each filing.
+
+The header, note and total rows, and the multi-row plant records, of this table
+are identified by their position in the filing. See
+[`sort_xbrl_rows_by_order_number()`](#pudl.transform.ferc1.sort_xbrl_rows_by_order_number).
 
 #### remove_messy_plant_name_duplicates(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
