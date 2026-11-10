@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.10.1.dev34 documentation
+> PUDL 2026.10.1.dev35 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -284,4 +284,4 @@
 - [Managing External Contributions](dev/managing_external_contributions.html.md): Looking to contribute to PUDL? The guidelines for external contributors can be found at
 - [Contributing to PUDL](CONTRIBUTING.html.md): Welcome! We’re excited that you’re interested in contributing to the Public Utility
 - [Catalyst Cooperative Code of Conduct](code_of_conduct.html.md): In the interest of fostering an open and welcoming environment, we as
-- [PUDL Release Notes](release_notes.html.md): &#42; Standardized how distributed &#96;datapackage.json&#96; descriptors are produced. FERC EQR
+- [PUDL Release Notes](release_notes.html.md): This is a regular quarterly PUDL release, with updates to

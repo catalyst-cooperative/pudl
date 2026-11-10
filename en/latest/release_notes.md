@@ -2,7 +2,19 @@
 
 <a id="release-v2026-11-0"></a>
 
-## v2026.11.0 (2026-11-XX)
+## v2026.11.0 (2026-11-10)
+
+This is a regular quarterly PUDL release, with updates to
+EIA-860m, EIA-923, EIA-930, EPA CEMS, EPA MATS, and the EIA Bulk API data,
+plus a ton of other incidental updates.
+
+This release upgrades PUDL dependencies to Pandas 3, DuckDB 2, Polars 2, and Splink 5.
+The upgrade to Pandas 3 came with some bonus bugfixes.
+
+We’ve also got better data validation tests for FERC EQR and RUS,
+and a pile of bug fixes in RUS, EIA-861, EIA-176, and the EIA-860m changelog.
+
+See below for details.
 
 ### Enhancements
 
@@ -13,8 +25,6 @@
   and `hash` entries. Each quarterly FERC EQR archive is now verified against the md5
   checksum in its Zenodo metadata, and downloading archives from remote storage
   requires setting `PUDL_FERCEQR_ALLOW_DOWNLOADS`. See [#5279](https://github.com/catalyst-cooperative/pudl/issues/5279) and [#5693](https://github.com/catalyst-cooperative/pudl/pull/5693).
-
-### New Data
 
 ### Expanded Data Coverage
 
@@ -69,8 +79,6 @@
 
 * Updated the raw [PHMSA](data_sources/phmsagas.md) archive with revised records.
   Coverage still ends with 2025. See issue [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
-
-### Documentation
 
 ### New Data Tests & Validations
 
@@ -154,8 +162,6 @@
   It also removes empty `valid_until_date` intervals, and ensures every series ends
   on the same date – one month past the entity’s final report date. See [#5730](https://github.com/catalyst-cooperative/pudl/issues/5730)
   and [#5731](https://github.com/catalyst-cooperative/pudl/pull/5731).
-
-### Performance Improvements
 
 ### Developer Experience
 
