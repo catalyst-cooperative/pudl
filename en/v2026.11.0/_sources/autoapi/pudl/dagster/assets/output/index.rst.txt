@@ -1,0 +1,20 @@
+pudl.dagster.assets.output
+==========================
+
+.. py:module:: pudl.dagster.assets.output
+
+.. autoapi-nested-parse::
+
+   Output Dagster asset-definition modules for PUDL.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/dagster/assets/output/databases/index
+
+

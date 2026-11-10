@@ -1,0 +1,85 @@
+pudl.scripts.batch_config
+=========================
+
+.. py:module:: pudl.scripts.batch_config
+
+.. autoapi-nested-parse::
+
+   Generate a Google Batch Job configuration file.
+
+   This runs on bare GitHub Actions runners, without the full pixi/pudl environment -- the
+   inline script metadata above lets ``uv run`` install just the handful of dependencies
+   this script actually needs (stdlib plus ``click``) into an ephemeral environment, rather
+   than requiring a full pudl install first.
+
+   The ``--container-*`` flags are named after their equivalents in ``gcloud compute
+   instances update-container``.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.batch_config.logger
+   pudl.scripts.batch_config.DEFAULT_MACHINE_TYPE
+   pudl.scripts.batch_config.DEFAULT_DISK_GB
+   pudl.scripts.batch_config.DEFAULT_DISK_TYPE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.batch_config._parse_container_env
+   pudl.scripts.batch_config._lookup_machine_spec
+   pudl.scripts.batch_config.to_config
+   pudl.scripts.batch_config.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: DEFAULT_MACHINE_TYPE
+   :value: 'c4d-standard-8'
+
+
+.. py:data:: DEFAULT_DISK_GB
+   :value: 250
+
+
+.. py:data:: DEFAULT_DISK_TYPE
+   :value: 'hyperdisk-balanced'
+
+
+.. py:function:: _parse_container_env(container_env: tuple[str, ...]) -> dict[str, str]
+
+   Parse --container-env KEY=VALUE pairs into a dict.
+
+   Raises if the same key is given more than once.
+
+
+.. py:function:: _lookup_machine_spec(machine_type: str) -> tuple[int, int]
+
+   Return ``(cpuMilli, memoryMib)`` for a real GCE machine type, via ``gcloud``.
+
+   Batch's ``computeResource.cpuMilli``/``memoryMib`` default to 2000/2000 (2 vCPU, 2
+   GB) if left unset -- regardless of the machine type pinned in ``allocationPolicy``.
+   This looks up the real values and fills them in so the job doesn't lie about the
+   resources it has available.
+
+
+.. py:function:: to_config(*, container_image: str, container_env: tuple[str, ...], container_command: str, container_arg: tuple[str, ...], machine_type: str, cpu_milli: int, memory_mib: int, disk_gb: int, disk_type: str, batch_job_id: str, pipeline: str) -> dict[str, Any]
+
+   Munge arguments into a configuration dictionary.
+
+
+.. py:function:: main(container_image: str, container_command: str, container_env: tuple[str, ...], container_arg: tuple[str, ...], machine_type: str, disk_gb: int, disk_type: str, batch_job_id: str, pipeline: str, output: pathlib.Path) -> None
+
+   Generate a Batch configuration file.
+
+

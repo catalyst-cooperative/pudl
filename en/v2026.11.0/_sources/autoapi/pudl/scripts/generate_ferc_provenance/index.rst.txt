@@ -1,0 +1,45 @@
+pudl.scripts.generate_ferc_provenance
+=====================================
+
+.. py:module:: pudl.scripts.generate_ferc_provenance
+
+.. autoapi-nested-parse::
+
+   CLI for generating FERC SQLite provenance requirements for caching.
+
+   This tool generates a JSON representation of the inputs that affect the
+   materialization of FERC SQLite assets. This representation can be hashed
+   in CI to detect when the cached SQLite databases need to be rebuilt.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.generate_ferc_provenance.get_provenance
+   pudl.scripts.generate_ferc_provenance.main
+
+
+Module Contents
+---------------
+
+.. py:function:: get_provenance(dataset: str, data_format: str) -> dict
+
+   Return the current provenance requirements for a FERC SQLite asset.
+
+   :param dataset: The name of the dataset (e.g. 'ferc1', 'ferc714').
+   :param data_format: The data format ('dbf' or 'xbrl').
+
+   :returns: A dictionary containing the provenance requirements.
+
+
+.. py:function:: main(dataset: str, data_format: str) -> int
+
+   Generate a JSON representation of the provenance for a FERC SQLite asset.
+
+   This output can be hashed to detect changes in raw data versions (DOIs),
+   data configurations (years), or extractor versions.
+
+

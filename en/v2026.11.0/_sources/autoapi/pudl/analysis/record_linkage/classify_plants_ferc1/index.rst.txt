@@ -1,0 +1,92 @@
+pudl.analysis.record_linkage.classify_plants_ferc1
+==================================================
+
+.. py:module:: pudl.analysis.record_linkage.classify_plants_ferc1
+
+.. autoapi-nested-parse::
+
+   Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
+
+   Sadly FERC doesn't provide any kind of real IDs for the plants that report to them --
+   all we have is their names (a freeform string) and the data that is reported alongside
+   them. This is often enough information to be able to recognize which records ought to be
+   associated with each other year to year to create a continuous time series. However, we
+   want to do that programmatically, which means using some clustering / categorization
+   tools from scikit-learn
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS
+   pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder
+   pudl.analysis.record_linkage.classify_plants_ferc1._CANONICAL_RECORD_ORDER
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.classify_plants_ferc1._canonicalize_plant_ids
+   pudl.analysis.record_linkage.classify_plants_ferc1.assign_plant_ids
+   pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs
+   pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc
+
+
+Module Contents
+---------------
+
+.. py:data:: _FUEL_COLS
+   :value: ['coal_fraction_mmbtu', 'gas_fraction_mmbtu', 'nuclear_fraction_mmbtu', 'oil_fraction_mmbtu',...
+
+
+.. py:data:: ferc_dataframe_embedder
+
+.. py:data:: _CANONICAL_RECORD_ORDER
+   :value: ['report_year', 'utility_id_ferc1', 'plant_name_ferc1', 'record_id']
+
+
+.. py:function:: _canonicalize_plant_ids(labeled_df: pandas.DataFrame) -> pandas.Series
+
+   Replace arbitrary cluster labels with IDs that depend only on the clusters.
+
+   The labels assigned by the clustering models are numbered by the internals of the
+   algorithm, so they get permuted by tiny changes in the inputs even when the plants
+   they describe are identical. Instead, give every cluster the position of its
+   earliest record when all records are sorted by :data:`_CANONICAL_RECORD_ORDER`.
+   Because that only depends on the members of a cluster, splitting, merging, or adding
+   a plant does not change the IDs of unrelated plants, and diffs between runs
+   highlight real changes to the clusters.
+
+   :param labeled_df: The records that were clustered, with their cluster label in a
+                      ``record_label`` column. Must also contain the columns in
+                      :data:`_CANONICAL_RECORD_ORDER`.
+
+   :returns: A series of plant IDs, indexed like ``labeled_df``.
+
+
+.. py:function:: assign_plant_ids(ferc1_steam_df: pandas.DataFrame, labeled_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Add canonical ``plant_id_ferc1`` values to the steam table.
+
+   :param ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+   :param labeled_df: The records that were clustered, with a ``record_label`` column
+                      giving each record's assigned cluster.
+
+   :returns: The steam dataframe with a ``plant_id_ferc1`` column added.
+
+
+.. py:function:: merge_steam_fuel_dfs(ferc1_steam_df: pandas.DataFrame, fuel_fractions: pandas.DataFrame) -> pandas.DataFrame
+
+   Merge steam plants and fuel dfs to prepare inputs for ferc plant matching.
+
+
+.. py:function:: ferc_to_ferc(experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker, core_ferc1__yearly_steam_plants_sched402: pandas.DataFrame, out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pandas.DataFrame) -> pandas.DataFrame
+
+   Assign IDs to the large steam plants.
+
+

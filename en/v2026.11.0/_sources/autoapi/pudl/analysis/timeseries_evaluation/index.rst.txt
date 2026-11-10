@@ -1,0 +1,76 @@
+pudl.analysis.timeseries_evaluation
+===================================
+
+.. py:module:: pudl.analysis.timeseries_evaluation
+
+.. autoapi-nested-parse::
+
+   Routines for evaluating and visualizing timeseries data.
+
+   Some types of evaluations we'd like to enable:
+
+   Scatter plot colored and/or down-selected by an ID or categorical column, comparing two
+   highly correlated time series. Allow user to select time range or ID/categorical to
+   plot.
+
+   Weighted histogram of a given timeseries variable. Allow selection by ID or categorical
+   column.
+
+   Line plot showing two different timeseries overlaid on each other. Allow zooming and
+   panning along the whole series. Color code values by a categorical column (imputation
+   codes).
+
+   Static reported vs. imputed values with color coded points for the imputations
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.timeseries_evaluation._filter_df
+   pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation
+   pudl.analysis.timeseries_evaluation.plot_correlation
+   pudl.analysis.timeseries_evaluation.plot_imputation
+   pudl.analysis.timeseries_evaluation.plot_compare_imputation
+
+
+Module Contents
+---------------
+
+.. py:function:: _filter_df(df: pandas.DataFrame, idx_cols: list[str], idx_vals: tuple[Any, ...], start_date: str | None = None, end_date: str | None = None, time_col: str = 'datetime_utc') -> pandas.DataFrame
+
+   Filter a dataframe based on index columns and date range.
+
+
+.. py:function:: extract_baseline_eia930_imputation() -> pandas.DataFrame
+
+   Download and extract an existing imputation of the EIA-930 demand data.
+
+   Useful as a baseline for evaluating our imputation results in development.
+   Originally by Tyler Ruggles, Alicia Wongel, and David Farnham (2025). See:
+   https://doi.org/10.5281/zenodo.14768167 (data)
+   and https://doi.org/10.5281/zenodo.14768152 (code).
+
+
+.. py:function:: plot_correlation(df: pandas.DataFrame, timeseries_x: str, timeseries_y: str, idx_cols: list[str], idx_vals: list[tuple[Any, ...] | str] | None = None, xylim: tuple[float, float] | None = None, xlabel: str = '', ylabel: str = '', title: str = '', time_col: str = 'datetime_utc', start_date: str | None = None, end_date: str | None = None, log: bool = True, legend: bool = True, alpha: float = 0.1)
+
+   Plot the correlation between two analogous time series.
+
+
+.. py:function:: plot_imputation(df: pandas.DataFrame, idx_cols: list[str], idx_vals: tuple[Any, ...], start_date: str, end_date: str, reported_col: str, imputed_col: str, time_col: str = 'datetime_utc', ylabel: str = 'Demand [MWh]')
+
+   Compare reported values with imputed values visually.
+
+   Select a particular time series based on the ID columns and limit the data displayed
+   based on the provided start and end dates. Plot both the reported and imputed
+   values, color coding imputed values based on the reason for imputation.
+
+
+
+.. py:function:: plot_compare_imputation(df: pandas.DataFrame, idx_cols: list[str], idx_vals: tuple[Any], start_date: str, end_date: str, reported_col: str, timeseries_a: str, timeseries_b: str, time_col: str = 'datetime_utc', ylabel: str = 'Demand [MWh]')
+
+   Plot two timeseries of the same information like demand for comparison.
+
+

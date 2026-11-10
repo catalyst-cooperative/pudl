@@ -1,0 +1,70 @@
+pudl.output.eia930
+==================
+
+.. py:module:: pudl.output.eia930
+
+.. autoapi-nested-parse::
+
+   Functions for compiling derived aspects of the EIA 930 data.
+
+   For a narrative overview of the timeseries imputation process, see the documentation
+   at :doc:`/methodology/timeseries_imputation`
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.eia930.imputed_combined_demand_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.eia930._add_timezone
+   pudl.output.eia930._out_eia930__hourly_operations
+   pudl.output.eia930._out_eia930__hourly_subregion_demand
+   pudl.output.eia930._years_from_context
+   pudl.output.eia930._out_eia930__combined_demand
+   pudl.output.eia930.split_ba_subregion_demand
+   pudl.output.eia930.out_eia930__hourly_aggregated_demand
+
+
+Module Contents
+---------------
+
+.. py:function:: _add_timezone(df: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+.. py:function:: _out_eia930__hourly_operations(core_eia930__hourly_operations: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+   Adds timezone column and combined ID with BA/subregion used for imputation.
+
+
+.. py:function:: _out_eia930__hourly_subregion_demand(core_eia930__hourly_subregion_demand: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+   Adds timezone column and combined ID with BA/subregion used for imputation.
+
+
+.. py:function:: _years_from_context(context) -> list[int]
+
+.. py:function:: _out_eia930__combined_demand(_out_eia930__hourly_operations: pandas.DataFrame, _out_eia930__hourly_subregion_demand: pandas.DataFrame) -> pandas.DataFrame
+
+   Combine subregion and BA demand into a single DataFrame to perform imputation.
+
+
+.. py:data:: imputed_combined_demand_assets
+
+.. py:function:: split_ba_subregion_demand(_out_eia930__combined_imputed_demand: pandas.DataFrame, core_eia930__hourly_subregion_demand: pandas.DataFrame, core_eia930__hourly_operations: pandas.DataFrame)
+
+   Split combined imputed demand into separate BA/subregion tables.
+
+
+.. py:function:: out_eia930__hourly_aggregated_demand(out_eia930__hourly_operations: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+   Aggregate imputed demand from the BA level to region, interconnect, and contiguous US.
+
+

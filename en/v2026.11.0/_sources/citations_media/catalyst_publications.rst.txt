@@ -1,0 +1,27 @@
+===============================================================================
+Catalyst Publications
+===============================================================================
+Data, software, and analyses that we have published for public use. We self-archive all of our publications and the input data for PUDL in the `Catalyst Cooperative Zenodo Community <https://zenodo.org/communities/catalyst-cooperative/>`__.
+
+Conference Paper
+----------------
+.. bibliography:: /catalyst_pubs.bib
+    :list: enumerated
+
+    lamb_public_2024
+
+
+Other
+-----
+.. bibliography:: /catalyst_pubs.bib
+    :list: enumerated
+
+    noauthor_catalyst_2026
+    schira_catalyst-cooperativeferc-xbrl-extractor_2025
+    selvans_catalyst-cooperativepudl_2025
+    selvans_distributing_2021
+    selvans_open_2024
+    selvans_public_2019
+    selvans_pudl_2025
+    selvans_workplace_2024
+

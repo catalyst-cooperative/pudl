@@ -1,0 +1,27 @@
+pudl.analysis.record_linkage
+============================
+
+.. py:module:: pudl.analysis.record_linkage
+
+.. autoapi-nested-parse::
+
+   This module implements models for various forms of record linkage.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index
+   /autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index
+   /autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index
+   /autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index
+   /autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index
+   /autoapi/pudl/analysis/record_linkage/embed_dataframe/index
+   /autoapi/pudl/analysis/record_linkage/link_cross_year/index
+   /autoapi/pudl/analysis/record_linkage/name_cleaner/index
+
+

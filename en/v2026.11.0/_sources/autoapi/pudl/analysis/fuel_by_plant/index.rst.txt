@@ -1,0 +1,72 @@
+pudl.analysis.fuel_by_plant
+===========================
+
+.. py:module:: pudl.analysis.fuel_by_plant
+
+.. autoapi-nested-parse::
+
+   Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.fuel_by_plant.revert_filled_in_string_nulls
+   pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls
+   pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1
+
+
+Module Contents
+---------------
+
+.. py:function:: revert_filled_in_string_nulls(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Revert the filled nulls from string columns.
+
+
+.. py:function:: revert_filled_in_float_nulls(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Revert the filled nulls from float columns.
+
+
+.. py:function:: fuel_by_plant_ferc1(fuel_df: pandas.DataFrame, fuel_categories: list[str], thresh: float = 0.5) -> pandas.DataFrame
+
+   Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
+
+   Each record in the FERC Form 1 corresponds to a particular type of fuel. Many plants
+   -- especially coal plants -- use more than one fuel, with gas and/or diesel serving
+   as startup fuels. In order to be able to classify the type of plant based on
+   relative proportions of fuel consumed or fuel costs it is useful to aggregate these
+   per-fuel records into a single record for each plant.
+
+   Fuel cost (in nominal dollars) and fuel heat content (in mmBTU) are calculated for
+   each fuel based on the cost and heat content per unit, and the number of units
+   consumed, and then summed by fuel type (there can be more than one record for a
+   given type of fuel in each plant because we are simplifying the fuel categories).
+   The per-fuel records are then pivoted to create one column per fuel type. The total
+   is summed and stored separately, and the individual fuel costs & heat contents are
+   divided by that total, to yield fuel proportions.  Based on those proportions and a
+   minimum threshold that's passed in, a "primary" fuel type is then assigned to the
+   plant-year record and given a string label.
+
+   :param fuel_df: Pandas DataFrame resembling the post-transform
+                   result for the fuel_ferc1 table.
+   :param thresh: A value between 0.5 and 1.0 indicating the minimum fraction of
+                  overall heat content that must have been provided by a fuel in a plant-year
+                  for it to be considered the "primary" fuel for the plant in that year.
+                  Default value: 0.5.
+
+   :returns: DataFrame with a single record for each plant-year, including the columns
+             required to merge it with the plants_steam_ferc1 table/DataFrame (report_year,
+             utility_id_ferc1, and plant_name) as well as totals for fuel mmbtu consumed in
+             that plant-year, and the cost of fuel in that year, the proportions of heat
+             content and fuel costs for each fuel in that year, and a column that labels the
+             plant's primary fuel for that year.
+
+   :raises AssertionError: If the DataFrame input does not have the columns required to
+       run the function.
+
+
