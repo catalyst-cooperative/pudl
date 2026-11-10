@@ -9,10 +9,10 @@ CLI for managing raw data inputs to the PUDL data processing pipeline.
 
 ## Functions
 
-| [`_print_partitions`](#pudl.scripts.pudl_datastore._print_partitions)(→ None)           | Print known partition keys and values for each of the datasets.   |
-|--------------------------------------------------------------------------------------|-------------------------------------------------------------------|
-| [`_parse_key_values`](#pudl.scripts.pudl_datastore._parse_key_values)(→ dict[str, str]) | Parse key-value pairs into a Python dictionary.                   |
-| [`main`](#pudl.scripts.pudl_datastore.main)(→ int)                         | Manage the raw data inputs to the PUDL data processing pipeline.  |
+| [`_print_partitions`](#pudl.scripts.pudl_datastore._print_partitions)(dstore, datasets) → None             | Print known partition keys and values for each of the datasets.   |
+|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| [`_parse_key_values`](#pudl.scripts.pudl_datastore._parse_key_values)(ctx, param, values) → dict[str, str] | Parse key-value pairs into a Python dictionary.                   |
+| [`main`](#pudl.scripts.pudl_datastore.main)(datasets, all_datasets, validate, ...) → int      | Manage the raw data inputs to the PUDL data processing pipeline.  |
 
 ## Module Contents
 
@@ -29,7 +29,7 @@ Parse key-value pairs into a Python dictionary.
 Transforms a command line argument of the form: k1=v1,k2=v2,k3=v3…
 into: {k1:v1, k2:v2, k3:v3, …}
 
-### pudl.scripts.pudl_datastore.main(datasets: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...], all_datasets: [bool](https://docs.python.org/3/builtins/functions.html#bool), validate: [bool](https://docs.python.org/3/builtins/functions.html#bool), list_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool), partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)], cloud_cache_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), bypass_local_cache: [bool](https://docs.python.org/3/builtins/functions.html#bool), logfile: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), loglevel: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [int](https://docs.python.org/3/builtins/functions.html#int)
+### pudl.scripts.pudl_datastore.main(datasets: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...], all_datasets: [bool](https://docs.python.org/3/builtins/functions.html#bool), validate: [bool](https://docs.python.org/3/builtins/functions.html#bool), list_partitions: [bool](https://docs.python.org/3/builtins/functions.html#bool), partition: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int) | [str](https://docs.python.org/3/builtins/stdtypes.html#str)], cloud_cache_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), bypass_local_cache: [bool](https://docs.python.org/3/builtins/functions.html#bool), logfile: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None), loglevel: [pudl.logging_helpers.LogLevel](../../logging_helpers/index.html.md#pudl.logging_helpers.LogLevel)) → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Manage the raw data inputs to the PUDL data processing pipeline.
 

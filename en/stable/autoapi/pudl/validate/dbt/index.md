@@ -4,8 +4,12 @@ Wrap DBT invocations so we can get custom behavior.
 
 ## Attributes
 
-| [`logger`](#pudl.validate.dbt.logger)   |    |
-|-----------------------------------------------------------|----|
+| [`DBT_SOURCES`](#pudl.validate.dbt.DBT_SOURCES)         | one per datapackage, each validated against its own set                 |
+|----------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`DEFAULT_DBT_SOURCE`](#pudl.validate.dbt.DEFAULT_DBT_SOURCE)  | The dbt source validated when none is specified.                        |
+| [`ALL_DBT_SOURCES`](#pudl.validate.dbt.ALL_DBT_SOURCES)     | Selector value meaning every dbt source.                                |
+| [`DBT_UNIT_TESTS_PATH`](#pudl.validate.dbt.DBT_UNIT_TESTS_PATH) | Path, relative to the dbt project, of the unit tests of our dbt macros. |
+| [`logger`](#pudl.validate.dbt.logger)              |                                                                         |
 
 ## Classes
 
@@ -15,16 +19,36 @@ Wrap DBT invocations so we can get custom behavior.
 
 ## Functions
 
-| [`_preserve_logging_propagation`](#pudl.validate.dbt._preserve_logging_propagation)()                  | Restore logging propagation settings after a dbt invocation.            |
-|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`install_dbt_deps`](#pudl.validate.dbt.install_dbt_deps)(→ dbt.cli.main.dbtRunner)       | Ensure dbt package dependencies are installed in the project directory. |
-| [`__get_failed_nodes`](#pudl.validate.dbt.__get_failed_nodes)(...)                          | Get test node output from tests that failed.                            |
-| [`__get_quantile_contexts`](#pudl.validate.dbt.__get_quantile_contexts)(→ list[NodeContext])     | Run debug_quantile_constraints macro for failed quantile constraints.   |
-| [`__get_compiled_sql_contexts`](#pudl.validate.dbt.__get_compiled_sql_contexts)(→ list[NodeContext]) | Run the compiled SQL against duckdb to get failure contexts.            |
-| [`build_with_context`](#pudl.validate.dbt.build_with_context)(→ BuildResult)                | Run the DBT build and get failure information back.                     |
-| [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(→ str)                  | Translate dagster asset selection to db node selection.                 |
+| [`_preserve_logging_propagation`](#pudl.validate.dbt._preserve_logging_propagation)()                                               | Restore logging propagation settings after a dbt invocation.            |
+|--------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`install_dbt_deps`](#pudl.validate.dbt.install_dbt_deps)([dbt]) → dbt.cli.main.dbtRunner                              | Ensure dbt package dependencies are installed in the project directory. |
+| [`__get_failed_nodes`](#pudl.validate.dbt.__get_failed_nodes)(results) → list[dbt.contracts.graph.nodes.GenericTestNode] | Get test node output from tests that failed.                            |
+| [`__get_quantile_contexts`](#pudl.validate.dbt.__get_quantile_contexts)(nodes, dbt, dbt_dir) → list[NodeContext]              | Run debug_quantile_constraints macro for failed quantile constraints.   |
+| [`__get_compiled_sql_contexts`](#pudl.validate.dbt.__get_compiled_sql_contexts)(nodes) → list[NodeContext]                        | Run the compiled SQL against duckdb to get failure contexts.            |
+| [`build_with_context`](#pudl.validate.dbt.build_with_context)(node_selection, dbt_target[, ...]) → BuildResult           | Run the DBT build and get failure information back.                     |
+| [`dagster_to_dbt_selection`](#pudl.validate.dbt.dagster_to_dbt_selection)(selection, defs[, manifest]) → str                   | Translate dagster asset selection to db node selection.                 |
 
 ## Module Contents
+
+### pudl.validate.dbt.DBT_SOURCES
+
+one per datapackage, each validated against its own set
+of Parquet outputs.
+
+* **Type:**
+  Names of the dbt sources
+
+### pudl.validate.dbt.DEFAULT_DBT_SOURCE *= 'pudl'*
+
+The dbt source validated when none is specified.
+
+### pudl.validate.dbt.ALL_DBT_SOURCES *= '\*'*
+
+Selector value meaning every dbt source.
+
+### pudl.validate.dbt.DBT_UNIT_TESTS_PATH *= 'tests/unit_tests'*
+
+Path, relative to the dbt project, of the unit tests of our dbt macros.
 
 ### pudl.validate.dbt.logger
 
@@ -61,6 +85,10 @@ Combine overall result with any useful failure context.
 
 #### failure_contexts *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[NodeContext](#pudl.validate.dbt.NodeContext)]*
 
+#### status_counts *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [int](https://docs.python.org/3/builtins/functions.html#int)]*
+
+Number of dbt nodes (tests and seeds) with each result status, e.g. `pass`.
+
 #### format_failure_contexts() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Nice legible output for logs.
@@ -91,7 +119,7 @@ Also, if a node has multiple parents, we don’t know which table to pass into
 
 Run the compiled SQL against duckdb to get failure contexts.
 
-### pudl.validate.dbt.build_with_context(node_selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dbt_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str), node_exclusion: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [BuildResult](#pudl.validate.dbt.BuildResult)
+### pudl.validate.dbt.build_with_context(node_selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str), dbt_target: [str](https://docs.python.org/3/builtins/stdtypes.html#str), node_exclusion: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, parquet_base_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [BuildResult](#pudl.validate.dbt.BuildResult)
 
 Run the DBT build and get failure information back.
 

@@ -25,10 +25,10 @@ For the closest Dagster concept, see
 
 ## Functions
 
-| [`_get_ferc_to_sqlite_asset_key`](#pudl.dagster.provenance._get_ferc_to_sqlite_asset_key)(→ dagster.AssetKey)   | Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.   |
-|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`get_xbrl_extractor_version`](#pudl.dagster.provenance.get_xbrl_extractor_version)(→ str)                   | Return the installed version of `catalystcoop.ferc_xbrl_extractor`.                 |
-| [`ferc_sqlite_provenance_is_compatible`](#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible)(→ bool)        | Ensure a persisted FERC SQLite prerequisite is compatible with this run.            |
+| [`_get_ferc_to_sqlite_asset_key`](#pudl.dagster.provenance._get_ferc_to_sqlite_asset_key)(dataset, data_format) → dagster.AssetKey   | Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.   |
+|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [`get_xbrl_extractor_version`](#pudl.dagster.provenance.get_xbrl_extractor_version)() → str                                       | Return the installed version of `catalystcoop.ferc_xbrl_extractor`.                 |
+| [`ferc_sqlite_provenance_is_compatible`](#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible)(\*, ...) → bool                     | Ensure a persisted FERC SQLite prerequisite is compatible with this run.            |
 
 ## Module Contents
 
@@ -96,12 +96,12 @@ Return FercSqliteProvenanceRecord from dagster metadata if available.
 
 Write Provenance data to datapackage JSON file.
 
-#### *classmethod* from_datapackage(datapackage_path: upath.UPath, source: Literal['nightly', 'local_cache', 'local_new']) → [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord)
+#### *classmethod* from_datapackage(datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | upath.UPath, source: Literal['nightly', 'local_cache', 'local_new']) → [FercSqliteProvenanceRecord](#pudl.dagster.provenance.FercSqliteProvenanceRecord) | [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Read SQLite provenance metadata from datapackage JSON file.
 
 Note that this method accepts `datapackage_path` as a `UPath` as we read
-provenance metadata directly from nightly builds, but `to_datapackage` only
+provenance metadata directly from nightly builds (or a local `Path`), but `to_datapackage` only
 accepts a regular `Path`, as we should never try to write directly to s3.
 
 ### pudl.dagster.provenance.get_xbrl_extractor_version() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)

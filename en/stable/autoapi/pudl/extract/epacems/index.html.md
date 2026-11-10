@@ -36,8 +36,8 @@ during the transform process with help from the crosswalk.
 
 ## Functions
 
-| [`extract_quarter`](#pudl.extract.epacems.extract_quarter)(→ polars.LazyFrame)   | Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.   |
-|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`extract_quarter`](#pudl.extract.epacems.extract_quarter)(context, year_quarter) → polars.LazyFrame   | Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.   |
+|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 
 ## Module Contents
 

@@ -90,15 +90,40 @@ Module Contents
 
 
 
+   .. py:method:: get_checksum(name: str) -> str
+
+      Return the expected md5 checksum of the named resource.
+
+      :raises KeyError: if the datapackage has no resource with this name.
+
+
+
    .. py:method:: get_download_size() -> int
 
       Returns the total download size of all the resources in MB.
 
 
 
-   .. py:method:: validate_checksum(name: str, content: str) -> bool
+   .. py:method:: validate_checksum(name: str, content: bytes) -> None
 
-      Returns True if content matches checksum for given named resource.
+      Verify that in-memory content matches the checksum of a named resource.
+
+      :raises ChecksumMismatchError: if the content does not match the expected checksum.
+
+
+
+   .. py:method:: validate_file_checksum(name: str, path: str | pathlib.Path) -> None
+
+      Verify that a file on disk matches the checksum for a named resource.
+
+      Hashes the file incrementally instead of reading it into memory, so it can be
+      used on resources too large to buffer like the multi-gigabyte quarterly FERC
+      EQR archives, which are streamed to local disk before being opened.
+
+      :param name: name of the resource as it appears in this datapackage descriptor.
+      :param path: local path to the file whose contents should be checked.
+
+      :raises ChecksumMismatchError: if the digest does not match the expected checksum.
 
 
 
@@ -396,17 +421,16 @@ Module Contents
 
 
 
-   .. py:method:: get_resources(dataset: str, cached_only: bool = False, skip_optimally_cached: bool = False, **filters: Any) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, bytes]]
+   .. py:method:: get_resources(dataset: str, filters: collections.abc.Mapping[str, Any] | None = None, *, cached_only: bool = False, skip_optimally_cached: bool = False) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, bytes]]
 
       Return content of the matching resources.
 
       :param dataset: name of the dataset to query.
+      :param filters: only return resources that match the key-value mapping in their
+                      metadata["parts"].
       :param cached_only: if True, only retrieve resources that are present in the cache.
       :param skip_optimally_cached: if True, only retrieve resources that are not optimally
                                     cached. This triggers attempt to optimally cache these resources.
-      :param filters: only return resources that match the key-value mapping in their
-      :type filters: key=val
-      :param metadata["parts"].:
 
       :Yields: (PudlResourceKey, io.BytesIO) holding content for each matching resource
 

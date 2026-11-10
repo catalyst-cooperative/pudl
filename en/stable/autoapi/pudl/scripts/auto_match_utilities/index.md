@@ -6,6 +6,7 @@ A CLI tool for matching FERC and EIA utilities.
 
 | [`logger`](#pudl.scripts.auto_match_utilities.logger)               |    |
 |-----------------------------------------------------------------------|----|
+| [`GlueEntity`](#pudl.scripts.auto_match_utilities.GlueEntity)           |    |
 | [`UTILITY_NAME_CLEANER`](#pudl.scripts.auto_match_utilities.UTILITY_NAME_CLEANER) |    |
 
 ## Functions
@@ -18,11 +19,13 @@ A CLI tool for matching FERC and EIA utilities.
 | [`drop_records_with_matches`](#pudl.scripts.auto_match_utilities.drop_records_with_matches)(entity, matches_new, ...)         | Drop records in the original dataframe where matches have been found. |
 | [`add_new_matches_to_dataframe`](#pudl.scripts.auto_match_utilities.add_new_matches_to_dataframe)(matches_new, existing_glue_df) | Add new matches to existing hand-mapped dataframe.                    |
 | [`write_updated_matches`](#pudl.scripts.auto_match_utilities.write_updated_matches)(test_run, dataframe)                  | Write the updated matching spreadsheet to disk.                       |
-| [`main`](#pudl.scripts.auto_match_utilities.main)(→ int)                                                 | Match EIA and FERC utilities based on utility name alone.             |
+| [`main`](#pudl.scripts.auto_match_utilities.main)(test_run) → int                                        | Match EIA and FERC utilities based on utility name alone.             |
 
 ## Module Contents
 
 ### pudl.scripts.auto_match_utilities.logger
+
+### *type* pudl.scripts.auto_match_utilities.GlueEntity *= Literal['ferc1', 'eia']*
 
 ### pudl.scripts.auto_match_utilities.UTILITY_NAME_CLEANER
 
@@ -49,7 +52,7 @@ Read in the existing handmade glue spreadsheet.
 
 Read in the existing handmade false matches spreadsheet.
 
-### pudl.scripts.auto_match_utilities.drop_records_with_matches(entity: Literal['ferc1', 'eia'], matches_new: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), existing_glue_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), matches_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), unmatched_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+### pudl.scripts.auto_match_utilities.drop_records_with_matches(entity: [GlueEntity](#pudl.scripts.auto_match_utilities.GlueEntity), matches_new: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), existing_glue_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), matches_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), unmatched_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
 Drop records in the original dataframe where matches have been found.
 

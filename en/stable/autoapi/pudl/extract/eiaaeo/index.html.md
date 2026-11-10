@@ -17,9 +17,9 @@ Extract EIA AEO data from the bulk JSON.
 
 ## Functions
 
-| [`raw_eiaaeo`](#pudl.extract.eiaaeo.raw_eiaaeo)(context)                                 | Extract tables from EIA's Annual Energy Outlook.                     |
-|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [`raw_table_54_invariants`](#pudl.extract.eiaaeo.raw_table_54_invariants)(→ dagster.AssetCheckResult) | Check that the AEO Table 54 raw data conforms to *some* assumptions. |
+| [`raw_eiaaeo`](#pudl.extract.eiaaeo.raw_eiaaeo)(context)                                    | Extract tables from EIA's Annual Energy Outlook.                     |
+|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`raw_table_54_invariants`](#pudl.extract.eiaaeo.raw_table_54_invariants)(df) → dagster.AssetCheckResult | Check that the AEO Table 54 raw data conforms to *some* assumptions. |
 
 ## Module Contents
 
@@ -190,7 +190,7 @@ Returns the list of generations for further manipulation.
 
 #### \_\_sanitize(s: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-#### \_\_series_to_records(series_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), potential_parents: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[int](https://docs.python.org/3/builtins/functions.html#int)], report_year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### \_\_series_to_records(series_id: [str](https://docs.python.org/3/builtins/stdtypes.html#str), potential_parents: [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[int](https://docs.python.org/3/builtins/functions.html#int)], report_year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]
 
 Turn a data series into records we can feed into a DataFrame.
 

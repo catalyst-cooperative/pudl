@@ -25,22 +25,22 @@ validate them, and incorporate them into the existing training data.
 
 ## Functions
 
-| [`_pct_diff`](#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff)(→ pandas.DataFrame)                    | Calculate percent difference between EIA and FERC versions of a column.        |
-|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`_is_best_match`](#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match)(→ pandas.DataFrame)               | Fill the best_match column with strings to show cap, net_gen, inst_year match. |
-| [`_prep_eia_ferc1`](#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1)(→ pandas.DataFrame)              | Prep FERC-EIA for use in override output sheet pre-utility subgroups.          |
-| [`_prep_deprish`](#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish)(→ pandas.DataFrame)                | Prep depreciation data for use in override output sheet pre-utility subgroups. |
-| [`_get_util_year_subsets`](#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets)(→ dict)                   | Get utility and year subsets for each of the input dfs.                        |
-| [`_output_override_spreadsheet`](#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet)(→ None)             | Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.       |
-| [`generate_all_override_spreadsheets`](#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets)(→ None)       | Output override spreadsheets for all specified utilities and years.            |
-| [`_check_id_consistency`](#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency)(→ None)                    | Check for rogue FERC or EIA ids that don't exist.                              |
-| [`check_if_already_in_training`](#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training)(training_data, ...) | Check whether any manually mapped records aren't yet in the training data.     |
-| [`validate_override_fixes`](#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes)(→ pandas.DataFrame)      | Process the verified and/or fixed matches and look for human error.            |
-| [`get_multi_match_df`](#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df)(→ pandas.DataFrame)           | Process the verified and/or fixed matches and generate a list of 1:m matches.  |
-| [`_add_to_training`](#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training)(→ None)                         | Add the new overrides to the old override sheet.                               |
-| [`_add_to_null_overrides`](#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides)(→ None)                   | Take record_id_ferc1 values verified to have no EIA match and add them to csv. |
-| [`_add_to_one_to_many_overrides`](#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides)(→ None)            | Add record_id_ferc1 values verified to have multiple EIA matches to csv.       |
-| [`validate_and_add_to_training`](#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training)(→ None)             | Validate, combine, and add overrides to the training data.                     |
+| [`_pct_diff`](#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff)(df, col) → pandas.DataFrame                                        | Calculate percent difference between EIA and FERC versions of a column.        |
+|-------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`_is_best_match`](#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match)(df[, cap_pct_diff, net_gen_pct_diff, ...]) → pandas.DataFrame | Fill the best_match column with strings to show cap, net_gen, inst_year match. |
+| [`_prep_eia_ferc1`](#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1)(eia_ferc1, utils_eia860) → pandas.DataFrame                  | Prep FERC-EIA for use in override output sheet pre-utility subgroups.          |
+| [`_prep_deprish`](#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish)(deprish, utils_eia860) → pandas.DataFrame                      | Prep depreciation data for use in override output sheet pre-utility subgroups. |
+| [`_get_util_year_subsets`](#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets)(inputs_dict, util_id_eia_list, ...) → dict            | Get utility and year subsets for each of the input dfs.                        |
+| [`_output_override_spreadsheet`](#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet)(util_year_subset_dict, ...) → None              | Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.       |
+| [`generate_all_override_spreadsheets`](#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets)(eia_ferc1, ppe, ...) → None               | Output override spreadsheets for all specified utilities and years.            |
+| [`_check_id_consistency`](#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency)(id_col, df, actual_ids, ...) → None                    | Check for rogue FERC or EIA ids that don't exist.                              |
+| [`check_if_already_in_training`](#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training)(training_data, ...)                             | Check whether any manually mapped records aren't yet in the training data.     |
+| [`validate_override_fixes`](#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes)(validated_connections, ppe, ...) → pandas.DataFrame  | Process the verified and/or fixed matches and look for human error.            |
+| [`get_multi_match_df`](#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df)(training_data) → pandas.DataFrame                         | Process the verified and/or fixed matches and generate a list of 1:m matches.  |
+| [`_add_to_training`](#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training)(new_overrides, path_to_current_training) → None             | Add the new overrides to the old override sheet.                               |
+| [`_add_to_null_overrides`](#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides)(null_matches, ...) → None                             | Take record_id_ferc1 values verified to have no EIA match and add them to csv. |
+| [`_add_to_one_to_many_overrides`](#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides)(one_to_many, ...) → None                       | Add record_id_ferc1 values verified to have multiple EIA matches to csv.       |
+| [`validate_and_add_to_training`](#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training)(ppe, eia_ferc1, ...[, ...]) → None              | Validate, combine, and add overrides to the training data.                     |
 
 ## Module Contents
 

@@ -266,7 +266,7 @@ Module Contents
    :rtype: A DataFrame having two columns
 
 
-.. py:function:: _append_masked_units(gens_df: pandas.DataFrame, row_mask: numpy.ndarray, unit_ids: pandas.DataFrame, on: str | list[str]) -> pandas.DataFrame
+.. py:function:: _append_masked_units(gens_df: pandas.DataFrame, row_mask: pandas.Series, unit_ids: pandas.DataFrame, on: str | list[str]) -> pandas.DataFrame
 
    Replace rows with new PUDL Unit IDs in the original dataframe.
 

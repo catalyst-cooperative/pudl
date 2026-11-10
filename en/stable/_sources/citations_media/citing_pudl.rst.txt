@@ -3,6 +3,16 @@ Work Citing PUDL and other Catalyst Analyses
 ===============================================================================
 Academic, policy, and industry publications that reference PUDL and analyses done by Catalyst Cooperative.
 
+Blog
+----
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    baranko_open-source_2020
+    hausfather_mapped_2018
+    ruggles_comparing_2020
+
+
 Book
 ----
 .. bibliography:: /catalyst_cites.bib
@@ -35,6 +45,14 @@ Expert Testimony
     :list: enumerated
 
     william_d_kenworthy_direct_2025
+
+
+Interview
+---------
+.. bibliography:: /catalyst_cites.bib
+    :list: enumerated
+
+    aditya_am_interview_2025
 
 
 Journal or News Article

@@ -284,7 +284,7 @@ Module Contents
    .. py:method:: __sanitize(s: str) -> str
 
 
-   .. py:method:: __series_to_records(series_id: str, potential_parents: set[int], report_year: int) -> pandas.DataFrame
+   .. py:method:: __series_to_records(series_id: str, potential_parents: set[int], report_year: int) -> collections.abc.Iterator[dict[str, Any]]
 
       Turn a data series into records we can feed into a DataFrame.
 

@@ -7,18 +7,13 @@ Code for transforming RUS data that pertains to more than one RUS Form.
 | [`logger`](#pudl.transform.rus.logger)   |    |
 |-----------------------------------------------------------|----|
 
-## Classes
-
-| [`RusEntity`](#pudl.transform.rus.RusEntity)   | Enum for the different types of RUS entities.   |
-|--------------------------------------------------------------|-------------------------------------------------|
-
 ## Functions
 
-| [`early_check_pk`](#pudl.transform.rus.early_check_pk)(→ None)                                 | Check the expected primary key of the table.                    |
-|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| [`early_transform`](#pudl.transform.rus.early_transform)(→ pandas.DataFrame)                    | Standard transforms for raw RUS data.                           |
-| [`convert_units`](#pudl.transform.rus.convert_units)(→ pandas.DataFrame)                      | Convert units within a column and rename column with new units. |
-| [`finished_rus_asset_factory`](#pudl.transform.rus.finished_rus_asset_factory)(→ dagster.AssetsDefinition) | An asset factory for finished RUS tables.                       |
+| [`early_check_pk`](#pudl.transform.rus.early_check_pk)(df[, pk_early, raise_fail]) → None                                    | Check the expected primary key of the table.                    |
+|---------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`early_transform`](#pudl.transform.rus.early_transform)(raw_df[, boolean_columns_to_fix, ...]) → pandas.DataFrame            | Standard transforms for raw RUS data.                           |
+| [`convert_units`](#pudl.transform.rus.convert_units)(df, old_unit, new_unit, converter) → pandas.DataFrame                  | Convert units within a column and rename column with new units. |
+| [`finished_rus_asset_factory`](#pudl.transform.rus.finished_rus_asset_factory)(table_name, \_core_table_name) → dagster.AssetsDefinition | An asset factory for finished RUS tables.                       |
 
 ## Module Contents
 
@@ -54,14 +49,6 @@ unit would be `mwh` and the converter would be `0.001`.
     empty string ()””).
   * **converter** – the float or integer you need to multiply the old values by to
     convert the units.
-
-### *class* pudl.transform.rus.RusEntity
-
-Bases: [`enum.StrEnum`](https://docs.python.org/3/library/enum.html#enum.StrEnum)
-
-Enum for the different types of RUS entities.
-
-#### BORROWERS
 
 ### pudl.transform.rus.finished_rus_asset_factory(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \_core_table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), io_manager_key: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)
 

@@ -114,6 +114,7 @@ Functions
    pudl.transform.ferc1.check_calculation_metrics
    pudl.transform.ferc1.add_corrections
    pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl
+   pudl.transform.ferc1.sort_xbrl_rows_by_order_number
    pudl.transform.ferc1.get_ferc1_dbf_rows_to_map
    pudl.transform.ferc1.update_dbf_to_xbrl_map
    pudl.transform.ferc1.read_dbf_to_xbrl_map
@@ -1460,6 +1461,26 @@ Module Contents
    have an end_date at the end of the report_year.
 
 
+.. py:function:: sort_xbrl_rows_by_order_number(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Put the rows of each XBRL filing in the order the utility reported them.
+
+   The XBRL extractor does not preserve the order of the rows in a filing, e.g. the
+   rows of the small plants table come out alphabetized by plant name. Some tables
+   identify header, note and total rows, and the rows that belong together, by their
+   position, so they need the order recorded in the ``order_number`` column. The total
+   row of a filing goes last, because its ``order_number`` can repeat that of the first
+   row, which would put it between a header and the plants below it. Rows with the same
+   ``order_number`` keep their relative order, and rows without one go last, in their
+   original order.
+
+   :param df: XBRL data with ``utility_id_ferc1_xbrl``, ``report_year``, ``order_number``
+              and ``generating_plant_statistics`` columns.
+
+   :returns: The rows sorted by utility, year, total row and ``order_number``, with a new
+             index.
+
+
 .. py:function:: get_ferc1_dbf_rows_to_map(ferc1_engine: sqlalchemy.Engine) -> pandas.DataFrame
 
    Identify DBF rows that need to be mapped to XBRL columns.
@@ -1542,9 +1563,9 @@ Module Contents
    Read in the table of calculation fixes.
 
 
-.. py:class:: Ferc1AbstractTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: Ferc1AbstractTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
-   Bases: :py:obj:`pudl.transform.classes.AbstractTableTransformer`
+   Bases: :py:obj:`pudl.transform.classes.AbstractTableTransformer`\ [\ :py:obj:`TableIdFerc1`\ , :py:obj:`Ferc1TableTransformParams`\ ]
 
 
    An abstract class defining methods common to many FERC Form 1 tables.
@@ -1556,32 +1577,12 @@ Module Contents
    * Methods that only apply to DBF data should end with _dbf
 
 
-   .. py:attribute:: table_id
-      :type:  TableIdFerc1
-
-      Name of the PUDL database table that this table transformer produces.
-
-      Must be defined in the database schema / metadata. This ID is used to instantiate
-      the appropriate :class:`TableTransformParams` object.
-
-
    .. py:attribute:: parameter_model
 
       The :mod:`pydantic` model that is used to contain & instantiate parameters.
 
-      In child classes this should be replaced with the data source-specific
-      :class:`TableTransformParams` class, if it has been defined.
-
-
-   .. py:attribute:: params
-      :type:  Ferc1AbstractTableTransformer.parameter_model
-
-      The parameters that will be used to control the transformation functions.
-
-      This attribute is of type ``parameter_model`` which is defined above. This type
-      varies across datasets and is used to construct and validate the parameters based,
-      so it needs to be set separately in child classes. See
-      :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` for an example.
+      Child classes must set this to the data source-specific :class:`TableTransformParams`
+      class that they are generic over.
 
 
    .. py:attribute:: has_unique_record_ids
@@ -1857,14 +1858,14 @@ Module Contents
 
 
 
-   .. py:method:: rename_columns(df: pandas.DataFrame, rename_stage: Literal['dbf', 'xbrl', 'instant_xbrl', 'duration_xbrl'] | None = None, params: pudl.transform.classes.RenameColumns | None = None) -> pandas.DataFrame
+   .. py:method:: rename_columns(df: pandas.DataFrame, params: pudl.transform.classes.RenameColumns | None = None, *, rename_stage: Literal['dbf', 'xbrl', 'instant_xbrl', 'duration_xbrl'] | None = None, **kwargs) -> pandas.DataFrame
 
       Grab the params based on the rename stage and run default rename_columns.
 
       :param df: Table to be renamed.
+      :param params: Rename column parameters.
       :param rename_stage: Name of stage in the transform process. Used to get specific
                            stage's parameters if None have been passed.
-      :param params: Rename column parameters.
 
 
 
@@ -2037,7 +2038,7 @@ Module Contents
 
 
 
-.. py:class:: IdentificationCertificationTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: IdentificationCertificationTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2084,7 +2085,7 @@ Module Contents
 
 
 
-.. py:class:: SteamPlantsFuelTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: SteamPlantsFuelTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2265,7 +2266,7 @@ Module Contents
 
 
 
-.. py:class:: SteamPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: SteamPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2282,7 +2283,7 @@ Module Contents
       the appropriate :class:`TableTransformParams` object.
 
 
-.. py:class:: HydroelectricPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: HydroelectricPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2316,7 +2317,7 @@ Module Contents
 
 
 
-.. py:class:: PumpedStoragePlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: PumpedStoragePlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2333,7 +2334,7 @@ Module Contents
       the appropriate :class:`TableTransformParams` object.
 
 
-.. py:class:: PurchasedPowerAndExchangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: PurchasedPowerAndExchangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2357,7 +2358,7 @@ Module Contents
       the appropriate :class:`TableTransformParams` object.
 
 
-.. py:class:: PlantInServiceTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: PlantInServiceTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2464,7 +2465,7 @@ Module Contents
 
 
 
-.. py:class:: SmallPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: SmallPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -2490,6 +2491,16 @@ Module Contents
 
       :returns: A single transformed table concatenating multiple years of cleaned data
                 derived from the raw DBF and/or XBRL inputs.
+
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Process the XBRL data, then restore the order of the rows in each filing.
+
+      The header, note and total rows, and the multi-row plant records, of this table
+      are identified by their position in the filing. See
+      :func:`sort_xbrl_rows_by_order_number`.
 
 
 
@@ -3025,7 +3036,7 @@ Module Contents
 
 
 
-.. py:class:: TransmissionLinesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: TransmissionLinesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3062,7 +3073,7 @@ Module Contents
 
 
 
-.. py:class:: EnergySourcesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: EnergySourcesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3108,7 +3119,7 @@ Module Contents
 
 
 
-.. py:class:: EnergyDispositionsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: EnergyDispositionsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3139,7 +3150,7 @@ Module Contents
       the transformed data.
 
 
-.. py:class:: UtilityPlantSummaryTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: UtilityPlantSummaryTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3214,7 +3225,7 @@ Module Contents
 
 
 
-.. py:class:: BalanceSheetLiabilitiesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: BalanceSheetLiabilitiesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3272,7 +3283,7 @@ Module Contents
 
 
 
-.. py:class:: BalanceSheetAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: BalanceSheetAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3330,7 +3341,7 @@ Module Contents
 
 
 
-.. py:class:: IncomeStatementsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: IncomeStatementsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3401,7 +3412,7 @@ Module Contents
 
 
 
-.. py:class:: RetainedEarningsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: RetainedEarningsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3558,7 +3569,7 @@ Module Contents
 
 
 
-.. py:class:: DepreciationSummaryTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: DepreciationSummaryTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3610,7 +3621,7 @@ Module Contents
    duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
 
 
-.. py:class:: DepreciationFactorsTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: DepreciationFactorsTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3647,7 +3658,7 @@ Module Contents
 
 
 
-.. py:class:: DepreciationChangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: DepreciationChangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3717,7 +3728,7 @@ Module Contents
 
 
 
-.. py:class:: DepreciationByFunctionTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: DepreciationByFunctionTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3827,7 +3838,7 @@ Module Contents
 
 
 
-.. py:class:: OperatingExpensesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: OperatingExpensesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3883,7 +3894,7 @@ Module Contents
 
 
 
-.. py:class:: OperatingRevenuesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: OperatingRevenuesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -3945,7 +3956,7 @@ Module Contents
 
 
 
-.. py:class:: CashFlowsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: CashFlowsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -4023,7 +4034,7 @@ Module Contents
 
 
 
-.. py:class:: SalesByRateSchedulesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: SalesByRateSchedulesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -4083,7 +4094,7 @@ Module Contents
 
 
 
-.. py:class:: OtherRegulatoryLiabilitiesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: OtherRegulatoryLiabilitiesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -4113,7 +4124,7 @@ Module Contents
       the transformed data.
 
 
-.. py:class:: OtherRegulatoryAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:class:: OtherRegulatoryAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: Ferc1TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True, pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
 
@@ -4164,19 +4175,27 @@ Module Contents
 
 .. py:data:: _FERC1_PLANT_TABLES
 
-.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'parquet_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: collections.abc.Callable[..., Ferc1AbstractTableTransformer], io_manager_key: str | None = 'parquet_io_manager', convert_dtypes: bool = True, op_tags: dict[str, Any] | None = None, name: str | None = None) -> dagster.AssetsDefinition
 
    Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
    This is a convenient way to create assets for tables that only depend on raw dbf,
    raw xbrl instant and duration tables and xbrl metadata.
 
-   :param table_name: The name of the table to create an asset for.
-   :param tfr_class: A transformer class corresponding to the table_name.
+   :param table_name: The name of the table to create an asset for. Also used to look
+                      up the raw DBF/XBRL tables this asset depends on.
+   :param tfr_class: A transformer class corresponding to the table_name, or another
+                     callable that makes the transformer, such as a :func:`functools.partial` of
+                     a class with some of its arguments set. It is called with the XBRL metadata
+                     of the table and the PUDL paths.
    :param io_manager_key: the dagster io_manager key to use. None defaults
                           to the fs_io_manager.
    :param convert_dtypes: convert dtypes of transformed dataframes.
-   :param generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
+   :param name: Override for the produced asset's name. Defaults to ``table_name``.
+                Needed when creating a second, non-canonical asset (e.g. a generic
+                transform used only to compile inputs for manual ID mapping) whose
+                upstream dependencies match ``table_name`` but whose asset key must not
+                collide with the real ``table_name`` asset.
 
    :returns: An asset for the clean table.
 

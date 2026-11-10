@@ -10,14 +10,14 @@ A CLI tool for generating expect_column_not_all_null dbt test conditions.
 
 ## Functions
 
-| [`max_eia860_year`](#pudl.scripts.pudl_null_cols.max_eia860_year)(→ int)                 | Get the maximum year available in the EIA-860 dataset.                         |
-|-----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`date_column_to_year_expr`](#pudl.scripts.pudl_null_cols.date_column_to_year_expr)(date_column)  | Convert a date column to a year extraction expression.                         |
-| [`get_null_years`](#pudl.scripts.pudl_null_cols.get_null_years)(→ list[int])            | Find years where a specific column is entirely null.                           |
-| [`get_available_years`](#pudl.scripts.pudl_null_cols.get_available_years)(→ list[int])       | Generate a list of all years present in the named table.                       |
-| [`infer_row_conditions`](#pudl.scripts.pudl_null_cols.infer_row_conditions)(→ dict[str, str]) | Analyze a single table for null columns and generate conditions.               |
-| [`compact_row_condition`](#pudl.scripts.pudl_null_cols.compact_row_condition)(→ str)           | Generate a compact SQL condition that excludes entirely null years.            |
-| [`main`](#pudl.scripts.pudl_null_cols.main)(→ int)                            | Generate row_conditions for use with the expect_columns_not_all_null dbt test. |
+| [`max_eia860_year`](#pudl.scripts.pudl_null_cols.max_eia860_year)() → int                                                    | Get the maximum year available in the EIA-860 dataset.                         |
+|-----------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`date_column_to_year_expr`](#pudl.scripts.pudl_null_cols.date_column_to_year_expr)(date_column)                                      | Convert a date column to a year extraction expression.                         |
+| [`get_null_years`](#pudl.scripts.pudl_null_cols.get_null_years)(table_name, column, date_column[, max_year]) → list[int]    | Find years where a specific column is entirely null.                           |
+| [`get_available_years`](#pudl.scripts.pudl_null_cols.get_available_years)(table_name, date_column[, max_year]) → list[int]       | Generate a list of all years present in the named table.                       |
+| [`infer_row_conditions`](#pudl.scripts.pudl_null_cols.infer_row_conditions)(table_name, date_column[, max_year]) → dict[str, str] | Analyze a single table for null columns and generate conditions.               |
+| [`compact_row_condition`](#pudl.scripts.pudl_null_cols.compact_row_condition)(null_years, available_years, ...) → str              | Generate a compact SQL condition that excludes entirely null years.            |
+| [`main`](#pudl.scripts.pudl_null_cols.main)(table_name, ignore_eia860m, date_column, max_year) → int              | Generate row_conditions for use with the expect_columns_not_all_null dbt test. |
 
 ## Module Contents
 

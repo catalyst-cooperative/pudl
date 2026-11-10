@@ -1,6 +1,273 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+
+.. _release-v2026.11.0:
+
+---------------------------------------------------------------------------------------
+v2026.11.0 (2026-11-10)
+---------------------------------------------------------------------------------------
+
+This is a regular quarterly PUDL release, with updates to
+EIA-860m, EIA-923, EIA-930, EPA CEMS, EPA MATS, and the EIA Bulk API data,
+plus a ton of other incidental updates.
+
+This release upgrades PUDL dependencies to Pandas 3, DuckDB 2, Polars 2, and Splink 5.
+The upgrade to Pandas 3 came with some bonus bugfixes.
+
+We've also got better data validation tests for FERC EQR and RUS,
+and a pile of bug fixes in RUS, EIA-861, EIA-176, and the EIA-860m changelog.
+
+See below for details.
+
+Enhancements
+^^^^^^^^^^^^
+
+* Standardized how distributed ``datapackage.json`` descriptors are produced. FERC EQR
+  now has its own package, ``FERCEQR_PACKAGE``, and a dedicated ``ferceqr_datapackage``
+  asset built with the same factory as ``pudl_datapackage``. Descriptors list only the
+  sources their tables use and describe partitioned tables with per-partition ``bytes``
+  and ``hash`` entries. Each quarterly FERC EQR archive is now verified against the md5
+  checksum in its Zenodo metadata, and downloading archives from remote storage
+  requires setting ``PUDL_FERCEQR_ALLOW_DOWNLOADS``. See :issue:`5279` and :pr:`5693`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data through August 2026. See issue
+  :issue:`5742` and PR :pr:`5743`.
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860m <data_sources/eia860>` data through September 2026. See
+  PR :pr:`5732`.
+
+EIA-923
+~~~~~~~
+
+* Added :doc:`EIA-923 <data_sources/eia923>` data through August 2026. See
+  PR :pr:`5732`.
+
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data through the beginning of November
+  2026. See issue :issue:`5742` and PR :pr:`5743`.
+
+EIA API Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`EIA API <data_sources/eiaapi>` bulk electricity data through August
+  2026. See issue :issue:`5742` and PR :pr:`5743`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` with data through 2026 Q3
+  (September, 2026). See issue :issue:`5742` and PR :pr:`5748`.
+
+EPA MATS
+~~~~~~~~
+
+* Updated the raw EPA MATS archive with data through 2026 Q3 (September, 2026). This
+  data is not yet deeply integrated into PUDL. See issue :issue:`5742` and PR
+  :pr:`5748`.
+
+FERC CID
+~~~~~~~~
+
+* Updated the FERC company identifiers to the October 2026 release. See issue
+  :issue:`5742` and PR :pr:`5743`.
+
+FERC Forms 2 and 6
+~~~~~~~~~~~~~~~~~~
+
+* Re-archived the raw :ref:`FERC Form 2 <data-ferc2>` and :ref:`FERC Form 6
+  <data-ferc6>` XBRL data. Coverage still ends with 2025. This data is converted to
+  SQLite, but not deeply integrated into PUDL. See issue :issue:`5742` and PR
+  :pr:`5743`.
+
+PHMSA
+~~~~~
+
+* Updated the raw :doc:`PHMSA <data_sources/phmsagas>` archive with revised records.
+  Coverage still ends with 2025. See issue :issue:`5742` and PR :pr:`5743`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Updated ``dbt`` data validation now to support FERC EQR data. This requires ``dbt``
+  configuration changes to handle partitioned parquet outputs. See issue :pr:`4864`
+  and PR :pr:`5676`. This PR also applies basic validation tests to FERC EQR tables,
+  including row count tests.
+* Updated ``dbt`` data validation to support FERC EQR, whose partitioned parquet outputs
+  required several configuration changes. The ``external_location`` of each table is now
+  generated automatically, row count tests accept string partition keys such as
+  ``year_quarter``, and ``dbt_helper`` can generate row counts for partitioned tables.
+  Validation tests can also run against remote parquet datasets without downloading the
+  files, and the FERC EQR deployment asset now runs the EQR validations before
+  publishing. All FERC EQR tables get basic validation tests, including row counts. See
+  :issue:`4864` and :pr:`5676`.
+* Validate that the net utility plant, total other property and investments, and total
+  assets in :ref:`core_rus7__yearly_balance_sheet_assets` and
+  :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
+  The existing ``total_utility_plant`` and ``total_current_and_accrued`` tests no longer
+  allow any failures. See :issue:`5566` and :pr:`5729`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added a missing US minor outlying islands territory entry to the
+  :ref:`core_pudl__codes_subdivisions` table. See :issue:`5696` and :pr:`5716`.
+* Restored non-utility property (RUS Form 7 Part C, line 6) to
+  :ref:`core_rus7__yearly_balance_sheet_assets` and
+  :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
+  (``non_utility_property_asset``) meant the transform never picked it up. See
+  :issue:`5566` and :pr:`5729`.
+* Restored non-utility property (RUS Form 12 Section B, line 6) to
+  :ref:`core_rus12__yearly_balance_sheet_assets` and
+  :ref:`out_rus12__yearly_balance_sheet_assets`. As in RUS 7, a typo in the column map
+  (``non_utility_property_asset``) meant the transform never picked it up, and the
+  RUS 12 ``asset_type`` values are corrected to match. See :pr:`5737`, a follow-up to
+  :pr:`5729`.
+* Added ``plant_function`` values to a few factoids in
+  :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
+* Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
+  behave identically under pandas 2 and 3 by replacing in-place, chained and
+  dtype-changing assignments. Along the way: the PHMSA operators cleanup no longer
+  nulls non-string values like numeric zip codes. SEC 10-K ownership percentages no
+  longer misread leader dots (``"...99"`` was 0.0099, now 0.99), and
+  ``fraction_owned`` is now always within 0-1, with out-of-range values (about 9% of
+  non-null values, e.g. adjacent percentages run together) set to null and a field
+  constraint enforcing the range. ``drop_invalid_rows()`` has a new ``dropna`` argument
+  (default True) instead of requiring null values in ``invalid_values``; outputs are
+  unchanged. See :issue:`5616`, :issue:`5623` and :pr:`5720`.
+* ``X`` in the EIA-861 dynamic pricing time-of-use, critical peak, real time and
+  variable peak columns is now treated as ``True`` (a checked box) instead of being
+  turned into a null, which changes four 2018 rows of
+  ``core_eia861__yearly_dynamic_pricing``. All EIA-861 Y/N flag columns now share one
+  case-insensitive conversion to booleans, so a lowercase ``y`` or ``n`` is no longer
+  turned into a null in a few ``core_eia861__yearly_reliability`` rows, and unexpected
+  codes other than Y, N and X raise an error. See :issue:`5617`, :issue:`5601` and
+  :pr:`5718`.
+* Fixed the 2007-2011 EIA-861 advanced metering infrastructure column map, which was
+  loading the utility ownership codes (e.g. ``C`` for cooperative) into ``short_form``
+  and leaving ``entity_type`` null. Those years of
+  ``core_eia861__yearly_advanced_metering_infrastructure`` now have ``entity_type``
+  populated and ``short_form`` null. See :issue:`5617` :pr:`5718`.
+* When EIA-861 rows for the withheld utility 88888 are combined, boolean columns are
+  no longer summed, nulls are now compatible with non-null values, and the row kept
+  when values conflict no longer depends on input row order, which may change a few
+  rows in several EIA-861 tables. See :issue:`5612` and :pr:`5718`.
+* Made the EIA-923 transforms behave the same under pandas 3: date and month columns
+  are now assigned directly instead of through chained ``.loc`` assignment, and the
+  numeric columns summed when de-duplicating EIA-923 generation fuel rows are
+  explicitly cast to ``float64``. See :issue:`5619`, :issue:`5620` and
+  :pr:`5719`.
+* Made null handling in ``stack_generators()``, the EIA-176 "other" gas disposition
+  categorization and the EIA-860 ownership spot-fix behave identically under pandas 2
+  and 3. Pandas 3 changed how nulls are treated by ``stack()``, ``astype(str)`` and
+  string comparisons, which would otherwise have left spurious null energy sources,
+  null primary keys, or unremoved bogus ownership records. See :issue:`5621`,
+  :issue:`5622`, :issue:`5624` and :pr:`5721`.
+* Stop ``make_changelog()`` from dropping records whose values reverted to an earlier
+  state (e.g. ``OP`` -> ``OA`` -> ``OP``), leaving the intermediate value looking like a
+  permanent change. This adds 3-7% more rows to
+  :ref:`core_eia860m__changelog_generators` and the entity resolution forensics tables.
+  It also removes empty ``valid_until_date`` intervals, and ensures every series ends
+  on the same date -- one month past the entity's final report date. See :issue:`5730`
+  and :pr:`5731`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* The FERC DBF field types we can't convert to SQL column types are now listed apart
+  from the ones we can, instead of being mixed in as placeholder strings. A field of an
+  unsupported type fails immediately with an error naming the type, field and table.
+  See :pr:`5734`.
+* Plant part record IDs for records with a null ``utility_id_eia`` now end in ``null``
+  instead of ``<NA>`` (or ``<na>``), consistent with the rest of the ID. This changes
+  ``record_id_eia`` and ``plant_part_id_eia`` in ``out_eia__yearly_plant_parts`` and the
+  related plant-part association tables for a few hundred records. See :issue:`5598` and
+  :pr:`5721`.
+* Replaced the standalone ``pixi run unmapped-ids`` pytest task with analogous Dagster
+  assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
+  non-empty. See issue :issue:`4338` and PR :pr:`5539`.
+* Added a ``DATAPACKAGES`` registry of every datapackage PUDL distributes, with
+  ``all_resources()`` and ``find_resource()`` helpers, so asset checks, the docs, the
+  data dictionary, dbt tooling and a DuckDB views database per package cover FERC EQR as
+  well as the main PUDL tables. Every ``<name>_datapackage`` asset now has blocking
+  checks that validate its descriptor and compare the declared fields with the columns
+  in its Parquet files, and Pandera schemas are strict. This exposed a redundant
+  ``filing_quarter`` column in :ref:`core_ferceqr__quarterly_identity` which was
+  removed. The datapackage and ``deploy_ferceqr`` assets also record richer Dagster
+  metadata. See :issue:`5279` and :pr:`5735`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A bunch of Python tabular data libraries we depend on have had major releases in the
+last month (or finally made it into PUDL in the last month anyway), with big performance
+improvements and new features, but also breaking changes.
+
+Pandas 3
+~~~~~~~~
+
+* Upgraded to ``pandas`` 3 (``pandas>=3.1,<4``) and ``pandas-stubs`` 3.1, adapting PUDL
+  to the new string dtype, stricter ``setitem`` dtype rules, mandatory Copy-on-Write,
+  and ``groupby(...).apply`` no longer including grouping columns. We also fixed
+  transforms that failed when only some years were processed (as in the fast ETL),
+  removed pandas 2-only code and warning suppressions, and consolidated fragmented
+  wide data frames that had caused thousands of warnings and slow transforms. See PRs
+  :pr:`5130`, :pr:`5718`, :pr:`5719`, :pr:`5720`, :pr:`5721` and Epic :issue:`3737`.
+* We aimed to keep the outputs the same, so any difference comes from a deliberate
+  decision rather than from the upgrade. Where pandas 2 was correct or the right value
+  was unclear we preserved its behavior, e.g. missing EIA-860M ``generator_id`` and
+  ``boiler_id`` values stay the string ``"nan"`` (:issue:`5645`), out-of-range dates
+  stay ``NaT`` (:issue:`5644`), and Unicode whitespace is still collapsed in strings
+  (:issue:`5646`).
+* Where pandas 3 changed a value and the right one was clear, we fixed the data. This
+  affects a small number of values: EIA-861 rows for the withheld utility 88888 (and the
+  Texas state demand derived from them), the order of FERC 1 small plants rows and the
+  plant and fuel types that depend on it, one malformed EIA-860M date, the dtype of
+  ``supplier_code_rus`` in the RUS 7 energy purchased table, etc. See PR :pr:`5130`
+  and the commit messages for details.
+* For more on what changed in pandas 3, see the pandas `3.0 announcement
+  <https://pandas.pydata.org/community/blog/pandas-3.0.html>`__, the `3.0.0
+  <https://pandas.pydata.org/docs/whatsnew/v3.0.0.html>`__ and `3.1.0
+  <https://pandas.pydata.org/docs/whatsnew/v3.1.0.html>`__ release notes, and the
+  `migration guides <https://pandas.pydata.org/docs/user_guide/migration.html>`__.
+
+DuckDB 2
+~~~~~~~~
+
+* Upgraded to DuckDB 2.0. Its Python client fetches results differently and the SQL
+  parser is new, requiring small query changes. See PR :pr:`5726`, the `announcement
+  <https://duckdb.org/2026/10/21/announcing-duckdb-200>`__ and `migration guide
+  <https://duckdb.org/docs/2.0/operations_manual/migration.html>`__.
+
+Polars 2
+~~~~~~~~
+
+* Upgraded to Polars 2 (in v2026.10.0). Lazy queries now stream by default without
+  guaranteeing row order, and one ``replace()`` became ``strict_replace()``. See PR
+  :pr:`5689`, the `announcement <https://pola.rs/posts/release-polars-2/>`__ and
+  `upgrade guide <https://docs.pola.rs/releases/upgrade/2/>`__.
+
+Splink 5
+~~~~~~~~
+
+* Upgraded to Splink 5 (in v2026.10.0) and ported the FERC 1 to EIA plant-parts record
+  linkage to its new API. The linkage shifts slightly, as if the random seed had
+  changed. See PR :pr:`5698` and the `Splink 5.0.0 release notes
+  <https://github.com/moj-analytical-services/splink/releases/tag/v5.0.0>`__.
+
 .. _release-v2026.10.0:
 
 ---------------------------------------------------------------------------------------
@@ -96,6 +363,11 @@ New Data Tests & Validations
   0.04% of its records are obviously wrong), so
   :ref:`core_eia860m__changelog_generators` is exempt, and new dbt tests cap the number
   of known bad records in it instead. See PR :pr:`5697`.
+* Added dbt tests that check whether plant coordinates fall in the state and county
+  they report, using the DuckDB spatial extension and Census boundaries. Applied to
+  :ref:`core_eia__entity_plants`, they currently flag 32 plants more than 5 km outside
+  their reported state (including offshore wind farms) and 204 outside their reported
+  county. These are not fixed yet. See PR :pr:`5700`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^

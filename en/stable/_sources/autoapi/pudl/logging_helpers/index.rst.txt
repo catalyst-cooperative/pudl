@@ -14,6 +14,7 @@ Attributes
 
 .. autoapisummary::
 
+   pudl.logging_helpers.LogLevel
    pudl.logging_helpers.DEFAULT_DEPENDENCY_LOGLEVELS
 
 
@@ -29,6 +30,10 @@ Functions
 Module Contents
 ---------------
 
+.. py:type:: LogLevel
+   :canonical: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+
+
 .. py:data:: DEFAULT_DEPENDENCY_LOGLEVELS
    :type:  dict[str, int]
 
@@ -37,7 +42,7 @@ Module Contents
    Helper function to append 'catalystcoop' to logger name and return logger.
 
 
-.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] = 'INFO', dependency_loglevels: dict[str, int] | None = None, color_logs: bool = True, propagate: bool = False) -> None
+.. py:function:: configure_root_logger(logfile: str | os.PathLike[str] | None = None, loglevel: LogLevel = 'INFO', dependency_loglevels: dict[str, int] | None = None, color_logs: bool = True, propagate: bool = False) -> None
 
    Configure the root catalystcoop logger.
 

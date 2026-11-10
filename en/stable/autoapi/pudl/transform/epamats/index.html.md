@@ -17,12 +17,12 @@ loading, and crosswalk validation), so they are imported directly from
 
 ## Functions
 
-| [`_map_measurement_codes`](#pudl.transform.epamats._map_measurement_codes)(→ polars.LazyFrame)         | Map non-canonical measurement codes to canonical values.           |
-|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| [`_replace_missing_placeholders`](#pudl.transform.epamats._replace_missing_placeholders)(→ polars.LazyFrame)  | Convert EPA's -1 placeholder for missing values into null.         |
-| [`_validate_and_drop_hf_columns`](#pudl.transform.epamats._validate_and_drop_hf_columns)(→ polars.LazyFrame)  | Assert all HF columns are null, then drop them from the data.      |
-| [`transform_epamats`](#pudl.transform.epamats.transform_epamats)(→ polars.LazyFrame)              | Transform EPA MATS hourly data and ready it for export to Parquet. |
-| [`core_epamats__hourly_emissions`](#pudl.transform.epamats.core_epamats__hourly_emissions)(→ polars.LazyFrame) | Transform raw EPA MATS hourly emissions data and write to Parquet. |
+| [`_map_measurement_codes`](#pudl.transform.epamats._map_measurement_codes)(lf) → polars.LazyFrame                                  | Map non-canonical measurement codes to canonical values.           |
+|---------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| [`_replace_missing_placeholders`](#pudl.transform.epamats._replace_missing_placeholders)(lf) → polars.LazyFrame                           | Convert EPA's -1 placeholder for missing values into null.         |
+| [`_validate_and_drop_hf_columns`](#pudl.transform.epamats._validate_and_drop_hf_columns)(lf) → polars.LazyFrame                           | Assert all HF columns are null, then drop them from the data.      |
+| [`transform_epamats`](#pudl.transform.epamats.transform_epamats)(raw_lf, core_epa_\_assn_eia_epacamd, ...) → polars.LazyFrame | Transform EPA MATS hourly data and ready it for export to Parquet. |
+| [`core_epamats__hourly_emissions`](#pudl.transform.epamats.core_epamats__hourly_emissions)(context, ...) → polars.LazyFrame                | Transform raw EPA MATS hourly emissions data and write to Parquet. |
 
 ## Module Contents
 

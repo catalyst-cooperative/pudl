@@ -20,7 +20,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: main(entity_type: Literal['utility', 'balancing_authority'], dissolve: bool, output_dir: pathlib.Path, limit_by_state: bool, years: list[int], logfile: pathlib.Path, loglevel: str) -> int
+.. py:function:: main(entity_type: Literal['utility', 'balancing_authority'], dissolve: bool, output_dir: pathlib.Path, limit_by_state: bool, years: list[int], logfile: pathlib.Path | None, loglevel: pudl.logging_helpers.LogLevel) -> int
 
    Compile historical utility and balancing area service territory geometries.
 

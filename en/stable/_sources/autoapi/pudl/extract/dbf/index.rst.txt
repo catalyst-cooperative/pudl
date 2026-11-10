@@ -16,6 +16,7 @@ Attributes
 
    pudl.extract.dbf.logger
    pudl.extract.dbf.DBF_TYPES
+   pudl.extract.dbf.UNSUPPORTED_DBF_TYPES
 
 
 Exceptions
@@ -244,6 +245,7 @@ Module Contents
 
 
 .. py:data:: DBF_TYPES
+   :type:  dict[str, type[sqlalchemy.types.TypeEngine]]
 
    A mapping of DBF field types to SQLAlchemy Column types.
 
@@ -252,8 +254,18 @@ Module Contents
    combination of the dbfread example program dbf2sqlite and this DBF file format
    documentation page:
    http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-   : http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'
-   which should result in an error if encountered.
+
+   Field types that are not mapped are in :data:`UNSUPPORTED_DBF_TYPES`.
+
+   :type: Dict
+
+.. py:data:: UNSUPPORTED_DBF_TYPES
+   :type:  dict[str, str]
+
+   DBF field types that are not mapped to SQLAlchemy types, with descriptions.
+
+   A :class:`NotImplementedError` is raised if a field of one of these types is
+   encountered.
 
    :type: Dict
 
@@ -344,7 +356,7 @@ Module Contents
 
 
 
-.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, data_config: pudl.settings.FercDbfToSqliteDataConfig, output_path: pathlib.Path)
+.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, data_config: pudl.settings.FercToSqliteDataConfig, output_path: pathlib.Path)
 
    Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.
 

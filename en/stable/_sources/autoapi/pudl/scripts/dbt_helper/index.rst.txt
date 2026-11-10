@@ -45,6 +45,7 @@ Functions
    pudl.scripts.dbt_helper._log_update_result
    pudl.scripts.dbt_helper._extract_row_count_partitions
    pudl.scripts.dbt_helper.update_tables
+   pudl.scripts.dbt_helper._source_selection
    pudl.scripts.dbt_helper.validate
    pudl.scripts.dbt_helper.main
 
@@ -153,7 +154,16 @@ Module Contents
    if this does not result in deletions.
 
 
-.. py:function:: validate(select: str | None = None, asset_select: str | None = None, exclude: str | None = None, dry_run: bool = False, override_target: str | None = None) -> None
+.. py:function:: _source_selection(source: str | None) -> str
+
+   Translate a ``--source`` choice into a dbt node selection.
+
+   ``None`` means the default source, ``pudl``. ``"*"`` selects every node. The
+   ``pudl`` selection also includes the unit tests of our dbt macros, which don't
+   depend on any source and so would otherwise never be run.
+
+
+.. py:function:: validate(select: str | None = None, asset_select: str | None = None, source: str | None = None, exclude: str | None = None, dry_run: bool = False, override_target: str | None = None, parquet_base_path: str | None = None) -> None
 
    Validate a selection of dbt nodes.
 
@@ -163,8 +173,9 @@ Module Contents
    Understands how to translate Dagster asset selection syntax into dbt node
    selections via the --asset-select flag.
 
-   Default behavior if you do not pass `--asset-select` or `--select` is to
-   validate everything.
+   Default behavior if you do not pass `--asset-select`, `--select` or `--source` is
+   to validate the ``pudl`` source. The FERC EQR tables are only validated if you ask
+   for them with `--source ferceqr`, and everything is validated with `--source "*"`.
 
    Usage examples:
 
@@ -172,9 +183,17 @@ Module Contents
 
        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators"
 
+   Run the checks for the FERC EQR tables (not run by default, since they are large):
+
+       $ dbt_helper validate --source ferceqr
+
+   Run the checks for every source:
+
+       $ dbt_helper validate --source "*"
+
    Run the checks for one specific dbt node:
 
-       $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+       $ dbt_helper validate --select "source:pudl_validation_tests.pudl.out_eia__yearly_generators"
 
    Run checks for an asset and all its upstream dependencies:
 
@@ -183,6 +202,10 @@ Module Contents
    Exclude the row count tests:
 
        $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
+
+   Validate Parquet files that live somewhere other than $PUDL_OUTPUT/parquet:
+
+       $ dbt_helper validate --asset-select "key:out_eia__yearly_generators" --parquet-base-path /path/to/parquet
 
 
 

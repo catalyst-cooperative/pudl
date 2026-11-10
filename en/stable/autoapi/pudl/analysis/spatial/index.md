@@ -4,14 +4,14 @@ Spatial operations for demand allocation.
 
 ## Functions
 
-| [`check_gdf`](#pudl.analysis.spatial.check_gdf)(→ None)                    | Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.   |
-|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`polygonize`](#pudl.analysis.spatial.polygonize)(...)                      | Convert geometry to (Multi)Polygon.                                              |
-| [`explode`](#pudl.analysis.spatial.explode)(→ geopandas.GeoDataFrame)    | Explode MultiPolygon to multiple Polygon geometries.                             |
-| [`self_union`](#pudl.analysis.spatial.self_union)(→ geopandas.GeoDataFrame) | Calculate the geometric union of a feature layer with itself.                    |
-| [`dissolve`](#pudl.analysis.spatial.dissolve)(→ geopandas.GeoDataFrame)   | Dissolve layer by aggregating features based on common attributes.               |
-| [`overlay`](#pudl.analysis.spatial.overlay)(→ geopandas.GeoDataFrame)    | Overlay multiple layers incrementally.                                           |
-| [`get_data_columns`](#pudl.analysis.spatial.get_data_columns)(→ list)             | Return list of columns, ignoring geometry.                                       |
+| [`check_gdf`](#pudl.analysis.spatial.check_gdf)(gdf) → None                                                       | Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.   |
+|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`polygonize`](#pudl.analysis.spatial.polygonize)(geom) → shapely.geometry.Polygon | shapely.geometry.MultiPolygon | Convert geometry to (Multi)Polygon.                                              |
+| [`explode`](#pudl.analysis.spatial.explode)(gdf[, ratios]) → geopandas.GeoDataFrame                             | Explode MultiPolygon to multiple Polygon geometries.                             |
+| [`self_union`](#pudl.analysis.spatial.self_union)(gdf[, ratios]) → geopandas.GeoDataFrame                          | Calculate the geometric union of a feature layer with itself.                    |
+| [`dissolve`](#pudl.analysis.spatial.dissolve)(gdf, by, func[, how]) → geopandas.GeoDataFrame                     | Dissolve layer by aggregating features based on common attributes.               |
+| [`overlay`](#pudl.analysis.spatial.overlay)(\*gdfs[, how, ratios]) → geopandas.GeoDataFrame                     | Overlay multiple layers incrementally.                                           |
+| [`get_data_columns`](#pudl.analysis.spatial.get_data_columns)(df) → list                                                 | Return list of columns, ignoring geometry.                                       |
 
 ## Module Contents
 
@@ -114,7 +114,8 @@ feature from each layer (null if none) could be returned as the index.
   * **ratios** – Names of columns to rescale by the area fraction of the split feature
     relative to the original. By default, the original value is used unchanged.
 * **Raises:**
-  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Duplicate column names in layers.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Duplicate column names in layers.
+  * [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – Fewer than two layers provided.
 * **Returns:**
   GeoDataFrame with the geometries and attributes resulting from the overlay.
 

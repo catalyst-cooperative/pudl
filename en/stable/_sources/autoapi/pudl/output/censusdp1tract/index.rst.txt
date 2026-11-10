@@ -15,6 +15,7 @@ Attributes
 .. autoapisummary::
 
    pudl.output.censusdp1tract.logger
+   pudl.output.censusdp1tract.CensusLayer
    pudl.output.censusdp1tract.census_dp1_layers
 
 
@@ -39,6 +40,10 @@ Module Contents
 
 .. py:data:: logger
 
+.. py:type:: CensusLayer
+   :canonical: Literal['state', 'county', 'tract']
+
+
 .. py:class:: LayerParams
 
    Bases: :py:obj:`TypedDict`
@@ -55,7 +60,7 @@ Module Contents
       :type:  dict[str, str]
 
 
-.. py:function:: census_asset_factory(layer: Literal['state', 'county', 'tract']) -> dagster.AssetsDefinition
+.. py:function:: census_asset_factory(layer: CensusLayer) -> dagster.AssetsDefinition
 
    An asset factory for finished EIA tables.
 

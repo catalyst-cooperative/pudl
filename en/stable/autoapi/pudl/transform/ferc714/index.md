@@ -36,15 +36,15 @@ should include a raw datasource suffix.
 
 ## Functions
 
-| [`_pre_process_csv`](#pudl.transform.ferc714._pre_process_csv)(→ pandas.DataFrame)                      | A simple transform function for processing the CSV raw data.                                                                                                    |
-|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`_assign_respondent_id_ferc714`](#pudl.transform.ferc714._assign_respondent_id_ferc714)(→ pandas.DataFrame)         | Assign the PUDL-assigned respondent_id_ferc714 based on the native respondent ID.                                                                               |
-| [`_filter_for_freshest_data_xbrl`](#pudl.transform.ferc714._filter_for_freshest_data_xbrl)(raw_xbrl, table_name, ...) | Wrapper around filter_for_freshest_data_xbrl.                                                                                                                   |
-| [`_fillna_respondent_id_ferc714_source`](#pudl.transform.ferc714._fillna_respondent_id_ferc714_source)(→ pandas.DataFrame)  | Fill missing CSV or XBRL respondent id.                                                                                                                         |
-| [`assign_report_day`](#pudl.transform.ferc714.assign_report_day)(→ pandas.DataFrame)                     | Add a report_day column.                                                                                                                                        |
-| [`core_ferc714__respondent_id`](#pudl.transform.ferc714.core_ferc714__respondent_id)(→ pandas.DataFrame)           | Transform the FERC 714 respondent IDs, names, and EIA utility IDs.                                                                                              |
-| [`core_ferc714__hourly_planning_area_demand`](#pudl.transform.ferc714.core_ferc714__hourly_planning_area_demand)(...)            | Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand).                   |
-| [`core_ferc714__yearly_planning_area_demand_forecast`](#pudl.transform.ferc714.core_ferc714__yearly_planning_area_demand_forecast)(...)   | Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast). |
+| [`_pre_process_csv`](#pudl.transform.ferc714._pre_process_csv)(df, table_name) → pandas.DataFrame                        | A simple transform function for processing the CSV raw data.                                                                                                    |
+|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`_assign_respondent_id_ferc714`](#pudl.transform.ferc714._assign_respondent_id_ferc714)(df, source) → pandas.DataFrame               | Assign the PUDL-assigned respondent_id_ferc714 based on the native respondent ID.                                                                               |
+| [`_filter_for_freshest_data_xbrl`](#pudl.transform.ferc714._filter_for_freshest_data_xbrl)(raw_xbrl, table_name, ...)                  | Wrapper around filter_for_freshest_data_xbrl.                                                                                                                   |
+| [`_fillna_respondent_id_ferc714_source`](#pudl.transform.ferc714._fillna_respondent_id_ferc714_source)(df, source) → pandas.DataFrame        | Fill missing CSV or XBRL respondent id.                                                                                                                         |
+| [`assign_report_day`](#pudl.transform.ferc714.assign_report_day)(df, date_col) → pandas.DataFrame                         | Add a report_day column.                                                                                                                                        |
+| [`core_ferc714__respondent_id`](#pudl.transform.ferc714.core_ferc714__respondent_id)(context, raw_csv, ...) → pandas.DataFrame      | Transform the FERC 714 respondent IDs, names, and EIA utility IDs.                                                                                              |
+| [`core_ferc714__hourly_planning_area_demand`](#pudl.transform.ferc714.core_ferc714__hourly_planning_area_demand)(context, ...) → pandas.DataFrame | Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand).                   |
+| [`core_ferc714__yearly_planning_area_demand_forecast`](#pudl.transform.ferc714.core_ferc714__yearly_planning_area_demand_forecast)(...) → pandas.DataFrame | Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast). |
 
 ## Module Contents
 
@@ -333,7 +333,8 @@ correspond with hour 00 (of the next day). We have not gotten complete
 confirmation from FERC staff that this is always the case, but it seems like a
 decent assumption.
 
-So, this step converts all of the hour 24 records to be hour 00 of the next day.
+So, this step converts all of the hour 24 records to be hour 00 of the next day,
+and converts the `report_date` strings to datetimes.
 
 #### *static* convert_dates_to_zero_seconds_xbrl(xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

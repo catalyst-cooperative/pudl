@@ -16,7 +16,9 @@ Metadata data classes.
 | [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                            |
 | [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                                |
 | [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                  |
+| [`FERCEQR_PACKAGE`](#pudl.metadata.classes.FERCEQR_PACKAGE)  |                                                                                                                        |
 | [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                                |
+| [`DATAPACKAGES`](#pudl.metadata.classes.DATAPACKAGES)     | Registry of every datapackage PUDL distributes, keyed by package name.                                                 |
 
 ## Classes
 
@@ -40,12 +42,14 @@ Metadata data classes.
 
 ## Functions
 
-| [`_unique`](#pudl.metadata.classes._unique)(→ list)                        | Return a list of all unique values, in order of first appearance.   |
-|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(→ str)                 | Format value for use in raw SQL(ite).                               |
-| [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir]) |                                                                     |
-| [`_check_unique`](#pudl.metadata.classes._check_unique)(→ list | None)           | Check that input list has unique values.                            |
-| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)(→ list | None) | Sort an enum constraint's values into a deterministic order.        |
+| [`_unique`](#pudl.metadata.classes._unique)(\*args) → list                         | Return a list of all unique values, in order of first appearance.          |
+|-------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(x[, identifier]) → str         | Format value for use in raw SQL(ite).                                      |
+| [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir])         |                                                                            |
+| [`_check_unique`](#pudl.metadata.classes._check_unique)([value]) → list | None           | Check that input list has unique values.                                   |
+| [`_sort_deterministically`](#pudl.metadata.classes._sort_deterministically)([value]) → list | None | Sort an enum constraint's values into a deterministic order.               |
+| [`all_resources`](#pudl.metadata.classes.all_resources)() → list[Resource]               | Return every resource in any registered datapackage, unique by name.       |
+| [`find_resource`](#pudl.metadata.classes.find_resource)(name) → Resource                 | Return the named resource from the first registered package containing it. |
 
 ## Module Contents
 
@@ -311,7 +315,7 @@ Check that every fixed code is also one of the good codes.
 
 A mapping of all known codes to their standardized values, or NA.
 
-#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [pudl.metadata.dtypes.PandasDtype](../dtypes/index.html.md#pudl.metadata.dtypes.PandasDtype) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Apply the stored code mapping to an input Series.
 
@@ -352,7 +356,7 @@ See [https://specs.frictionlessdata.io/table-schema/#field-descriptors](https://
 ```pycon
 >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
 >>> field.to_pandas_dtype()
-CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
 >>> field.to_sql()
 Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
 >>> field = Field.from_id('utility_id_eia')
@@ -405,11 +409,11 @@ metadata, which permanently pins the physical dtype: any later attempt to scan
 that file with a different schema or even slightly different `Enum` fails
 instead of being coerced. `Categorical` round-trips through Parquet fine.
 
-#### to_pandas_dtype() → [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
+#### to_pandas_dtype() → [pudl.metadata.dtypes.PandasDtype](../dtypes/index.html.md#pudl.metadata.dtypes.PandasDtype)
 
 Return Pandas data type.
 
-#### to_sqlite_dtype() → [type](#pudl.metadata.classes.Field.type)
+#### to_sqlite_dtype() → [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine) | [type](#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]
 
 Return SQLAlchemy data type.
 
@@ -439,7 +443,7 @@ structurally can’t hold a string value. The `TYPEOF`/`DATETIME`/`GLOB`
 checks built for SQLite exist specifically to compensate for SQLite’s
 dynamic typing, and have no analog under DuckDB’s native column types.
 
-#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [type](#pudl.metadata.classes.Field.type) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### encode(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series), dtype: [pudl.metadata.dtypes.PandasDtype](../dtypes/index.html.md#pudl.metadata.dtypes.PandasDtype) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Recode the Field if it has an associated encoder.
 
@@ -956,6 +960,8 @@ May also include more-detailed explanations of listed usage warnings.
 
 #### extrapaths *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
+#### dbt_source *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'pudl'*
+
 ### *class* pudl.metadata.classes.Resource(/, \*\*data: Any)
 
 Bases: [`PudlMeta`](#pudl.metadata.classes.PudlMeta)
@@ -1133,6 +1139,8 @@ except for `year` fields which can be integer.
 
 #### etl_group *: [EtlGroup](#pudl.metadata.classes.EtlGroup) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
 
+#### dbt_source *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'pudl'*
+
 #### create_database_schema *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= True*
 
 #### \_check_unique
@@ -1238,7 +1246,7 @@ Return Polars data type of each field by field name.
 
 Return Polars data type of each field by field name.
 
-#### to_pandas_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
+#### to_pandas_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [pudl.metadata.dtypes.PandasDtype](../dtypes/index.html.md#pudl.metadata.dtypes.PandasDtype)]
 
 Return Pandas data type of each field by field name.
 
@@ -1601,7 +1609,7 @@ Package out of a collection of Resources, we want the Package to reflect the
 union of all the analogous values found in the Resources, but we don’t want
 any duplicates. We may also get values directly from the Package inputs.
 
-#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [Package](#pudl.metadata.classes.Package)
+#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), included_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'pudl') → [Package](#pudl.metadata.classes.Package)
 
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
@@ -1620,9 +1628,12 @@ the full collection of PUDL tables.
     foreign keys.
   * **excluded_etl_groups** – Collection of ETL groups used to filter resources
     out of Package.
+  * **included_etl_groups** – Collection of ETL groups used to filter resources
+    in Package.
   * **title** – Human-readable title for the package.
   * **description** – Human-readable description of the package.
   * **version** – Version string for the package.
+  * **name** – Name of the datapackage.
 
 #### *static* get_etl_group_tables(etl_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
@@ -1637,7 +1648,7 @@ Get a sorted tuple of table names for an etl_group.
 
 Return the resource with the given name if it is in the Package.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, path: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Output to an RST file.
 
@@ -1672,33 +1683,25 @@ Compile a mapping of field names to their encoders, if they exist.
 This dictionary will be used many times, so it makes sense to build it once
 when the Package is instantiated so it can be reused.
 
-#### encode(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### encode(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Clean up all coded columns in a dataframe based on PUDL coding tables.
 
-Running with `copy=False` is intended for memory-intensive data frames where no
-upstream process retains a reference to the data. Use care with this option,
-and keep an eye out for spooky data changes showing up in unexpected places.
-
 * **Parameters:**
-  * **df** – DataFrame whose code columns are being cleaned up.
-  * **copy** – (Default True) Return a copy, making no changes to the original data.
+  **df** – DataFrame whose code columns are being cleaned up.
 * **Returns:**
   A dataframe with clean code columns.
 
-#### to_frictionless(exclude_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, include_pattern: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [re.Pattern](https://docs.python.org/3/library/re.html#re.Pattern)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → frictionless.Package
+#### to_frictionless() → frictionless.Package
 
 Convert to a Frictionless Datapackage.
 
-Allows filtering out specific resources by passing regex patterns to include
-or exclude resources by name. This is used to generate an independent
-‘datapackage.json’ file for `ferceqr` assets, which are distributed separately
-from the rest of PUDL. This method will only look for table names that exactly
-match the supplied patterns, not substring matches.
+The datapackage describes every resource in this package. Its sources,
+contributors, licenses and keywords are compiled from just those resources, so
+a package like `ferceqr`, which is distributed separately from the rest of
+PUDL, gets an independent descriptor that lists only what it uses.
 
-* **Parameters:**
-  * **exclude_pattern** – Exclude resources whose names exactly match this pattern.
-  * **include_pattern** – Only include resources whose names exactly match this pattern.
+### pudl.metadata.classes.FERCEQR_PACKAGE
 
 ### pudl.metadata.classes.PUDL_PACKAGE
 
@@ -1708,6 +1711,38 @@ This needs to happen after the definition of the Package class above, and it is 
 some of the class definitions below, but having it defined in the middle of this module
 is kind of obscure, so it is imported in the \_\_init_\_.py for this subpackage and then
 imported in other modules from that more prominent location.
+
+### pudl.metadata.classes.DATAPACKAGES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Package](#pudl.metadata.classes.Package)]*
+
+Registry of every datapackage PUDL distributes, keyed by package name.
+
+This is the single source of truth for which packages exist. Code that needs to see
+all of the tables, rather than the tables of one particular package, should go through
+this registry (or [`all_resources()`](#pudl.metadata.classes.all_resources) / [`find_resource()`](#pudl.metadata.classes.find_resource)) instead of naming
+individual packages, so that adding a package cannot leave a consumer behind.
+
+A resource may appear in more than one package. Nothing here assumes the packages are
+disjoint: lookups return the first match in registry order, and listings are
+deduplicated by resource name. A resource’s definition comes from `RESOURCE_METADATA`
+and does not depend on the package that contains it.
+
+### pudl.metadata.classes.all_resources() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)]
+
+Return every resource in any registered datapackage, unique by name.
+
+Resources are listed in registry order, then in package order. A resource that
+appears in several packages is listed once, using its first occurrence.
+
+### pudl.metadata.classes.find_resource(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [Resource](#pudl.metadata.classes.Resource)
+
+Return the named resource from the first registered package containing it.
+
+Use this when you have a resource name but don’t know which package it belongs to.
+Code that is specific to one package, like building the PUDL SQLite database,
+should keep using that package directly.
+
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/builtins/exceptions.html#ValueError) – if no registered datapackage contains the resource.
 
 ### *class* pudl.metadata.classes.CodeMetadata(/, \*\*data: Any)
 

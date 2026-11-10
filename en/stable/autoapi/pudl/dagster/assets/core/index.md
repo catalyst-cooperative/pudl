@@ -8,3 +8,4 @@ Core Dagster asset-definition modules for PUDL.
 * [pudl.dagster.assets.core.eiaapi_electricity](eiaapi_electricity/index.md)
 * [pudl.dagster.assets.core.glue](glue/index.md)
 * [pudl.dagster.assets.core.static](static/index.md)
+* [pudl.dagster.assets.core.unmapped_ids](unmapped_ids/index.md)

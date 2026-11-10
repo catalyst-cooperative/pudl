@@ -18,15 +18,16 @@ pudl.metadata.dtypes
 
    When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resource
    schema is authoritative. That means resource-specific field typing and enum/category
-   information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.
+   information already encoded in the registered datapackages will be used directly where
+   possible.
 
    Not every backend supports every canonical PUDL field type. In particular, some
    backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype
    helpers intentionally omit unsupported fields rather than returning an incompatible
    dtype mapping.
 
-   This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper
-   functions that need it, so the metadata class graph does not introduce a module import
+   This module intentionally keeps the import of the datapackage registry local to the
+   helper functions that need it, so the metadata class graph does not introduce a module import
    cycle.
 
 
@@ -38,6 +39,7 @@ Attributes
 
    pudl.metadata.dtypes.FIELD_DTYPES_POLARS
    pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB
+   pudl.metadata.dtypes.PandasDtype
    pudl.metadata.dtypes.FIELD_DTYPES_PANDAS
    pudl.metadata.dtypes.FIELD_DTYPES_PYARROW
    pudl.metadata.dtypes.FIELD_DTYPES_SQLALCHEMY
@@ -56,7 +58,7 @@ Functions
    pudl.metadata.dtypes._get_applicable_dtypes
    pudl.metadata.dtypes.get_pudl_dtypes
    pudl.metadata.dtypes._get_pudl_namespace_dtypes
-   pudl.metadata.dtypes._get_pudl_resource_dtypes
+   pudl.metadata.dtypes._get_resource_dtypes
    pudl.metadata.dtypes.apply_pudl_dtypes
    pudl.metadata.dtypes.apply_pudl_dtypes_polars
 
@@ -74,8 +76,17 @@ Module Contents
 
    DuckDB data type by simplified PUDL field type.
 
+.. py:data:: PandasDtype
+
+   a dtype name or object.
+
+   PUDL uses dtype names (e.g. ``"Int64"``) for most fields and
+   :class:`pandas.CategoricalDtype` instances (an ``ExtensionDtype``) for enum fields.
+
+   :type: A pandas dtype as given to :meth:`pandas.Series.astype`
+
 .. py:data:: FIELD_DTYPES_PANDAS
-   :type:  dict[str, str]
+   :type:  dict[str, PandasDtype]
 
    Pandas data type by simplified PUDL field type.
 
@@ -160,7 +171,7 @@ Module Contents
    :returns: A mapping of PUDL field names to their associated data types.
 
 
-.. py:function:: _get_pudl_resource_dtypes(resource: str, dtype_backend: PudlDtypeBackend = 'pandas') -> dict[str, Any]
+.. py:function:: _get_resource_dtypes(resource: str, dtype_backend: PudlDtypeBackend = 'pandas') -> dict[str, Any]
 
    Compile a dictionary of field dtypes for a specific PUDL resource.
 

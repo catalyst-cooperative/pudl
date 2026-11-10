@@ -19,5 +19,6 @@ Submodules
    /autoapi/pudl/dagster/assets/core/eiaapi_electricity/index
    /autoapi/pudl/dagster/assets/core/glue/index
    /autoapi/pudl/dagster/assets/core/static/index
+   /autoapi/pudl/dagster/assets/core/unmapped_ids/index
 
 

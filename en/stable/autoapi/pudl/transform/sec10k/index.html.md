@@ -13,26 +13,26 @@ for denormalized output tables.
 
 ## Functions
 
-| [`_year_quarter_to_date`](#pudl.transform.sec10k._year_quarter_to_date)(→ pandas.Series)                           | Convert a year quarter in the format '2024q1' to date type.                          |
-|-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [`_simplify_filename_sec10k`](#pudl.transform.sec10k._simplify_filename_sec10k)(→ pandas.Series)                       | Strip non-unique path and file type extension from partial SEC 10-K filenames.       |
-| [`_extract_filer_cik_from_filename`](#pudl.transform.sec10k._extract_filer_cik_from_filename)(→ pandas.Series)                | Extract filer company's central index key from the first token of filename.          |
-| [`_compute_fraction_owned`](#pudl.transform.sec10k._compute_fraction_owned)(→ pandas.Series)                         | Clean percent ownership, convert to float, then convert percent to ratio.            |
-| [`_standardize_taxpayer_id_irs`](#pudl.transform.sec10k._standardize_taxpayer_id_irs)(→ pandas.Series)                    | Standardize the IRS taxpayer ID number to NN-NNNNNNN format.                         |
-| [`_standardize_industrial_classification`](#pudl.transform.sec10k._standardize_industrial_classification)(→ pandas.DataFrame)       | Split industry names and codes into separate columns.                                |
-| [`_pivot_info_block`](#pudl.transform.sec10k._pivot_info_block)(→ pandas.DataFrame)                            | Select and pivot distinct blocks of company information for further processing.      |
-| [`_standardize_company_name`](#pudl.transform.sec10k._standardize_company_name)(→ pandas.Series)                       | Clean a company name column and standardize legal terms.                             |
-| [`_remove_bad_subsidiary_names`](#pudl.transform.sec10k._remove_bad_subsidiary_names)(→ pandas.Series)                    | Remove subsidiary names that are obviously erroneous.                                |
-| [`_standardize_location`](#pudl.transform.sec10k._standardize_location)(→ pandas.Series)                           | Map two letter state codes to full names using EDGAR state and country code mapping. |
-| [`_match_ex21_subsidiaries_to_filer_company`](#pudl.transform.sec10k._match_ex21_subsidiaries_to_filer_company)(...)                   | Match Exhibit 21 subsidiaries to companies that file SEC Form 10-K.                  |
-| [`core_sec10k__quarterly_filings`](#pudl.transform.sec10k.core_sec10k__quarterly_filings)(→ pandas.DataFrame)               | Standardize the contents of the SEC 10-K filings table.                              |
-| [`core_sec10k__company_info`](#pudl.transform.sec10k.core_sec10k__company_info)(...)                                   | Reshape data from the raw SEC 10-K company information table.                        |
-| [`core_sec10k__quarterly_company_information`](#pudl.transform.sec10k.core_sec10k__quarterly_company_information)(...)                  | Clean and standardize the contents of the SEC 10-K company information table.        |
-| [`core_sec10k__changelog_company_name`](#pudl.transform.sec10k.core_sec10k__changelog_company_name)(→ pandas.DataFrame)          | Clean and standardize the SEC 10-K company name changelog table.                     |
-| [`core_sec10k__quarterly_exhibit_21_company_ownership`](#pudl.transform.sec10k.core_sec10k__quarterly_exhibit_21_company_ownership)(...)         | Standardize the contents of the SEC 10-K exhibit 21 company ownership table.         |
-| [`core_sec10k__assn_sec10k_filers_and_eia_utilities`](#pudl.transform.sec10k.core_sec10k__assn_sec10k_filers_and_eia_utilities)(...)           | Create an association table between SEC 10-K companies and EIA utilities.            |
-| [`core_sec10k__assn_exhibit_21_subsidiaries_and_filers`](#pudl.transform.sec10k.core_sec10k__assn_exhibit_21_subsidiaries_and_filers)(...)        | Match Ex. 21 subsidiaries to SEC 10k filing companies.                               |
-| [`core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities`](#pudl.transform.sec10k.core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities)(...) | An association table between Exhibit 21 subsidiaries and EIA utilities.              |
+| [`_year_quarter_to_date`](#pudl.transform.sec10k._year_quarter_to_date)(year_quarter) → pandas.Series                                 | Convert a year quarter in the format '2024q1' to date type.                          |
+|--------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [`_simplify_filename_sec10k`](#pudl.transform.sec10k._simplify_filename_sec10k)(filename_sec10k) → pandas.Series                          | Strip non-unique path and file type extension from partial SEC 10-K filenames.       |
+| [`_extract_filer_cik_from_filename`](#pudl.transform.sec10k._extract_filer_cik_from_filename)(filename_col) → pandas.Series                      | Extract filer company's central index key from the first token of filename.          |
+| [`_compute_fraction_owned`](#pudl.transform.sec10k._compute_fraction_owned)(percent_ownership) → pandas.Series                          | Clean percent ownership, convert to float, then convert percent to ratio.            |
+| [`_standardize_taxpayer_id_irs`](#pudl.transform.sec10k._standardize_taxpayer_id_irs)(taxpayer_id_irs) → pandas.Series                       | Standardize the IRS taxpayer ID number to NN-NNNNNNN format.                         |
+| [`_standardize_industrial_classification`](#pudl.transform.sec10k._standardize_industrial_classification)(sic) → pandas.DataFrame                      | Split industry names and codes into separate columns.                                |
+| [`_pivot_info_block`](#pudl.transform.sec10k._pivot_info_block)(df, block) → pandas.DataFrame                                     | Select and pivot distinct blocks of company information for further processing.      |
+| [`_standardize_company_name`](#pudl.transform.sec10k._standardize_company_name)(col) → pandas.Series                                      | Clean a company name column and standardize legal terms.                             |
+| [`_remove_bad_subsidiary_names`](#pudl.transform.sec10k._remove_bad_subsidiary_names)(col) → pandas.Series                                   | Remove subsidiary names that are obviously erroneous.                                |
+| [`_standardize_location`](#pudl.transform.sec10k._standardize_location)(loc_col) → pandas.Series                                      | Map two letter state codes to full names using EDGAR state and country code mapping. |
+| [`_match_ex21_subsidiaries_to_filer_company`](#pudl.transform.sec10k._match_ex21_subsidiaries_to_filer_company)(...) → pandas.DataFrame                   | Match Exhibit 21 subsidiaries to companies that file SEC Form 10-K.                  |
+| [`core_sec10k__quarterly_filings`](#pudl.transform.sec10k.core_sec10k__quarterly_filings)(...) → pandas.DataFrame                              | Standardize the contents of the SEC 10-K filings table.                              |
+| [`core_sec10k__company_info`](#pudl.transform.sec10k.core_sec10k__company_info)(...)                                                      | Reshape data from the raw SEC 10-K company information table.                        |
+| [`core_sec10k__quarterly_company_information`](#pudl.transform.sec10k.core_sec10k__quarterly_company_information)(...) → pandas.DataFrame                  | Clean and standardize the contents of the SEC 10-K company information table.        |
+| [`core_sec10k__changelog_company_name`](#pudl.transform.sec10k.core_sec10k__changelog_company_name)(...) → pandas.DataFrame                         | Clean and standardize the SEC 10-K company name changelog table.                     |
+| [`core_sec10k__quarterly_exhibit_21_company_ownership`](#pudl.transform.sec10k.core_sec10k__quarterly_exhibit_21_company_ownership)(...) → pandas.DataFrame         | Standardize the contents of the SEC 10-K exhibit 21 company ownership table.         |
+| [`core_sec10k__assn_sec10k_filers_and_eia_utilities`](#pudl.transform.sec10k.core_sec10k__assn_sec10k_filers_and_eia_utilities)(...) → pandas.DataFrame           | Create an association table between SEC 10-K companies and EIA utilities.            |
+| [`core_sec10k__assn_exhibit_21_subsidiaries_and_filers`](#pudl.transform.sec10k.core_sec10k__assn_exhibit_21_subsidiaries_and_filers)(...) → pandas.DataFrame        | Match Ex. 21 subsidiaries to SEC 10k filing companies.                               |
+| [`core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities`](#pudl.transform.sec10k.core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities)(...) → pandas.DataFrame | An association table between Exhibit 21 subsidiaries and EIA utilities.              |
 
 ## Module Contents
 
@@ -57,6 +57,16 @@ Extract filer company’s central index key from the first token of filename.
 ### pudl.transform.sec10k.\_compute_fraction_owned(percent_ownership: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Clean percent ownership, convert to float, then convert percent to ratio.
+
+The percentages were extracted from text tables, so some carry runs of leader dots
+(e.g. `"....99"` or `"65......"`). The dots are removed, and entries containing
+nothing but dots are treated as missing.
+
+All the extracted numerical values are treated as percentages, including those below
+1, since there is no reliable way to tell a reported fraction (`"0.95"`) from a
+small percentage (`"0.01"` alongside `"99.99"`) on a per-row basis. Ratios
+outside of 0-1 (e.g. several adjacent percentages that have been run together) are
+set to null.
 
 ### pudl.transform.sec10k.\_standardize_taxpayer_id_irs(taxpayer_id_irs: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 

@@ -27,10 +27,10 @@ eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
 
 ## Functions
 
-| [`append_eia860m`](#pudl.extract.eia860m.append_eia860m)(→ dict[str, pandas.DataFrame])   | Append EIA 860M to EIA860 data.                                      |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [`raw_eia860m__all_dfs`](#pudl.extract.eia860m.raw_eia860m__all_dfs)(context)                   | Extract raw EIA 860M data from excel sheets into dict of dataframes. |
-| [`extract_eia860m`](#pudl.extract.eia860m.extract_eia860m)(context, raw_eia860m_\_all_dfs) | Extract raw EIA data from excel sheets into dataframes.              |
+| [`append_eia860m`](#pudl.extract.eia860m.append_eia860m)(eia860_raw_dfs, eia860m_raw_dfs) → dict[str, pandas.DataFrame]   | Append EIA 860M to EIA860 data.                                      |
+|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`raw_eia860m__all_dfs`](#pudl.extract.eia860m.raw_eia860m__all_dfs)(context)                                                   | Extract raw EIA 860M data from excel sheets into dict of dataframes. |
+| [`extract_eia860m`](#pudl.extract.eia860m.extract_eia860m)(context, raw_eia860m_\_all_dfs)                                 | Extract raw EIA data from excel sheets into dataframes.              |
 
 ## Module Contents
 

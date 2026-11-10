@@ -23,10 +23,10 @@ Datastore manages file retrieval for PUDL datasets.
 
 ## Functions
 
-| [`get_zenodo_dois_path`](#pudl.workspace.datastore.get_zenodo_dois_path)(→ pathlib.Path)   | Return the canonical packaged Zenodo DOI settings path.      |
-|-----------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| [`validate_cache`](#pudl.workspace.datastore.validate_cache)(→ None)                 | Validate elements in the datastore cache.                    |
-| [`fetch_resources`](#pudl.workspace.datastore.fetch_resources)(→ None)                | Retrieve all matching resources and store them in the cache. |
+| [`get_zenodo_dois_path`](#pudl.workspace.datastore.get_zenodo_dois_path)() → pathlib.Path                    | Return the canonical packaged Zenodo DOI settings path.      |
+|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| [`validate_cache`](#pudl.workspace.datastore.validate_cache)(dstore, datasets, partition) → None       | Validate elements in the datastore cache.                    |
+| [`fetch_resources`](#pudl.workspace.datastore.fetch_resources)(dstore, datasets, partition, ...) → None | Retrieve all matching resources and store them in the cache. |
 
 ## Module Contents
 
@@ -60,13 +60,37 @@ A simple wrapper providing access to datapackage.json contents.
 
 Returns zenodo url that holds contents of given named resource.
 
+#### get_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+Return the expected md5 checksum of the named resource.
+
+* **Raises:**
+  [**KeyError**](https://docs.python.org/3/builtins/exceptions.html#KeyError) – if the datapackage has no resource with this name.
+
 #### get_download_size() → [int](https://docs.python.org/3/builtins/functions.html#int)
 
 Returns the total download size of all the resources in MB.
 
-#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
+#### validate_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), content: [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
-Returns True if content matches checksum for given named resource.
+Verify that in-memory content matches the checksum of a named resource.
+
+* **Raises:**
+  [**ChecksumMismatchError**](#pudl.workspace.datastore.ChecksumMismatchError) – if the content does not match the expected checksum.
+
+#### validate_file_checksum(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), path: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/builtins/constants.html#None)
+
+Verify that a file on disk matches the checksum for a named resource.
+
+Hashes the file incrementally instead of reading it into memory, so it can be
+used on resources too large to buffer like the multi-gigabyte quarterly FERC
+EQR archives, which are streamed to local disk before being opened.
+
+* **Parameters:**
+  * **name** – name of the resource as it appears in this datapackage descriptor.
+  * **path** – local path to the file whose contents should be checked.
+* **Raises:**
+  [**ChecksumMismatchError**](#pudl.workspace.datastore.ChecksumMismatchError) – if the digest does not match the expected checksum.
 
 #### \_matches(res: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict), \*\*filters: Any)
 
@@ -251,17 +275,17 @@ Returns list of supported datasets.
 
 Fetch datapackage descriptor for dataset either from cache or Zenodo.
 
-#### get_resources(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), cached_only: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, \*\*filters: Any) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]]
+#### get_resources(dataset: [str](https://docs.python.org/3/builtins/stdtypes.html#str), filters: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, , cached_only: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, skip_optimally_cached: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pudl.workspace.resource_cache.PudlResourceKey](../resource_cache/index.html.md#pudl.workspace.resource_cache.PudlResourceKey), [bytes](https://docs.python.org/3/builtins/stdtypes.html#bytes)]]
 
 Return content of the matching resources.
 
 * **Parameters:**
   * **dataset** – name of the dataset to query.
+  * **filters** – only return resources that match the key-value mapping in their
+    metadata[“parts”].
   * **cached_only** – if True, only retrieve resources that are present in the cache.
   * **skip_optimally_cached** – if True, only retrieve resources that are not optimally
     cached. This triggers attempt to optimally cache these resources.
-  * **filters** (*key=val*) – only return resources that match the key-value mapping in their
-  * **metadata****[****"parts"****]****.**
 * **Yields:**
   (PudlResourceKey, io.BytesIO) holding content for each matching resource
 

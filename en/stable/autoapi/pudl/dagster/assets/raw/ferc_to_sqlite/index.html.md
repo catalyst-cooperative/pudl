@@ -29,11 +29,11 @@ databases, rather than the downstream transforms that consume them.
 
 ## Functions
 
-| [`_download_zipped_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_zipped_outputs)(paths, output_format)           | Download nightly zipfile containing sqlite or parquet outputs and extract to local cache.   |
-|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| [`_download_nightly_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs)(→ None)                        | Download `ferc_to_sqlite` outputs from s3.                                                  |
-| [`_check_for_cached_db_w_compatible_provenance`](#pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance)(...)        | Check to see if there is a compatible outputs either locally, or in nightly builds.         |
-| [`ferc_to_sqlite_asset_factory`](#pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory)(→ dagster.AssetsDefinition) | Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.                     |
+| [`_download_zipped_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_zipped_outputs)(paths, output_format)                                                                         | Download nightly zipfile containing sqlite or parquet outputs and extract to local cache.   |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [`_download_nightly_outputs`](#pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs)(data_format, paths) → None                                                                   | Download `ferc_to_sqlite` outputs from s3.                                                  |
+| [`_check_for_cached_db_w_compatible_provenance`](#pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance)(dataset, ...) → pudl.dagster.provenance.FercSqliteProvenanceRecord | None | Check to see if there is a compatible outputs either locally, or in nightly builds.         |
+| [`ferc_to_sqlite_asset_factory`](#pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory)(\*, dataset, data_format, ...) → dagster.AssetsDefinition                                 | Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset.                     |
 
 ## Module Contents
 

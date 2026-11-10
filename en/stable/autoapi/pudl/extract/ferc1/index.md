@@ -84,9 +84,9 @@ database online [here](https://data.catalyst.coop/ferc1_dbf/).
 
 ## Functions
 
-| [`create_raw_ferc1_assets`](#pudl.extract.ferc1.create_raw_ferc1_assets)(→ list[dagster.AssetSpec])       | Create AssetSpecs for raw ferc1 tables.                         |
-|-----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| [`raw_ferc1_xbrl__metadata_json`](#pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json)(→ dict[str, dict[str, ...) | Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON. |
+| [`create_raw_ferc1_assets`](#pudl.extract.ferc1.create_raw_ferc1_assets)() → list[dagster.AssetSpec]                                 | Create AssetSpecs for raw ferc1 tables.                         |
+|--------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`raw_ferc1_xbrl__metadata_json`](#pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json)(context) → dict[str, dict[str, list[dict[str, Any]]]] | Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON. |
 
 ## Module Contents
 
@@ -123,7 +123,7 @@ some inter-table XBRL calculations, even though we aren’t yet reading those ta
 PUDL. We pull information about these tables from the XBRL metadata, but the data is
 not extracted from the DBF and XBRL derived SQLite DBs.
 
-### *class* pudl.extract.ferc1.Ferc1DbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
+### *class* pudl.extract.ferc1.Ferc1DbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercToSqliteDataConfig](../../settings/index.md#pudl.settings.FercToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
 Bases: [`pudl.extract.dbf.FercDbfExtractor`](../dbf/index.md#pudl.extract.dbf.FercDbfExtractor)
 

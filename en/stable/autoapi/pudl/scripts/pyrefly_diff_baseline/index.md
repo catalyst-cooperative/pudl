@@ -4,9 +4,9 @@ Diff the pyrefly baseline against a git ref by content, not by raw JSON text.
 
 ## Functions
 
-| [`_load_baseline_entries`](#pudl.scripts.pyrefly_diff_baseline._load_baseline_entries)(→ set[tuple[str, str, str]])   | Load baseline error entries from a git ref, or the working tree if `ref` is None.   |
-|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`main`](#pudl.scripts.pyrefly_diff_baseline.main)(→ None)                                          | Diff a pyrefly baseline against a git ref by (file, code, description).             |
+| [`_load_baseline_entries`](#pudl.scripts.pyrefly_diff_baseline._load_baseline_entries)(ref, baseline_path) → set[tuple[str, str, str]]   | Load baseline error entries from a git ref, or the working tree if `ref` is None.   |
+|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [`main`](#pudl.scripts.pyrefly_diff_baseline.main)(ref, baseline_path) → None                                          | Diff a pyrefly baseline against a git ref by (file, code, description).             |
 
 ## Module Contents
 

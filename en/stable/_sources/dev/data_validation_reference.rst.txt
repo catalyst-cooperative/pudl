@@ -229,7 +229,7 @@ If you run this validation in ``dbt``, it tells you:
 * the test failed
 * there was 1 failure row
 * the compiled SQL query for the test is at
-  ``target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql``
+  ``target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql``
 
 & that's it:
 
@@ -253,7 +253,7 @@ If you run this validation in ``dbt``, it tells you:
     20:39:01  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)
     20:39:01    Got 1 result, configured to fail if != 0
     20:39:01
-    20:39:01    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:39:01    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     20:39:01
     20:39:01  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
 
@@ -275,7 +275,7 @@ it **also** runs the compiled SQL query and gives you the results:
     20:37:49  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)
     20:37:49    Got 1 result, configured to fail if != 0
     20:37:49
-    20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:37:49    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     20:37:49
     20:37:49  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
     Traceback (most recent call last):
@@ -311,7 +311,7 @@ that looks like this:
 
 .. code-block:: console
 
-    20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:37:49    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
 
 "Compiled" is important here because the source code for each test is merely
 a template. The template cannot directly be used to query the database. Each
@@ -334,7 +334,7 @@ the front of the compiled code path. Like this:
 
 .. code-block:: console
 
-    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     ┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐
     │         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │
     │          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │
@@ -353,7 +353,7 @@ argument to duckdb will execute a command before processing input provided using
 
 .. code-block:: console
 
-    $ duckdb -cmd '.mode line' $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    $ duckdb -cmd '.mode line' $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
                        table_name = out_eia__yearly_generators
                    failing_column = unit_id_pudl
                    failure_reason = Conditional check failed: EXTRACT(year FROM report_date) < 2008
@@ -375,7 +375,7 @@ code path using the duckdb ``.read`` command. Like this:
     $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb
     v1.2.0 5f5512b827
     Enter ".help" for usage hints.
-    D .read dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    D .read dbt/target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
     ┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐
     │         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │
     │          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │
@@ -403,7 +403,7 @@ Such as:
 
 .. code-block:: console
 
-    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
     ┌─────────────┐
     │ expression  │
     │   boolean   │
@@ -596,7 +596,7 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
 
 .. code-block:: console
 
-    $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+    $ dbt_helper validate --select "source:pudl_validation_tests.pudl.out_eia__yearly_generators"
     [...]
     18:39:46  Finished running 24 data tests in 0 hours 0 minutes and 1.01 seconds (1.01s).
     18:39:46
@@ -605,7 +605,7 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
     18:39:46  Failure in test source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw (models/eia/out_eia__yearly_generators/schema.yml)
     18:39:46    Got 1 result, configured to fail if != 0
     18:39:46
-    18:39:46    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
+    18:39:46    compiled code at target/compiled/pudl_validation_tests/models/pudl/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
     18:39:46
     18:39:46  Done. PASS=23 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=24
     Traceback (most recent call last):
@@ -632,7 +632,7 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
     AssertionError: failure contexts:
     source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw:
 
-     table: source.pudl_dbt.pudl.out_eia__yearly_generators
+     table: source.pudl_validation_tests.pudl.out_eia__yearly_generators
      test: expect_quantile_constraints
      column: capacity_factor
      row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
@@ -647,7 +647,7 @@ In this example, quantile 0.65 was expected to be between 0.5 and 0.6,
 but was instead 0.46, outside of the expected range.
 
 Locate the quantile check in the table's ``schema.yml`` file.
-This will be at ``dbt/models/<data_source>/<table_name>/schema.yml``.
+This will be at ``dbt/models/<dbt_source>/<data_source>/<table_name>/schema.yml``.
 
 Find the column name and the row condition in the failure output.
 In this example, the check we want is for column ``capacity_factor``,
@@ -678,7 +678,7 @@ Applying an existing generic test to an existing table should be as easy as edit
 the ``schema.yml`` file associated with that table, and adding a new test specification
 to the ``data_tests`` section of either the table as a whole or an individual column.
 The ``schema.yml`` for ``table_name`` can be found at
-``dbt/models/{data_source}/{table_name}/schema.yml``.
+``dbt/models/{dbt_source}/{data_source}/{table_name}/schema.yml``.
 
 In general, table-level tests depend on multiple columns or test some property of the
 table as a whole, while column-level tests typically depend only on values with the
@@ -690,7 +690,7 @@ Our dbt project includes `dbt-utils <https://github.com/dbt-labs/dbt-utils>`__ a
 `dbt-expectations <https://github.com/metaplane/dbt-expectations>`__ as dependencies.
 These packages include a bunch of useful tests that can be applied to any table.
 There are several examples of applying tests from ``dbt-expectations`` in
-``dbt/models/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml``
+``dbt/models/pudl/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml``
 and in general they will look like the below. Each item in a ``data_tests`` section
 defines a single test, and may provide named parameters for the test. The tests whose
 names have the ``dbt_expectations`` prefix come from that package.
@@ -773,11 +773,12 @@ Adding new tables
 --------------------------------------------------------------------------------
 
 Our dbt schemas are defined within schema files at
-``dbt/models/<data_source>/<table_name>/schema.yml``.
+``dbt/models/<dbt_source>/<data_source>/<table_name>/schema.yml``.
 These are automatically generated by combining the resource
 definitions in ``pudl.metadata.resources.RESOURCE_METADATA``
 with some human-generated data test definitions in
-``dbt/schema_inputs/<data_source>/<table_name>/schema.human.yml``.
+``dbt/schema_inputs/<dbt_source>/<data_source>/<table_name>/schema.human.yml``.
+``<dbt_source>`` is ``pudl`` or ``ferceqr``; see :doc:`data_validation_quickstart`.
 
 When adding a new table to dbt, we need to:
 
@@ -1035,7 +1036,7 @@ columns, you will need to calculate that ratio as a separate column.
 This can be done by creating a new `dbt model
 <https://docs.getdbt.com/docs/build/models>`__ that materializes an
 intermediate table you want to execute tests on. Add a SQL file to
-``dbt/models/{data_source}/{source_table_name}/{intermediate_table_name}.sql``
+``dbt/models/{dbt_source}/{data_source}/{source_table_name}/{intermediate_table_name}.sql``
 containing a ``SELECT`` statement that builds your new table. For
 example, if you need to divide the ``source_table_name.a`` column by
 ``source_table_name.b``::

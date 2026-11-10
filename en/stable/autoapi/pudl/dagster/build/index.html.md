@@ -11,9 +11,9 @@ For the underlying Dagster concept, see
 
 ## Functions
 
-| [`build_defs`](#pudl.dagster.build.build_defs)(→ dagster.Definitions)             | Build a fresh PUDL `Definitions` object with optional overrides.           |
-|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`build_interactive_defs`](#pudl.dagster.build.build_interactive_defs)(→ dagster.Definitions) | Build defs for interactive in-process use with concrete default resources. |
+| [`build_defs`](#pudl.dagster.build.build_defs)(\*[, resource_overrides, asset_overrides, ...]) → dagster.Definitions   | Build a fresh PUDL `Definitions` object with optional overrides.           |
+|-------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`build_interactive_defs`](#pudl.dagster.build.build_interactive_defs)(\*[, global_data_config_path, ...]) → dagster.Definitions   | Build defs for interactive in-process use with concrete default resources. |
 
 ## Module Contents
 

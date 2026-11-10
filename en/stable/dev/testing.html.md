@@ -158,7 +158,6 @@ Custom options:
   --temp-pudl-input     Download fresh input data for use with this test run only.
   --dg-config=PATH      Path to a non-standard Dagster config file to use.
   --bypass-local-cache  If enabled, the local file cache for datastore will not be used.
-  --save-unmapped-ids   Write the unmapped IDs to disk.
 ```
 
 The main flexibility that these custom options provide is in selecting where the raw
@@ -172,7 +171,7 @@ that only operates on an existing database, and has nothing to do with the const
 of that database. For example:
 
 ```console
-$ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
+$ pixi run pytest --live-pudl-output tests/pipeline/analysis
 ```
 
 The dbt data validations can be selected separately from the rest of the pipeline suite

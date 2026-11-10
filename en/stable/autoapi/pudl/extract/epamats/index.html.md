@@ -27,8 +27,8 @@ crosswalk.
 
 ## Functions
 
-| [`raw_epamats__hourly_emissions`](#pudl.extract.epamats.raw_epamats__hourly_emissions)(→ pandas.DataFrame)   | Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame.   |
-|------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`raw_epamats__hourly_emissions`](#pudl.extract.epamats.raw_epamats__hourly_emissions)(context) → pandas.DataFrame   | Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame.   |
+|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 
 ## Module Contents
 

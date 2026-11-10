@@ -6,6 +6,7 @@ A module with functions to aid generating MCOE.
 
 | [`DEFAULT_GENS_COLS`](#pudl.analysis.mcoe.DEFAULT_GENS_COLS)      | default list of columns from the EIA 860 generators table that will be included   |
 |-------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`_MCOE_FREQS`](#pudl.analysis.mcoe._MCOE_FREQS)            |                                                                                   |
 | [`mcoe_assets`](#pudl.analysis.mcoe.mcoe_assets)            |                                                                                   |
 | [`mcoe_asset_check_specs`](#pudl.analysis.mcoe.mcoe_asset_check_specs) |                                                                                   |
 | [`mcoe_asset_checks`](#pudl.analysis.mcoe.mcoe_asset_checks)      |                                                                                   |
@@ -17,15 +18,15 @@ A module with functions to aid generating MCOE.
 
 ## Functions
 
-| [`mcoe_asset_factory`](#pudl.analysis.mcoe.mcoe_asset_factory)(→ list[dagster.AssetsDefinition])      | Build MCOE related assets at yearly and monthly frequencies.            |
-|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`mcoe_asset_check_factory`](#pudl.analysis.mcoe.mcoe_asset_check_factory)(→ dagster.AssetChecksDefinition) | Turn a MCOE check spec into an AssetChecksDefinition.                   |
-| [`heat_rate_by_unit`](#pudl.analysis.mcoe.heat_rate_by_unit)(gen_fuel_by_energy_source, bga)         | Calculate heat rates (mmBTU/MWh) within separable generation units.     |
-| [`heat_rate_by_gen`](#pudl.analysis.mcoe.heat_rate_by_gen)(→ pandas.DataFrame)                      | Convert per-unit heat rate to by-generator, adding fuel type & count.   |
-| [`fuel_cost`](#pudl.analysis.mcoe.fuel_cost)(→ pandas.DataFrame)                             | Calculate fuel costs per MWh on a per generator basis for MCOE.         |
-| [`capacity_factor`](#pudl.analysis.mcoe.capacity_factor)(→ pandas.DataFrame)                       | Calculate the capacity factor for each generator.                       |
-| [`mcoe`](#pudl.analysis.mcoe.mcoe)(→ pandas.DataFrame)                                  | Compile marginal cost of electricity (MCOE) at the generator level.     |
-| [`mcoe_generators`](#pudl.analysis.mcoe.mcoe_generators)(→ pandas.DataFrame)                       | Merge generator attributes onto the marginal cost of electricity table. |
+| [`mcoe_asset_factory`](#pudl.analysis.mcoe.mcoe_asset_factory)(freq[, op_tags]) → list[dagster.AssetsDefinition]      | Build MCOE related assets at yearly and monthly frequencies.            |
+|----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`mcoe_asset_check_factory`](#pudl.analysis.mcoe.mcoe_asset_check_factory)(spec) → dagster.AssetChecksDefinition            | Turn a MCOE check spec into an AssetChecksDefinition.                   |
+| [`heat_rate_by_unit`](#pudl.analysis.mcoe.heat_rate_by_unit)(gen_fuel_by_energy_source, bga)                         | Calculate heat rates (mmBTU/MWh) within separable generation units.     |
+| [`heat_rate_by_gen`](#pudl.analysis.mcoe.heat_rate_by_gen)(bga, hr_by_unit, gens) → pandas.DataFrame                | Convert per-unit heat rate to by-generator, adding fuel type & count.   |
+| [`fuel_cost`](#pudl.analysis.mcoe.fuel_cost)(hr_by_gen, gens, frc) → pandas.DataFrame                        | Calculate fuel costs per MWh on a per generator basis for MCOE.         |
+| [`capacity_factor`](#pudl.analysis.mcoe.capacity_factor)(gens, gen, freq[, min_cap_fact, ...]) → pandas.DataFrame  | Calculate the capacity factor for each generator.                       |
+| [`mcoe`](#pudl.analysis.mcoe.mcoe)(fuel_cost, capacity_factor[, min_heat_rate, ...]) → pandas.DataFrame | Compile marginal cost of electricity (MCOE) at the generator level.     |
+| [`mcoe_generators`](#pudl.analysis.mcoe.mcoe_generators)(mcoe, gens, freq[, all_gens, ...]) → pandas.DataFrame     | Merge generator attributes onto the marginal cost of electricity table. |
 
 ## Module Contents
 
@@ -44,9 +45,11 @@ the final table.
 * **Type:**
   List
 
-### pudl.analysis.mcoe.mcoe_asset_factory(freq: Literal['YS', 'MS'], op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
+### pudl.analysis.mcoe.mcoe_asset_factory(freq: [pudl.helpers.AggregationFreq](../../helpers/index.md#pudl.helpers.AggregationFreq), op_tags: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
 Build MCOE related assets at yearly and monthly frequencies.
+
+### pudl.analysis.mcoe.\_MCOE_FREQS *: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[pudl.helpers.AggregationFreq](../../helpers/index.md#pudl.helpers.AggregationFreq), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]]*
 
 ### pudl.analysis.mcoe.mcoe_assets
 
@@ -139,7 +142,7 @@ the fuel costs according to fuel type – so the gas fuel costs are associated w
 generators that have energy_source_code gas, and the coal fuel costs are associated
 with the generators that have energy_source_code coal.
 
-### pudl.analysis.mcoe.capacity_factor(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: Literal['YS', 'MS'], min_cap_fact: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, max_cap_fact: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.mcoe.capacity_factor(gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gen: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [pudl.helpers.AggregationFreq](../../helpers/index.md#pudl.helpers.AggregationFreq), min_cap_fact: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, max_cap_fact: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Calculate the capacity factor for each generator.
 
@@ -175,7 +178,7 @@ the MCOE of individual generating units.
   about the generators – including fuel cost on a per MWh and MMBTU basis, heat
   rates, and net generation.
 
-### pudl.analysis.mcoe.mcoe_generators(mcoe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: Literal['YS', 'MS'], all_gens: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, timeseries_fillin: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.mcoe.mcoe_generators(mcoe: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), gens: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), freq: [pudl.helpers.AggregationFreq](../../helpers/index.md#pudl.helpers.AggregationFreq), all_gens: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True, timeseries_fillin: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Merge generator attributes onto the marginal cost of electricity table.
 

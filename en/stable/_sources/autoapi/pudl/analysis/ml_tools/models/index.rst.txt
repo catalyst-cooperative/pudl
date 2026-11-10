@@ -87,7 +87,7 @@ Module Contents
    Get default config values for model.
 
 
-.. py:function:: pudl_model(asset_name: str, config_from_yaml: bool = False) -> dagster.AssetsDefinition
+.. py:function:: pudl_model(asset_name: str, config_from_yaml: bool = False) -> collections.abc.Callable[[dagster.GraphDefinition], dagster.AssetsDefinition]
 
    Decorator for an ML model that will handle providing configuration to dagster.
 

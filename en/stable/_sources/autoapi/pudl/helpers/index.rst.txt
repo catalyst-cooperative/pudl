@@ -21,7 +21,10 @@ Attributes
 .. autoapisummary::
 
    pudl.helpers.sum_na
+   pudl.helpers.AggregationFreq
+   pudl.helpers.AGGREGATION_FREQS
    pudl.helpers.logger
+   pudl.helpers.UNICODE_WHITESPACE_REGEX
    pudl.helpers.MergeValidate
    pudl.helpers._DUCKDB_INTEGER_TYPES
 
@@ -40,6 +43,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.helpers.null_dates_outside_ns_bounds
    pudl.helpers.run_git
    pudl.helpers.label_map
    pudl.helpers.multi_index_stack
@@ -110,6 +114,7 @@ Functions
    pudl.helpers._read_typed_csv_rejecting_narrowing
    pudl.helpers.duckdb_extract_zipped_csv
    pudl.helpers.normalize_year_fragments
+   pudl.helpers._valid_until
    pudl.helpers.make_changelog
    pudl.helpers.parse_address
    pudl.helpers.listify
@@ -129,7 +134,43 @@ Module Contents
    generation is reported normally, then the fuel consumption for the year needs to be NA,
    otherwise we'll get unrealistic heat rates.
 
+.. py:type:: AggregationFreq
+   :canonical: Literal['YS', 'MS']
+
+
+   Pandas frequency aliases for annual (year start) and monthly (month start) data.
+
+.. py:data:: AGGREGATION_FREQS
+   :type:  tuple[AggregationFreq, ...]
+
+   All of the :data:`AggregationFreq` values, for iterating over.
+
 .. py:data:: logger
+
+.. py:data:: UNICODE_WHITESPACE_REGEX
+   :value: '[\\s\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\x85]+'
+
+
+   Regex matching a run of ASCII or Unicode whitespace characters.
+
+   Python's :mod:`re` matches Unicode whitespace like the non-breaking space with ``\s``,
+   but the RE2 engine that pyarrow uses for pandas' default ``str`` dtype only matches
+   ASCII whitespace. Listing the characters explicitly gives the same result for ``object``,
+   ``string`` and ``str`` columns.
+
+.. py:function:: null_dates_outside_ns_bounds(dates: pandas.Series) -> pandas.Series
+
+   Set datetimes that can't be represented with nanosecond resolution to ``NaT``.
+
+   Pandas 2 always parsed datetimes at nanosecond resolution, so implausible dates
+   outside of 1677-09-21 to 2262-04-11 (typically typos like the year ``0006``)
+   overflowed and were coerced to ``NaT``. Pandas 3 infers a coarser resolution
+   and keeps them. This preserves the original behavior.
+
+   :param dates: A datetime Series, e.g. from ``pd.to_datetime(..., errors="coerce")``.
+
+   :returns: The Series with out-of-bounds datetimes replaced by ``NaT``.
+
 
 .. py:function:: run_git(args: list[str], cwd: pathlib.Path | None = None) -> str
 
@@ -477,7 +518,7 @@ Module Contents
    :rtype: pandas.DataFrame
 
 
-.. py:function:: simplify_strings(df: pandas.DataFrame, columns: list[str], copy: bool = True) -> pandas.DataFrame
+.. py:function:: simplify_strings(df: pandas.DataFrame, columns: list[str]) -> pandas.DataFrame
 
    Simplify the strings contained in a set of dataframe columns.
 
@@ -488,13 +529,8 @@ Module Contents
 
    Leaves null values unaltered. Casts other values with astype(str).
 
-   Running with ``copy=False`` is intended for memory-intensive data frames where no
-   upstream process retains a reference to the data. Use care with this option,
-   and keep an eye out for spooky data changes showing up in unexpected places.
-
    :param df: DataFrame whose columns are being cleaned up.
    :param columns: The labels of the string columns to be simplified.
-   :param copy: (Default True) Return a copy, making no changes to the original data.
 
    :returns: The whole DataFrame that was passed in, with the string columns cleaned up.
 
@@ -607,7 +643,7 @@ Module Contents
    :returns: A DataFrame in which the year/month fields have been converted into Date fields.
 
 
-.. py:function:: convert_to_date(df: pandas.DataFrame, date_col: str = 'report_date', year_col: str = 'report_year', month_col: str = 'report_month', day_col: str = 'report_day', month_na_value: int = 1, day_na_value: int = 1, copy: bool = True) -> pandas.DataFrame
+.. py:function:: convert_to_date(df: pandas.DataFrame, date_col: str = 'report_date', year_col: str = 'report_year', month_col: str = 'report_month', day_col: str = 'report_day', month_na_value: int = 1, day_na_value: int = 1) -> pandas.DataFrame
 
    Convert specified year, month or day columns into a datetime object.
 
@@ -615,10 +651,6 @@ Module Contents
    conversion is applied, and the original dataframe is returned unchanged.
    Otherwise the constructed date is placed in that column, and the columns
    which were used to create the date are dropped.
-
-   Running with ``copy=False`` is intended for memory-intensive data frames where no
-   upstream process retains a reference to the data. Use care with this option,
-   and keep an eye out for spooky data changes showing up in unexpected places.
 
    :param df: dataframe to convert
    :param date_col: the name of the column you want in the output.
@@ -628,7 +660,6 @@ Module Contents
    :param month_na_value: generated month if no month exists or if the month
                           value is NA.
    :param day_na_value: generated day if no day exists or if the day value is NA.
-   :param copy: (default True) return a copy, making no changes to the original data.
 
    :returns: A DataFrame in which the year, month, day columns values have been converted
              into datetime objects.
@@ -777,7 +808,7 @@ Module Contents
    :rtype: pandas.DataFrame
 
 
-.. py:function:: groupby_agg_label_unique_source_or_mixed(x: pandas.Series) -> str | None
+.. py:function:: groupby_agg_label_unique_source_or_mixed(x: pandas.Series) -> str | pandas._libs.missing.NAType
 
    Get either the unique source in a group or return mixed.
 
@@ -895,7 +926,7 @@ Module Contents
    :returns: The standardized dataframe.
 
 
-.. py:function:: calc_capacity_factor(df: pandas.DataFrame, freq: Literal['YS', 'MS'], min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
+.. py:function:: calc_capacity_factor(df: pandas.DataFrame, freq: AggregationFreq, min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
 
    Calculate capacity factor.
 
@@ -1453,17 +1484,67 @@ Module Contents
        logic, or if any resulting year falls outside the valid range.
 
 
-.. py:function:: make_changelog(df_all: pandas.DataFrame, idx: list[str]) -> pandas.DataFrame
+.. py:function:: _valid_until(changes: pandas.DataFrame, series_cols: list[str]) -> pandas.Series
+
+   Find the date until which each changelog record is valid.
+
+   A record is valid until the next record in the same series begins, so the intervals
+   ``[report_date, valid_until_date)`` are half-open. A series' last record has no
+   successor, and was still in force when the entity was last reported, so it is valid
+   until one month past the entity's last report date (``report_date_max``). Every
+   series' last record therefore ends on the same date. The month is fixed, and
+   assumes monthly reporting.
+
+   :param changes: One row per kept changelog record, with ``report_date`` and
+                   ``report_date_max`` columns, sorted by ``report_date`` within each series.
+   :param series_cols: Columns identifying a series (the groups within which records
+                       succeed one another).
+
+   :returns: The ``valid_until_date`` for each row of ``changes``.
+
+
+.. py:function:: make_changelog(df_all: pandas.DataFrame, id_cols: list[str]) -> pandas.DataFrame
 
    Make a changelog table with unique instances of values over time.
 
-   Each record is valid from its ``report_date`` until the ``report_date`` of the next
-   distinct record in the same series. A series is a unique combination of the
-   non-date ``idx`` columns and, if present, ``column_name`` (as in the "tall" forensics
-   tables, where many different columns and values share one entity ID). Records
-   reported on the entity's last report date are valid for one more month.
+   Three nested groupings of the input are used, each identified by its own columns:
+
+   * An *entity* is the thing the data describes, identified by ``id_cols`` (e.g. a
+     plant, or a generator).
+   * A *series* is one tracked quantity of an entity: the ``id_cols`` plus
+     ``column_name``, if present (as in the "tall" forensics tables, where many
+     different columns and values share one entity ID). In a wide table with no
+     ``column_name``, every column is tracked together, so each entity has a single
+     series and a change to any column starts a new record.
+   * A *snapshot* is a series as reported on one ``report_date``: the set of distinct
+     records reported for it on that date. This is usually just one record, but
+     conflicting reports of the same thing can yield several.
+
+   A report date is kept in the changelog if it is the first for its series, or if its
+   snapshot differs from the snapshot on the series' *previous* report date. Comparing
+   only with the previous date (rather than with every earlier one) means a value that
+   changes and later reverts (``OP`` -> ``OA`` -> ``OP``) gets a new record for the
+   reversion, so the changelog never claims that an outdated value is still in force.
+   Missing values compare as equal to each other.
+
+   Each kept record is valid over the half-open interval ``[report_date,
+   valid_until_date)``: ``valid_until_date`` is the first date it is *no longer* in
+   force, which is the ``report_date`` of the next kept record in the same series.
+   A series' last record has no successor, and was still in force when the entity was
+   last reported, so its ``valid_until_date`` is one month past the entity's
+   last ``report_date`` (``report_date_max``). The month is fixed, and assumes monthly
+   reporting.
 
    The output is fully sorted, so it doesn't depend on the order of the input rows.
+
+   :param df_all: Records to summarize. Must contain ``report_date`` and the columns in
+                  ``id_cols``. May contain ``column_name`` and ``record_value``.
+   :param id_cols: Columns identifying an entity, not including ``report_date``, e.g.
+                   ``["plant_id_eia", "generator_id"]``.
+
+   :returns: The records at which a series' snapshot changed, with the entity's last report
+             date in ``report_date_max`` and the end of the record's validity in
+             ``valid_until_date``.
 
 
 .. py:function:: parse_address(addr: str)

@@ -18,9 +18,9 @@ expected to be deleted wholesale once its deprecation period ends.
 
 ## Functions
 
-| [`build_pudl_sqlite_asset`](#pudl.dagster.assets.output.databases.build_pudl_sqlite_asset)(→ dagster.AssetsDefinition)   | Build the `pudl_sqlite` asset. Delete this once `pudl.sqlite` is retired.   |
-|--------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`build_pudl_duckdb_asset`](#pudl.dagster.assets.output.databases.build_pudl_duckdb_asset)(→ dagster.AssetsDefinition)   | Build the `pudl_duckdb` asset.                                              |
+| [`build_pudl_sqlite_asset`](#pudl.dagster.assets.output.databases.build_pudl_sqlite_asset)(asset_keys) → dagster.AssetsDefinition   | Build the `pudl_sqlite` asset. Delete this once `pudl.sqlite` is retired.   |
+|-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`build_pudl_duckdb_asset`](#pudl.dagster.assets.output.databases.build_pudl_duckdb_asset)(asset_keys) → dagster.AssetsDefinition   | Build the `pudl_duckdb` asset.                                              |
 
 ## Module Contents
 

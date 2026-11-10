@@ -23,12 +23,13 @@ Attributes
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG
    pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS
-   pudl.dagster.assets.deploy.ferceqr.DATAPACKAGE_FILENAME
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY
    pudl.dagster.assets.deploy.ferceqr.DEPLOYED_DATAPACKAGE_FILENAME
    pudl.dagster.assets.deploy.ferceqr.STAGING_DATA_SUBDIR
    pudl.dagster.assets.deploy.ferceqr.STAGING_META_SUBDIR
    pudl.dagster.assets.deploy.ferceqr.PREVIOUS_DIRNAME
    pudl.dagster.assets.deploy.ferceqr.StepStatusTable
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_DBT_SOURCE
 
 
 Classes
@@ -36,6 +37,7 @@ Classes
 
 .. autoapisummary::
 
+   pudl.dagster.assets.deploy.ferceqr.ValidationStage
    pudl.dagster.assets.deploy.ferceqr._DeploymentTarget
 
 
@@ -44,6 +46,8 @@ Functions
 
 .. autoapisummary::
 
+   pudl.dagster.assets.deploy.ferceqr._run_ferceqr_validation
+   pudl.dagster.assets.deploy.ferceqr._markdown_validation_results
    pudl.dagster.assets.deploy.ferceqr._write_status_file
    pudl.dagster.assets.deploy.ferceqr._clear_status_files
    pudl.dagster.assets.deploy.ferceqr._deployment_targets
@@ -66,7 +70,11 @@ Functions
    pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration
    pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification
    pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
+   pudl.dagster.assets.deploy.ferceqr._datapackage_path
    pudl.dagster.assets.deploy.ferceqr._deploy_source_partitions
+   pudl.dagster.assets.deploy.ferceqr._notify_ferceqr_outcome
+   pudl.dagster.assets.deploy.ferceqr._source_backfill_id
+   pudl.dagster.assets.deploy.ferceqr._deployment_metadata
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
    pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure
 
@@ -92,9 +100,7 @@ Module Contents
    :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
 
 
-.. py:data:: DATAPACKAGE_FILENAME
-   :value: 'ferceqr_parquet_datapackage.json'
-
+.. py:data:: FERCEQR_DATAPACKAGE_ASSET_KEY
 
 .. py:data:: DEPLOYED_DATAPACKAGE_FILENAME
    :value: 'datapackage.json'
@@ -113,6 +119,42 @@ Module Contents
 
 
 .. py:data:: StepStatusTable
+
+.. py:data:: FERCEQR_DBT_SOURCE
+   :value: 'ferceqr'
+
+
+.. py:class:: ValidationStage
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   The :class:`BuildResult` of one named dbt validation stage.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: result
+      :type:  pudl.validate.dbt.BuildResult
+
+
+.. py:function:: _run_ferceqr_validation() -> list[ValidationStage]
+
+   Run the dbt data validations for the FERC EQR tables.
+
+   Selects every dbt node downstream of the FERC EQR source. Mirrors the pytest
+   validation in ``tests/validate/data_test.py``.
+
+
+.. py:function:: _markdown_validation_results(stages: list[ValidationStage]) -> str
+
+   Summarize dbt validation stage outcomes as a Markdown table.
+
+   Only the high-level pass/fail status of each stage is reported; failure
+   contexts are written to the build log, which the notification links to.
+
 
 .. py:function:: _write_status_file(status: Literal['FERCEQR_SUCCESS', 'FERCEQR_FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
 
@@ -306,7 +348,7 @@ Module Contents
    Return elapsed time since the current run started, or None on failure.
 
 
-.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED']) -> str
+.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> str
 
    Build a Markdown notification string for FERC EQR deployment outcomes.
 
@@ -315,7 +357,7 @@ Module Contents
    context and returns a formatted Markdown message ready for Zulip.
 
 
-.. py:function:: deployment_status_asset(asset_fn: collections.abc.Callable) -> dagster.AssetsDefinition
+.. py:function:: deployment_status_asset(*, deps: collections.abc.Sequence[dagster.AssetKey] | None = None) -> collections.abc.Callable[[collections.abc.Callable], dagster.AssetsDefinition]
 
    Create a custom decorator for deployment handler assets.
 
@@ -324,6 +366,18 @@ Module Contents
    appropriately, and the status file never gets created, so the job keeps running
    until it eventually times out.
 
+   :param deps: Asset keys the generated asset depends on. Primarily to guarantee that the
+                success asset will only run after the datapackage asset has run.
+
+
+.. py:function:: _datapackage_path(context: dagster.AssetExecutionContext) -> pathlib.Path
+
+   Return the descriptor path recorded by the ``ferceqr_datapackage`` asset.
+
+   The descriptor is written by the datapackage asset, which records its output
+   location in materialization metadata under ``path``. Reading it back from the
+   event log keeps a single source of truth for where the file lives.
+
 
 .. py:function:: _deploy_source_partitions(context: dagster.AssetExecutionContext) -> list[str]
 
@@ -331,6 +385,34 @@ Module Contents
 
    Deploying only the *specific* partitions this build produced avoids sweeping
    up unrelated data left lying around, especially on local runs.
+
+
+.. py:function:: _notify_ferceqr_outcome(context: dagster.AssetExecutionContext, zulip: pudl.dagster.resources.ZulipNotificationResource, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> None
+
+   Send a deployment outcome notification, never raising on failure.
+
+
+.. py:function:: _source_backfill_id(context: dagster.AssetExecutionContext, source_run_id: str | None) -> str | None
+
+   Return the backfill ID of the run being deployed, if it can be determined.
+
+   The deployment run is launched by a sensor and doesn't carry the backfill tag
+   itself, so it's read from the source run that triggered the deployment.
+
+
+.. py:function:: _deployment_metadata(context: dagster.AssetExecutionContext, *, outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: list[str], validation_stages: list[ValidationStage], datapackage_path: pathlib.Path, targets: list[_DeploymentTarget], table_files: dict[str, list[pathlib.Path]] | None = None, deploy_seconds: float | None = None) -> dict[str, Any]
+
+   Collect Dagster metadata describing what a deployment run did.
+
+   :param context: Execution context, used to look up the run tags.
+   :param outcome: Whether data was published, or the build succeeded but no targets
+                   were configured.
+   :param source_partitions: The quarters built by the backfill being deployed.
+   :param validation_stages: Results of the dbt validation run before deployment.
+   :param datapackage_path: Local path of the datapackage descriptor.
+   :param targets: The destinations data was published to. Empty when skipped.
+   :param table_files: Local Parquet files published for each table, if any.
+   :param deploy_seconds: Wall time of the staging and promotion, if it happened.
 
 
 .. py:function:: deploy_ferceqr(context: dagster.AssetExecutionContext)

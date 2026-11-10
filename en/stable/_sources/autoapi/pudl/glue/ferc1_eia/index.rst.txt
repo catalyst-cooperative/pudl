@@ -48,6 +48,7 @@ Attributes
    pudl.glue.ferc1_eia.MIN_PLANT_CAPACITY_MW
    pudl.glue.ferc1_eia.MAX_LOST_PLANTS_EIA
    pudl.glue.ferc1_eia.MAX_LOST_UTILS_EIA
+   pudl.glue.ferc1_eia.GENERIC_FERC1_PLANT_TABLES
 
 
 Classes
@@ -69,13 +70,14 @@ Functions
    pudl.glue.ferc1_eia.get_mapped_plants_eia
    pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl
    pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf
-   pudl.glue.ferc1_eia.get_plants_ferc1_raw_job
+   pudl.glue.ferc1_eia.compile_plants_ferc1_raw
    pudl.glue.ferc1_eia.get_missing_ids
    pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping
    pudl.glue.ferc1_eia.label_plants_eia
    pudl.glue.ferc1_eia.label_utilities_ferc1_dbf
    pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl
    pudl.glue.ferc1_eia.get_utility_most_recent_capacity
+   pudl.glue.ferc1_eia.get_core_eia923_plant_id_tables
    pudl.glue.ferc1_eia.get_core_eia923_plant_ids
    pudl.glue.ferc1_eia.get_util_ids_eia_unmapped
    pudl.glue.ferc1_eia.glue
@@ -190,11 +192,23 @@ Module Contents
 
 
 
-.. py:function:: get_plants_ferc1_raw_job() -> dagster.JobDefinition
+.. py:data:: GENERIC_FERC1_PLANT_TABLES
+   :type:  tuple[str, ...]
+   :value: ('core_ferc1__yearly_hydroelectric_plants_sched406', 'core_ferc1__yearly_small_plants_sched410',...
 
-   Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
 
-   This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.
+   FERC1 tables used to compile the full raw list of FERC1 plants for ID mapping.
+
+   Transformed using :class:`GenericPlantFerc1TableTransformer` rather than the real
+   per-table transformers, since plants that haven't been manually assigned a
+   ``plant_id_pudl`` yet would otherwise fail the real transformers' FK/validity checks.
+
+.. py:function:: compile_plants_ferc1_raw(plant_dfs: list[pandas.DataFrame]) -> pandas.DataFrame
+
+   Compile a full list of raw FERC1 plants for manual ID mapping.
+
+   :param plant_dfs: one dataframe per table in :data:`GENERIC_FERC1_PLANT_TABLES`,
+                     each produced by :class:`GenericPlantFerc1TableTransformer`.
 
 
 .. py:function:: get_missing_ids(ids_left: pandas.DataFrame, ids_right: pandas.DataFrame, id_cols: list[str]) -> pandas.Index
@@ -229,17 +243,28 @@ Module Contents
    Get the XBRL FERC1 utilities with their names.
 
 
-.. py:function:: get_utility_most_recent_capacity() -> pandas.DataFrame
+.. py:function:: get_utility_most_recent_capacity(core_eia860__scd_generators: pandas.DataFrame) -> pandas.Series
 
    Calculate total generation capacity by utility in most recent reported year.
 
 
-.. py:function:: get_core_eia923_plant_ids()
+.. py:function:: get_core_eia923_plant_id_tables() -> tuple[str, ...]
+
+   Get the names of core_eia923 tables that contain plant_id_eia.
+
+   This is a purely metadata-based lookup (no data is read) so it can be used at
+   Dagster asset-definition time to build a dynamic set of upstream dependencies.
+
+
+.. py:function:: get_core_eia923_plant_ids(eia923_dfs: dict[str, pandas.DataFrame]) -> set
 
    Compile Plant IDs for all plants that appear in core EIA-923 tables.
 
+   :param eia923_dfs: mapping of table name to DataFrame for every table named by
+                      :func:`get_core_eia923_plant_id_tables`.
 
-.. py:function:: get_util_ids_eia_unmapped(out_eia__yearly_utilities: pandas.DataFrame, out_eia__yearly_generators: pandas.DataFrame, utilities_eia_mapped: pandas.DataFrame) -> pandas.DataFrame
+
+.. py:function:: get_util_ids_eia_unmapped(out_eia__yearly_utilities: pandas.DataFrame, out_eia__yearly_generators: pandas.DataFrame, utilities_eia_mapped: pandas.DataFrame, eia923_plant_ids: set, util_recent_cap: pandas.Series) -> pandas.DataFrame
 
    Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 
@@ -250,6 +275,14 @@ Module Contents
    that do have plants reporting in EIA-923, sum up the total capacity of all of their
    plants and include that in the output dataframe so that we can effectively
    prioritize mapping them.
+
+   :param out_eia__yearly_utilities: the output EIA utilities table.
+   :param out_eia__yearly_generators: the output EIA generators table.
+   :param utilities_eia_mapped: the core_pudl__assn_eia_pudl_utilities glue table.
+   :param eia923_plant_ids: set of all plant_id_eia values that appear in the core
+                            EIA-923 tables, from :func:`get_core_eia923_plant_ids`.
+   :param util_recent_cap: total generation capacity by utility in the most recent
+                           reported year, from :func:`get_utility_most_recent_capacity`.
 
 
 .. py:function:: glue(ferc1: bool = False, eia: bool = False)

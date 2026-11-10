@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.extract.dbf &#8212; PUDL 2026.10.0 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.11.0 documentation</title>
   
   
   
@@ -38,8 +38,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -47,18 +47,18 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=c6b11c07"></script>
+    <script src="../../../../_static/documentation_options.js?v=a27ecc43"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/extract/dbf/index';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -120,7 +120,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.0 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.0 documentation - Home"/>
   
   
 </a></div>
@@ -230,14 +230,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -316,7 +316,7 @@
   
 
   
-    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
       <span class="fa-solid fa-outdent"></span>
     </button>
   
@@ -330,7 +330,7 @@
       
       
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
@@ -387,14 +387,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -773,7 +773,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../../../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     
@@ -815,6 +815,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.DBF_TYPES" title="pudl.extract.dbf.DBF_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DBF_TYPES</span></code></a></p></td>
 <td><p>A mapping of DBF field types to SQLAlchemy Column types.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES" title="pudl.extract.dbf.UNSUPPORTED_DBF_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNSUPPORTED_DBF_TYPES</span></code></a></p></td>
+<td><p>DBF field types that are not mapped to SQLAlchemy types, with descriptions.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -847,7 +850,7 @@
 <td><p>A custom DBF parser to deal with bad FERC data types.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PartitionedDataFrame</span></code></a></p></td>
-<td><p>This class bundles <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with partition information.</p></td>
+<td><p>This class bundles <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with partition information.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader" title="pudl.extract.dbf.FercDbfReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfReader</span></code></a></p></td>
 <td><p>Wrapper to provide standardized access to FERC DBF databases.</p></td>
@@ -866,16 +869,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.convert_db_into_parquet" title="pudl.extract.dbf.convert_db_into_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_db_into_parquet</span></code></a>(db_path, parquet_dir)</p></td>
 <td><p>Convert the database into a directory of parquet files using duckdb.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet" title="pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_and_validate_datapackage_sqlite_to_parquet</span></code></a>(→ dict)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet" title="pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_and_validate_datapackage_sqlite_to_parquet</span></code></a>(...) → dict</p></td>
 <td><p>Convert the SQLite datapackage into one that points at Parquet files.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.write_datapackage" title="pudl.extract.dbf.write_datapackage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_datapackage</span></code></a>(datapackage, output_dir)</p></td>
 <td><p>Write a datapackage to &lt;output_dir&gt;/datapackage.json.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.add_key_constraints" title="pudl.extract.dbf.add_key_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_key_constraints</span></code></a>(→ sqlalchemy.MetaData)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.add_key_constraints" title="pudl.extract.dbf.add_key_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_key_constraints</span></code></a>(meta, pk_table, column[, pk_column]) → sqlalchemy.MetaData</p></td>
 <td><p>Adds primary and foreign key to tables present in meta.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.deduplicate_by_year" title="pudl.extract.dbf.deduplicate_by_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deduplicate_by_year</span></code></a>(→ pandas.DataFrame | None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.deduplicate_by_year" title="pudl.extract.dbf.deduplicate_by_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deduplicate_by_year</span></code></a>(dfs, pk_column) → pandas.DataFrame | None</p></td>
 <td><p>Deduplicate records by year, keeping the most recent version of each record.</p></td>
 </tr>
 </tbody>
@@ -1024,7 +1027,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.load_table">
-<span class="sig-name descname"><span class="pre">load_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.load_table" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.load_table" title="Link to this definition">#</a></dt>
 <dd><p>Returns dataframe that holds data for a table contained within this archive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1066,7 +1069,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader.load_table_dfs">
-<span class="sig-name descname"><span class="pre">load_table_dfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.load_table_dfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.load_table_dfs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_table_dfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.load_table_dfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.load_table_dfs" title="Link to this definition">#</a></dt>
 <dd><p>Returns dataframe that contains data for a given table across given years.</p>
 </dd></dl>
 
@@ -1101,15 +1104,27 @@ all these fields to be cast to numeric values.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.extract.dbf.DBF_TYPES">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DBF_TYPES</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DBF_TYPES" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DBF_TYPES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../metadata/classes/index.html#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DBF_TYPES" title="Link to this definition">#</a></dt>
 <dd><p>A mapping of DBF field types to SQLAlchemy Column types.</p>
 <p>This dictionary maps the strings which are used to denote field types in the DBF objects
 to the corresponding generic SQLAlchemy Column types: These definitions come from a
 combination of the dbfread example program dbf2sqlite and this DBF file format
 documentation page:
-<a class="reference external" href="http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</a>
-: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as ‘XXX’
-which should result in an error if encountered.</p>
+<a class="reference external" href="http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</a></p>
+<p>Field types that are not mapped are in <a class="reference internal" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES" title="pudl.extract.dbf.UNSUPPORTED_DBF_TYPES"><code class="xref py py-data docutils literal notranslate"><span class="pre">UNSUPPORTED_DBF_TYPES</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.extract.dbf.UNSUPPORTED_DBF_TYPES">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">UNSUPPORTED_DBF_TYPES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#UNSUPPORTED_DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES" title="Link to this definition">#</a></dt>
+<dd><p>DBF field types that are not mapped to SQLAlchemy types, with descriptions.</p>
+<p>A <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#NotImplementedError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> is raised if a field of one of these types is
+encountered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dict</p>
@@ -1119,8 +1134,8 @@ which should result in an error if encountered.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.extract.dbf.PartitionedDataFrame">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">PartitionedDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#PartitionedDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.PartitionedDataFrame" title="Link to this definition">#</a></dt>
-<dd><p>This class bundles <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with partition information.</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">PartitionedDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#PartitionedDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.PartitionedDataFrame" title="Link to this definition">#</a></dt>
+<dd><p>This class bundles <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with partition information.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.extract.dbf.PartitionedDataFrame.df">
 <span class="sig-name descname"><span class="pre">df</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#PartitionedDataFrame.df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.PartitionedDataFrame.df" title="Link to this definition">#</a></dt>
@@ -1225,7 +1240,7 @@ not suitable.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercDbfExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercDbfToSqliteDataConfig" title="pudl.settings.FercDbfToSqliteDataConfig"><span class="pre">pudl.settings.FercDbfToSqliteDataConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercDbfExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercToSqliteDataConfig" title="pudl.settings.FercToSqliteDataConfig"><span class="pre">pudl.settings.FercToSqliteDataConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor" title="Link to this definition">#</a></dt>
 <dd><p>Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.</p>
 <p>When subclassing from this generic extractor, one should implement dataset specific
 logic in the following manner:</p>
@@ -1360,7 +1375,7 @@ respondent_ids).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.transform_table">
-<span class="sig-name descname"><span class="pre">transform_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.transform_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.transform_table" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.transform_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.transform_table" title="Link to this definition">#</a></dt>
 <dd><p>Transforms the content of a single table.</p>
 <p>This method can be used to modify contents of the dataframe after it has
 been loaded from fox pro database and before it’s written to sqlite database.</p>
@@ -1382,7 +1397,7 @@ been loaded from fox pro database and before it’s written to sqlite database.<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.aggregate_table_frames">
-<span class="sig-name descname"><span class="pre">aggregate_table_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.aggregate_table_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.aggregate_table_frames" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">aggregate_table_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.aggregate_table_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.aggregate_table_frames" title="Link to this definition">#</a></dt>
 <dd><p>Function to aggregate partitioned data frames into a single one.</p>
 <p>By default, this simply concatenates the frames, but custom dataset specific
 behaviors can be implemented.</p>
@@ -1462,7 +1477,7 @@ the table. If not specified, it is assumed that this is the same as pk_column.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.extract.dbf.deduplicate_by_year">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">deduplicate_by_year</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#deduplicate_by_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.deduplicate_by_year" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">deduplicate_by_year</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#deduplicate_by_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.deduplicate_by_year" title="Link to this definition">#</a></dt>
 <dd><p>Deduplicate records by year, keeping the most recent version of each record.</p>
 <p>It will use pk_column as the primary key column. report_yr column is expected to
 either be present, or it will be derived from partition[“year”].</p>
@@ -1506,7 +1521,7 @@ either be present, or it will be derived from partition[“year”].</p>
             
             
               
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
@@ -1565,6 +1580,7 @@ either be present, or it will be derived from partition[“year”].</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.DBF_TYPES"><code class="docutils literal notranslate"><span class="pre">DBF_TYPES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES"><code class="docutils literal notranslate"><span class="pre">UNSUPPORTED_DBF_TYPES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.PartitionedDataFrame"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.PartitionedDataFrame.df"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame.df</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.PartitionedDataFrame.partition"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame.partition</span></code></a></li>
@@ -1647,8 +1663,8 @@ either be present, or it will be derived from partition[“year”].</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1668,7 +1684,7 @@ either be present, or it will be derived from partition[“year”].</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -1681,7 +1697,7 @@ either be present, or it will be derived from partition[“year”].</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
         <div class="footer-item">

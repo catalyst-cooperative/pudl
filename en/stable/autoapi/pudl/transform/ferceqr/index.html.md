@@ -34,22 +34,23 @@ is partitioned by `year_quarter`:
 
 ## Functions
 
-| [`apply_duckdb_dtypes`](#pudl.transform.ferceqr.apply_duckdb_dtypes)(table_data, table_name, conn)         | Cast each column to the dtype declared in the PUDL metadata schema for the table.      |
-|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| [`rename_duckdb_columns`](#pudl.transform.ferceqr.rename_duckdb_columns)(→ duckdb.DuckDBPyRelation)          | Rename one or more columns in a DuckDB relation, passing all others through unchanged. |
-| [`apply_column_transforms`](#pudl.transform.ferceqr.apply_column_transforms)(→ duckdb.DuckDBPyRelation)        | Apply a DuckDB expression factory to a set of columns, replacing each in place.        |
-| [`_yn_to_bool`](#pudl.transform.ferceqr._yn_to_bool)(→ duckdb.Expression)                          | Return a DuckDB expression that converts `'Y'`/`'N'` strings to booleans.              |
-| [`_na_to_null`](#pudl.transform.ferceqr._na_to_null)(→ duckdb.Expression)                          | Return a DuckDB expression that converts `'N/A'` or `'NA'` strings to NULL.            |
-| [`_parse_datetimes`](#pudl.transform.ferceqr._parse_datetimes)(→ duckdb.Expression)                     | Return a DuckDB expression that parses a datetime string column using `fmt`.           |
-| [`_recode_categoricals`](#pudl.transform.ferceqr._recode_categoricals)(→ duckdb.Expression)                 | Return a DuckDB expression that replaces exact categorical values in a column.         |
-| [`core_ferceqr__quarterly_identity`](#pudl.transform.ferceqr.core_ferceqr__quarterly_identity)(context, ...)            | Transform the raw FERC EQR filer identity table.                                       |
-| [`core_ferceqr__transactions`](#pudl.transform.ferceqr.core_ferceqr__transactions)(context, ...)                  | Transform the raw FERC EQR electricity transactions table.                             |
-| [`core_ferceqr__contracts`](#pudl.transform.ferceqr.core_ferceqr__contracts)(context, raw_ferceqr_\_contracts) | Transform the raw FERC EQR electricity contracts table.                                |
-| [`core_ferceqr__quarterly_index_pub`](#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub)(context, ...)           | Transform the raw FERC EQR index price publisher table.                                |
-| [`_latest_extraction_stats_by_quarter`](#pudl.transform.ferceqr._latest_extraction_stats_by_quarter)(→ dict[str, ...)      | Return `{year_quarter: extraction_stats}` from each partition's latest run.            |
-| [`_latest_check_evaluations_by_quarter`](#pudl.transform.ferceqr._latest_check_evaluations_by_quarter)(→ dict[str, ...)     | Return `{year_quarter: {table_label: evaluation}}` from each check's latest run.       |
-| [`_build_ferceqr_diagnostics_rows`](#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows)(→ list[dict[str, Any]])   | Flatten per-quarter extraction stats and check results into one wide table.            |
-| [`ferceqr_pipeline_diagnostics`](#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics)(→ dagster.MaterializeResult) | Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.      |
+| [`apply_duckdb_dtypes`](#pudl.transform.ferceqr.apply_duckdb_dtypes)(table_data, table_name, conn)                                                   | Cast each column to the dtype declared in the PUDL metadata schema for the table.      |
+|------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| [`rename_duckdb_columns`](#pudl.transform.ferceqr.rename_duckdb_columns)(table_data, mapping) → duckdb.DuckDBPyRelation                                | Rename one or more columns in a DuckDB relation, passing all others through unchanged. |
+| [`drop_duckdb_columns`](#pudl.transform.ferceqr.drop_duckdb_columns)(table_data, columns) → duckdb.DuckDBPyRelation                                  | Drop whichever of `columns` are present in a DuckDB relation.                          |
+| [`apply_column_transforms`](#pudl.transform.ferceqr.apply_column_transforms)(table_data, columns, transform) → duckdb.DuckDBPyRelation                   | Apply a DuckDB expression factory to a set of columns, replacing each in place.        |
+| [`_yn_to_bool`](#pudl.transform.ferceqr._yn_to_bool)(col) → duckdb.Expression                                                                | Return a DuckDB expression that converts `'Y'`/`'N'` strings to booleans.              |
+| [`_na_to_null`](#pudl.transform.ferceqr._na_to_null)(col_name) → duckdb.Expression                                                           | Return a DuckDB expression that converts `'N/A'` or `'NA'` strings to NULL.            |
+| [`_parse_datetimes`](#pudl.transform.ferceqr._parse_datetimes)(col_name, fmt) → duckdb.Expression                                                 | Return a DuckDB expression that parses a datetime string column using `fmt`.           |
+| [`_recode_categoricals`](#pudl.transform.ferceqr._recode_categoricals)(col_name, replace_mapping) → duckdb.Expression                                 | Return a DuckDB expression that replaces exact categorical values in a column.         |
+| [`core_ferceqr__quarterly_identity`](#pudl.transform.ferceqr.core_ferceqr__quarterly_identity)(context, ...)                                                      | Transform the raw FERC EQR filer identity table.                                       |
+| [`core_ferceqr__transactions`](#pudl.transform.ferceqr.core_ferceqr__transactions)(context, ...)                                                            | Transform the raw FERC EQR electricity transactions table.                             |
+| [`core_ferceqr__contracts`](#pudl.transform.ferceqr.core_ferceqr__contracts)(context, raw_ferceqr_\_contracts)                                           | Transform the raw FERC EQR electricity contracts table.                                |
+| [`core_ferceqr__quarterly_index_pub`](#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub)(context, ...)                                                     | Transform the raw FERC EQR index price publisher table.                                |
+| [`_latest_extraction_stats_by_quarter`](#pudl.transform.ferceqr._latest_extraction_stats_by_quarter)(instance) → dict[str, dict[str, Any]]                           | Return `{year_quarter: extraction_stats}` from each partition's latest run.            |
+| [`_latest_check_evaluations_by_quarter`](#pudl.transform.ferceqr._latest_check_evaluations_by_quarter)(instance) → dict[str, dict[str, dagster.AssetCheckEvaluation]] | Return `{year_quarter: {table_label: evaluation}}` from each check's latest run.       |
+| [`_build_ferceqr_diagnostics_rows`](#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows)(...) → list[dict[str, Any]]                                         | Flatten per-quarter extraction stats and check results into one wide table.            |
+| [`ferceqr_pipeline_diagnostics`](#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics)(context) → dagster.MaterializeResult                                   | Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.      |
 
 ## Module Contents
 
@@ -90,6 +91,17 @@ Rename one or more columns in a DuckDB relation, passing all others through unch
 * **Parameters:**
   * **table_data** – DuckDB relation containing the columns to rename.
   * **mapping** – Maps existing column names to their new names.
+
+### pudl.transform.ferceqr.drop_duckdb_columns(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
+
+Drop whichever of `columns` are present in a DuckDB relation.
+
+Columns that are not in the relation are ignored rather than raising an error, so
+a column that is only reported in some raw filings can be dropped unconditionally.
+
+* **Parameters:**
+  * **table_data** – DuckDB relation containing the columns to drop.
+  * **columns** – Names of the columns to drop.
 
 ### pudl.transform.ferceqr.apply_column_transforms(table_data: [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], transform: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], [duckdb.Expression](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.Expression)]) → [duckdb.DuckDBPyRelation](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation)
 

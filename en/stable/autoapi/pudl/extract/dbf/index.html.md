@@ -4,9 +4,10 @@ Generalized DBF extractor for FERC data.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.dbf.logger)    |                                                          |
-|------------------------------------------------------------|----------------------------------------------------------|
-| [`DBF_TYPES`](#pudl.extract.dbf.DBF_TYPES) | A mapping of DBF field types to SQLAlchemy Column types. |
+| [`logger`](#pudl.extract.dbf.logger)                |                                                                             |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`DBF_TYPES`](#pudl.extract.dbf.DBF_TYPES)             | A mapping of DBF field types to SQLAlchemy Column types.                    |
+| [`UNSUPPORTED_DBF_TYPES`](#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES) | DBF field types that are not mapped to SQLAlchemy types, with descriptions. |
 
 ## Exceptions
 
@@ -26,12 +27,12 @@ Generalized DBF extractor for FERC data.
 
 ## Functions
 
-| [`convert_db_into_parquet`](#pudl.extract.dbf.convert_db_into_parquet)(db_path, parquet_dir)              | Convert the database into a directory of parquet files using duckdb.         |
-|-------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`convert_and_validate_datapackage_sqlite_to_parquet`](#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet)(→ dict) | Convert the SQLite datapackage into one that points at Parquet files.        |
-| [`write_datapackage`](#pudl.extract.dbf.write_datapackage)(datapackage, output_dir)                 | Write a datapackage to <output_dir>/datapackage.json.                        |
-| [`add_key_constraints`](#pudl.extract.dbf.add_key_constraints)(→ sqlalchemy.MetaData)                 | Adds primary and foreign key to tables present in meta.                      |
-| [`deduplicate_by_year`](#pudl.extract.dbf.deduplicate_by_year)(→ pandas.DataFrame | None)             | Deduplicate records by year, keeping the most recent version of each record. |
+| [`convert_db_into_parquet`](#pudl.extract.dbf.convert_db_into_parquet)(db_path, parquet_dir)                                  | Convert the database into a directory of parquet files using duckdb.         |
+|---------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`convert_and_validate_datapackage_sqlite_to_parquet`](#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet)(...) → dict                 | Convert the SQLite datapackage into one that points at Parquet files.        |
+| [`write_datapackage`](#pudl.extract.dbf.write_datapackage)(datapackage, output_dir)                                     | Write a datapackage to <output_dir>/datapackage.json.                        |
+| [`add_key_constraints`](#pudl.extract.dbf.add_key_constraints)(meta, pk_table, column[, pk_column]) → sqlalchemy.MetaData | Adds primary and foreign key to tables present in meta.                      |
+| [`deduplicate_by_year`](#pudl.extract.dbf.deduplicate_by_year)(dfs, pk_column) → pandas.DataFrame | None                  | Deduplicate records by year, keeping the most recent version of each record. |
 
 ## Module Contents
 
@@ -170,7 +171,7 @@ all these fields to be cast to numeric values.
   * **field** – The DBF field being parsed.
   * **data** – Binary data (bytes) read from the DBF file.
 
-### pudl.extract.dbf.DBF_TYPES
+### pudl.extract.dbf.DBF_TYPES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]]*
 
 A mapping of DBF field types to SQLAlchemy Column types.
 
@@ -179,8 +180,18 @@ to the corresponding generic SQLAlchemy Column types: These definitions come fro
 combination of the dbfread example program dbf2sqlite and this DBF file format
 documentation page:
 [http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm](http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm)
-: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as ‘XXX’
-which should result in an error if encountered.
+
+Field types that are not mapped are in [`UNSUPPORTED_DBF_TYPES`](#pudl.extract.dbf.UNSUPPORTED_DBF_TYPES).
+
+* **Type:**
+  Dict
+
+### pudl.extract.dbf.UNSUPPORTED_DBF_TYPES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
+DBF field types that are not mapped to SQLAlchemy types, with descriptions.
+
+A [`NotImplementedError`](https://docs.python.org/3/builtins/exceptions.html#NotImplementedError) is raised if a field of one of these types is
+encountered.
 
 * **Type:**
   Dict
@@ -247,7 +258,7 @@ Merges data for a given table across all partitions.
   * **table_name** – name of the table to load.
   * **partitions** – list of partition filters to use
 
-### *class* pudl.extract.dbf.FercDbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
+### *class* pudl.extract.dbf.FercDbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
 Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.
 

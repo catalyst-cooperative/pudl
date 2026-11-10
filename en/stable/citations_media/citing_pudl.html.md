@@ -2,6 +2,12 @@
 
 Academic, policy, and industry publications that reference PUDL and analyses done by Catalyst Cooperative.
 
+## Blog
+
+1. Kyle Baranko. Open-Source Energy Projects in Python You Need to Know About. February 2020. URL: [https://medium.com/data-science/open-source-energy-projects-in-python-you-need-to-know-about-6d770474121c](https://medium.com/data-science/open-source-energy-projects-in-python-you-need-to-know-about-6d770474121c) (visited on 2026-10-15).
+2. Tyler Ruggles. Comparing FERC and EIA electricity demand data. June 2020. URL: [https://thruggles.com/archives/2020/06/2162/comparing-ferc-and-eia-electricity-demand-data/](https://thruggles.com/archives/2020/06/2162/comparing-ferc-and-eia-electricity-demand-data/) (visited on 2026-10-15).
+3. Zeke Hausfather. Mapped: The US nuclear power plants ‘at risk’ of shutting down. July 2018. URL: [https://www.carbonbrief.org/mapped-the-us-nuclear-power-plants-at-risk-of-shutting-down](https://www.carbonbrief.org/mapped-the-us-nuclear-power-plants-at-risk-of-shutting-down) (visited on 2026-10-15).
+
 ## Book
 
 1. Joshua A. Basseches. *Owning the Green Grid: The Political Economy of Renewable Energy Policy Design*. MIT Press, June 2026. ISBN 978-0-262-05360-0. Google-Books-ID: bQSJEQAAQBAJ.
@@ -19,6 +25,10 @@ Academic, policy, and industry publications that reference PUDL and analyses don
 ## Expert Testimony
 
 1. William D. Kenworthy, Curt Volkmann, and Boratha Tan. Direct Testimony and Exhibits of William D. Kenworthy, Curt Volkmann, and Boratha Tan on behalf of The Ecology Center, The Environmental Law & Policy Center, Union of Concerned Scientists, and Vote Solar. August 2025. Issue: Case U-21860. URL: [https://mi-psc.my.site.com/sfc/servlet.shepherd/version/download/068cs000016rwhrAAA](https://mi-psc.my.site.com/sfc/servlet.shepherd/version/download/068cs000016rwhrAAA).
+
+## Interview
+
+1. Aditya A.M. Interview with Priya Donti, Co-founder and Chair, Climate Change AI. November 2025. URL: [https://aitimejournal.com/interview-with-priya-donti-co-founder-and-chair-climate-change-ai](https://aitimejournal.com/interview-with-priya-donti-co-founder-and-chair-climate-change-ai) (visited on 2026-10-15).
 
 ## Journal or News Article
 

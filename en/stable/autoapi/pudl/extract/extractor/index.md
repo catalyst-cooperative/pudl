@@ -18,12 +18,12 @@ Generic functionality for extractors.
 
 ## Functions
 
-| [`concat_pages`](#pudl.extract.extractor.concat_pages)(→ dict[str, pandas.DataFrame])                 | Concatenate similar pages of data from different years into single dataframes.       |
-|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [`_is_dict_str_strint`](#pudl.extract.extractor._is_dict_str_strint)(→ bool)                                 |                                                                                      |
-| [`partition_extractor_factory`](#pudl.extract.extractor.partition_extractor_factory)(→ dagster.OpDefinition)         | Construct a Dagster op that extracts one partition of data, given an extractor.      |
-| [`partitions_from_data_config_factory`](#pudl.extract.extractor.partitions_from_data_config_factory)(→ dagster.OpDefinition) | Construct a Dagster op to get target partitions from data config in Dagster context. |
-| [`raw_df_factory`](#pudl.extract.extractor.raw_df_factory)(→ dagster.AssetsDefinition)                  | Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.      |
+| [`concat_pages`](#pudl.extract.extractor.concat_pages)(paged_dfs) → dict[str, pandas.DataFrame]                   | Concatenate similar pages of data from different years into single dataframes.       |
+|--------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [`_is_dict_str_strint`](#pudl.extract.extractor._is_dict_str_strint)(_context, x) → bool                                 |                                                                                      |
+| [`partition_extractor_factory`](#pudl.extract.extractor.partition_extractor_factory)(extractor_cls, name) → dagster.OpDefinition | Construct a Dagster op that extracts one partition of data, given an extractor.      |
+| [`partitions_from_data_config_factory`](#pudl.extract.extractor.partitions_from_data_config_factory)(name) → dagster.OpDefinition        | Construct a Dagster op to get target partitions from data config in Dagster context. |
+| [`raw_df_factory`](#pudl.extract.extractor.raw_df_factory)(extractor_cls, name) → dagster.AssetsDefinition          | Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.      |
 
 ## Module Contents
 

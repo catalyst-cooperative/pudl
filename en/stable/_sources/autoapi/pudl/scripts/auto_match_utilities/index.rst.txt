@@ -15,6 +15,7 @@ Attributes
 .. autoapisummary::
 
    pudl.scripts.auto_match_utilities.logger
+   pudl.scripts.auto_match_utilities.GlueEntity
    pudl.scripts.auto_match_utilities.UTILITY_NAME_CLEANER
 
 
@@ -37,6 +38,10 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:type:: GlueEntity
+   :canonical: Literal['ferc1', 'eia']
+
 
 .. py:data:: UTILITY_NAME_CLEANER
 
@@ -67,7 +72,7 @@ Module Contents
    Read in the existing handmade false matches spreadsheet.
 
 
-.. py:function:: drop_records_with_matches(entity: Literal['ferc1', 'eia'], matches_new: pandas.DataFrame, existing_glue_df: pandas.DataFrame, matches_existing: pandas.DataFrame, unmatched_existing: pandas.DataFrame)
+.. py:function:: drop_records_with_matches(entity: GlueEntity, matches_new: pandas.DataFrame, existing_glue_df: pandas.DataFrame, matches_existing: pandas.DataFrame, unmatched_existing: pandas.DataFrame)
 
    Drop records in the original dataframe where matches have been found.
 

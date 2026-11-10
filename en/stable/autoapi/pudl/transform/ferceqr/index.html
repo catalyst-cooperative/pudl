@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.10.0 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.11.0 documentation</title>
   
   
   
@@ -38,8 +38,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -47,18 +47,18 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=c6b11c07"></script>
+    <script src="../../../../_static/documentation_options.js?v=a27ecc43"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/transform/ferceqr/index';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -120,7 +120,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.10.0 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.10.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.0 documentation - Home"/>
   
   
 </a></div>
@@ -230,14 +230,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -316,7 +316,7 @@
   
 
   
-    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
       <span class="fa-solid fa-outdent"></span>
     </button>
   
@@ -330,7 +330,7 @@
       
       
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
@@ -387,14 +387,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -773,7 +773,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../../../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     
@@ -852,46 +852,49 @@ is partitioned by <code class="docutils literal notranslate"><span class="pre">y
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.apply_duckdb_dtypes" title="pudl.transform.ferceqr.apply_duckdb_dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_duckdb_dtypes</span></code></a>(table_data, table_name, conn)</p></td>
 <td><p>Cast each column to the dtype declared in the PUDL metadata schema for the table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.rename_duckdb_columns" title="pudl.transform.ferceqr.rename_duckdb_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_duckdb_columns</span></code></a>(→ duckdb.DuckDBPyRelation)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.rename_duckdb_columns" title="pudl.transform.ferceqr.rename_duckdb_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_duckdb_columns</span></code></a>(table_data, mapping) → duckdb.DuckDBPyRelation</p></td>
 <td><p>Rename one or more columns in a DuckDB relation, passing all others through unchanged.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.apply_column_transforms" title="pudl.transform.ferceqr.apply_column_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_column_transforms</span></code></a>(→ duckdb.DuckDBPyRelation)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.drop_duckdb_columns" title="pudl.transform.ferceqr.drop_duckdb_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_duckdb_columns</span></code></a>(table_data, columns) → duckdb.DuckDBPyRelation</p></td>
+<td><p>Drop whichever of <code class="docutils literal notranslate"><span class="pre">columns</span></code> are present in a DuckDB relation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.apply_column_transforms" title="pudl.transform.ferceqr.apply_column_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_column_transforms</span></code></a>(table_data, columns, transform) → duckdb.DuckDBPyRelation</p></td>
 <td><p>Apply a DuckDB expression factory to a set of columns, replacing each in place.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._yn_to_bool" title="pudl.transform.ferceqr._yn_to_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_yn_to_bool</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._yn_to_bool" title="pudl.transform.ferceqr._yn_to_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_yn_to_bool</span></code></a>(col) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that converts <code class="docutils literal notranslate"><span class="pre">'Y'</span></code>/<code class="docutils literal notranslate"><span class="pre">'N'</span></code> strings to booleans.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._na_to_null" title="pudl.transform.ferceqr._na_to_null"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_na_to_null</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._na_to_null" title="pudl.transform.ferceqr._na_to_null"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_na_to_null</span></code></a>(col_name) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that converts <code class="docutils literal notranslate"><span class="pre">'N/A'</span></code> or <code class="docutils literal notranslate"><span class="pre">'NA'</span></code> strings to NULL.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._parse_datetimes" title="pudl.transform.ferceqr._parse_datetimes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_datetimes</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._parse_datetimes" title="pudl.transform.ferceqr._parse_datetimes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_datetimes</span></code></a>(col_name, fmt) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that parses a datetime string column using <code class="docutils literal notranslate"><span class="pre">fmt</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._recode_categoricals" title="pudl.transform.ferceqr._recode_categoricals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_recode_categoricals</span></code></a>(→ duckdb.Expression)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._recode_categoricals" title="pudl.transform.ferceqr._recode_categoricals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_recode_categoricals</span></code></a>(col_name, replace_mapping) → duckdb.Expression</p></td>
 <td><p>Return a DuckDB expression that replaces exact categorical values in a column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__quarterly_identity" title="pudl.transform.ferceqr.core_ferceqr__quarterly_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__quarterly_identity</span></code></a>(context, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__quarterly_identity" title="pudl.transform.ferceqr.core_ferceqr__quarterly_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__quarterly_identity</span></code></a>(context, ...)</p></td>
 <td><p>Transform the raw FERC EQR filer identity table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__transactions" title="pudl.transform.ferceqr.core_ferceqr__transactions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__transactions</span></code></a>(context, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__transactions" title="pudl.transform.ferceqr.core_ferceqr__transactions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__transactions</span></code></a>(context, ...)</p></td>
 <td><p>Transform the raw FERC EQR electricity transactions table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__contracts" title="pudl.transform.ferceqr.core_ferceqr__contracts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__contracts</span></code></a>(context, raw_ferceqr__contracts)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__contracts" title="pudl.transform.ferceqr.core_ferceqr__contracts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__contracts</span></code></a>(context, raw_ferceqr__contracts)</p></td>
 <td><p>Transform the raw FERC EQR electricity contracts table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub" title="pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__quarterly_index_pub</span></code></a>(context, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub" title="pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_ferceqr__quarterly_index_pub</span></code></a>(context, ...)</p></td>
 <td><p>Transform the raw FERC EQR index price publisher table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_extraction_stats_by_quarter" title="pudl.transform.ferceqr._latest_extraction_stats_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_extraction_stats_by_quarter</span></code></a>(→ dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_extraction_stats_by_quarter" title="pudl.transform.ferceqr._latest_extraction_stats_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_extraction_stats_by_quarter</span></code></a>(instance) → dict[str, dict[str, Any]]</p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">{year_quarter:</span> <span class="pre">extraction_stats}</span></code> from each partition's latest run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_check_evaluations_by_quarter" title="pudl.transform.ferceqr._latest_check_evaluations_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_check_evaluations_by_quarter</span></code></a>(→ dict[str, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._latest_check_evaluations_by_quarter" title="pudl.transform.ferceqr._latest_check_evaluations_by_quarter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_latest_check_evaluations_by_quarter</span></code></a>(instance) → dict[str, dict[str, dagster.AssetCheckEvaluation]]</p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">{year_quarter:</span> <span class="pre">{table_label:</span> <span class="pre">evaluation}}</span></code> from each check's latest run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows" title="pudl.transform.ferceqr._build_ferceqr_diagnostics_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_ferceqr_diagnostics_rows</span></code></a>(→ list[dict[str, Any]])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr._build_ferceqr_diagnostics_rows" title="pudl.transform.ferceqr._build_ferceqr_diagnostics_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_ferceqr_diagnostics_rows</span></code></a>(...) → list[dict[str, Any]]</p></td>
 <td><p>Flatten per-quarter extraction stats and check results into one wide table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics" title="pudl.transform.ferceqr.ferceqr_pipeline_diagnostics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_pipeline_diagnostics</span></code></a>(→ dagster.MaterializeResult)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferceqr.ferceqr_pipeline_diagnostics" title="pudl.transform.ferceqr.ferceqr_pipeline_diagnostics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_pipeline_diagnostics</span></code></a>(context) → dagster.MaterializeResult</p></td>
 <td><p>Compile a cross-quarter summary of ferceqr extraction and schema-check anomalies.</p></td>
 </tr>
 </tbody>
@@ -957,6 +960,22 @@ before the cast is applied.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>table_data</strong> – DuckDB relation containing the columns to rename.</p></li>
 <li><p><strong>mapping</strong> – Maps existing column names to their new names.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.ferceqr.drop_duckdb_columns">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.ferceqr.</span></span><span class="sig-name descname"><span class="pre">drop_duckdb_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation" title="(in duckdb)"><span class="pre">duckdb.DuckDBPyRelation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyRelation" title="(in duckdb)"><span class="pre">duckdb.DuckDBPyRelation</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferceqr.html#drop_duckdb_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferceqr.drop_duckdb_columns" title="Link to this definition">#</a></dt>
+<dd><p>Drop whichever of <code class="docutils literal notranslate"><span class="pre">columns</span></code> are present in a DuckDB relation.</p>
+<p>Columns that are not in the relation are ignored rather than raising an error, so
+a column that is only reported in some raw filings can be dropped unconditionally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_data</strong> – DuckDB relation containing the columns to drop.</p></li>
+<li><p><strong>columns</strong> – Names of the columns to drop.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1143,7 +1162,7 @@ data.</p>
             
             
               
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
@@ -1165,6 +1184,7 @@ data.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr._CHECK_EVALUATION_FETCH_LIMIT"><code class="docutils literal notranslate"><span class="pre">_CHECK_EVALUATION_FETCH_LIMIT</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr.apply_duckdb_dtypes"><code class="docutils literal notranslate"><span class="pre">apply_duckdb_dtypes()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr.rename_duckdb_columns"><code class="docutils literal notranslate"><span class="pre">rename_duckdb_columns()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr.drop_duckdb_columns"><code class="docutils literal notranslate"><span class="pre">drop_duckdb_columns()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr.apply_column_transforms"><code class="docutils literal notranslate"><span class="pre">apply_column_transforms()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr._yn_to_bool"><code class="docutils literal notranslate"><span class="pre">_yn_to_bool()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferceqr._na_to_null"><code class="docutils literal notranslate"><span class="pre">_na_to_null()</span></code></a></li>
@@ -1205,8 +1225,8 @@ data.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1226,7 +1246,7 @@ data.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -1239,7 +1259,7 @@ data.</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
         <div class="footer-item">
