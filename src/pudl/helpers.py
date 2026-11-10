@@ -1124,59 +1124,33 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A DataFrame in which the year/month fields have been converted into Date fields.
     """
-    df = df.copy(deep=False)
-    month_regex = "_month$"
-    year_regex = "_year$"
-    # Columns that match our month or year patterns.
-    month_cols = list(df.filter(regex=month_regex).columns)
-    year_cols = list(df.filter(regex=year_regex).columns)
+    # Base names (the part before _month/_year) of columns that have BOTH a month and
+    # a year -- otherwise there's no point in creating a Date.
+    cols = df.columns.astype(str)
+    months_base = cols[cols.str.endswith("_month")].str.removesuffix("_month")
+    years_base = set(cols[cols.str.endswith("_year")].str.removesuffix("_year"))
+    date_bases = [base for base in months_base if base in years_base]
 
-    # Base column names that don't include the month or year pattern
-    months_base = [re.sub(month_regex, "", m) for m in month_cols]
-    years_base = [re.sub(year_regex, "", y) for y in year_cols]
-
-    # We only want to retain columns that have BOTH month and year
-    # matches -- otherwise there's no point in creating a Date.
-    date_base = [base for base in months_base if base in years_base]
-
-    # For each base column that DOES have both a month and year,
-    # We need to grab the real column names corresponding to each,
-    # so we can access the values in the data frame, and use them
-    # to create a corresponding Date column named [BASE]_date
-    month_year_date = []
-    for base in date_base:
-        base_month_regex = f"^{base}{month_regex}"
-        month_col = list(df.filter(regex=base_month_regex).columns)
-        if not len(month_col) == 1:
-            raise AssertionError
-        month_col = month_col[0]
-        base_year_regex = f"^{base}{year_regex}"
-        year_col = list(df.filter(regex=base_year_regex).columns)
-        if not len(year_col) == 1:
-            raise AssertionError
-        year_col = year_col[0]
-        date_col = f"{base}_date"
-        month_year_date.append((month_col, year_col, date_col))
-
-    # Compute all of the dates before touching the frame's columns.
-    new_dates = []
-    for month_col, year_col, date_col in month_year_date:
-        date_mask = df[[year_col, month_col]].notna().all(axis="columns")
-        years = df.loc[date_mask, year_col]
-        months = df.loc[date_mask, month_col]
-        dates = null_dates_outside_ns_bounds(
-            pd.to_datetime({"year": years, "month": months, "day": 1}, errors="coerce")
+    # Casting to float64 turns NA in nullable integer columns into NaN, which
+    # to_datetime(errors="coerce") turns into NaT. (With NA present, to_datetime
+    # raises on nullable integers.)
+    new_dates = {
+        f"{base}_date": null_dates_outside_ns_bounds(
+            pd.to_datetime(
+                {
+                    "year": df[f"{base}_year"].astype("float64"),
+                    "month": df[f"{base}_month"].astype("float64"),
+                    "day": 1,
+                },
+                errors="coerce",
+            )
         )
-        new_dates.append((date_mask, date_col, dates))
+        for base in date_bases
+    }
 
-    # Now that we've replaced these fields with dates, we drop them all at once. In
-    # pandas 3 drop() leaves one block per column, so we consolidate with a deep copy
-    # before inserting the date columns to avoid a PerformanceWarning on every insert.
-    df = df.drop(columns=[c for pair in month_year_date for c in pair[:2]]).copy()
-    for date_mask, date_col, dates in new_dates:
-        df.loc[date_mask, date_col] = dates
-
-    return df
+    # Replace the month/year fields with the new date fields.
+    old_cols = [f"{base}_{part}" for base in date_bases for part in ("month", "year")]
+    return df.drop(columns=old_cols).assign(**new_dates)
 
 
 def convert_to_date(

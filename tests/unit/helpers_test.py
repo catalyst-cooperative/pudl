@@ -519,6 +519,26 @@ def test_month_year_to_date_nulls_out_of_bounds_dates():
     assert out["boiler_operating_date"].iloc[2] == pd.Timestamp("2010-03-01")
 
 
+@pytest.mark.parametrize("dtype", ["Int64", "Float64", "float64", object])
+def test_month_year_to_date_with_missing_parts(dtype):
+    """Rows missing a month or year become NaT for nullable and plain numeric dtypes.
+
+    ``pd.to_datetime`` raises "cannot convert NA to integer" on nullable integer
+    columns that contain NA, so this guards the NA-to-NaN cast in the function.
+    """
+    in_df = pd.DataFrame(
+        {
+            "unit_operating_year": [2010, None, 2012, None],
+            "unit_operating_month": [3, 4, None, None],
+            "other": [1, 2, 3, 4],
+        }
+    ).astype({"unit_operating_year": dtype, "unit_operating_month": dtype})
+    out = month_year_to_date(in_df)
+    assert list(out.columns) == ["other", "unit_operating_date"]
+    assert out["unit_operating_date"].isna().tolist() == [False, True, True, True]
+    assert out["unit_operating_date"].iloc[0] == pd.Timestamp("2010-03-01")
+
+
 @pytest.mark.parametrize("dtype", [object, "string", str])
 def test_unicode_whitespace_regex(dtype):
     """Unicode whitespace is collapsed for every string dtype, as it was in pandas 2."""
