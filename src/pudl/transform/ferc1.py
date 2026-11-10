@@ -1841,8 +1841,7 @@ def sort_xbrl_rows_by_order_number(df: pd.DataFrame) -> pd.DataFrame:
         The rows sorted by utility, year, total row and ``order_number``, with a new
         index.
     """
-    if df.empty:
-        return df
+    # A nullable boolean series indicating which rows are the total row of a filing.
     is_total = (
         df["generating_plant_statistics"]
         .str.strip()
@@ -1850,13 +1849,15 @@ def sort_xbrl_rows_by_order_number(df: pd.DataFrame) -> pd.DataFrame:
         .isin(["total", "grand total"])
     )
     return (
-        df.assign(_order=pd.to_numeric(df["order_number"]), _is_total=is_total)
+        df.assign(_is_total=is_total)
         .sort_values(
-            ["utility_id_ferc1_xbrl", "report_year", "_is_total", "_order"],
+            # Sorting by _is_total puts the total row last, because False < True.
+            # Put NA values last so rows w/o an order_number sort to the bottom.
+            ["utility_id_ferc1_xbrl", "report_year", "_is_total", "order_number"],
             kind="stable",
             na_position="last",
         )
-        .drop(columns=["_order", "_is_total"])
+        .drop(columns="_is_total")
         .reset_index(drop=True)
     )
 
