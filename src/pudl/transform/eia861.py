@@ -529,8 +529,8 @@ def _tidy_class_dfs(
         rf"{class_list_regex}", n=1, expand=True
     ).set_names([class_type, None])
     # Now stack the customer classes into their own categorical column,
-    data_cols = data_cols.stack(level=0, future_stack=True).reset_index()
-    # future_stack=True doesn't unify heterogeneous per-column extension dtypes
+    data_cols = data_cols.stack(level=0).reset_index()
+    # The pandas 3 stack() doesn't unify heterogeneous per-column extension dtypes
     # (e.g. some class-suffixed source columns are Int64, others Float64) the way
     # the old stack() implementation did, so the stacked value columns can come
     # back as generic object dtype. Restore proper nullable dtypes so downstream
@@ -856,13 +856,36 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
     return assn
 
 
+def _is_numeric_valued(col: pd.Series) -> bool:
+    """Whether a column holds numbers (or nothing but nulls), whatever its dtype.
+
+    The raw EIA-861 spreadsheets mark missing values with placeholders like ``"."``, so
+    columns of numbers are often read as ``object``. Pandas 2 happened to downcast many
+    of them to ``float64`` when the placeholders were replaced, but pandas 3 does not, so
+    the dtype alone can't be trusted to say whether a column should be summed.
+    Booleans (numpy and nullable) are not numeric.
+    """
+    if pd.api.types.is_bool_dtype(col.dtype):
+        return False
+    if pd.api.types.is_numeric_dtype(col.dtype):
+        return True
+    return col.dtype == object and pd.api.types.infer_dtype(col) in {
+        "integer",
+        "floating",
+        "mixed-integer-float",
+        "empty",
+    }
+
+
 def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Combine the data associated with 88888 utility_id_values.
 
-    This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
-    single row per primary key. Null values are treated as compatible with non-null
-    values: they count as zero when summing numeric columns, and they don't conflict
-    with the single non-null value of a non-numeric column (which includes booleans).
+    This function sums the numeric columns (see :func:`_is_numeric_valued`) of rows with
+    a utility_id_eia of 88888 into a single row per primary key. Null values are treated
+    as compatible with non-null values: they are ignored when summing numeric columns
+    (a column that is null in every row of a group stays null rather than becoming
+    zero), and they don't conflict with the single non-null value of a non-numeric
+    column (which includes booleans).
     If a non-numeric column has more than one distinct non-null value within a primary
     key, the rows are impossible to combine. E.g.: boolean columns where one value is
     Y and the other is N. In that case only the first row (after sorting) is kept and
@@ -887,13 +910,15 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     if 88888 not in df.utility_id_eia.unique():
         return df
 
-    # Split the non-key columns into those that can be summed and those that can't. Note
-    # that select_dtypes(exclude="number") treats boolean columns (numpy and nullable)
-    # as non-numeric, so they are compared across a group rather than summed.
-    non_num_cols = (
-        df.drop(columns=idx_cols).select_dtypes(exclude="number").columns.tolist()
+    # Split the non-key columns into those that can be summed and those that can't.
+    # Booleans are non-numeric, so they are compared across a group rather than summed.
+    value_cols = [col for col in df.columns if col not in idx_cols]
+    num_cols = [col for col in value_cols if _is_numeric_valued(df[col])]
+    non_num_cols = [col for col in value_cols if col not in num_cols]
+    # Numbers stored as object (see _is_numeric_valued) must be real numbers to be summed.
+    df = df.assign(
+        **{col: pd.to_numeric(df[col]) for col in num_cols if df[col].dtype == object}
     )
-    num_cols = df.columns.difference(idx_cols + non_num_cols, sort=False).tolist()
 
     # dropna=False keeps groups whose primary key contains nulls (e.g. no BA code).
     # Sort on every column so that which row is "first" in each group (and so which
@@ -916,7 +941,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     # - Sales table: 32
     # - UD table: 15
     # - DP table: 8
-    combined_rows = grouped.head(1).copy()
+    combined_rows = grouped.head(1)
 
     # We treat null values as NOT in conflict with non-null non-numeric values, and
     # ignore them when summing numeric values. A group is combinable if every
@@ -933,11 +958,13 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     else:
         combinable_labels = combined_rows.index
 
-    # Sum the numeric values of the combinable groups into their first row. Nulls count
-    # as zero. Non-combinable groups keep the numeric values of their first row.
+    # Sum the numeric values of the combinable groups into their first row, ignoring
+    # nulls. min_count=1 keeps a column that is null throughout a group null instead of
+    # reporting a withheld value as zero. Non-combinable groups keep the numeric values
+    # of their first row.
     if num_cols:
         combined_rows.loc[combinable_labels, num_cols] = grouped[num_cols].transform(
-            "sum"
+            "sum", min_count=1
         )
 
     recombined_df = pd.concat(
@@ -1293,9 +1320,7 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[
-        idx_cols + ["num_water_heaters", "data_maturity"]
-    ].copy()
+    raw_dr_water_heater = raw_dr[idx_cols + ["num_water_heaters", "data_maturity"]]
     dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
@@ -1426,7 +1451,7 @@ def core_demand_side_management_eia861(
     ).drop(columns=["has_demand_side_management", "data_status"])
 
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
-    dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
+    dsm_sales = transformed_dsm1[idx_cols + sales_cols]
     dsm_ee_dr = transformed_dsm1.drop(
         columns=[x for x in sales_cols if x != "data_maturity"]
     )
@@ -1451,8 +1476,8 @@ def core_demand_side_management_eia861(
     ###########################################################################
 
     # Split tidy dsm data into transformable chunks
-    tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
-    tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
+    tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].set_index(dsm_idx_cols)
+    tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].set_index(dsm_idx_cols)
     tidy_dsm_ee_dr = tidy_dsm.drop(columns=bool_cols + cost_cols)
 
     # Calculate transformations for each chunk
@@ -1484,7 +1509,7 @@ def core_demand_side_management_eia861(
         + program_cols
         + total_cost_cols
         + ["data_maturity"]
-    ].copy()
+    ]
     dsm_misc = transformed_dsm2.drop(
         columns=ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"]
     )
@@ -1608,9 +1633,9 @@ def core_distributed_generation_eia861(
     )
 
     # Split into three tables: Capacity/tech-related, fuel-related, and misc.
-    raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
-    raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
-    raw_dg_misc = raw_dg[idx_cols + misc_cols].copy()
+    raw_dg_tech = raw_dg[idx_cols + tech_cols]
+    raw_dg_fuel = raw_dg[idx_cols + fuel_cols]
+    raw_dg_misc = raw_dg[idx_cols + misc_cols]
 
     ###########################################################################
     # Transform Values:
@@ -1961,8 +1986,8 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
-    raw_nm_customer_fuel_class = raw_nm.drop(columns=misc_cols).copy()
-    raw_nm_misc = raw_nm[idx_cols + misc_cols + ["data_maturity"]].copy()
+    raw_nm_customer_fuel_class = raw_nm.drop(columns=misc_cols)
+    raw_nm_misc = raw_nm[idx_cols + misc_cols + ["data_maturity"]]
 
     # Check for duplicates before idx cols get changed
     _ = _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
@@ -2063,8 +2088,8 @@ def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
         )
 
     # Separate customer class data from misc data
-    raw_nnm_customer_fuel_class = raw_nnm.drop(columns=misc_cols).copy()
-    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols + ["data_maturity"]]).copy()
+    raw_nnm_customer_fuel_class = raw_nnm.drop(columns=misc_cols)
+    raw_nnm_misc = raw_nnm[idx_cols + misc_cols + ["data_maturity"]]
 
     # Check for duplicates before idx cols get changed
     _ = _check_for_dupes(
@@ -2185,9 +2210,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     #  * Misc. (other)
     revenue_cols = [col for col in transformed_od if "revenue" in str(col)]
     transformed_od_misc = transformed_od.drop(columns=revenue_cols)
-    transformed_od_rev = transformed_od[
-        idx_cols + revenue_cols + ["data_maturity"]
-    ].copy()
+    transformed_od_rev = transformed_od[idx_cols + revenue_cols + ["data_maturity"]]
 
     # Wide-to-tall revenue columns
     tidy_od_rev, idx_cols = _tidy_class_dfs(
@@ -2342,9 +2365,9 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     ]
     logger.info(f"{misc_cols=}")
     # Make separate tables for nerc vs. rto vs. misc data
-    raw_ud_nerc = transformed_ud[idx_cols + nerc_cols].copy()
-    raw_ud_rto = transformed_ud[idx_cols + rto_cols].copy()
-    raw_ud_misc = transformed_ud[misc_cols].copy()
+    raw_ud_nerc = transformed_ud[idx_cols + nerc_cols]
+    raw_ud_rto = transformed_ud[idx_cols + rto_cols]
+    raw_ud_misc = transformed_ud[misc_cols]
 
     ###########################################################################
     # Tidy Data:

@@ -604,7 +604,7 @@ def core_sec10k__quarterly_company_information(
     ]
     if len(dupes_df) > 0:
         filled_dupes = dupes_df.groupby(["filename_sec10k", "central_index_key"])[
-            cols_to_fill
+            list(cols_to_fill)
         ].transform(lambda group: group.ffill().bfill())
         clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
         clean_info = clean_info.drop_duplicates(subset=cols_to_fill)

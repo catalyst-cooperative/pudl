@@ -21,21 +21,6 @@
       "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
     },
     {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NAType` is not assignable to parameter `other` with type `((...) -> Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64) | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.series.Series.where`"
-    },
-    {
-      "path": "src/pudl/transform/phmsagas.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NAType` is not assignable to parameter `other` with type `((...) -> Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64) | Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.series.Series.where`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `NAType` is not assignable to parameter `other` with type `((...) -> Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64) | Series[str] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.series.Series.where`"
-    },
-    {
       "path": "src/pudl/transform/ferc714.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"
@@ -119,31 +104,6 @@
       "path": "src/pudl/extract/extractor.py",
       "name": "bad-return",
       "concise_description": "Generator function should return `Generator`"
-    },
-    {
-      "path": "src/pudl/transform/eia860m.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `operational_status_code` with type `NAType` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/vcerare.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `state_id_fips` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/rus12.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `state` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/transform/rus7.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `state` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/eia_ferc1_inputs.py",
-      "name": "bad-argument-type",
-      "concise_description": "Keyword argument `year_in_date_range` with type `(x: DataFrame) -> DataFrame` is not assignable to parameter `**kwargs` with type `((DataFrame) -> ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None) | ExtensionArray | Index | Sequence[Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64] | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | ndarray | range | str | timedelta | timedelta64 | None` in function `pandas.core.frame.DataFrame.assign`"
     },
     {
       "path": "src/pudl/helpers.py",
@@ -241,16 +201,6 @@
       "concise_description": "Object of class `spmatrix` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `index`"
-    },
-    {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `reset_index`"
-    },
-    {
       "path": "src/pudl/transform/ferc714.py",
       "name": "bad-return",
       "concise_description": "Returned type `DataFrame` is not assignable to declared return type `Series`"
@@ -279,16 +229,6 @@
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
       "name": "bad-return",
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
-    },
-    {
-      "path": "src/pudl/extract/rus12.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
-    },
-    {
-      "path": "src/pudl/extract/rus7.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to declared return type `str`"
     },
     {
       "path": "src/pudl/extract/extractor.py",

@@ -632,9 +632,8 @@ def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
 
     The column is coerced to be numeric.
     """
-    # Surprisingly, pd.to_numeric() did *not* return a copy of the series!
-    col = col.copy()
-    col = pd.to_numeric(col, errors="coerce")
+    # pd.to_numeric() returns the same object, not a copy, when already numeric.
+    col = pd.to_numeric(col, errors="coerce").copy(deep=False)
     col[~col.between(params.lower_bound, params.upper_bound)] = np.nan
     return col
 
@@ -771,7 +770,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
         "of records could not be corrected and were set to NA."
     )
     # Combine our cleaned up values with the other values we didn't select.
-    df = df.copy()
+    df = df.copy(deep=False)
     df[params.data_col] = pd.concat([selected, not_selected])
     return df
 
@@ -898,7 +897,7 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         invalids |= cols_to_check.isna()
     mask = ~invalids.all(axis="columns")
     # Mask the input dataframe and make a copy to avoid returning a slice.
-    df_out = df[mask].copy()
+    df_out = df[mask]
     logger.info(
         f"{1 - (len(df_out) / pre_drop_len):.1%} of records ({pre_drop_len - len(df_out)} "
         f"rows) contain only {params.invalid_values} values in required columns. "
@@ -1112,7 +1111,7 @@ def cache_df(
                 logger.debug(
                     f"{self.table_id.value}: Caching df to {key=} in {func.__name__}()"
                 )
-                self._cached_dfs[key] = df.copy()
+                self._cached_dfs[key] = df.copy(deep=False)
             return df
 
         return _wrapper
