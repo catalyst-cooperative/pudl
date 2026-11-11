@@ -356,7 +356,7 @@ See [https://specs.frictionlessdata.io/table-schema/#field-descriptors](https://
 ```pycon
 >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
 >>> field.to_pandas_dtype()
-CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
 >>> field.to_sql()
 Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
 >>> field = Field.from_id('utility_id_eia')
@@ -1683,17 +1683,12 @@ Compile a mapping of field names to their encoders, if they exist.
 This dictionary will be used many times, so it makes sense to build it once
 when the Package is instantiated so it can be reused.
 
-#### encode(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### encode(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Clean up all coded columns in a dataframe based on PUDL coding tables.
 
-Running with `copy=False` is intended for memory-intensive data frames where no
-upstream process retains a reference to the data. Use care with this option,
-and keep an eye out for spooky data changes showing up in unexpected places.
-
 * **Parameters:**
-  * **df** – DataFrame whose code columns are being cleaned up.
-  * **copy** – (Default True) Return a copy, making no changes to the original data.
+  **df** – DataFrame whose code columns are being cleaned up.
 * **Returns:**
   A dataframe with clean code columns.
 

@@ -10,13 +10,14 @@ with cleaning and restructuring dataframes.
 
 ## Attributes
 
-| [`sum_na`](#pudl.helpers.sum_na)                | A sum function that returns NA if the Series includes any NA values.                                                                                                                    |
-|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`AggregationFreq`](#pudl.helpers.AggregationFreq)       | Pandas frequency aliases for annual (year start) and monthly (month start) data.                                                                                                        |
-| [`AGGREGATION_FREQS`](#pudl.helpers.AGGREGATION_FREQS)     | All of the [`AggregationFreq`](#pudl.helpers.AggregationFreq) values, for iterating over.                                                                                 |
-| [`logger`](#pudl.helpers.logger)                |                                                                                                                                                                                         |
-| [`MergeValidate`](#pudl.helpers.MergeValidate)         | Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge). |
-| [`_DUCKDB_INTEGER_TYPES`](#pudl.helpers._DUCKDB_INTEGER_TYPES) |                                                                                                                                                                                         |
+| [`sum_na`](#pudl.helpers.sum_na)                   | A sum function that returns NA if the Series includes any NA values.                                                                                                                    |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`AggregationFreq`](#pudl.helpers.AggregationFreq)          | Pandas frequency aliases for annual (year start) and monthly (month start) data.                                                                                                        |
+| [`AGGREGATION_FREQS`](#pudl.helpers.AGGREGATION_FREQS)        | All of the [`AggregationFreq`](#pudl.helpers.AggregationFreq) values, for iterating over.                                                                                 |
+| [`logger`](#pudl.helpers.logger)                   |                                                                                                                                                                                         |
+| [`UNICODE_WHITESPACE_REGEX`](#pudl.helpers.UNICODE_WHITESPACE_REGEX) | Regex matching a run of ASCII or Unicode whitespace characters.                                                                                                                         |
+| [`MergeValidate`](#pudl.helpers.MergeValidate)            | Mirrors the `validate` literal accepted by [`pandas.DataFrame.merge()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge). |
+| [`_DUCKDB_INTEGER_TYPES`](#pudl.helpers._DUCKDB_INTEGER_TYPES)    |                                                                                                                                                                                         |
 
 ## Classes
 
@@ -26,8 +27,9 @@ with cleaning and restructuring dataframes.
 
 ## Functions
 
-| [`run_git`](#pudl.helpers.run_git)(args[, cwd]) → str                                                                                                               | Run a git subcommand and return its stdout, logging stderr on failure.                                                                                                                                                                                            |
+| [`null_dates_outside_ns_bounds`](#pudl.helpers.null_dates_outside_ns_bounds)(dates) → pandas.Series                                                                                      | Set datetimes that can't be represented with nanosecond resolution to `NaT`.                                                                                                                                                                                      |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`run_git`](#pudl.helpers.run_git)(args[, cwd]) → str                                                                                                               | Run a git subcommand and return its stdout, logging stderr on failure.                                                                                                                                                                                            |
 | [`label_map`](#pudl.helpers.label_map)(df[, from_col, to_col, null_value]) → collections.defaultdict[str, str | pandas._libs.missing.NAType]                          | Build a mapping dictionary from two columns of a labeling / coding dataframe.                                                                                                                                                                                     |
 | [`multi_index_stack`](#pudl.helpers.multi_index_stack)(df, idx_ish, pattern, data_cols, ...) → pandas.DataFrame                                                               | Stack multiple data columns - create categorical columns and data columns.                                                                                                                                                                                        |
 | [`find_new_ferc1_strings`](#pudl.helpers.find_new_ferc1_strings)(table, field, strdict, ferc1_engine) → set[str]                                                                   | Identify as-of-yet uncategorized freeform strings in FERC Form 1.                                                                                                                                                                                                 |
@@ -47,7 +49,7 @@ with cleaning and restructuring dataframes.
 | [`date_merge`](#pudl.helpers.date_merge)(left, right, on[, left_date_col, ...]) → pandas.DataFrame                                                                     | Merge two dataframes that have different report date frequencies.                                                                                                                                                                                                 |
 | [`expand_timeseries`](#pudl.helpers.expand_timeseries)(df, key_cols[, date_col, freq, ...]) → pandas.DataFrame                                                                | Expand a dataframe to a include a full time series at a given frequency.                                                                                                                                                                                          |
 | [`organize_cols`](#pudl.helpers.organize_cols)(df, cols) → pandas.DataFrame                                                                                               | Organize columns into key ID & name fields & alphabetical data columns.                                                                                                                                                                                           |
-| [`simplify_strings`](#pudl.helpers.simplify_strings)(df, columns[, copy]) → pandas.DataFrame                                                                                 | Simplify the strings contained in a set of dataframe columns.                                                                                                                                                                                                     |
+| [`simplify_strings`](#pudl.helpers.simplify_strings)(df, columns) → pandas.DataFrame                                                                                         | Simplify the strings contained in a set of dataframe columns.                                                                                                                                                                                                     |
 | [`cleanstrings_series`](#pudl.helpers.cleanstrings_series)(col, str_map[, unmapped, simplify]) → pandas.Series                                                                  | Clean up the strings in a single column/Series.                                                                                                                                                                                                                   |
 | [`cleanstrings`](#pudl.helpers.cleanstrings)(df, columns, stringmaps[, unmapped, simplify]) → pandas.DataFrame                                                           | Consolidate freeform strings in several dataframe columns.                                                                                                                                                                                                        |
 | [`fix_int_na`](#pudl.helpers.fix_int_na)(df, columns[, float_na, int_na, str_na]) → pandas.DataFrame                                                                   | Convert NA containing integer columns from float to string.                                                                                                                                                                                                       |
@@ -124,6 +126,29 @@ Pandas frequency aliases for annual (year start) and monthly (month start) data.
 All of the [`AggregationFreq`](#pudl.helpers.AggregationFreq) values, for iterating over.
 
 ### pudl.helpers.logger
+
+### pudl.helpers.UNICODE_WHITESPACE_REGEX *= '[\\\\s\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x85]+'*
+
+Regex matching a run of ASCII or Unicode whitespace characters.
+
+Python’s [`re`](https://docs.python.org/3/library/re.html#module-re) matches Unicode whitespace like the non-breaking space with `\s`,
+but the RE2 engine that pyarrow uses for pandas’ default `str` dtype only matches
+ASCII whitespace. Listing the characters explicitly gives the same result for `object`,
+`string` and `str` columns.
+
+### pudl.helpers.null_dates_outside_ns_bounds(dates: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+
+Set datetimes that can’t be represented with nanosecond resolution to `NaT`.
+
+Pandas 2 always parsed datetimes at nanosecond resolution, so implausible dates
+outside of 1677-09-21 to 2262-04-11 (typically typos like the year `0006`)
+overflowed and were coerced to `NaT`. Pandas 3 infers a coarser resolution
+and keeps them. This preserves the original behavior.
+
+* **Parameters:**
+  **dates** – A datetime Series, e.g. from `pd.to_datetime(..., errors="coerce")`.
+* **Returns:**
+  The Series with out-of-bounds datetimes replaced by `NaT`.
 
 ### pudl.helpers.run_git(args: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], cwd: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
@@ -467,7 +492,7 @@ put all the rest of the data columns in alphabetical order.
 * **Return type:**
   [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.helpers.simplify_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.simplify_strings(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), columns: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Simplify the strings contained in a set of dataframe columns.
 
@@ -478,14 +503,9 @@ single space.
 
 Leaves null values unaltered. Casts other values with astype(str).
 
-Running with `copy=False` is intended for memory-intensive data frames where no
-upstream process retains a reference to the data. Use care with this option,
-and keep an eye out for spooky data changes showing up in unexpected places.
-
 * **Parameters:**
   * **df** – DataFrame whose columns are being cleaned up.
   * **columns** – The labels of the string columns to be simplified.
-  * **copy** – (Default True) Return a copy, making no changes to the original data.
 * **Returns:**
   The whole DataFrame that was passed in, with the string columns cleaned up.
 
@@ -588,7 +608,7 @@ columns are then dropped.
 * **Returns:**
   A DataFrame in which the year/month fields have been converted into Date fields.
 
-### pudl.helpers.convert_to_date(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', year_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_year', month_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_month', day_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_day', month_na_value: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, day_na_value: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, copy: [bool](https://docs.python.org/3/builtins/functions.html#bool) = True) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.helpers.convert_to_date(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), date_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_date', year_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_year', month_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_month', day_col: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'report_day', month_na_value: [int](https://docs.python.org/3/builtins/functions.html#int) = 1, day_na_value: [int](https://docs.python.org/3/builtins/functions.html#int) = 1) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Convert specified year, month or day columns into a datetime object.
 
@@ -596,10 +616,6 @@ If the input `date_col` already exists in the input dataframe, then no
 conversion is applied, and the original dataframe is returned unchanged.
 Otherwise the constructed date is placed in that column, and the columns
 which were used to create the date are dropped.
-
-Running with `copy=False` is intended for memory-intensive data frames where no
-upstream process retains a reference to the data. Use care with this option,
-and keep an eye out for spooky data changes showing up in unexpected places.
 
 * **Parameters:**
   * **df** – dataframe to convert
@@ -610,7 +626,6 @@ and keep an eye out for spooky data changes showing up in unexpected places.
   * **month_na_value** – generated month if no month exists or if the month
     value is NA.
   * **day_na_value** – generated day if no day exists or if the day value is NA.
-  * **copy** – (default True) return a copy, making no changes to the original data.
 * **Returns:**
   A DataFrame in which the year, month, day columns values have been converted
   into datetime objects.

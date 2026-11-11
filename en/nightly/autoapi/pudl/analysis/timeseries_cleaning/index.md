@@ -197,7 +197,7 @@ Shift `utc` by UTC offset.
 >>> _shift_utc(s, [-7, -6])
 0   2019-12-31 17:00:00
 1   2019-12-31 18:00:00
-dtype: datetime64[ns]
+dtype: datetime64[us]
 ```
 
 ### pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned(input_df: [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[UTCTimeseriesDataFrame](#pudl.analysis.timeseries_cleaning.UTCTimeseriesDataFrame)]) → [pandera.typing.DataFrame](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.typing.DataFrame.html#pandera.typing.DataFrame)[[AlignedTimeseriesDataFrame](#pudl.analysis.timeseries_cleaning.AlignedTimeseriesDataFrame)]

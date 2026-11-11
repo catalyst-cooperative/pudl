@@ -35,6 +35,7 @@ All transformations include:
 | [`_make_yn_bool`](#pudl.transform.eia861._make_yn_bool)(col) → pandas.Series                                                           | Turn Y/N reporting in a series into nullable booleans.                           |
 | [`_thousand_to_one`](#pudl.transform.eia861._thousand_to_one)(df_object)                                                                  | Turn reporting in thousands of dollars to regular dollars for df or series.      |
 | [`_harvest_associations`](#pudl.transform.eia861._harvest_associations)(dfs, cols) → pandas.DataFrame                                          | Compile all unique, non-null combinations of values `cols` within `dfs`.         |
+| [`_is_numeric_valued`](#pudl.transform.eia861._is_numeric_valued)(col) → bool                                                               | Whether a column holds numbers (or nothing but nulls), whatever its dtype.       |
 | [`_combine_88888_values`](#pudl.transform.eia861._combine_88888_values)(df, idx_cols) → pandas.DataFrame                                       | Combine the data associated with 88888 utility_id_values.                        |
 | [`core_eia861__yearly_service_territory`](#pudl.transform.eia861.core_eia861__yearly_service_territory)(...) → pandas.DataFrame                                | Transform the EIA 861 utility service territory table.                           |
 | [`_core_eia861__balancing_authority`](#pudl.transform.eia861._core_eia861__balancing_authority)(...) → pandas.DataFrame                                    | Transform the EIA 861 Balancing Authority table.                                 |
@@ -256,14 +257,26 @@ present in each of the `dfs`.
   A dataframe containing all the unique, non-null combinations of values found in
   `cols`.
 
+### pudl.transform.eia861.\_is_numeric_valued(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
+
+Whether a column holds numbers (or nothing but nulls), whatever its dtype.
+
+The raw EIA-861 spreadsheets mark missing values with placeholders like `"."`, so
+columns of numbers are often read as `object`. Pandas 2 happened to downcast many
+of them to `float64` when the placeholders were replaced, but pandas 3 does not, so
+the dtype alone can’t be trusted to say whether a column should be summed.
+Booleans (numpy and nullable) are not numeric.
+
 ### pudl.transform.eia861.\_combine_88888_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Combine the data associated with 88888 utility_id_values.
 
-This function sums the numeric columns of rows with a utility_id_eia of 88888 into a
-single row per primary key. Null values are treated as compatible with non-null
-values: they count as zero when summing numeric columns, and they don’t conflict
-with the single non-null value of a non-numeric column (which includes booleans).
+This function sums the numeric columns (see [`_is_numeric_valued()`](#pudl.transform.eia861._is_numeric_valued)) of rows with
+a utility_id_eia of 88888 into a single row per primary key. Null values are treated
+as compatible with non-null values: they are ignored when summing numeric columns
+(a column that is null in every row of a group stays null rather than becoming
+zero), and they don’t conflict with the single non-null value of a non-numeric
+column (which includes booleans).
 If a non-numeric column has more than one distinct non-null value within a primary
 key, the rows are impossible to combine. E.g.: boolean columns where one value is
 Y and the other is N. In that case only the first row (after sorting) is kept and
