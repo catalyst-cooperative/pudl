@@ -1,10 +1,15 @@
 """Tests for Glue functions."""
 
 from io import StringIO
+from typing import cast
 
 import pandas as pd
+from dagster import AssetCheckResult
 
-from pudl.transform.phmsagas import backfill_zero_operator_id_phmsa
+from pudl.transform.phmsagas import (
+    _check_all_raw_columns_being_transformed,
+    backfill_zero_operator_id_phmsa,
+)
 
 
 def test_backfill_zero_operator_id_phmsa():
@@ -52,3 +57,32 @@ def test_backfill_zero_operator_id_phmsa():
         columns=["operator_id_phmsa_old"]
     )
     pd.testing.assert_frame_equal(out, expected_out)
+
+
+def _run_check(raw_df: pd.DataFrame) -> AssetCheckResult:
+    """Invoke the asset check directly, which the decorator types as ``object``."""
+    return cast(AssetCheckResult, _check_all_raw_columns_being_transformed(raw_df))
+
+
+def test_check_all_raw_columns_being_transformed_passes():
+    """The check passes when every raw column is accounted for in the transform."""
+    result = _run_check(
+        pd.DataFrame({"report_year": [2020], "main_other_material_detail": ["x"]})
+    )
+    assert result.passed
+    assert result.metadata["num_untransformed_columns"].value == 0
+
+
+def test_check_all_raw_columns_being_transformed_fails_and_reports_columns():
+    """The check fails, rather than raising, and lists the untransformed columns."""
+    result = _run_check(
+        pd.DataFrame({"report_year": [2020], "zzz_new_col": [1], "aaa_new_col": [2]})
+    )
+    assert not result.passed
+    assert result.metadata["num_untransformed_columns"].value == 2
+    assert result.metadata["untransformed_columns"].value == [
+        "aaa_new_col",
+        "zzz_new_col",
+    ]
+    assert result.description is not None
+    assert "2 raw columns" in result.description

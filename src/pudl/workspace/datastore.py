@@ -6,7 +6,7 @@ import json
 import re
 import zipfile
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -92,7 +92,7 @@ class DatapackageDescriptor:
             total_bytes += res["bytes"]
         return int(total_bytes / 1_000_000)
 
-    def validate_checksum(self, name: str, content: str) -> None:
+    def validate_checksum(self, name: str, content: bytes) -> None:
         """Verify that in-memory content matches the checksum of a named resource.
 
         Raises:
@@ -514,25 +514,26 @@ class Datastore:
     def get_resources(
         self,
         dataset: str,
+        filters: Mapping[str, Any] | None = None,
+        *,
         cached_only: bool = False,
         skip_optimally_cached: bool = False,
-        **filters: Any,
     ) -> Iterator[tuple[PudlResourceKey, bytes]]:
         """Return content of the matching resources.
 
         Args:
             dataset: name of the dataset to query.
+            filters: only return resources that match the key-value mapping in their
+                metadata["parts"].
             cached_only: if True, only retrieve resources that are present in the cache.
             skip_optimally_cached: if True, only retrieve resources that are not optimally
                 cached. This triggers attempt to optimally cache these resources.
-            filters (key=val): only return resources that match the key-value mapping in their
-            metadata["parts"].
 
         Yields:
             (PudlResourceKey, io.BytesIO) holding content for each matching resource
         """
         desc = self.get_datapackage_descriptor(dataset)
-        for res in desc.get_resources(**filters):
+        for res in desc.get_resources(**(filters or {})):
             if desc.get_resource_path(res.name).startswith("gs://"):
                 logger.info(
                     f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). Skipping download."
@@ -561,7 +562,7 @@ class Datastore:
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
         """Returns content of a resource assuming there is exactly one that matches."""
-        res = self.get_resources(dataset, **filters)
+        res = self.get_resources(dataset, filters)
         try:
             _, content = next(res)
         except StopIteration as err:
@@ -585,7 +586,7 @@ class Datastore:
             )
             return zipfile.ZipFile(resource)
 
-        return retry(retryable, retry_on=(zipfile.BadZipFile))
+        return retry(retryable, retry_on=(zipfile.BadZipFile,))
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""
@@ -604,7 +605,7 @@ def validate_cache(
         num_invalid = 0
         descriptor = dstore.get_datapackage_descriptor(single_ds)
         for res, content in dstore.get_resources(
-            single_ds, cached_only=True, **partition
+            single_ds, partition, cached_only=True
         ):
             try:
                 num_total += 1
@@ -630,7 +631,7 @@ def fetch_resources(
     """Retrieve all matching resources and store them in the cache."""
     for single_ds in datasets:
         for res, contents in dstore.get_resources(
-            single_ds, skip_optimally_cached=True, **partition
+            single_ds, partition, skip_optimally_cached=True
         ):
             logger.info(f"Retrieved {res}.")
             # If the cloud_cache_path is specified and we don't want

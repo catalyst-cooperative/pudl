@@ -176,7 +176,9 @@ class ExcelExtractor(GenericExtractor):
             maturity = "provisional"
         elif ("EIA923_Schedule" in file_name) and ("final" not in file_name.lower()):
             maturity = "incremental_ytd"
-        df = df.assign(data_maturity=maturity)
+        # read_excel() leaves wide frames with one block per column. Consolidate them
+        # once here so this and later column insertions don't emit PerformanceWarnings.
+        df = df.copy().assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
 

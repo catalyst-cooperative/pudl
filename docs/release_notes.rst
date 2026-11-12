@@ -2,11 +2,53 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.12.0:
+
+---------------------------------------------------------------------------------------
+v2026.12.X (2026-12-XX)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
 .. _release-v2026.11.0:
 
 ---------------------------------------------------------------------------------------
-v2026.11.0 (2026-11-XX)
+v2026.11.0 (2026-11-10)
 ---------------------------------------------------------------------------------------
+
+This is a regular quarterly PUDL release, with updates to
+EIA-860m, EIA-923, EIA-930, EPA CEMS, EPA MATS, and the EIA Bulk API data,
+plus a ton of other incidental updates.
+
+This release upgrades PUDL dependencies to Pandas 3, DuckDB 2, Polars 2, and Splink 5.
+The upgrade to Pandas 3 came with some bonus bugfixes.
+
+We've also got better data validation tests for FERC EQR and RUS,
+and a pile of bug fixes in RUS, EIA-861, EIA-176, and the EIA-860m changelog.
+
+See below for details.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -18,9 +60,6 @@ Enhancements
   and ``hash`` entries. Each quarterly FERC EQR archive is now verified against the md5
   checksum in its Zenodo metadata, and downloading archives from remote storage
   requires setting ``PUDL_FERCEQR_ALLOW_DOWNLOADS``. See :issue:`5279` and :pr:`5693`.
-
-New Data
-^^^^^^^^
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -88,9 +127,6 @@ PHMSA
 * Updated the raw :doc:`PHMSA <data_sources/phmsagas>` archive with revised records.
   Coverage still ends with 2025. See issue :issue:`5742` and PR :pr:`5743`.
 
-Documentation
-^^^^^^^^^^^^^
-
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -125,6 +161,12 @@ Bug Fixes & Data Cleaning
   :ref:`out_rus7__yearly_balance_sheet_assets`. A typo in the column map
   (``non_utility_property_asset``) meant the transform never picked it up. See
   :issue:`5566` and :pr:`5729`.
+* Restored non-utility property (RUS Form 12 Section B, line 6) to
+  :ref:`core_rus12__yearly_balance_sheet_assets` and
+  :ref:`out_rus12__yearly_balance_sheet_assets`. As in RUS 7, a typo in the column map
+  (``non_utility_property_asset``) meant the transform never picked it up, and the
+  RUS 12 ``asset_type`` values are corrected to match. See :pr:`5737`, a follow-up to
+  :pr:`5729`.
 * Added ``plant_function`` values to a few factoids in
   :ref:`out_ferc1__yearly_rate_base`. See :pr:`5690`.
 * Made transforms in FERC 1, FERC 714, SEC 10-K, PHMSA, RUS and the EIA API extractor
@@ -173,9 +215,6 @@ Bug Fixes & Data Cleaning
   on the same date -- one month past the entity's final report date. See :issue:`5730`
   and :pr:`5731`.
 
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
-
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -202,6 +241,65 @@ Developer Experience
   ``filing_quarter`` column in :ref:`core_ferceqr__quarterly_identity` which was
   removed. The datapackage and ``deploy_ferceqr`` assets also record richer Dagster
   metadata. See :issue:`5279` and :pr:`5735`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A bunch of Python tabular data libraries we depend on have had major releases in the
+last month (or finally made it into PUDL in the last month anyway), with big performance
+improvements and new features, but also breaking changes.
+
+Pandas 3
+~~~~~~~~
+
+* Upgraded to ``pandas`` 3 (``pandas>=3.1,<4``) and ``pandas-stubs`` 3.1, adapting PUDL
+  to the new string dtype, stricter ``setitem`` dtype rules, mandatory Copy-on-Write,
+  and ``groupby(...).apply`` no longer including grouping columns. We also fixed
+  transforms that failed when only some years were processed (as in the fast ETL),
+  removed pandas 2-only code and warning suppressions, and consolidated fragmented
+  wide data frames that had caused thousands of warnings and slow transforms. See PRs
+  :pr:`5130`, :pr:`5718`, :pr:`5719`, :pr:`5720`, :pr:`5721` and Epic :issue:`3737`.
+* We aimed to keep the outputs the same, so any difference comes from a deliberate
+  decision rather than from the upgrade. Where pandas 2 was correct or the right value
+  was unclear we preserved its behavior, e.g. missing EIA-860M ``generator_id`` and
+  ``boiler_id`` values stay the string ``"nan"`` (:issue:`5645`), out-of-range dates
+  stay ``NaT`` (:issue:`5644`), and Unicode whitespace is still collapsed in strings
+  (:issue:`5646`).
+* Where pandas 3 changed a value and the right one was clear, we fixed the data. This
+  affects a small number of values: EIA-861 rows for the withheld utility 88888 (and the
+  Texas state demand derived from them), the order of FERC 1 small plants rows and the
+  plant and fuel types that depend on it, one malformed EIA-860M date, the dtype of
+  ``supplier_code_rus`` in the RUS 7 energy purchased table, etc. See PR :pr:`5130`
+  and the commit messages for details.
+* For more on what changed in pandas 3, see the pandas `3.0 announcement
+  <https://pandas.pydata.org/community/blog/pandas-3.0.html>`__, the `3.0.0
+  <https://pandas.pydata.org/docs/whatsnew/v3.0.0.html>`__ and `3.1.0
+  <https://pandas.pydata.org/docs/whatsnew/v3.1.0.html>`__ release notes, and the
+  `migration guides <https://pandas.pydata.org/docs/user_guide/migration.html>`__.
+
+DuckDB 2
+~~~~~~~~
+
+* Upgraded to DuckDB 2.0. Its Python client fetches results differently and the SQL
+  parser is new, requiring small query changes. See PR :pr:`5726`, the `announcement
+  <https://duckdb.org/2026/10/21/announcing-duckdb-200>`__ and `migration guide
+  <https://duckdb.org/docs/2.0/operations_manual/migration.html>`__.
+
+Polars 2
+~~~~~~~~
+
+* Upgraded to Polars 2 (in v2026.10.0). Lazy queries now stream by default without
+  guaranteeing row order, and one ``replace()`` became ``strict_replace()``. See PR
+  :pr:`5689`, the `announcement <https://pola.rs/posts/release-polars-2/>`__ and
+  `upgrade guide <https://docs.pola.rs/releases/upgrade/2/>`__.
+
+Splink 5
+~~~~~~~~
+
+* Upgraded to Splink 5 (in v2026.10.0) and ported the FERC 1 to EIA plant-parts record
+  linkage to its new API. The linkage shifts slightly, as if the random seed had
+  changed. See PR :pr:`5698` and the `Splink 5.0.0 release notes
+  <https://github.com/moj-analytical-services/splink/releases/tag/v5.0.0>`__.
 
 .. _release-v2026.10.0:
 
@@ -424,10 +522,6 @@ Developer Experience
   tests to the terminal. Fast ETL in pipeline tests will still log. Made ``pixi.lock``
   drift checking in pre-commit hooks more robust. Fixed open SQLite database warnings
   coming from FERC SQLite IO Manager. See PR :pr:`5573`.
-* Upgraded to Splink 5.0 and ported the FERC 1 to EIA plant-parts record linkage to its
-  new API (registering inputs with ``DuckDBAPI.register()``, and using ``CustomRule``
-  and ``CustomComparison``). The model's behavior is not intentionally changed. See PR
-  :pr:`5698`.
 
 .. _release-v2026.9.0:
 

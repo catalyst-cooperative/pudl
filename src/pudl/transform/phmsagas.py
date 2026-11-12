@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from dagster import asset, asset_check
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.helpers import (
@@ -141,13 +141,15 @@ MELT_PATTERNS = {
 
 
 @asset_check(asset="raw_phmsagas__yearly_distribution", blocking=True)
-def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
+def _check_all_raw_columns_being_transformed(
+    raw_df: pd.DataFrame,
+) -> AssetCheckResult:
     """Check to ensure that we are transforming all of the raw columns.
 
     Because we are using a lot of regex patterns to identify the columns
     to transform into various tables, we run this check to make sure the
     we are actually finding all of the raw columns. If a column is flagged
-    here, check the column mapping and the patterns in MELT_PATTERNS.1
+    here, check the column mapping and the patterns in MELT_PATTERNS.
     """
     pattern_cols = []
     for patterns in MELT_PATTERNS.values():
@@ -164,11 +166,20 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
             "report_year",
         ]
     )
-    untransformed_columns = set(raw_df.columns).difference(transformed_cols)
-    if untransformed_columns:
-        raise AssertionError(
-            f"Found {len(untransformed_columns)} columns that are not incorporated into the transform, but expected none: {untransformed_columns}"
-        )
+    untransformed_columns = sorted(set(raw_df.columns).difference(transformed_cols))
+    return AssetCheckResult(
+        passed=not untransformed_columns,
+        description=(
+            f"Found {len(untransformed_columns)} raw columns that are not "
+            "incorporated into the transform, but expected none."
+            if untransformed_columns
+            else None
+        ),
+        metadata={
+            "num_untransformed_columns": len(untransformed_columns),
+            "untransformed_columns": untransformed_columns,
+        },
+    )
 
 
 ##############################################################################
@@ -277,9 +288,9 @@ def backfill_zero_operator_id_phmsa(df: pd.DataFrame) -> pd.DataFrame:
         .sort_index()
     )
     still_zeros = (filled_in.operator_id_phmsa == 0).sum()
-    logger.info(
-        f"Backfilled {(og_zeros - still_zeros) / og_zeros:.1%} of zero's in operator_id_phmsa"
-    )
+    # When only some years are processed there may be no zeros to backfill.
+    backfilled_fraction = (og_zeros - still_zeros) / og_zeros if og_zeros else 0.0
+    logger.info(f"Backfilled {backfilled_fraction:.1%} of zero's in operator_id_phmsa")
     return filled_in
 
 
@@ -732,4 +743,4 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         lower=0
     )  # Based on communication from PHMSA on 08/26, negative mains/services values should be set to zero.
     _assert_install_decade_totals_match_expected(df)
-    return df.loc[non_total_decade_mask].copy()
+    return df.loc[non_total_decade_mask]
