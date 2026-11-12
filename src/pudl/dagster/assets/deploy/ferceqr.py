@@ -209,20 +209,30 @@ def _is_production_target(target: UPath) -> bool:
     return _PRODUCTION_TARGET_RE.match(str(target).rstrip("/")) is not None
 
 
-def _redeploy_eel_hole_if_production(targets: list[_DeploymentTarget]) -> None:
+EelHoleOutcome = Literal["TRIGGERED", "NOT_PRODUCTION", "NO_TOKEN", "FAILED"]
+
+
+def _redeploy_eel_hole_if_production(
+    targets: list[_DeploymentTarget],
+) -> EelHoleOutcome:
     """Redeploy the production Eel Hole after publishing to production targets.
 
     Only deployments that wrote to a production target change the data Eel Hole
     serves, so test and development builds are skipped. The data is already
     published by this point, so failures here are logged rather than raised.
+
+    Returns:
+        What happened: ``TRIGGERED`` if the redeployment workflow was dispatched,
+        ``NOT_PRODUCTION`` if no target was a production target, ``NO_TOKEN`` if
+        ``PUDL_BOT_PAT`` was unset, or ``FAILED`` if the dispatch raised.
     """
     if not any(_is_production_target(t.final) for t in targets):
         logger.info("No production FERC EQR targets; skipping Eel Hole redeployment.")
-        return
+        return "NOT_PRODUCTION"
     token = os.environ.get("PUDL_BOT_PAT")
     if not token:
         logger.warning("PUDL_BOT_PAT is unset; skipping Eel Hole redeployment.")
-        return
+        return "NO_TOKEN"
     try:
         redeploy_eel_hole(token=token, environment="production")
     except Exception:
@@ -230,6 +240,18 @@ def _redeploy_eel_hole_if_production(targets: list[_DeploymentTarget]) -> None:
             "Eel Hole redeployment failed; FERC EQR data is already deployed.\n"
             + traceback.format_exc()
         )
+        return "FAILED"
+    return "TRIGGERED"
+
+
+# Notification lines for outcomes worth a reader's attention. NOT_PRODUCTION is the
+# normal state of every test build, so it is deliberately not reported.
+EEL_HOLE_NOTIFICATION_LINES: dict[str, str] = {
+    "TRIGGERED": ":check: Eel Hole redeployment triggered",
+    "NO_TOKEN": ":warning: Eel Hole redeployment skipped: `PUDL_BOT_PAT` is unset",
+    "FAILED": ":warning: Eel Hole redeployment failed; redeploy it manually "
+    "(see the build log)",
+}
 
 
 def _source_parquet_files(source_partitions: list[str]) -> dict[str, list[Path]]:
@@ -616,12 +638,14 @@ def build_ferceqr_notification(
     context: dg.AssetExecutionContext,
     outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
     validation_stages: list[ValidationStage] | None = None,
+    eel_hole: EelHoleOutcome | None = None,
 ) -> str:
     """Build a Markdown notification string for FERC EQR deployment outcomes.
 
     Extracts all relevant information (source partitions, run ID, duration,
     step statuses, distribution paths, build ID) from the Dagster execution
-    context and returns a formatted Markdown message ready for Zulip.
+    context and returns a formatted Markdown message ready for Zulip. ``eel_hole``
+    is the outcome of the Eel Hole redeployment, if one was attempted.
     """
     build_id = os.getenv("BUILD_ID", "no-build-id")
     source_partitions: list[str] = []
@@ -677,6 +701,8 @@ def build_ferceqr_notification(
     if distribution_paths:
         lines.append("## Deployment Targets:")
         lines.extend(f"  - `{path}`" for path in distribution_paths)
+    if eel_hole in EEL_HOLE_NOTIFICATION_LINES:
+        lines.append(f"- {EEL_HOLE_NOTIFICATION_LINES[eel_hole]}")
     if backfill_duration:
         lines.append(f"## :time: Backfill duration: `[{backfill_duration}]`")
     if deploy_duration:
@@ -790,6 +816,7 @@ def _notify_ferceqr_outcome(
     zulip: ZulipNotificationResource,
     outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
     validation_stages: list[ValidationStage] | None = None,
+    eel_hole: EelHoleOutcome | None = None,
 ) -> None:
     """Send a deployment outcome notification, never raising on failure."""
     try:
@@ -797,7 +824,10 @@ def _notify_ferceqr_outcome(
             stream="pudl-deployments",
             topic="build-deploy-ferceqr",
             content=build_ferceqr_notification(
-                context, outcome=outcome, validation_stages=validation_stages
+                context,
+                outcome=outcome,
+                validation_stages=validation_stages,
+                eel_hole=eel_hole,
             ),
         )
     except Exception:
@@ -832,6 +862,7 @@ def _deployment_metadata(
     targets: list[_DeploymentTarget],
     table_files: dict[str, list[Path]] | None = None,
     deploy_seconds: float | None = None,
+    eel_hole: EelHoleOutcome | None = None,
 ) -> dict[str, Any]:
     """Collect Dagster metadata describing what a deployment run did.
 
@@ -845,6 +876,7 @@ def _deployment_metadata(
         targets: The destinations data was published to. Empty when skipped.
         table_files: Local Parquet files published for each table, if any.
         deploy_seconds: Wall time of the staging and promotion, if it happened.
+        eel_hole: Outcome of the Eel Hole redeployment, if one was attempted.
     """
     run_tags = (context.run.tags or {}) if context.run else {}
     partitions = sorted(source_partitions)
@@ -883,6 +915,8 @@ def _deployment_metadata(
         metadata["table_bytes"] = dg.MetadataValue.json(table_bytes)
     if deploy_seconds is not None:
         metadata["deploy_seconds"] = dg.MetadataValue.float(deploy_seconds)
+    if eel_hole is not None:
+        metadata["eel_hole"] = eel_hole
     return metadata
 
 
@@ -1014,11 +1048,15 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
 
     # Redeploy before the success sentinel: the batch script kills the Dagster
     # daemon as soon as it appears.
-    _redeploy_eel_hole_if_production(targets)
+    eel_hole = _redeploy_eel_hole_if_production(targets)
 
     logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
     _notify_ferceqr_outcome(
-        context, zulip, outcome="SUCCESS", validation_stages=validation_stages
+        context,
+        zulip,
+        outcome="SUCCESS",
+        validation_stages=validation_stages,
+        eel_hole=eel_hole,
     )
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
     return dg.MaterializeResult(
@@ -1031,6 +1069,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             targets=targets,
             table_files=table_files,
             deploy_seconds=deploy_seconds,
+            eel_hole=eel_hole,
         )
     )
 

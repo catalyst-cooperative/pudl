@@ -455,7 +455,10 @@ def test_deploy_ferceqr_no_targets_skips_publish(mocker, tmp_path):
     # No staging directories were created -- nothing was uploaded.
     assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
     notification.assert_called_once_with(
-        deploy_context, outcome="SKIPPED", validation_stages=mocker.ANY
+        deploy_context,
+        outcome="SKIPPED",
+        validation_stages=mocker.ANY,
+        eel_hole=None,
     )
     deploy_context.resources.zulip_notification.send_stream_message.assert_called_once()
 
@@ -748,32 +751,35 @@ def test_redeploy_eel_hole_triggers_for_production_target(mocker):
     """A production target triggers a production Eel Hole redeploy."""
     mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
     eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
-    deploy_ferceqr._redeploy_eel_hole_if_production(
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
         _targets("gs://test.catalyst.coop/ferceqr", "s3://pudl.catalyst.coop/ferceqr")
     )
     eel_hole.assert_called_once_with(token="tok", environment="production")  # noqa: S106
+    assert outcome == "TRIGGERED"
 
 
 def test_redeploy_eel_hole_skips_non_production_targets(mocker):
     """Test-only targets never redeploy Eel Hole."""
     mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
     eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
-    deploy_ferceqr._redeploy_eel_hole_if_production(
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
         _targets(
             "gs://test.catalyst.coop/ferceqr", "s3://pudl.catalyst.coop/ferceqr_test"
         )
     )
     eel_hole.assert_not_called()
+    assert outcome == "NOT_PRODUCTION"
 
 
 def test_redeploy_eel_hole_skips_without_token(mocker):
     """A missing token skips the redeploy instead of failing the build."""
     mocker.patch.dict(deploy_ferceqr.os.environ, {}, clear=True)
     eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
-    deploy_ferceqr._redeploy_eel_hole_if_production(
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
         _targets("s3://pudl.catalyst.coop/ferceqr")
     )
     eel_hole.assert_not_called()
+    assert outcome == "NO_TOKEN"
 
 
 def test_redeploy_eel_hole_swallows_dispatch_errors(mocker):
@@ -781,6 +787,51 @@ def test_redeploy_eel_hole_swallows_dispatch_errors(mocker):
     mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
     mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
     mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole", side_effect=OSError)
-    deploy_ferceqr._redeploy_eel_hole_if_production(
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
         _targets("s3://pudl.catalyst.coop/ferceqr")
     )
+    assert outcome == "FAILED"
+
+
+@pytest.mark.parametrize(
+    "eel_hole,expected",
+    [
+        ("TRIGGERED", "Eel Hole redeployment triggered"),
+        ("NO_TOKEN", "`PUDL_BOT_PAT` is unset"),
+        ("FAILED", "Eel Hole redeployment failed"),
+        ("NOT_PRODUCTION", None),
+        (None, None),
+    ],
+)
+def test_build_notification_reports_eel_hole_outcome(mocker, eel_hole, expected):
+    """Notable Eel Hole outcomes appear in Zulip; non-production and unset do not."""
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+    message = deploy_ferceqr.build_ferceqr_notification(
+        mocker.MagicMock(), outcome="SUCCESS", eel_hole=eel_hole
+    )
+    if expected is None:
+        assert "Eel Hole" not in message
+    else:
+        assert expected in message
+
+
+def test_deploy_ferceqr_reports_eel_hole_outcome(mocker, tmp_path):
+    """The redeploy outcome reaches both the Zulip message and asset metadata, and
+    a failed redeploy does not fail the deployment."""
+    source_root = tmp_path / "source"
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(tmp_path / "deploy")]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+    mocker.patch.object(
+        deploy_ferceqr, "_redeploy_eel_hole_if_production", return_value="FAILED"
+    )
+    notification = mocker.patch.object(
+        deploy_ferceqr, "build_ferceqr_notification", return_value="message"
+    )
+
+    result = deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert notification.call_args.kwargs["eel_hole"] == "FAILED"
+    assert result.metadata["eel_hole"] == "FAILED"
+    assert (tmp_path / "FERCEQR_SUCCESS").exists()
