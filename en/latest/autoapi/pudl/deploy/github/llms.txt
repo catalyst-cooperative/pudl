@@ -1,0 +1,14 @@
+# PUDL
+
+> PUDL 2026.11.1.dev2 documentation
+
+
+2016-2026, Catalyst Cooperative, CC-BY-4.0
+
+## Pages in this subsection
+
+- [pudl.deploy.github](index.html.md): Helpers for triggering GitHub Actions workflows from deployment code.
+
+## Optional
+
+- [Top-level llms.txt](../../../../llms.txt): Complete documentation index.

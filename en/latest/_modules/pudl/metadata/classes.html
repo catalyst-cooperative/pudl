@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.11.1.dev1 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.11.1.dev2 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=2585ebcc"></script>
+    <script src="../../../_static/documentation_options.js?v=05347127"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -4419,8 +4419,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        any duplicates. We may also get values directly from the Package inputs.</span>
 <span class="sd">        """</span>
         <span class="n">compiled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile_from_resources</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="p">)</span>
+        <span class="n">redundant</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">}</span> <span class="o">&amp;</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">compiled</span><span class="p">[</span><span class="s2">"sources"</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">redundant</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Package </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> explicitly lists sources that its resources "</span>
+                <span class="sa">f</span><span class="s2">"already use: </span><span class="si">{</span><span class="n">redundant</span><span class="si">}</span><span class="s2">. Explicit sources are only for data "</span>
+                <span class="s2">"sources with no tables in the package, so remove them from the "</span>
+                <span class="s2">"explicit list (e.g. PUDL_SOURCES_WITHOUT_TABLES)."</span>
+            <span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">compiled</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">_unique</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="n">values</span><span class="p">))</span>
+        <span class="c1"># Keep the package level sources in a stable, readable order.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">source</span><span class="p">:</span> <span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
@@ -4438,6 +4450,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="n">extra_source_ids</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Package</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct a collection of Resources from PUDL identifiers (`resource.name`).</span>
 
@@ -4462,7 +4475,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            description: Human-readable description of the package.</span>
 <span class="sd">            version: Version string for the package.</span>
 <span class="sd">            name: Name of the datapackage.</span>
+<span class="sd">            extra_source_ids: Data source IDs (keys of</span>
+<span class="sd">                :py:const:`pudl.metadata.sources.SOURCES`) to list in the package</span>
+<span class="sd">                level ``sources`` in addition to those compiled from the resources,</span>
+<span class="sd">                e.g. sources that are part of PUDL but have no tables yet. Needs to</span>
+<span class="sd">                be a tuple so that it is hashable for ``lru_cache``.</span>
 <span class="sd">        """</span>
+        <span class="n">extra_sources</span> <span class="o">=</span> <span class="n">Package</span><span class="o">.</span><span class="n">_extra_source_dicts</span><span class="p">(</span><span class="n">extra_source_ids</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">excluded_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">included_etl_groups</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">"ETL groups must be a collection of names, not a single string."</span>
@@ -4502,8 +4521,20 @@ window.runMermaid = runMermaid;</script>
             <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
             <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+            <span class="n">sources</span><span class="o">=</span><span class="n">extra_sources</span><span class="p">,</span>
             <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Package._extra_source_dicts">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package._extra_source_dicts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extra_source_dicts</span><span class="p">(</span><span class="n">source_ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Look up explicitly requested data sources, rejecting unknown IDs."""</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source_ids</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SOURCES</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown data source IDs: </span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">DataSource</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="n">SOURCES</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source_ids</span><span class="p">]</span></div>
 
 
     <span class="nd">@staticmethod</span>
@@ -4679,10 +4710,13 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Convert to a Frictionless Datapackage.</span>
 
-<span class="sd">        The datapackage describes every resource in this package. Its sources,</span>
-<span class="sd">        contributors, licenses and keywords are compiled from just those resources, so</span>
-<span class="sd">        a package like ``ferceqr``, which is distributed separately from the rest of</span>
-<span class="sd">        PUDL, gets an independent descriptor that lists only what it uses.</span>
+<span class="sd">        The datapackage describes every resource in this package. Its contributors,</span>
+<span class="sd">        licenses and keywords are compiled from just those resources, so a package like</span>
+<span class="sd">        ``ferceqr``, which is distributed separately from the rest of PUDL, gets an</span>
+<span class="sd">        independent descriptor that lists only what it uses. Its sources are</span>
+<span class="sd">        :attr:`sources`: those compiled from the resources plus any listed explicitly</span>
+<span class="sd">        when the package was built (see ``extra_source_ids`` in</span>
+<span class="sd">        :meth:`from_resource_ids`).</span>
 <span class="sd">        """</span>
         <span class="n">pudl_resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="p">)</span>
         <span class="n">compiled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile_from_resources</span><span class="p">(</span><span class="n">pudl_resources</span><span class="p">)</span>
@@ -4703,7 +4737,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">],</span>
             <span class="n">keywords</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">compiled</span><span class="p">[</span><span class="s2">"keywords"</span><span class="p">]),</span>
             <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pudl_resources</span><span class="p">],</span>
-            <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">compiled</span><span class="p">[</span><span class="s2">"sources"</span><span class="p">]],</span>
+            <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">package</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s2">"$schema"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">"https://datapackage.org/profiles/2.0/datapackage.json"</span>
@@ -4735,6 +4769,22 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="PUDL_SOURCES_WITHOUT_TABLES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PUDL_SOURCES_WITHOUT_TABLES">[docs]</a>
+<span class="n">PUDL_SOURCES_WITHOUT_TABLES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"eia757a"</span><span class="p">,</span>
+    <span class="s2">"ferc2"</span><span class="p">,</span>
+    <span class="s2">"ferc6"</span><span class="p">,</span>
+    <span class="s2">"ferc60"</span><span class="p">,</span>
+<span class="p">)</span></div>
+
+<span class="sd">"""Data sources that are part of PUDL but have no tables in the PUDL package (yet).</span>
+
+<span class="sd">They are listed explicitly in the package level ``sources`` so that downstream</span>
+<span class="sd">consumers of the metadata still learn about them. ``ferceqr`` is deliberately absent:</span>
+<span class="sd">it is distributed as its own package.</span>
+<span class="sd">"""</span>
+
 <div class="viewcode-block" id="PUDL_PACKAGE">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PUDL_PACKAGE">[docs]</a>
 <span class="n">PUDL_PACKAGE</span> <span class="o">=</span> <span class="n">Package</span><span class="o">.</span><span class="n">from_resource_ids</span><span class="p">(</span>
@@ -4750,6 +4800,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"providers."</span>
     <span class="p">),</span>
     <span class="n">excluded_etl_groups</span><span class="o">=</span><span class="p">(</span><span class="s2">"ferceqr"</span><span class="p">,),</span>
+    <span class="n">extra_source_ids</span><span class="o">=</span><span class="n">PUDL_SOURCES_WITHOUT_TABLES</span><span class="p">,</span>
 <span class="p">)</span></div>
 
 <span class="sd">"""Define a global PUDL package object for use across the entire codebase.</span>

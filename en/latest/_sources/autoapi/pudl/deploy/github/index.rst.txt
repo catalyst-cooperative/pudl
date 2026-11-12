@@ -1,0 +1,52 @@
+pudl.deploy.github
+==================
+
+.. py:module:: pudl.deploy.github
+
+.. autoapi-nested-parse::
+
+   Helpers for triggering GitHub Actions workflows from deployment code.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.deploy.github.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.deploy.github.dispatch_github_workflow
+   pudl.deploy.github.redeploy_eel_hole
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: dispatch_github_workflow(repo: str, workflow_file: str, ref: str, token: str, inputs: dict[str, str] | None = None) -> None
+
+   Trigger a workflow_dispatch event on a GitHub Actions workflow.
+
+   :param repo: GitHub repo in "owner/name" form (e.g. "catalyst-cooperative/pudl").
+   :param workflow_file: Workflow filename (e.g. "zenodo-data-release.yml").
+   :param ref: Git branch or tag to run the workflow from.
+   :param token: Bearer token to authenticate to GitHub.
+   :param inputs: workflow_dispatch inputs, if the workflow takes any.
+
+
+.. py:function:: redeploy_eel_hole(token: str, environment: Literal['staging', 'production']) -> None
+
+   Redeploy Eel Hole (the PUDL data viewer) with its latest image.
+
+   :param token: the bearer token to authenticate to GitHub.
+   :param environment: redeploy the staging or production Eel Hole.
+
+

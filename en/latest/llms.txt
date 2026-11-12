@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.11.1.dev1 documentation
+> PUDL 2026.11.1.dev2 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -103,6 +103,7 @@
 - [pudl.dbt_schema](autoapi/pudl/dbt_schema/index.html.md): Define dbt schema types and merging logic.
 - [pudl.definitions](autoapi/pudl/definitions/index.html.md): Stable Dagster code location module for dg-compatible loading.
 - [pudl.deploy](autoapi/pudl/deploy/index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
+- [pudl.deploy.github](autoapi/pudl/deploy/github/index.html.md): Helpers for triggering GitHub Actions workflows from deployment code.
 - [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
 - [pudl.deploy.s3_transfer](autoapi/pudl/deploy/s3_transfer/index.html.md): Fast bulk uploads to, and server-side copies within, Amazon S3.
 - [pudl.deploy.zenodo_metadata](autoapi/pudl/deploy/zenodo_metadata/index.html.md): Gather Zenodo deposition metadata for a PUDL data release from repo sources.

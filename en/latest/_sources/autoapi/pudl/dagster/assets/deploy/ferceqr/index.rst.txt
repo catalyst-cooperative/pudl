@@ -30,6 +30,9 @@ Attributes
    pudl.dagster.assets.deploy.ferceqr.PREVIOUS_DIRNAME
    pudl.dagster.assets.deploy.ferceqr.StepStatusTable
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_DBT_SOURCE
+   pudl.dagster.assets.deploy.ferceqr._PRODUCTION_TARGET_RE
+   pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome
+   pudl.dagster.assets.deploy.ferceqr.EEL_HOLE_NOTIFICATION_LINES
 
 
 Classes
@@ -51,6 +54,8 @@ Functions
    pudl.dagster.assets.deploy.ferceqr._write_status_file
    pudl.dagster.assets.deploy.ferceqr._clear_status_files
    pudl.dagster.assets.deploy.ferceqr._deployment_targets
+   pudl.dagster.assets.deploy.ferceqr._is_production_target
+   pudl.dagster.assets.deploy.ferceqr._redeploy_eel_hole_if_production
    pudl.dagster.assets.deploy.ferceqr._source_parquet_files
    pudl.dagster.assets.deploy.ferceqr._expected_object_sizes
    pudl.dagster.assets.deploy.ferceqr._wait
@@ -225,6 +230,32 @@ Module Contents
    prefix to a single build (BUILD_ID), with a random fallback for local runs.
 
 
+.. py:data:: _PRODUCTION_TARGET_RE
+
+.. py:function:: _is_production_target(target: upath.UPath) -> bool
+
+   Whether a deployment target is a production FERC EQR location.
+
+
+.. py:data:: EelHoleOutcome
+
+.. py:function:: _redeploy_eel_hole_if_production(targets: list[_DeploymentTarget]) -> EelHoleOutcome
+
+   Redeploy the production Eel Hole after publishing to production targets.
+
+   Only deployments that wrote to a production target change the data Eel Hole
+   serves, so test and development builds are skipped. The data is already
+   published by this point, so failures here are logged rather than raised.
+
+   :returns: ``TRIGGERED`` if the redeployment workflow was dispatched,
+             ``NOT_PRODUCTION`` if no target was a production target, ``NO_TOKEN`` if
+             ``PUDL_BOT_PAT`` was unset, or ``FAILED`` if the dispatch raised.
+   :rtype: What happened
+
+
+.. py:data:: EEL_HOLE_NOTIFICATION_LINES
+   :type:  dict[str, str]
+
 .. py:function:: _source_parquet_files(source_partitions: list[str]) -> dict[str, list[pathlib.Path]]
 
    Map each transform asset to its local Parquet files for *source_partitions*.
@@ -348,13 +379,14 @@ Module Contents
    Return elapsed time since the current run started, or None on failure.
 
 
-.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> str
+.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None, eel_hole: EelHoleOutcome | None = None) -> str
 
    Build a Markdown notification string for FERC EQR deployment outcomes.
 
    Extracts all relevant information (source partitions, run ID, duration,
    step statuses, distribution paths, build ID) from the Dagster execution
-   context and returns a formatted Markdown message ready for Zulip.
+   context and returns a formatted Markdown message ready for Zulip. ``eel_hole``
+   is the outcome of the Eel Hole redeployment, if one was attempted.
 
 
 .. py:function:: deployment_status_asset(*, deps: collections.abc.Sequence[dagster.AssetKey] | None = None) -> collections.abc.Callable[[collections.abc.Callable], dagster.AssetsDefinition]
@@ -387,7 +419,7 @@ Module Contents
    up unrelated data left lying around, especially on local runs.
 
 
-.. py:function:: _notify_ferceqr_outcome(context: dagster.AssetExecutionContext, zulip: pudl.dagster.resources.ZulipNotificationResource, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None) -> None
+.. py:function:: _notify_ferceqr_outcome(context: dagster.AssetExecutionContext, zulip: pudl.dagster.resources.ZulipNotificationResource, outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: list[ValidationStage] | None = None, eel_hole: EelHoleOutcome | None = None) -> None
 
    Send a deployment outcome notification, never raising on failure.
 
@@ -400,7 +432,7 @@ Module Contents
    itself, so it's read from the source run that triggered the deployment.
 
 
-.. py:function:: _deployment_metadata(context: dagster.AssetExecutionContext, *, outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: list[str], validation_stages: list[ValidationStage], datapackage_path: pathlib.Path, targets: list[_DeploymentTarget], table_files: dict[str, list[pathlib.Path]] | None = None, deploy_seconds: float | None = None) -> dict[str, Any]
+.. py:function:: _deployment_metadata(context: dagster.AssetExecutionContext, *, outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: list[str], validation_stages: list[ValidationStage], datapackage_path: pathlib.Path, targets: list[_DeploymentTarget], table_files: dict[str, list[pathlib.Path]] | None = None, deploy_seconds: float | None = None, eel_hole: EelHoleOutcome | None = None) -> dict[str, Any]
 
    Collect Dagster metadata describing what a deployment run did.
 
@@ -413,6 +445,7 @@ Module Contents
    :param targets: The destinations data was published to. Empty when skipped.
    :param table_files: Local Parquet files published for each table, if any.
    :param deploy_seconds: Wall time of the staging and promotion, if it happened.
+   :param eel_hole: Outcome of the Eel Hole redeployment, if one was attempted.
 
 
 .. py:function:: deploy_ferceqr(context: dagster.AssetExecutionContext)

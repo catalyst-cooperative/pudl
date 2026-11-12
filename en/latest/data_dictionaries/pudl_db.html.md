@@ -1026,6 +1026,10 @@ Source:
 Primary key:
 : balancing_authority_id_eia, report_date, county_id_fips, county
 
+### Usage Warnings
+
+* Contains information from multiple raw inputs.
+
 ### Access methods
 
 * [Browse and query this table online](https://data.catalyst.coop/preview/pudl/out_eia861__yearly_balancing_authority_service_territory)
@@ -1103,6 +1107,10 @@ Source:
 
 Primary key:
 : utility_id_eia, report_date, county_id_fips
+
+### Usage Warnings
+
+* Contains information from multiple raw inputs.
 
 ### Additional Details
 
@@ -13452,6 +13460,7 @@ Primary key:
 * The hourly capacity factors are normalized to unity for maximal power output. To convert to units of power, the user must multiply by the installed capacity within the county.
 * Hourly capacity factors are spatially averaged across each county over the contiguous USA. There are a handful of counties that are too small to pick up representation on the HRRR operational forecast grid. As such, these counties will have no wind or solar power production curves.
 * Due to power production performance being correlated with panel temperatures, during cold sunny periods, some solar capacity factor values are greater than 1 (but less that 1.1).
+* Contains information from multiple raw inputs.
 
 ### Additional Details
 
@@ -18272,6 +18281,10 @@ Source:
 Primary key:
 : report_date, utility_id_eia, county_id_fips
 
+### Usage Warnings
+
+* Contains information from multiple raw inputs.
+
 ### Access methods
 
 * [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_eia861__yearly_service_territory)
@@ -18684,9 +18697,6 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 
 Entity table containing static information about coal mines reporting deliveries in the Fuel Receipts and Costs table.
 
-Most-recent data:
-: 2026
-
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
 
@@ -18699,6 +18709,7 @@ Primary key:
 ### Usage Warnings
 
 * Mine ID’s are not as well defined and consistent as other EIA ID’s.
+* Contains information from multiple raw inputs.
 
 ### Additional Details
 
@@ -26768,7 +26779,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Contains information about contracts between companies selling and buying electricity market products.
 
 Most-recent data:
-: 2026q2
+: 2026q3
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -26942,7 +26953,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Quarterly time series of individuals who filed FERC EQR for a company in a given quarter.
 
 Most-recent data:
-: 2026q2
+: 2026q3
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -27092,7 +27103,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Quarterly time series of electricity market price indices that individual EQR filers reported transactions to.
 
 Most-recent data:
-: 2026q2
+: 2026q3
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -27182,7 +27193,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Contains information about individual electricity market transactions that took place during a given reporting quarter. Reported by the seller.
 
 Most-recent data:
-: 2026q2
+: 2026q3
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -32986,6 +32997,10 @@ Source:
 Primary key:
 : code
 
+### Usage Warnings
+
+* Contains information from multiple raw inputs.
+
 ### Access methods
 
 * [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_rus__codes_fuel_types)
@@ -33053,6 +33068,10 @@ Source:
 
 Primary key:
 : code
+
+### Usage Warnings
+
+* Contains information from multiple raw inputs.
 
 ### Access methods
 
@@ -33757,6 +33776,7 @@ Primary key:
 ### Usage Warnings
 
 * This table has not been harvested with other EIA 923 or 860 data. The same variables present in this table may show up in other \_core tables in other years.
+* Contains information from multiple raw inputs.
 
 ### Additional Details
 
@@ -33888,6 +33908,7 @@ Primary key:
 ### Usage Warnings
 
 * This table has not been harvested with other EIA 923 or 860 data. The same variables present in this table may show up in other \_core tables in other years.
+* Contains information from multiple raw inputs.
 
 ### Access methods
 
