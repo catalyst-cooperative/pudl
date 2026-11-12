@@ -10,7 +10,7 @@ EPA Hourly Continuous Emission Monitoring System (CEMS)
    * - Source URL
      - https://campd.epa.gov/
    * - Source Description
-     - US EPA hourly Continuous Emissions Monitoring System (CEMS) data.Hourly CO2, SO2, NOx emissions and gross load.
+     - US EPA hourly Continuous Emissions Monitoring System (CEMS) data. Hourly CO2, SO2, NOx emissions and gross load.
    * - Respondents
      - Coal and high-sulfur fueled plants over 25MW
    * - Records Liberated
@@ -136,6 +136,8 @@ Check out the `PUDL data access example notebook on Kaggle
 <https://www.kaggle.com/code/catalystcooperative/01-pudl-data-access>`__ or in our
 `pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__ on
 GitHub for pointers on how to access this dataset efficiently using :mod:`polars`.
+
+.. _epa-units-vs-eia-units:
 
 EPA units vs. EIA units
 -----------------------

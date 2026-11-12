@@ -12,6 +12,8 @@
 
 ### Documentation
 
+- Added data source page for [EPA MATS](data_sources/epamats.html.md).
+
 ### New Data Tests & Validations
 
 ### Bug Fixes & Data Cleaning

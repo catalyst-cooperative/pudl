@@ -57,6 +57,12 @@ Additional fields relating to the source data are tracked under a nested
   this form?
 * `source_format`: What is the file format of the original data? (e.g., JSON, CSV)?
 
+#### NOTE
+If you are adding **metadata** for a new source, you may also wish to add **documentation**
+for the new source, so that it appears in the [Data Sources](../data_sources/index.md#data-sources) list on our documentation
+site. To keep track of all the tasks involved in adding new source documentation, see the
+[New Data Source Issue Template](https://github.com/catalyst-cooperative/pudl/blob/main/.github/ISSUE_TEMPLATE/data_source_page.md).
+
 ### Updating metadata for an existing dataset
 
 Most updates to metadata at the source level occur when we update the
