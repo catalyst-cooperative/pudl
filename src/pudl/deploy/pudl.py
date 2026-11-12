@@ -168,7 +168,7 @@ class DeploymentPlan(BaseModel):
 
     @property
     def redeploy_eel_hole(self) -> bool:
-        """Whether this deployment should redeploy the PUDL Viewer (Eel Hole)."""
+        """Whether this deployment should redeploy Eel Hole."""
         return self.deploy_type == DeploymentType.NIGHTLY
 
     @property

@@ -37,7 +37,7 @@ from typing import Literal
 
 import click
 
-from pudl.deploy.github import update_pudl_viewer
+from pudl.deploy.github import redeploy_eel_hole
 from pudl.deploy.pudl import (
     DeploymentPlan,
     DeployStage,
@@ -90,7 +90,7 @@ def _deploy_outputs(
 
     if plan.redeploy_eel_hole:
         run_stage(
-            stage_fn=update_pudl_viewer,
+            stage_fn=redeploy_eel_hole,
             stage_name=DeployStage.REDEPLOY_EEL_HOLE,
             stage_results=stage_results,
             fail_hard=False,

@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from pudl.deploy.github import dispatch_github_workflow, update_pudl_viewer
+from pudl.deploy.github import dispatch_github_workflow, redeploy_eel_hole
 
 
 @pytest.mark.parametrize(
@@ -65,12 +65,12 @@ def test_dispatch_github_workflow_raises_on_http_error():
         ("production", "build-deploy.yml"),
     ],
 )
-def test_update_pudl_viewer_selects_workflow_by_environment(
+def test_redeploy_eel_hole_selects_workflow_by_environment(
     environment, expected_workflow_file
 ):
     """Staging and production should dispatch different Eel Hole workflows."""
     with patch("pudl.deploy.github.dispatch_github_workflow") as mock_dispatch:
-        update_pudl_viewer(
+        redeploy_eel_hole(
             token="fake-token",  # noqa: S106  # pragma: allowlist secret
             environment=environment,
         )

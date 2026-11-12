@@ -31,7 +31,6 @@ env:
   BUILD_ID: ""
   BATCH_JOB_ID: ""
   PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH: ""
-  FERCEQR_DEPLOYMENT_MODE: ""
   emoji: ":warning:"
 
 jobs:
@@ -67,7 +66,6 @@ jobs:
               echo "BATCH_JOB_ID=$batch_job_id"
               echo "BUILD_ID=$build_id"
               echo "PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH=$ferceqr_config_path"
-              echo "FERCEQR_DEPLOYMENT_MODE=$deployment_mode"
           } >> "$GITHUB_ENV"
           echo "BUILD_ID: $build_id"
           echo "BATCH_JOB_ID: $batch_job_id"
@@ -150,7 +148,6 @@ jobs:
             --container-env PUDL_FERCEQR_ARCHIVE_PATH=gs://archives.catalyst.coop/ferceqr/published \
             --container-env PUDL_FERCEQR_ALLOW_DOWNLOADS=true \
             --container-env PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH="${{ env.PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH }}" \
-            --container-env FERCEQR_DEPLOYMENT_MODE=${{ env.FERCEQR_DEPLOYMENT_MODE }} \
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \

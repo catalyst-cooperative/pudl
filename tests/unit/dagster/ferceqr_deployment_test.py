@@ -720,3 +720,67 @@ def test_deploy_ferceqr_validation_failure_aborts_before_upload(mocker, tmp_path
     assert (tmp_path / "FERCEQR_FAILURE").exists()
     assert list(deploy_root.iterdir()) == []
     zulip_mock.send_stream_message.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "path,expected",
+    [
+        ("gs://pudl.catalyst.coop/ferceqr", True),
+        ("s3://pudl.catalyst.coop/ferceqr", True),
+        ("s3://pudl.catalyst.coop/ferceqr/", True),
+        ("s3://pudl.catalyst.coop/ferceqr/build-1", True),
+        ("s3://pudl.catalyst.coop/ferceqr_test", False),
+        ("gs://test.catalyst.coop/ferceqr", False),
+        ("s3://pudl.catalyst.coop/nightly", False),
+        ("/tmp/ferceqr", False),  # noqa: S108
+    ],
+)
+def test_is_production_target(path, expected):
+    """Only whole-component ferceqr paths in the production bucket are production."""
+    assert deploy_ferceqr._is_production_target(UPath(path)) is expected
+
+
+def _targets(*paths: str):
+    return [SimpleNamespace(final=UPath(p)) for p in paths]
+
+
+def test_redeploy_eel_hole_triggers_for_production_target(mocker):
+    """A production target triggers a production Eel Hole redeploy."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
+    eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
+    deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets("gs://test.catalyst.coop/ferceqr", "s3://pudl.catalyst.coop/ferceqr")
+    )
+    eel_hole.assert_called_once_with(token="tok", environment="production")  # noqa: S106
+
+
+def test_redeploy_eel_hole_skips_non_production_targets(mocker):
+    """Test-only targets never redeploy Eel Hole."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
+    eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
+    deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets(
+            "gs://test.catalyst.coop/ferceqr", "s3://pudl.catalyst.coop/ferceqr_test"
+        )
+    )
+    eel_hole.assert_not_called()
+
+
+def test_redeploy_eel_hole_skips_without_token(mocker):
+    """A missing token skips the redeploy instead of failing the build."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {}, clear=True)
+    eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
+    deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets("s3://pudl.catalyst.coop/ferceqr")
+    )
+    eel_hole.assert_not_called()
+
+
+def test_redeploy_eel_hole_swallows_dispatch_errors(mocker):
+    """The data is already deployed, so a dispatch failure must not raise."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+    mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole", side_effect=OSError)
+    deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets("s3://pudl.catalyst.coop/ferceqr")
+    )

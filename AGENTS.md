@@ -40,7 +40,7 @@ Key directories under `src/pudl/`:
   resources, jobs, sensors, partitions, and the `dagster.Definitions` assembly
 - `deploy/` — post-ETL deployment logic that runs outside Dagster: publishing outputs
   to GCS/S3, updating `nightly`/`stable` git branches, triggering Zenodo releases,
-  applying GCS holds, and redeploying the PUDL Viewer
+  applying GCS holds, and redeploying Eel Hole (the PUDL data viewer)
 - `scripts/` — all CLI entry points as thin wrappers; one module per script, each
   exposing a `main` Click command. Registered in `[project.scripts]` in `pyproject.toml`
 - `metadata/` — table and column metadata (`classes.py`, `fields.py`, `resources.py`);

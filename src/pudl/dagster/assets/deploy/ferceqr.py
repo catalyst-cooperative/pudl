@@ -27,6 +27,7 @@ from pudl.dagster.resources import (
     FercEqrDeploymentResource,
     ZulipNotificationResource,
 )
+from pudl.deploy.github import redeploy_eel_hole
 from pudl.deploy.s3_transfer import copy_objects as s3_copy_objects
 from pudl.deploy.s3_transfer import upload_files as s3_upload_files
 from pudl.helpers import ParquetData
@@ -195,6 +196,40 @@ def _deployment_targets(resolved_targets: list[UPath]) -> list[_DeploymentTarget
         _DeploymentTarget(final=resolved, build_id=build_id)
         for resolved in resolved_targets
     ]
+
+
+# Production FERC EQR targets are exactly ``{gs,s3}://pudl.catalyst.coop/ferceqr``
+# (optionally with a sub-path). The path component must match whole, so scratch
+# prefixes like ``ferceqr_test`` do not count.
+_PRODUCTION_TARGET_RE = re.compile(r"^(gs|s3)://pudl\.catalyst\.coop/ferceqr(/.*)?$")
+
+
+def _is_production_target(target: UPath) -> bool:
+    """Whether a deployment target is a production FERC EQR location."""
+    return _PRODUCTION_TARGET_RE.match(str(target).rstrip("/")) is not None
+
+
+def _redeploy_eel_hole_if_production(targets: list[_DeploymentTarget]) -> None:
+    """Redeploy the production Eel Hole after publishing to production targets.
+
+    Only deployments that wrote to a production target change the data Eel Hole
+    serves, so test and development builds are skipped. The data is already
+    published by this point, so failures here are logged rather than raised.
+    """
+    if not any(_is_production_target(t.final) for t in targets):
+        logger.info("No production FERC EQR targets; skipping Eel Hole redeployment.")
+        return
+    token = os.environ.get("PUDL_BOT_PAT")
+    if not token:
+        logger.warning("PUDL_BOT_PAT is unset; skipping Eel Hole redeployment.")
+        return
+    try:
+        redeploy_eel_hole(token=token, environment="production")
+    except Exception:
+        logger.warning(
+            "Eel Hole redeployment failed; FERC EQR data is already deployed.\n"
+            + traceback.format_exc()
+        )
 
 
 def _source_parquet_files(source_partitions: list[str]) -> dict[str, list[Path]]:
@@ -976,6 +1011,10 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         raise
 
     deploy_seconds = time.perf_counter() - deploy_start
+
+    # Redeploy before the success sentinel: the batch script kills the Dagster
+    # daemon as soon as it appears.
+    _redeploy_eel_hole_if_production(targets)
 
     logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
     _notify_ferceqr_outcome(

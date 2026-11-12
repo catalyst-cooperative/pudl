@@ -41,17 +41,17 @@ def dispatch_github_workflow(
     response.raise_for_status()
 
 
-def update_pudl_viewer(
+def redeploy_eel_hole(
     token: str,
     environment: Literal["staging", "production"],
 ) -> None:
-    """Update PUDL Viewer Cloud Run service to latest image.
+    """Redeploy Eel Hole (the PUDL data viewer) with its latest image.
 
     Args:
         token: the bearer token to authenticate to GitHub.
-        environment: deploy staging or production version of viewer.
+        environment: redeploy the staging or production Eel Hole.
     """
-    logger.info("Updating PUDL Viewer Cloud Run service")
+    logger.info(f"Redeploying Eel Hole ({environment})")
 
     workflow_file = (
         "build-deploy-staging.yml" if environment == "staging" else "build-deploy.yml"
@@ -64,4 +64,4 @@ def update_pudl_viewer(
         token=token,
     )
 
-    logger.info("PUDL Viewer Cloud Run service updated")
+    logger.info("Eel Hole redeployment workflow triggered")
