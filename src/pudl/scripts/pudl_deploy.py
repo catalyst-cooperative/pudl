@@ -37,6 +37,7 @@ from typing import Literal
 
 import click
 
+from pudl.deploy.github import update_pudl_viewer
 from pudl.deploy.pudl import (
     DeploymentPlan,
     DeployStage,
@@ -52,7 +53,6 @@ from pudl.deploy.pudl import (
     set_gcs_temporary_hold,
     trigger_zenodo_release,
     update_git_branch,
-    update_pudl_viewer,
     upload_outputs,
 )
 from pudl.logging_helpers import get_logger
