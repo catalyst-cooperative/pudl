@@ -54,8 +54,11 @@ class Extractor(excel.ExcelExtractor):
         # Eventually we should probably make this a transform
         for col in ["generator_id", "boiler_id"]:
             if col in df.columns:
-                # Ensure column is string type for remove_leading_zeros_from_numeric_strings
-                df[col] = df[col].astype(str)
+                # Ensure column is string type for remove_leading_zeros_from_numeric_strings.
+                # Pandas 2 astype(str) turned missing values into the string "nan" and
+                # pandas 3 keeps them null, so make the string explicit to preserve the
+                # existing output. See https://github.com/catalyst-cooperative/pudl/issues/5645
+                df[col] = df[col].astype(str).fillna("nan")
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         return df
 

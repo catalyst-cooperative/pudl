@@ -238,6 +238,7 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
         level="variable_name"
     )
     assert isinstance(unstacked, pd.DataFrame)
+    assert isinstance(unstacked.columns, pd.MultiIndex)
     unstacked.columns = unstacked.columns.droplevel(0)
     unstacked = simplify_columns(unstacked)  # Clean up column names
     unstacked.columns.name = None  # gets rid of "item" name of columns index
@@ -275,7 +276,7 @@ def normalize_continuation_line_location_codes(
     allowed through unchanged so unexpected values still fail loudly. These allowed
     values are raw EIA ``REF_CODE`` values, not standardized ISO country codes.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     code_map = _subdivision_code_map(core_pudl__codes_subdivisions)
     allowed_codes = CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES.get(column, set())
 
@@ -865,7 +866,7 @@ def core_eia176__yearly_gas_disposition_other(
     # disposition_type is a primary key column and can't be null. A small number of
     # 1997-2000 line 18.4 (Disposition to Other) continuation records never had a
     # free-text description recorded at all. (raw reference_state and
-    # mode_of_transportation are blank too for these years) As of pandas 3.0
+    # mode_of_transportation are blank too for these years) As of pandas 3
     # cleanstrings_series's astype(str) call correctly preserves these as a true NA
     # value instead of masking them as the literal text "nan", so we now have to
     # explicitly categorize them ourselves rather than relying on that accident. This is
@@ -1400,7 +1401,7 @@ def _normalize_operating_states(
 
     This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     codes = (
         core_pudl__codes_subdivisions.assign(
             key=lambda d: d["subdivision_name"].str.strip().str.casefold()

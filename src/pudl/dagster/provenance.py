@@ -145,7 +145,6 @@ def ferc_sqlite_provenance_is_compatible(
     1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the
        current :class:`~pudl.workspace.datastore.ZenodoDoiSettings`. A mismatch
        means the raw archive has changed version and the DB must be rebuilt.
-
     2. The years stored in the FERC SQLite DB must be a *superset* of the years
        needed by the current downstream data config. This allows a "full" FERC SQLite DB
        to serve a "fast" downstream run without an expensive rebuild.
@@ -153,9 +152,8 @@ def ferc_sqlite_provenance_is_compatible(
     """
     if observed_provenance is None:
         logger.warning(
-            "No observed provenance provided. This usually indicates that a datapackage was "
-            "created before the provenance metadata feature was added, or that the datapackage "
-            "does not exist locally."
+            "No observed provenance provided. This usually indicates that the "
+            "datapackage does not exist locally."
         )
         return False
     if observed_provenance.status == "not_configured":

@@ -319,7 +319,10 @@ def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataF
 
     # concatenate the dataframes in each list in the dictionary into a single dataframe
     for page in all_data:
-        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+        # In pandas 3 read_excel() and read_csv() return one block per column, and
+        # that survives concatenation. The deep copy consolidates the blocks once, so
+        # downstream column insertions don't emit a PerformanceWarning each time.
+        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True).copy()
 
     return all_data
 

@@ -58,7 +58,7 @@ def get_category_info(category_name: pd.Series) -> pd.Series:
     Fortunately the only field we're pulling out of the category so far is the
     region, which is the last of two comma-separated fields.
     """
-    fields = category_name.str.rsplit(",", n=1).str.get(-1).rename("region_category")
+    fields = category_name.str.rsplit(",", n=1).str[-1].rename("region_category")
     return fields
 
 
@@ -200,6 +200,7 @@ def unstack(df: pd.DataFrame, eventual_pk: list[str]):
         .sort_index()
     )
     assert isinstance(unstacked, pd.DataFrame)
+    assert isinstance(unstacked.columns, pd.MultiIndex)
     unstacked.columns = unstacked.columns.droplevel()
     unstacked.columns.name = None
     return unstacked

@@ -141,7 +141,7 @@ def extract_eia860(context, raw_eia860__all_dfs, raw_eia860m__all_dfs):
         eia860m_raw_dfs = {}
         for page, df in raw_eia860m__all_dfs.items():
             mask = df["report_date"].dt.strftime("%Y-%m").isin(eia860m_months)
-            eia860m_raw_dfs[page] = df.loc[mask].copy()
+            eia860m_raw_dfs[page] = df.loc[mask]
 
         raw_eia860__all_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=raw_eia860__all_dfs, eia860m_raw_dfs=eia860m_raw_dfs
