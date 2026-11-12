@@ -182,7 +182,7 @@ jobs:
             --container-arg="${{ env.DEPLOYMENT_ENVIRONMENT }}" \
             --container-arg="${{ inputs.deploy_to_gcs && '--deploy-gcs' || '--no-deploy-gcs' }}" \
             --container-arg="${{ inputs.deploy_to_s3 && '--deploy-s3' || '--no-deploy-s3' }}" \
-            --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
+            --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \

@@ -255,7 +255,7 @@ def main(
         _deploy_outputs(
             source_dir=local_copy_path,
             plan=plan,
-            github_token=os.environ["GITHUB_TOKEN"],
+            github_token=os.environ["PUDL_BOT_PAT"],
             stage_results=stage_results,
         )
     finally:
