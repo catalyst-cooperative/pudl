@@ -50,7 +50,8 @@ jobs:
         run: |
           batch_job_id="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)"
           build_id="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}"
-          case "${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode || 'production' }}" in
+          deployment_mode="${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode || 'production' }}"
+          case "$deployment_mode" in
             test)
               ferceqr_config_path='/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_test_deployment_targets.yml'
               ;;

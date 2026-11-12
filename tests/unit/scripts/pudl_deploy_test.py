@@ -20,9 +20,7 @@ def deploy_mocks(mocker):
     """Patch every side-effecting call made by ``_deploy_outputs``."""
     return {
         "upload_outputs": mocker.patch("pudl.scripts.pudl_deploy.upload_outputs"),
-        "update_pudl_viewer": mocker.patch(
-            "pudl.scripts.pudl_deploy.update_pudl_viewer"
-        ),
+        "redeploy_eel_hole": mocker.patch("pudl.scripts.pudl_deploy.redeploy_eel_hole"),
         "update_git_branch": mocker.patch("pudl.scripts.pudl_deploy.update_git_branch"),
         "trigger_zenodo_release": mocker.patch(
             "pudl.scripts.pudl_deploy.trigger_zenodo_release"
@@ -34,7 +32,7 @@ def deploy_mocks(mocker):
 
 
 @pytest.mark.parametrize(
-    "deploy_type,environment,expect_viewer,expect_git,expect_zenodo,expect_hold",
+    "deploy_type,environment,expect_eel_hole,expect_git,expect_zenodo,expect_hold",
     [
         (DeploymentType.NIGHTLY, "production", True, True, True, False),
         (DeploymentType.NIGHTLY, "staging", True, True, True, False),
@@ -48,7 +46,7 @@ def test_deploy_outputs_gates_side_effects_by_deploy_type(
     deploy_mocks,
     deploy_type,
     environment,
-    expect_viewer,
+    expect_eel_hole,
     expect_git,
     expect_zenodo,
     expect_hold,
@@ -77,7 +75,7 @@ def test_deploy_outputs_gates_side_effects_by_deploy_type(
     )
 
     assert deploy_mocks["upload_outputs"].called
-    assert deploy_mocks["update_pudl_viewer"].called == expect_viewer
+    assert deploy_mocks["redeploy_eel_hole"].called == expect_eel_hole
     assert deploy_mocks["update_git_branch"].called == expect_git
     assert deploy_mocks["trigger_zenodo_release"].called == expect_zenodo
     assert deploy_mocks["set_gcs_temporary_hold"].called == expect_hold
@@ -103,12 +101,12 @@ def mock_deploy_dependencies(mocker, tmp_path):
     mocker.patch("pudl.scripts.pudl_deploy.download_build_outputs")
     mocker.patch("pudl.scripts.pudl_deploy.prepare_outputs_for_distribution")
     mocker.patch("pudl.scripts.pudl_deploy.upload_outputs")
-    mocker.patch("pudl.scripts.pudl_deploy.update_pudl_viewer")
+    mocker.patch("pudl.scripts.pudl_deploy.redeploy_eel_hole")
     mocker.patch("pudl.scripts.pudl_deploy.update_git_branch")
     mocker.patch("pudl.scripts.pudl_deploy.trigger_zenodo_release")
     mocker.patch("pudl.scripts.pudl_deploy.set_gcs_temporary_hold")
     mocker.patch("pudl.scripts.pudl_deploy.send_zulip_message")
-    mocker.patch.dict(os.environ, {"GITHUB_TOKEN": "fake-token"})  # noqa: S106  # pragma: allowlist secret
+    mocker.patch.dict(os.environ, {"PUDL_BOT_PAT": "fake-token"})  # noqa: S106  # pragma: allowlist secret
     return fake_build_path
 
 
@@ -156,7 +154,7 @@ def test_main_sends_zulip_notification_when_build_resolution_fails(mocker):
     mocker.patch.dict(
         os.environ,
         {
-            "GITHUB_TOKEN": "fake-token",  # noqa: S106  # pragma: allowlist secret
+            "PUDL_BOT_PAT": "fake-token",  # noqa: S106  # pragma: allowlist secret
             "ZULIP_API_KEY": "fake-key",  # pragma: allowlist secret
         },
     )
