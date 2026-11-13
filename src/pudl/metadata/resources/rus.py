@@ -16,7 +16,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["core_rus__codes_investment_types"],
         "field_namespace": "rus",
-        "sources": ["rus"],
+        "sources": ["rus7", "rus12"],
         # I added this as RUS instead of RUS7 so we can compile any RUS code table
         # in one static_assets function
         "etl_group": "static_rus",
@@ -32,7 +32,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["core_rus__codes_fuel_types"],
         "field_namespace": "rus",
-        "sources": ["rus"],
+        "sources": ["rus7", "rus12"],
         "etl_group": "static_rus",
     },
 }
