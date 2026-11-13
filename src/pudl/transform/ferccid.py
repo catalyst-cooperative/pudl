@@ -3,7 +3,7 @@
 import pandas as pd
 from dagster import asset
 
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import UNICODE_WHITESPACE_REGEX, convert_cols_dtypes
 
 
 def clean_cid_string_cols(col: pd.Series) -> pd.Series:
@@ -11,7 +11,7 @@ def clean_cid_string_cols(col: pd.Series) -> pd.Series:
     col = (
         col.str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
         .str.strip()
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .replace(to_replace=r"^(?i:\s*|na|nan|none)$", value=pd.NA, regex=True)
     )
     return col

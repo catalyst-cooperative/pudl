@@ -82,7 +82,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["state", "place_name", "datetime_utc"],
             "pk_check_chunk_field": "datetime_utc",
         },
-        "sources": ["vcerare"],
+        "sources": ["vcerare", "censuspep"],
         "field_namespace": "vcerare",
         "etl_group": "vcerare",
         "create_database_schema": False,

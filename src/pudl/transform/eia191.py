@@ -37,7 +37,7 @@ def core_eia191__monthly_gas_storage(
     Returns:
         Cleaned monthly gas storage DataFrame with a combined report_date column.
     """
-    df = raw_eia191__data.copy()
+    df = raw_eia191__data.copy(deep=False)
 
     df["reservoir_id_eia"] = df["reservoir_id_eia"].replace(999, pd.NA)
 

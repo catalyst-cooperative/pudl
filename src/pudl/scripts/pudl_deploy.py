@@ -37,6 +37,7 @@ from typing import Literal
 
 import click
 
+from pudl.deploy.github import redeploy_eel_hole
 from pudl.deploy.pudl import (
     DeploymentPlan,
     DeployStage,
@@ -52,7 +53,6 @@ from pudl.deploy.pudl import (
     set_gcs_temporary_hold,
     trigger_zenodo_release,
     update_git_branch,
-    update_pudl_viewer,
     upload_outputs,
 )
 from pudl.logging_helpers import get_logger
@@ -90,7 +90,7 @@ def _deploy_outputs(
 
     if plan.redeploy_eel_hole:
         run_stage(
-            stage_fn=update_pudl_viewer,
+            stage_fn=redeploy_eel_hole,
             stage_name=DeployStage.REDEPLOY_EEL_HOLE,
             stage_results=stage_results,
             fail_hard=False,
@@ -255,7 +255,7 @@ def main(
         _deploy_outputs(
             source_dir=local_copy_path,
             plan=plan,
-            github_token=os.environ["GITHUB_TOKEN"],
+            github_token=os.environ["PUDL_BOT_PAT"],
             stage_results=stage_results,
         )
     finally:

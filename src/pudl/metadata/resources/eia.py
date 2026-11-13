@@ -779,7 +779,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 ],
             },
         },
-        "sources": ["eia860", "eia923"],
+        "sources": ["eia860", "eia923", "censuspep"],
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
