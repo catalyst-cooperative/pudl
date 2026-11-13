@@ -74,7 +74,7 @@ sources:
                 categorical_column: asset_type
                 value_column: ending_balance
                 subcomponents_list:
-                  - non_utility_property_asset
+                  - non_utility_property
                   - investments_subsidiary_companies
                   - investments_associated_orgs_patronage_capital
                   - investments_associated_orgs_other_general_funds
