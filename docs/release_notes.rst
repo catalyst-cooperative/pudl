@@ -25,6 +25,10 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added accounting validation tests for ``core_rus12__yearly_balance_sheet_assets`` and
+  ``out_rus12__yearly_balance_sheet_assets`` to check that balance sheet components sum
+  to their reported totals. See :issue:`5728`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -155,9 +159,6 @@ New Data Tests & Validations
   :ref:`out_rus7__yearly_balance_sheet_assets` equal the sum of their subcomponents.
   The existing ``total_utility_plant`` and ``total_current_and_accrued`` tests no longer
   allow any failures. See :issue:`5566` and :pr:`5729`.
-* Added accounting validation tests for ``core_rus12__yearly_balance_sheet_assets`` and
-  ``out_rus12__yearly_balance_sheet_assets`` to check that balance sheet components sum
-  to their reported totals. See :issue:`5728`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
