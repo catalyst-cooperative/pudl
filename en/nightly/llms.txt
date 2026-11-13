@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.11.1.dev1 documentation
+> PUDL 2026.11.1.dev3 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -27,6 +27,7 @@
 - [EIA Annual Energy Outlook (AEO)](data_sources/eiaaeo.html.md): | Source URL                      | https://www.eia.gov/outlooks/aeo/                               ...
 - [EPA CAMD to EIA Power Sector Data Crosswalk](data_sources/epacamd_eia.html.md): | Source URL                      | https://github.com/USEPA/camd-eia-crosswalk                     ...
 - [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md): | Source URL                      | https://campd.epa.gov/                                          ...
+- [EPA MATS – Mercury and Air Toxics Standards](data_sources/epamats.html.md): | Source URL                      | https://www.epa.gov/stationary-sources-air-pollution/mercury-and...
 - [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md): | Source URL                      | https://www.ferc.gov/industries-data/electric/general-informatio...
 - [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.html.md): | Source URL                      | https://www.ferc.gov/industries-data/electric/general-informatio...
 - [FERC Form 920 – Electric Quarterly Report (EQR)](data_sources/ferceqr.html.md): | Source URL                      | https://www.ferc.gov/industries-data/electric/power-sales-and-ma...
@@ -103,6 +104,7 @@
 - [pudl.dbt_schema](autoapi/pudl/dbt_schema/index.html.md): Define dbt schema types and merging logic.
 - [pudl.definitions](autoapi/pudl/definitions/index.html.md): Stable Dagster code location module for dg-compatible loading.
 - [pudl.deploy](autoapi/pudl/deploy/index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
+- [pudl.deploy.github](autoapi/pudl/deploy/github/index.html.md): Helpers for triggering GitHub Actions workflows from deployment code.
 - [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
 - [pudl.deploy.s3_transfer](autoapi/pudl/deploy/s3_transfer/index.html.md): Fast bulk uploads to, and server-side copies within, Amazon S3.
 - [pudl.deploy.zenodo_metadata](autoapi/pudl/deploy/zenodo_metadata/index.html.md): Gather Zenodo deposition metadata for a PUDL data release from repo sources.
@@ -284,4 +286,4 @@
 - [Managing External Contributions](dev/managing_external_contributions.html.md): Looking to contribute to PUDL? The guidelines for external contributors can be found at
 - [Contributing to PUDL](CONTRIBUTING.html.md): Welcome! We’re excited that you’re interested in contributing to the Public Utility
 - [Catalyst Cooperative Code of Conduct](code_of_conduct.html.md): In the interest of fostering an open and welcoming environment, we as
-- [PUDL Release Notes](release_notes.html.md): This is a regular quarterly PUDL release, with updates to
+- [PUDL Release Notes](release_notes.html.md): - Added data source page for EPA MATS.

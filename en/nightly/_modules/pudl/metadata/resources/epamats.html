@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.epamats &#8212; PUDL 2026.11.1.dev1 documentation</title>
+    <title>pudl.metadata.resources.epamats &#8212; PUDL 2026.11.1.dev3 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=2585ebcc"></script>
+    <script src="../../../../_static/documentation_options.js?v=ac740541"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -887,27 +887,20 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"from coal- and oil-fired power plants."</span>
             <span class="p">),</span>
             <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"incomplete_id_coverage"</span><span class="p">],</span>
-            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The EPA Mercury and Air Toxics Standards</span>
-<span class="s2">(MATS) dataset provides detailed information on emissions of hazardous air</span>
-<span class="s2">pollutants, specifically mercury (Hg), hydrogen chloride (HCl), and hydrogen</span>
-<span class="s2">fluoride (HF), from coal- and oil-fired power plants in the United States.</span>
-<span class="s2">Established under the Clean Air Act, MATS requires affected units to install</span>
-<span class="s2">and operate continuous emissions monitoring systems (CEMS) to track pollutant</span>
-<span class="s2">output rates and mass emissions.</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""Not all plants that report to EIA are</span>
+<span class="s2">represented here; see `Notable Irregularities</span>
+<span class="s2">&lt;https://docs.catalyst.coop/pudl/en/latest/data_sources/epamats.html#notable-irregularities&gt;`__</span>
+<span class="s2">for details.</span>
 
-<span class="s2">Only coal- and oil-fired units above a certain capacity threshold are required</span>
-<span class="s2">to comply with MATS, so not all plants that report to EIA have corresponding</span>
-<span class="s2">MATS monitoring data. The data covers roughly 2015 onward and is reported</span>
-<span class="s2">hourly.</span>
+<span class="s2">MATS does not require reporting of hourly hydrogen fluoride (HF) emissions.</span>
+<span class="s2">In the raw data from MATS, the four HF columns are entirely null throughout,</span>
+<span class="s2">so they are dropped from this table.</span>
+<span class="s2">Only the mercury (Hg) and hydrogen chloride (HCl) columns contain data.</span>
 
-<span class="s2">MATS does not require reporting of hourly hydrogen fluoride (HF) emissions, and the</span>
-<span class="s2">four HF columns are entirely null throughout the raw data, so they are dropped</span>
-<span class="s2">from this table. Only the mercury (Hg) and hydrogen chloride (HCl) columns</span>
-<span class="s2">contain data.</span>
-
-<span class="s2">Units in the MATS data are identified by their EPA emissions unit IDs, which</span>
-<span class="s2">may differ from EIA generator IDs. Use the core_epa__assn_eia_epacamd</span>
-<span class="s2">crosswalk to connect MATS emissions units to EIA plant IDs and generators.</span>
+<span class="s2">Units in the MATS data are identified by their EPA emissions unit IDs, which may differ</span>
+<span class="s2">from EIA generator IDs. This table already contains an EIA plant ID, but you can use the</span>
+<span class="s2">``core_epa__assn_eia_epacamd`` crosswalk to connect MATS emissions units to EIA</span>
+<span class="s2">boilers and generators.</span>
 <span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>

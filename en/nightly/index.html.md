@@ -27,6 +27,7 @@ pages for each source:
 * [EIA Annual Energy Outlook (AEO)](data_sources/eiaaeo.html.md)
 * [EPA CAMD to EIA Power Sector Data Crosswalk](data_sources/epacamd_eia.html.md)
 * [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md)
+* [EPA MATS – Mercury and Air Toxics Standards](data_sources/epamats.html.md)
 * [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md)
 * [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.html.md)
 * [FERC Form 920 – Electric Quarterly Report (EQR)](data_sources/ferceqr.html.md)

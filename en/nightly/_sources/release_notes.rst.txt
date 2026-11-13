@@ -20,6 +20,8 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
+- Added data source page for :doc:`EPA MATS <data_sources/epamats>`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -112,6 +114,12 @@ FERC CID
 
 * Updated the FERC company identifiers to the October 2026 release. See issue
   :issue:`5742` and PR :pr:`5743`.
+
+FERC EQR
+~~~~~~~~
+
+* Added full 2026Q3 data for :doc:`FERC EQR <data_sources/ferceqr>`. See issue
+  :issue:`5745` and PR :pr:`5746`.
 
 FERC Forms 2 and 6
 ~~~~~~~~~~~~~~~~~~
@@ -211,6 +219,12 @@ Bug Fixes & Data Cleaning
   It also removes empty ``valid_until_date`` intervals, and ensures every series ends
   on the same date -- one month past the entity's final report date. See :issue:`5730`
   and :pr:`5731`.
+* Fixed downstream effects of the FERC EQR datapackage refactor. PUDL ``sources`` again
+  list sources without tables (e.g. ``ferc2``), stale resource source IDs (``rus``,
+  ``ferc``, ``censusdp1``) were corrected, ``censuspep`` and ``eia860m`` were added
+  where used, and ``eiawater`` and ``mshamines`` moved to ``pudl-archiver``. Production
+  FERC EQR builds now also redeploy the Eel Hole data viewer, as PUDL builds do. See
+  :pr:`5746`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^

@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.11.1.dev1 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.11.1.dev3 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=2585ebcc"></script>
+    <script src="../../../_static/documentation_options.js?v=ac740541"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -899,6 +899,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_ROOT_PATH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.github</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_github_workflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.zenodo_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_latest_release_tag</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_git</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_root_logger</span><span class="p">,</span> <span class="n">get_logger</span>
@@ -1100,7 +1101,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DeploymentPlan.redeploy_eel_hole">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.redeploy_eel_hole">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">redeploy_eel_hole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Whether this deployment should redeploy the PUDL Viewer (Eel Hole)."""</span>
+<span class="w">        </span><span class="sd">"""Whether this deployment should redeploy Eel Hole."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">NIGHTLY</span></div>
 
 
@@ -1487,41 +1488,6 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="dispatch_github_workflow">
-<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.dispatch_github_workflow">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_github_workflow</span><span class="p">(</span>
-    <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">workflow_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Trigger a workflow_dispatch event on a GitHub Actions workflow.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        repo: GitHub repo in "owner/name" form (e.g. "catalyst-cooperative/pudl").</span>
-<span class="sd">        workflow_file: Workflow filename (e.g. "zenodo-data-release.yml").</span>
-<span class="sd">        ref: Git branch or tag to run the workflow from.</span>
-<span class="sd">        token: Bearer token to authenticate to GitHub.</span>
-<span class="sd">        inputs: workflow_dispatch inputs, if the workflow takes any.</span>
-<span class="sd">    """</span>
-    <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ref"</span><span class="p">:</span> <span class="n">ref</span><span class="p">}</span>
-    <span class="k">if</span> <span class="n">inputs</span><span class="p">:</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">"inputs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span>
-
-    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"https://api.github.com/repos/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">/actions/workflows/</span><span class="si">{</span><span class="n">workflow_file</span><span class="si">}</span><span class="s2">/dispatches"</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">"Accept"</span><span class="p">:</span> <span class="s2">"application/vnd.github+json"</span><span class="p">,</span>
-            <span class="s2">"Authorization"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
-        <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span></div>
-
-
-
 <div class="viewcode-block" id="trigger_zenodo_release">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.trigger_zenodo_release">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">trigger_zenodo_release</span><span class="p">(</span>
@@ -1577,35 +1543,6 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Zenodo release workflow triggered"</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="update_pudl_viewer">
-<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.update_pudl_viewer">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">update_pudl_viewer</span><span class="p">(</span>
-    <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Update PUDL Viewer Cloud Run service to latest image.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        token: the bearer token to authenticate to GitHub.</span>
-<span class="sd">        environment: deploy staging or production version of viewer.</span>
-<span class="sd">    """</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Updating PUDL Viewer Cloud Run service"</span><span class="p">)</span>
-
-    <span class="n">workflow_file</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">"build-deploy-staging.yml"</span> <span class="k">if</span> <span class="n">environment</span> <span class="o">==</span> <span class="s2">"staging"</span> <span class="k">else</span> <span class="s2">"build-deploy.yml"</span>
-    <span class="p">)</span>
-
-    <span class="n">dispatch_github_workflow</span><span class="p">(</span>
-        <span class="n">repo</span><span class="o">=</span><span class="s2">"catalyst-cooperative/eel-hole"</span><span class="p">,</span>
-        <span class="n">workflow_file</span><span class="o">=</span><span class="n">workflow_file</span><span class="p">,</span>
-        <span class="n">ref</span><span class="o">=</span><span class="s2">"main"</span><span class="p">,</span>
-        <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"PUDL Viewer Cloud Run service updated"</span><span class="p">)</span></div>
 
 
 

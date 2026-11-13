@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.11.1.dev1 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.11.1.dev3 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=2585ebcc"></script>
+    <script src="../../../../_static/documentation_options.js?v=ac740541"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -68,7 +68,7 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
     <link rel="next" title="pudl.deploy.s3_transfer" href="../s3_transfer/index.html" />
-    <link rel="prev" title="pudl.deploy" href="../index.html" />
+    <link rel="prev" title="pudl.deploy.github" href="../github/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -528,6 +528,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../dbt_schema/index.html">pudl.dbt_schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">pudl.deploy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../github/index.html">pudl.deploy.github</a></li>
 <li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">pudl.deploy.pudl</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../s3_transfer/index.html">pudl.deploy.s3_transfer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../zenodo_metadata/index.html">pudl.deploy.zenodo_metadata</a></li>
@@ -887,14 +888,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.pudl.update_git_branch" title="pudl.deploy.pudl.update_git_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_git_branch</span></code></a>(tag, branch, environment, github_token) → None</p></td>
 <td><p>Merge git tag into branch and push to origin.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.pudl.dispatch_github_workflow" title="pudl.deploy.pudl.dispatch_github_workflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dispatch_github_workflow</span></code></a>(repo, workflow_file, ref, token) → None</p></td>
-<td><p>Trigger a workflow_dispatch event on a GitHub Actions workflow.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.pudl.trigger_zenodo_release" title="pudl.deploy.pudl.trigger_zenodo_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trigger_zenodo_release</span></code></a>(build_ref, deploy_type, ...) → None</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.pudl.trigger_zenodo_release" title="pudl.deploy.pudl.trigger_zenodo_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trigger_zenodo_release</span></code></a>(build_ref, deploy_type, ...) → None</p></td>
 <td><p>Trigger Zenodo data release GitHub Actions workflow.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.deploy.pudl.update_pudl_viewer" title="pudl.deploy.pudl.update_pudl_viewer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_pudl_viewer</span></code></a>(token, environment) → None</p></td>
-<td><p>Update PUDL Viewer Cloud Run service to latest image.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.deploy.pudl.set_gcs_temporary_hold" title="pudl.deploy.pudl.set_gcs_temporary_hold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_gcs_temporary_hold</span></code></a>(gcs_path[, billing_project]) → None</p></td>
 <td><p>Set temporary hold on GCS objects to prevent deletion.</p></td>
@@ -1076,7 +1071,7 @@ test output and must remain clearable.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pudl.deploy.pudl.DeploymentPlan.redeploy_eel_hole">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">redeploy_eel_hole</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><a class="reference internal" href="../../../../_modules/pudl/deploy/pudl.html#DeploymentPlan.redeploy_eel_hole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.deploy.pudl.DeploymentPlan.redeploy_eel_hole" title="Link to this definition">#</a></dt>
-<dd><p>Whether this deployment should redeploy the PUDL Viewer (Eel Hole).</p>
+<dd><p>Whether this deployment should redeploy Eel Hole.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1248,23 +1243,6 @@ git push.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.deploy.pudl.dispatch_github_workflow">
-<span class="sig-prename descclassname"><span class="pre">pudl.deploy.pudl.</span></span><span class="sig-name descname"><span class="pre">dispatch_github_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/deploy/pudl.html#dispatch_github_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.deploy.pudl.dispatch_github_workflow" title="Link to this definition">#</a></dt>
-<dd><p>Trigger a workflow_dispatch event on a GitHub Actions workflow.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>repo</strong> – GitHub repo in “owner/name” form (e.g. “catalyst-cooperative/pudl”).</p></li>
-<li><p><strong>workflow_file</strong> – Workflow filename (e.g. “zenodo-data-release.yml”).</p></li>
-<li><p><strong>ref</strong> – Git branch or tag to run the workflow from.</p></li>
-<li><p><strong>token</strong> – Bearer token to authenticate to GitHub.</p></li>
-<li><p><strong>inputs</strong> – workflow_dispatch inputs, if the workflow takes any.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pudl.deploy.pudl.trigger_zenodo_release">
 <span class="sig-prename descclassname"><span class="pre">pudl.deploy.pudl.</span></span><span class="sig-name descname"><span class="pre">trigger_zenodo_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">deploy_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.deploy.pudl.DeploymentType" title="pudl.deploy.pudl.DeploymentType"><span class="pre">DeploymentType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/deploy/pudl.html#trigger_zenodo_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.deploy.pudl.trigger_zenodo_release" title="Link to this definition">#</a></dt>
 <dd><p>Trigger Zenodo data release GitHub Actions workflow.</p>
@@ -1278,20 +1256,6 @@ deposition with PUDL data outputs.</p>
 <li><p><strong>source_suffix</strong> – Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
 path to data outputs which will populate zenodo deposition.</p></li>
 <li><p><strong>token</strong> – the bearer token to authenticate to GitHub.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.deploy.pudl.update_pudl_viewer">
-<span class="sig-prename descclassname"><span class="pre">pudl.deploy.pudl.</span></span><span class="sig-name descname"><span class="pre">update_pudl_viewer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'staging'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'production'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/deploy/pudl.html#update_pudl_viewer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.deploy.pudl.update_pudl_viewer" title="Link to this definition">#</a></dt>
-<dd><p>Update PUDL Viewer Cloud Run service to latest image.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>token</strong> – the bearer token to authenticate to GitHub.</p></li>
-<li><p><strong>environment</strong> – deploy staging or production version of viewer.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1572,12 +1536,12 @@ link) when unset, e.g. when testing outside of an actual Batch job.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../index.html"
+       href="../github/index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">pudl.deploy</p>
+        <p class="prev-next-title">pudl.deploy.github</p>
       </div>
     </a>
     <a class="right-next"
@@ -1648,9 +1612,7 @@ link) when unset, e.g. when testing outside of an actual Batch job.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl._assert_permanent_paths_are_empty"><code class="docutils literal notranslate"><span class="pre">_assert_permanent_paths_are_empty()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.upload_outputs"><code class="docutils literal notranslate"><span class="pre">upload_outputs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.update_git_branch"><code class="docutils literal notranslate"><span class="pre">update_git_branch()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.dispatch_github_workflow"><code class="docutils literal notranslate"><span class="pre">dispatch_github_workflow()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.trigger_zenodo_release"><code class="docutils literal notranslate"><span class="pre">trigger_zenodo_release()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.update_pudl_viewer"><code class="docutils literal notranslate"><span class="pre">update_pudl_viewer()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.set_gcs_temporary_hold"><code class="docutils literal notranslate"><span class="pre">set_gcs_temporary_hold()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.check_build_success"><code class="docutils literal notranslate"><span class="pre">check_build_success()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.deploy.pudl.get_build_from_tag"><code class="docutils literal notranslate"><span class="pre">get_build_from_tag()</span></code></a></li>

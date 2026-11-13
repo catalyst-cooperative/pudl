@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.11.1.dev1 documentation</title>
+    <title>pudl.dagster.assets.deploy.ferceqr &#8212; PUDL 2026.11.1.dev3 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../../_static/documentation_options.js?v=2585ebcc"></script>
+    <script src="../../../../../_static/documentation_options.js?v=ac740541"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev1 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -902,6 +902,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">FercEqrDeploymentResource</span><span class="p">,</span>
     <span class="n">ZulipNotificationResource</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.github</span><span class="w"> </span><span class="kn">import</span> <span class="n">redeploy_eel_hole</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.s3_transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_objects</span> <span class="k">as</span> <span class="n">s3_copy_objects</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy.s3_transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">upload_files</span> <span class="k">as</span> <span class="n">s3_upload_files</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span>
@@ -1150,6 +1151,77 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_DeploymentTarget</span><span class="p">(</span><span class="n">final</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span> <span class="n">build_id</span><span class="o">=</span><span class="n">build_id</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">resolved</span> <span class="ow">in</span> <span class="n">resolved_targets</span>
     <span class="p">]</span></div>
+
+
+
+<span class="c1"># Production FERC EQR targets are exactly ``{gs,s3}://pudl.catalyst.coop/ferceqr``</span>
+<span class="c1"># (optionally with a sub-path). The path component must match whole, so scratch</span>
+<span class="c1"># prefixes like ``ferceqr_test`` do not count.</span>
+<div class="viewcode-block" id="_PRODUCTION_TARGET_RE">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._PRODUCTION_TARGET_RE">[docs]</a>
+<span class="n">_PRODUCTION_TARGET_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^(gs|s3)://pudl\.catalyst\.coop/ferceqr(/.*)?$"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_is_production_target">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._is_production_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_production_target</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a deployment target is a production FERC EQR location."""</span>
+    <span class="k">return</span> <span class="n">_PRODUCTION_TARGET_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"/"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="EelHoleOutcome">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome">[docs]</a>
+<span class="n">EelHoleOutcome</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"TRIGGERED"</span><span class="p">,</span> <span class="s2">"NOT_PRODUCTION"</span><span class="p">,</span> <span class="s2">"NO_TOKEN"</span><span class="p">,</span> <span class="s2">"FAILED"</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_redeploy_eel_hole_if_production">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._redeploy_eel_hole_if_production">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_redeploy_eel_hole_if_production</span><span class="p">(</span>
+    <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_DeploymentTarget</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EelHoleOutcome</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Redeploy the production Eel Hole after publishing to production targets.</span>
+
+<span class="sd">    Only deployments that wrote to a production target change the data Eel Hole</span>
+<span class="sd">    serves, so test and development builds are skipped. The data is already</span>
+<span class="sd">    published by this point, so failures here are logged rather than raised.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        What happened: ``TRIGGERED`` if the redeployment workflow was dispatched,</span>
+<span class="sd">        ``NOT_PRODUCTION`` if no target was a production target, ``NO_TOKEN`` if</span>
+<span class="sd">        ``PUDL_BOT_PAT`` was unset, or ``FAILED`` if the dispatch raised.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">_is_production_target</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">final</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No production FERC EQR targets; skipping Eel Hole redeployment."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">"NOT_PRODUCTION"</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PUDL_BOT_PAT"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"PUDL_BOT_PAT is unset; skipping Eel Hole redeployment."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">"NO_TOKEN"</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">redeploy_eel_hole</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s2">"production"</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"Eel Hole redeployment failed; FERC EQR data is already deployed.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">"FAILED"</span>
+    <span class="k">return</span> <span class="s2">"TRIGGERED"</span></div>
+
+
+
+<span class="c1"># Notification lines for outcomes worth a reader's attention. NOT_PRODUCTION is the</span>
+<span class="c1"># normal state of every test build, so it is deliberately not reported.</span>
+<div class="viewcode-block" id="EEL_HOLE_NOTIFICATION_LINES">
+<a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr.EEL_HOLE_NOTIFICATION_LINES">[docs]</a>
+<span class="n">EEL_HOLE_NOTIFICATION_LINES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"TRIGGERED"</span><span class="p">:</span> <span class="s2">":check: Eel Hole redeployment triggered"</span><span class="p">,</span>
+    <span class="s2">"NO_TOKEN"</span><span class="p">:</span> <span class="s2">":warning: Eel Hole redeployment skipped: `PUDL_BOT_PAT` is unset"</span><span class="p">,</span>
+    <span class="s2">"FAILED"</span><span class="p">:</span> <span class="s2">":warning: Eel Hole redeployment failed; redeploy it manually "</span>
+    <span class="s2">"(see the build log)"</span><span class="p">,</span>
+<span class="p">}</span></div>
 
 
 
@@ -1590,12 +1662,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
     <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="s2">"FAILURE"</span><span class="p">,</span> <span class="s2">"SKIPPED"</span><span class="p">],</span>
     <span class="n">validation_stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">eel_hole</span><span class="p">:</span> <span class="n">EelHoleOutcome</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Build a Markdown notification string for FERC EQR deployment outcomes.</span>
 
 <span class="sd">    Extracts all relevant information (source partitions, run ID, duration,</span>
 <span class="sd">    step statuses, distribution paths, build ID) from the Dagster execution</span>
-<span class="sd">    context and returns a formatted Markdown message ready for Zulip.</span>
+<span class="sd">    context and returns a formatted Markdown message ready for Zulip. ``eel_hole``</span>
+<span class="sd">    is the outcome of the Eel Hole redeployment, if one was attempted.</span>
 <span class="sd">    """</span>
     <span class="n">build_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BUILD_ID"</span><span class="p">,</span> <span class="s2">"no-build-id"</span><span class="p">)</span>
     <span class="n">source_partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1651,6 +1725,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">distribution_paths</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"## Deployment Targets:"</span><span class="p">)</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - `</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">`"</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">distribution_paths</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">eel_hole</span> <span class="ow">in</span> <span class="n">EEL_HOLE_NOTIFICATION_LINES</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">EEL_HOLE_NOTIFICATION_LINES</span><span class="p">[</span><span class="n">eel_hole</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">backfill_duration</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"## :time: Backfill duration: `[</span><span class="si">{</span><span class="n">backfill_duration</span><span class="si">}</span><span class="s2">]`"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">deploy_duration</span><span class="p">:</span>
@@ -1776,6 +1852,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">zulip</span><span class="p">:</span> <span class="n">ZulipNotificationResource</span><span class="p">,</span>
     <span class="n">outcome</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="s2">"FAILURE"</span><span class="p">,</span> <span class="s2">"SKIPPED"</span><span class="p">],</span>
     <span class="n">validation_stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationStage</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">eel_hole</span><span class="p">:</span> <span class="n">EelHoleOutcome</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Send a deployment outcome notification, never raising on failure."""</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1783,7 +1860,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">stream</span><span class="o">=</span><span class="s2">"pudl-deployments"</span><span class="p">,</span>
             <span class="n">topic</span><span class="o">=</span><span class="s2">"build-deploy-ferceqr"</span><span class="p">,</span>
             <span class="n">content</span><span class="o">=</span><span class="n">build_ferceqr_notification</span><span class="p">(</span>
-                <span class="n">context</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="n">outcome</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
+                <span class="n">context</span><span class="p">,</span>
+                <span class="n">outcome</span><span class="o">=</span><span class="n">outcome</span><span class="p">,</span>
+                <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span><span class="p">,</span>
+                <span class="n">eel_hole</span><span class="o">=</span><span class="n">eel_hole</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -1824,6 +1904,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_DeploymentTarget</span><span class="p">],</span>
     <span class="n">table_files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deploy_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">eel_hole</span><span class="p">:</span> <span class="n">EelHoleOutcome</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Collect Dagster metadata describing what a deployment run did.</span>
 
@@ -1837,6 +1918,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        targets: The destinations data was published to. Empty when skipped.</span>
 <span class="sd">        table_files: Local Parquet files published for each table, if any.</span>
 <span class="sd">        deploy_seconds: Wall time of the staging and promotion, if it happened.</span>
+<span class="sd">        eel_hole: Outcome of the Eel Hole redeployment, if one was attempted.</span>
 <span class="sd">    """</span>
     <span class="n">run_tags</span> <span class="o">=</span> <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{})</span> <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">run</span> <span class="k">else</span> <span class="p">{}</span>
     <span class="n">partitions</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">source_partitions</span><span class="p">)</span>
@@ -1875,6 +1957,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">"table_bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">table_bytes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">deploy_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">"deploy_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">deploy_seconds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">eel_hole</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"eel_hole"</span><span class="p">]</span> <span class="o">=</span> <span class="n">eel_hole</span>
     <span class="k">return</span> <span class="n">metadata</span></div>
 
 
@@ -2007,9 +2091,17 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">deploy_seconds</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">deploy_start</span>
 
+    <span class="c1"># Redeploy before the success sentinel: the batch script kills the Dagster</span>
+    <span class="c1"># daemon as soon as it appears.</span>
+    <span class="n">eel_hole</span> <span class="o">=</span> <span class="n">_redeploy_eel_hole_if_production</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"FERC EQR deployment succeeded. Notifying Zulip."</span><span class="p">)</span>
     <span class="n">_notify_ferceqr_outcome</span><span class="p">(</span>
-        <span class="n">context</span><span class="p">,</span> <span class="n">zulip</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">,</span> <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span>
+        <span class="n">context</span><span class="p">,</span>
+        <span class="n">zulip</span><span class="p">,</span>
+        <span class="n">outcome</span><span class="o">=</span><span class="s2">"SUCCESS"</span><span class="p">,</span>
+        <span class="n">validation_stages</span><span class="o">=</span><span class="n">validation_stages</span><span class="p">,</span>
+        <span class="n">eel_hole</span><span class="o">=</span><span class="n">eel_hole</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">_write_status_file</span><span class="p">(</span><span class="s2">"FERCEQR_SUCCESS"</span><span class="p">,</span> <span class="n">pudl_paths</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">MaterializeResult</span><span class="p">(</span>
@@ -2022,6 +2114,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
             <span class="n">table_files</span><span class="o">=</span><span class="n">table_files</span><span class="p">,</span>
             <span class="n">deploy_seconds</span><span class="o">=</span><span class="n">deploy_seconds</span><span class="p">,</span>
+            <span class="n">eel_hole</span><span class="o">=</span><span class="n">eel_hole</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 

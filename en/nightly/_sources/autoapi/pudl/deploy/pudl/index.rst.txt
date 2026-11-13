@@ -51,9 +51,7 @@ Functions
    pudl.deploy.pudl._assert_permanent_paths_are_empty
    pudl.deploy.pudl.upload_outputs
    pudl.deploy.pudl.update_git_branch
-   pudl.deploy.pudl.dispatch_github_workflow
    pudl.deploy.pudl.trigger_zenodo_release
-   pudl.deploy.pudl.update_pudl_viewer
    pudl.deploy.pudl.set_gcs_temporary_hold
    pudl.deploy.pudl.check_build_success
    pudl.deploy.pudl.get_build_from_tag
@@ -221,7 +219,7 @@ Module Contents
       :type: bool
 
 
-      Whether this deployment should redeploy the PUDL Viewer (Eel Hole).
+      Whether this deployment should redeploy Eel Hole.
 
 
    .. py:property:: update_git_branch
@@ -366,17 +364,6 @@ Module Contents
    :raises subprocess.CalledProcessError: If git commands fail.
 
 
-.. py:function:: dispatch_github_workflow(repo: str, workflow_file: str, ref: str, token: str, inputs: dict[str, str] | None = None) -> None
-
-   Trigger a workflow_dispatch event on a GitHub Actions workflow.
-
-   :param repo: GitHub repo in "owner/name" form (e.g. "catalyst-cooperative/pudl").
-   :param workflow_file: Workflow filename (e.g. "zenodo-data-release.yml").
-   :param ref: Git branch or tag to run the workflow from.
-   :param token: Bearer token to authenticate to GitHub.
-   :param inputs: workflow_dispatch inputs, if the workflow takes any.
-
-
 .. py:function:: trigger_zenodo_release(build_ref: str, deploy_type: DeploymentType, source_suffix: str, token: str) -> None
 
    Trigger Zenodo data release GitHub Actions workflow.
@@ -389,14 +376,6 @@ Module Contents
    :param source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
                          path to data outputs which will populate zenodo deposition.
    :param token: the bearer token to authenticate to GitHub.
-
-
-.. py:function:: update_pudl_viewer(token: str, environment: Literal['staging', 'production']) -> None
-
-   Update PUDL Viewer Cloud Run service to latest image.
-
-   :param token: the bearer token to authenticate to GitHub.
-   :param environment: deploy staging or production version of viewer.
 
 
 .. py:function:: set_gcs_temporary_hold(gcs_path: str, billing_project: str = '') -> None

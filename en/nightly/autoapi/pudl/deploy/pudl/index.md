@@ -36,9 +36,7 @@ This module handles distribution of completed ETL builds to public cloud storage
 | [`_assert_permanent_paths_are_empty`](#pudl.deploy.pudl._assert_permanent_paths_are_empty)(gcs_fs, s3_fs, ...) → None              | Refuse to deploy to a permanent, version-tagged path that already has content.        |
 | [`upload_outputs`](#pudl.deploy.pudl.upload_outputs)(source_dir, path_suffixes[, ...]) → None                   | Upload outputs to cloud storage paths.                                                |
 | [`update_git_branch`](#pudl.deploy.pudl.update_git_branch)(tag, branch, environment, github_token) → None          | Merge git tag into branch and push to origin.                                         |
-| [`dispatch_github_workflow`](#pudl.deploy.pudl.dispatch_github_workflow)(repo, workflow_file, ref, token) → None          | Trigger a workflow_dispatch event on a GitHub Actions workflow.                       |
 | [`trigger_zenodo_release`](#pudl.deploy.pudl.trigger_zenodo_release)(build_ref, deploy_type, ...) → None                | Trigger Zenodo data release GitHub Actions workflow.                                  |
-| [`update_pudl_viewer`](#pudl.deploy.pudl.update_pudl_viewer)(token, environment) → None                             | Update PUDL Viewer Cloud Run service to latest image.                                 |
 | [`set_gcs_temporary_hold`](#pudl.deploy.pudl.set_gcs_temporary_hold)(gcs_path[, billing_project]) → None                | Set temporary hold on GCS objects to prevent deletion.                                |
 | [`check_build_success`](#pudl.deploy.pudl.check_build_success)(build_path) → upath.UPath                             | Raise error if success file doesn't exist in build directory.                         |
 | [`get_build_from_tag`](#pudl.deploy.pudl.get_build_from_tag)(tag) → upath.UPath                                     | Find any builds associated with a git tag and return a GCS path to most recent build. |
@@ -153,7 +151,7 @@ This is also the only path that’s protected by `gcs_temporary_hold`.
 
 #### *property* redeploy_eel_hole *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
-Whether this deployment should redeploy the PUDL Viewer (Eel Hole).
+Whether this deployment should redeploy Eel Hole.
 
 #### *property* update_git_branch *: [bool](https://docs.python.org/3/builtins/functions.html#bool)*
 
@@ -287,17 +285,6 @@ git push.
 * **Raises:**
   [**subprocess.CalledProcessError**](https://docs.python.org/3/library/subprocess.html#subprocess.CalledProcessError) – If git commands fail.
 
-### pudl.deploy.pudl.dispatch_github_workflow(repo: [str](https://docs.python.org/3/builtins/stdtypes.html#str), workflow_file: [str](https://docs.python.org/3/builtins/stdtypes.html#str), ref: [str](https://docs.python.org/3/builtins/stdtypes.html#str), token: [str](https://docs.python.org/3/builtins/stdtypes.html#str), inputs: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
-
-Trigger a workflow_dispatch event on a GitHub Actions workflow.
-
-* **Parameters:**
-  * **repo** – GitHub repo in “owner/name” form (e.g. “catalyst-cooperative/pudl”).
-  * **workflow_file** – Workflow filename (e.g. “zenodo-data-release.yml”).
-  * **ref** – Git branch or tag to run the workflow from.
-  * **token** – Bearer token to authenticate to GitHub.
-  * **inputs** – workflow_dispatch inputs, if the workflow takes any.
-
 ### pudl.deploy.pudl.trigger_zenodo_release(build_ref: [str](https://docs.python.org/3/builtins/stdtypes.html#str), deploy_type: [DeploymentType](#pudl.deploy.pudl.DeploymentType), source_suffix: [str](https://docs.python.org/3/builtins/stdtypes.html#str), token: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Trigger Zenodo data release GitHub Actions workflow.
@@ -311,14 +298,6 @@ deposition with PUDL data outputs.
   * **source_suffix** – Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
     path to data outputs which will populate zenodo deposition.
   * **token** – the bearer token to authenticate to GitHub.
-
-### pudl.deploy.pudl.update_pudl_viewer(token: [str](https://docs.python.org/3/builtins/stdtypes.html#str), environment: Literal['staging', 'production']) → [None](https://docs.python.org/3/builtins/constants.html#None)
-
-Update PUDL Viewer Cloud Run service to latest image.
-
-* **Parameters:**
-  * **token** – the bearer token to authenticate to GitHub.
-  * **environment** – deploy staging or production version of viewer.
 
 ### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/builtins/stdtypes.html#str), billing_project: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = '') → [None](https://docs.python.org/3/builtins/constants.html#None)
 

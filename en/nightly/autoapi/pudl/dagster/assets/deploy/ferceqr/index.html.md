@@ -21,6 +21,9 @@ job when deployment handling is complete.
 | [`PREVIOUS_DIRNAME`](#pudl.dagster.assets.deploy.ferceqr.PREVIOUS_DIRNAME)              |    |
 | [`StepStatusTable`](#pudl.dagster.assets.deploy.ferceqr.StepStatusTable)               |    |
 | [`FERCEQR_DBT_SOURCE`](#pudl.dagster.assets.deploy.ferceqr.FERCEQR_DBT_SOURCE)            |    |
+| [`_PRODUCTION_TARGET_RE`](#pudl.dagster.assets.deploy.ferceqr._PRODUCTION_TARGET_RE)         |    |
+| [`EelHoleOutcome`](#pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome)                |    |
+| [`EEL_HOLE_NOTIFICATION_LINES`](#pudl.dagster.assets.deploy.ferceqr.EEL_HOLE_NOTIFICATION_LINES)   |    |
 
 ## Classes
 
@@ -36,6 +39,8 @@ job when deployment handling is complete.
 | [`_write_status_file`](#pudl.dagster.assets.deploy.ferceqr._write_status_file)(status, pudl_paths)                                                                               | Notify build script that job is complete by creating a status file.                                                                          |
 | [`_clear_status_files`](#pudl.dagster.assets.deploy.ferceqr._clear_status_files)(pudl_paths) → None                                                                               | Remove any stale FERC EQR status files from the output directory.                                                                            |
 | [`_deployment_targets`](#pudl.dagster.assets.deploy.ferceqr._deployment_targets)(resolved_targets) → list[_DeploymentTarget]                                                      | Turn resolved deployment UPaths into [`_DeploymentTarget`](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget) records.                             |
+| [`_is_production_target`](#pudl.dagster.assets.deploy.ferceqr._is_production_target)(target) → bool                                                                                 | Whether a deployment target is a production FERC EQR location.                                                                               |
+| [`_redeploy_eel_hole_if_production`](#pudl.dagster.assets.deploy.ferceqr._redeploy_eel_hole_if_production)(targets) → EelHoleOutcome                                                           | Redeploy the production Eel Hole after publishing to production targets.                                                                     |
 | [`_source_parquet_files`](#pudl.dagster.assets.deploy.ferceqr._source_parquet_files)(source_partitions) → dict[str, list[pathlib.Path]]                                             | Map each transform asset to its local Parquet files for *source_partitions*.                                                                 |
 | [`_expected_object_sizes`](#pudl.dagster.assets.deploy.ferceqr._expected_object_sizes)(table_files, datapackage_path) → dict[str, int]                                               | Return `{staging_relative_path: size_bytes}` for everything to be uploaded.                                                                  |
 | [`_wait`](#pudl.dagster.assets.deploy.ferceqr._wait)(futures) → None                                                                                                | Block until every future finishes, raising the first failure.                                                                                |
@@ -162,6 +167,31 @@ The staging and previous-build prefixes are siblings of the final target so
 their key namespaces never overlap it. The staging suffix ties the scratch
 prefix to a single build (BUILD_ID), with a random fallback for local runs.
 
+### pudl.dagster.assets.deploy.ferceqr.\_PRODUCTION_TARGET_RE
+
+### pudl.dagster.assets.deploy.ferceqr.\_is_production_target(target: upath.UPath) → [bool](https://docs.python.org/3/builtins/functions.html#bool)
+
+Whether a deployment target is a production FERC EQR location.
+
+### pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome
+
+### pudl.dagster.assets.deploy.ferceqr.\_redeploy_eel_hole_if_production(targets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[\_DeploymentTarget](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget)]) → [EelHoleOutcome](#pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome)
+
+Redeploy the production Eel Hole after publishing to production targets.
+
+Only deployments that wrote to a production target change the data Eel Hole
+serves, so test and development builds are skipped. The data is already
+published by this point, so failures here are logged rather than raised.
+
+* **Returns:**
+  `TRIGGERED` if the redeployment workflow was dispatched,
+  `NOT_PRODUCTION` if no target was a production target, `NO_TOKEN` if
+  `PUDL_BOT_PAT` was unset, or `FAILED` if the dispatch raised.
+* **Return type:**
+  What happened
+
+### pudl.dagster.assets.deploy.ferceqr.EEL_HOLE_NOTIFICATION_LINES *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]*
+
 ### pudl.dagster.assets.deploy.ferceqr.\_source_parquet_files(source_partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]]
 
 Map each transform asset to its local Parquet files for *source_partitions*.
@@ -268,13 +298,14 @@ Return pointer to logs to send in Zulip message.
 
 Return elapsed time since the current run started, or None on failure.
 
-### pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+### pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, eel_hole: [EelHoleOutcome](#pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Build a Markdown notification string for FERC EQR deployment outcomes.
 
 Extracts all relevant information (source partitions, run ID, duration,
 step statuses, distribution paths, build ID) from the Dagster execution
-context and returns a formatted Markdown message ready for Zulip.
+context and returns a formatted Markdown message ready for Zulip. `eel_hole`
+is the outcome of the Eel Hole redeployment, if one was attempted.
 
 ### pudl.dagster.assets.deploy.ferceqr.deployment_status_asset(, deps: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[dagster.AssetKey](https://dagster.io/docs/api/dagster/assets/#dagster.AssetKey)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], [dagster.AssetsDefinition](https://dagster.io/docs/api/dagster/assets/#dagster.AssetsDefinition)]
 
@@ -304,7 +335,7 @@ Read the built partitions from run tags, empty when invoked outside a run.
 Deploying only the *specific* partitions this build produced avoids sweeping
 up unrelated data left lying around, especially on local runs.
 
-### pudl.dagster.assets.deploy.ferceqr.\_notify_ferceqr_outcome(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), zulip: [pudl.dagster.resources.ZulipNotificationResource](../../../resources/index.html.md#pudl.dagster.resources.ZulipNotificationResource), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
+### pudl.dagster.assets.deploy.ferceqr.\_notify_ferceqr_outcome(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), zulip: [pudl.dagster.resources.ZulipNotificationResource](../../../resources/index.html.md#pudl.dagster.resources.ZulipNotificationResource), outcome: Literal['SUCCESS', 'FAILURE', 'SKIPPED'], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, eel_hole: [EelHoleOutcome](#pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [None](https://docs.python.org/3/builtins/constants.html#None)
 
 Send a deployment outcome notification, never raising on failure.
 
@@ -315,7 +346,7 @@ Return the backfill ID of the run being deployed, if it can be determined.
 The deployment run is launched by a sensor and doesn’t carry the backfill tag
 itself, so it’s read from the source run that triggered the deployment.
 
-### pudl.dagster.assets.deploy.ferceqr.\_deployment_metadata(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), , outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), targets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[\_DeploymentTarget](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget)], table_files: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, deploy_seconds: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
+### pudl.dagster.assets.deploy.ferceqr.\_deployment_metadata(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext), , outcome: Literal['DEPLOYED', 'SKIPPED'], source_partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)], validation_stages: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[ValidationStage](#pudl.dagster.assets.deploy.ferceqr.ValidationStage)], datapackage_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), targets: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[\_DeploymentTarget](#pudl.dagster.assets.deploy.ferceqr._DeploymentTarget)], table_files: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]] | [None](https://docs.python.org/3/builtins/constants.html#None) = None, deploy_seconds: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, eel_hole: [EelHoleOutcome](#pudl.dagster.assets.deploy.ferceqr.EelHoleOutcome) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]
 
 Collect Dagster metadata describing what a deployment run did.
 
@@ -329,6 +360,7 @@ Collect Dagster metadata describing what a deployment run did.
   * **targets** – The destinations data was published to. Empty when skipped.
   * **table_files** – Local Parquet files published for each table, if any.
   * **deploy_seconds** – Wall time of the staging and promotion, if it happened.
+  * **eel_hole** – Outcome of the Eel Hole redeployment, if one was attempted.
 
 ### pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr(context: [dagster.AssetExecutionContext](https://dagster.io/docs/api/dagster/execution/#dagster.AssetExecutionContext))
 

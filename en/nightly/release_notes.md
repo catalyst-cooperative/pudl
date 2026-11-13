@@ -12,6 +12,8 @@
 
 ### Documentation
 
+- Added data source page for [EPA MATS](data_sources/epamats.md).
+
 ### New Data Tests & Validations
 
 ### Bug Fixes & Data Cleaning
@@ -88,6 +90,11 @@ See below for details.
 
 * Updated the FERC company identifiers to the October 2026 release. See issue
   [#5742](https://github.com/catalyst-cooperative/pudl/issues/5742) and PR [#5743](https://github.com/catalyst-cooperative/pudl/pull/5743).
+
+#### FERC EQR
+
+* Added full 2026Q3 data for [FERC EQR](data_sources/ferceqr.md). See issue
+  [#5745](https://github.com/catalyst-cooperative/pudl/issues/5745) and PR [#5746](https://github.com/catalyst-cooperative/pudl/pull/5746).
 
 #### FERC Forms 2 and 6
 
@@ -182,6 +189,12 @@ See below for details.
   It also removes empty `valid_until_date` intervals, and ensures every series ends
   on the same date – one month past the entity’s final report date. See [#5730](https://github.com/catalyst-cooperative/pudl/issues/5730)
   and [#5731](https://github.com/catalyst-cooperative/pudl/pull/5731).
+* Fixed downstream effects of the FERC EQR datapackage refactor. PUDL `sources` again
+  list sources without tables (e.g. `ferc2`), stale resource source IDs (`rus`,
+  `ferc`, `censusdp1`) were corrected, `censuspep` and `eia860m` were added
+  where used, and `eiawater` and `mshamines` moved to `pudl-archiver`. Production
+  FERC EQR builds now also redeploy the Eel Hole data viewer, as PUDL builds do. See
+  [#5746](https://github.com/catalyst-cooperative/pudl/pull/5746).
 
 ### Developer Experience
 

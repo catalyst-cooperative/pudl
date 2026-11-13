@@ -15,6 +15,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/pudl/deploy/github/index
    /autoapi/pudl/deploy/pudl/index
    /autoapi/pudl/deploy/s3_transfer/index
    /autoapi/pudl/deploy/zenodo_metadata/index

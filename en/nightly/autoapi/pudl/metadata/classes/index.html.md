@@ -4,21 +4,22 @@ Metadata data classes.
 
 ## Attributes
 
-| [`logger`](#pudl.metadata.classes.logger)           |                                                                                                                        |
-|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| [`String`](#pudl.metadata.classes.String)           | Non-empty [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) with no trailing or leading whitespace.        |
-| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)        | Snake-case variable name [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
-| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)      | Positive [`int`](https://docs.python.org/3/builtins/functions.html#int).                                               |
-| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)    | Positive [`float`](https://docs.python.org/3/builtins/functions.html#float).                                           |
-| [`T`](#pudl.metadata.classes.T)                |                                                                                                                        |
-| [`StrictList`](#pudl.metadata.classes.StrictList)       | Non-empty [`list`](https://docs.python.org/3/builtins/stdtypes.html#list).                                             |
-| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)   | Canonical field namespace identifiers used by PUDL resources.                                                          |
-| [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                            |
-| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                                |
-| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                  |
-| [`FERCEQR_PACKAGE`](#pudl.metadata.classes.FERCEQR_PACKAGE)  |                                                                                                                        |
-| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                                |
-| [`DATAPACKAGES`](#pudl.metadata.classes.DATAPACKAGES)     | Registry of every datapackage PUDL distributes, keyed by package name.                                                 |
+| [`logger`](#pudl.metadata.classes.logger)                      |                                                                                                                        |
+|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [`String`](#pudl.metadata.classes.String)                      | Non-empty [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) with no trailing or leading whitespace.        |
+| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)                   | Snake-case variable name [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
+| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)                 | Positive [`int`](https://docs.python.org/3/builtins/functions.html#int).                                               |
+| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)               | Positive [`float`](https://docs.python.org/3/builtins/functions.html#float).                                           |
+| [`T`](#pudl.metadata.classes.T)                           |                                                                                                                        |
+| [`StrictList`](#pudl.metadata.classes.StrictList)                  | Non-empty [`list`](https://docs.python.org/3/builtins/stdtypes.html#list).                                             |
+| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)              | Canonical field namespace identifiers used by PUDL resources.                                                          |
+| [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES)            | All valid PUDL field namespace identifiers.                                                                            |
+| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)                    | Canonical ETL group identifiers used by PUDL resources.                                                                |
+| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)                  | All valid PUDL ETL group identifiers.                                                                                  |
+| [`FERCEQR_PACKAGE`](#pudl.metadata.classes.FERCEQR_PACKAGE)             |                                                                                                                        |
+| [`PUDL_SOURCES_WITHOUT_TABLES`](#pudl.metadata.classes.PUDL_SOURCES_WITHOUT_TABLES) | Data sources that are part of PUDL but have no tables in the PUDL package (yet).                                       |
+| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)                | Define a global PUDL package object for use across the entire codebase.                                                |
+| [`DATAPACKAGES`](#pudl.metadata.classes.DATAPACKAGES)                | Registry of every datapackage PUDL distributes, keyed by package name.                                                 |
 
 ## Classes
 
@@ -1609,7 +1610,7 @@ Package out of a collection of Resources, we want the Package to reflect the
 union of all the analogous values found in the Resources, but we don’t want
 any duplicates. We may also get values directly from the Package inputs.
 
-#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), included_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'pudl') → [Package](#pudl.metadata.classes.Package)
+#### *classmethod* from_resource_ids(resource_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False, excluded_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), included_etl_groups: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = (), title: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, description: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, version: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None, name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) = 'pudl', extra_source_ids: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...] = ()) → [Package](#pudl.metadata.classes.Package)
 
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
@@ -1634,6 +1635,15 @@ the full collection of PUDL tables.
   * **description** – Human-readable description of the package.
   * **version** – Version string for the package.
   * **name** – Name of the datapackage.
+  * **extra_source_ids** – Data source IDs (keys of
+    [`pudl.metadata.sources.SOURCES`](../sources/index.html.md#pudl.metadata.sources.SOURCES)) to list in the package
+    level `sources` in addition to those compiled from the resources,
+    e.g. sources that are part of PUDL but have no tables yet. Needs to
+    be a tuple so that it is hashable for `lru_cache`.
+
+#### *static* \_extra_source_dicts(source_ids: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)]
+
+Look up explicitly requested data sources, rejecting unknown IDs.
 
 #### *static* get_etl_group_tables(etl_group: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
@@ -1696,12 +1706,23 @@ Clean up all coded columns in a dataframe based on PUDL coding tables.
 
 Convert to a Frictionless Datapackage.
 
-The datapackage describes every resource in this package. Its sources,
-contributors, licenses and keywords are compiled from just those resources, so
-a package like `ferceqr`, which is distributed separately from the rest of
-PUDL, gets an independent descriptor that lists only what it uses.
+The datapackage describes every resource in this package. Its contributors,
+licenses and keywords are compiled from just those resources, so a package like
+`ferceqr`, which is distributed separately from the rest of PUDL, gets an
+independent descriptor that lists only what it uses. Its sources are
+[`sources`](#pudl.metadata.classes.Package.sources): those compiled from the resources plus any listed explicitly
+when the package was built (see `extra_source_ids` in
+[`from_resource_ids()`](#pudl.metadata.classes.Package.from_resource_ids)).
 
 ### pudl.metadata.classes.FERCEQR_PACKAGE
+
+### pudl.metadata.classes.PUDL_SOURCES_WITHOUT_TABLES *: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), ...]* *= ('eia757a', 'ferc2', 'ferc6', 'ferc60')*
+
+Data sources that are part of PUDL but have no tables in the PUDL package (yet).
+
+They are listed explicitly in the package level `sources` so that downstream
+consumers of the metadata still learn about them. `ferceqr` is deliberately absent:
+it is distributed as its own package.
 
 ### pudl.metadata.classes.PUDL_PACKAGE
 

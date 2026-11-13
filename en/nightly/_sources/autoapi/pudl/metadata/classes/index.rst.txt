@@ -26,6 +26,7 @@ Attributes
    pudl.metadata.classes.EtlGroup
    pudl.metadata.classes.ETL_GROUPS
    pudl.metadata.classes.FERCEQR_PACKAGE
+   pudl.metadata.classes.PUDL_SOURCES_WITHOUT_TABLES
    pudl.metadata.classes.PUDL_PACKAGE
    pudl.metadata.classes.DATAPACKAGES
 
@@ -2269,7 +2270,7 @@ Module Contents
 
 
 
-   .. py:method:: from_resource_ids(resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str, ...] = (), included_etl_groups: tuple[str, ...] = (), title: str | None = None, description: str | None = None, version: str | None = None, name: str = 'pudl') -> Package
+   .. py:method:: from_resource_ids(resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str, ...] = (), included_etl_groups: tuple[str, ...] = (), title: str | None = None, description: str | None = None, version: str | None = None, name: str = 'pudl', extra_source_ids: tuple[str, ...] = ()) -> Package
       :classmethod:
 
 
@@ -2295,6 +2296,19 @@ Module Contents
       :param description: Human-readable description of the package.
       :param version: Version string for the package.
       :param name: Name of the datapackage.
+      :param extra_source_ids: Data source IDs (keys of
+                               :py:const:`pudl.metadata.sources.SOURCES`) to list in the package
+                               level ``sources`` in addition to those compiled from the resources,
+                               e.g. sources that are part of PUDL but have no tables yet. Needs to
+                               be a tuple so that it is hashable for ``lru_cache``.
+
+
+
+   .. py:method:: _extra_source_dicts(source_ids: collections.abc.Iterable[str]) -> list[dict]
+      :staticmethod:
+
+
+      Look up explicitly requested data sources, rejecting unknown IDs.
 
 
 
@@ -2372,14 +2386,28 @@ Module Contents
 
       Convert to a Frictionless Datapackage.
 
-      The datapackage describes every resource in this package. Its sources,
-      contributors, licenses and keywords are compiled from just those resources, so
-      a package like ``ferceqr``, which is distributed separately from the rest of
-      PUDL, gets an independent descriptor that lists only what it uses.
+      The datapackage describes every resource in this package. Its contributors,
+      licenses and keywords are compiled from just those resources, so a package like
+      ``ferceqr``, which is distributed separately from the rest of PUDL, gets an
+      independent descriptor that lists only what it uses. Its sources are
+      :attr:`sources`: those compiled from the resources plus any listed explicitly
+      when the package was built (see ``extra_source_ids`` in
+      :meth:`from_resource_ids`).
 
 
 
 .. py:data:: FERCEQR_PACKAGE
+
+.. py:data:: PUDL_SOURCES_WITHOUT_TABLES
+   :type:  tuple[str, ...]
+   :value: ('eia757a', 'ferc2', 'ferc6', 'ferc60')
+
+
+   Data sources that are part of PUDL but have no tables in the PUDL package (yet).
+
+   They are listed explicitly in the package level ``sources`` so that downstream
+   consumers of the metadata still learn about them. ``ferceqr`` is deliberately absent:
+   it is distributed as its own package.
 
 .. py:data:: PUDL_PACKAGE
 
