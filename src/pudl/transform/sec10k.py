@@ -166,7 +166,7 @@ def _standardize_company_name(col: pd.Series) -> pd.Series:
         ],
         legal_term_location=2,
     )
-    col = company_name_cleaner.apply_name_cleaning(col).str.strip()
+    col = company_name_cleaner.clean_series(col).str.strip()
     col = col.replace("", pd.NA)
 
     return col
@@ -184,7 +184,7 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
     legal_term_remover = name_cleaner.CompanyNameCleaner(
         cleaning_rules_list=[], handle_legal_terms=2
     )
-    clean_col = legal_term_remover.apply_name_cleaning(col).str.strip()
+    clean_col = legal_term_remover.clean_series(col).str.strip()
     # some common bad names that aren't removed by the legal term remover
     clean_col = clean_col.replace(
         [

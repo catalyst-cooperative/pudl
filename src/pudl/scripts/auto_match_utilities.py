@@ -40,8 +40,9 @@ UTILITY_NAME_CLEANER = name_cleaner.CompanyNameCleaner(
 def clean_utility_name(col):
     """Apply standard cleaning steps to the utility name column."""
     col = col.fillna(pd.NA).str.strip().str.lower()
-    col = UTILITY_NAME_CLEANER.apply_name_cleaning(col).str.strip()
-    col = col.replace("", pd.NA)
+    col = UTILITY_NAME_CLEANER.clean_series(col).str.strip()
+    # pandas-stubs' Series.replace() does not accept pd.NA as a replacement value.
+    col = col.replace("", pd.NA)  # type: ignore[no-matching-overload]
     return col
 
 

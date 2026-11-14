@@ -276,14 +276,10 @@ class NameCleaner(TransformStep):
 
     name: str = "name_cleaner"
     company_cleaner: CompanyNameCleaner = CompanyNameCleaner(legal_term_location=2)
-    return_as_dframe: bool = False
 
     def as_transformer(self):
         """Return configured CompanyNameCleaner."""
-        return FunctionTransformer(
-            self.company_cleaner.apply_name_cleaning,
-            kw_args={"return_as_dframe": self.return_as_dframe},
-        )
+        return FunctionTransformer(self.company_cleaner.clean_dataframe)
 
 
 class FuelTypeFiller(TransformStep):
