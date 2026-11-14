@@ -183,7 +183,7 @@ def dataframe_cleaner_factory(
             A DataFrame with one column per transformer, named after the
             transformer key (i.e. the key from the ``vectorizers`` dict).
         """
-        result = transformer.transform(df)
+        result: object = transformer.transform(df)
         assert isinstance(result, pd.DataFrame)  # set_output(transform="pandas")
         result.columns = list(vectorizers.keys())
         return result

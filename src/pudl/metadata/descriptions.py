@@ -407,7 +407,7 @@ class ResourceDescriptionBuilder:
             # first fallback: use row counts file
             ResourceDescriptionBuilder.compute_rowcounts_availability(self.resource_id),
             # second fallback: use source partitions, but only if there's only one source
-            str(source_availabilities[0])
+            source_availabilities[0]
             if (
                 (len(source_availabilities) == 1)
                 and source_availabilities[0] is not None

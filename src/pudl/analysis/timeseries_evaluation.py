@@ -136,7 +136,7 @@ def plot_correlation(
             end_date=end_date,
             time_col=time_col,
         )
-        label = "-".join(str(idx)) if isinstance(idx, tuple) else str(idx)
+        label = "-".join(str(idx)) if isinstance(idx, tuple) else idx
         plt.scatter(
             filtered[timeseries_x],
             filtered[timeseries_y],
