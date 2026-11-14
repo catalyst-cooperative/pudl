@@ -509,7 +509,11 @@ def core_phmsagas__yearly_distribution_operators(
             df[state_col]
             .str.strip()
             .replace(state_to_abbr)
-            .where(df[state_col].isin(state_to_abbr.values()), pd.NA)
+            # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+            .where(
+                df[state_col].isin(state_to_abbr.values()),
+                pd.NA,  # type: ignore[bad-argument-type]
+            )
         )
 
     # Standardize zip codes

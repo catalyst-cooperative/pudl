@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA860m data tables."""
 
+from typing import cast
+
 import pandas as pd
 from dagster import asset
 
@@ -57,21 +59,27 @@ def core_eia860m__changelog_generators(
             ]
         ]
     )
-    eia860m_all = _core_eia860__generators(
-        raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
-        raw_eia860__generator_existing=raw_eia860m__generator_existing,
-        raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
-            # pandas-stubs' DataFrame.assign() does not accept pd.NA.
-            operational_status_code=pd.NA  # type: ignore[bad-argument-type]
+    # Calling an asset directly runs its function, but the decorator types the result
+    # as object, so we tell the type checker that it is the dataframe that it returns.
+    eia860_generators = cast(
+        pd.DataFrame,
+        _core_eia860__generators(
+            raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
+            raw_eia860__generator_existing=raw_eia860m__generator_existing,
+            raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
+                # pandas-stubs does not accept a scalar pd.NA as an assigned value.
+                operational_status_code=pd.NA  # type: ignore[bad-argument-type]
+            ),
+            # pass an empty generator df here. 860 old years had one big gens tab
+            # but 860m doesn't. we do this just to enable us to run the 860 transform
+            # function. We add all of the columns to it so we don't have any errors
+            # from missing columns
+            raw_eia860__generator=pd.DataFrame(
+                columns=list(eia860_columns)
+            ).convert_dtypes(),
         ),
-        # pass an empty generator df here. 860 old years had one big gens tab
-        # but 860m doesn't. we do this just to enable us to run the 860 transform
-        # function. We add all of the columns to it so we don't have any errors
-        # from missing columns
-        raw_eia860__generator=pd.DataFrame(
-            columns=list(eia860_columns)
-        ).convert_dtypes(),
-    ).assign(
+    )
+    eia860m_all = eia860_generators.assign(
         # In order to be able to compare the values in this table to those reported
         # elsewhere, we need to translate these categories to the associated codes, as
         # the strings associated with the codes vary from table to table. See the
