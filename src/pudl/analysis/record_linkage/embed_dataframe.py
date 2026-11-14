@@ -277,13 +277,22 @@ class NameCleaner(TransformStep):
     name: str = "name_cleaner"
     company_cleaner: CompanyNameCleaner = CompanyNameCleaner(legal_term_location=2)
     return_as_dframe: bool = False
+    """Whether to return a dataframe, rather than a Series of the cleaned names.
+
+    The vectorizers that follow a name cleaner in an embedding pipeline need a Series.
+    A dataframe is needed by the cleaning pipeline, which builds a dataframe with a
+    column for the output of each of its steps.
+    """
+
+    def _clean_names_as_series(self, df: pd.DataFrame) -> pd.Series:
+        """Clean the names in the one column of a dataframe, and return them as a Series."""
+        return self.company_cleaner.clean_series(df.iloc[:, 0])
 
     def as_transformer(self):
         """Return configured CompanyNameCleaner."""
-        return FunctionTransformer(
-            self.company_cleaner.apply_name_cleaning,
-            kw_args={"return_as_dframe": self.return_as_dframe},
-        )
+        if self.return_as_dframe:
+            return FunctionTransformer(self.company_cleaner.clean_dataframe)
+        return FunctionTransformer(self._clean_names_as_series)
 
 
 class FuelTypeFiller(TransformStep):

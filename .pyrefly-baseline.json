@@ -11,21 +11,6 @@
       "concise_description": "Argument `Categorical | polars.datatypes.classes.DataType | ExtensionDtype | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`"
     },
     {
-      "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Series[str]` is not assignable to parameter `df` with type `DataFrame` in function `pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `Series` is not assignable to parameter `df` with type `DataFrame` in function `pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning`"
-    },
-    {
       "path": "src/pudl/dagster/io_managers.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`"
@@ -109,11 +94,6 @@
       "path": "src/pudl/extract/dbf.py",
       "name": "bad-return",
       "concise_description": "Returned type `FercDbfReader` is not assignable to declared return type `AbstractFercDbfReader`"
-    },
-    {
-      "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
     },
     {
       "path": "src/pudl/extract/excel.py",

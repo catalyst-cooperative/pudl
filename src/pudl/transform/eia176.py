@@ -683,7 +683,7 @@ def core_eia176__yearly_gas_imports(
     assert len(mismatches) <= 2, "More than 2 line 300 total mismatches"
 
     # Clean supplier name and map a few values to N/A
-    df["supplier_name"] = name_cleaner.get_clean_data(df["supplier_name"])
+    df["supplier_name"] = name_cleaner.clean_series(df["supplier_name"])
     df["supplier_name"] = df["supplier_name"].replace(list(UNKNOWN_TYPES), pd.NA)
 
     return df.sort_values(
@@ -823,7 +823,7 @@ def core_eia176__yearly_gas_exports(
     )
     assert len(mismatches) <= 4, "More than 4 line 1400 total mismatches"
 
-    df["recipient_name"] = name_cleaner.get_clean_data(df["recipient_name"])
+    df["recipient_name"] = name_cleaner.clean_series(df["recipient_name"])
     df["recipient_name"] = df["recipient_name"].replace(list(UNKNOWN_TYPES), pd.NA)
 
     return df.sort_values(
