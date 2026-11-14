@@ -141,13 +141,9 @@ Returns list of all available table names.
 
 Returns single archive matching specific filters.
 
-#### get_table_schema(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), year: [int](https://docs.python.org/3/builtins/functions.html#int)) → [DbfTableSchema](#pudl.extract.dbf.DbfTableSchema)
+#### load_table_dfs(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]) → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[PartitionedDataFrame](#pudl.extract.dbf.PartitionedDataFrame)]
 
-Returns schema for a given table and a given year.
-
-#### load_table_dfs(table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partitions: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), Any]]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/builtins/constants.html#None)
-
-Returns dataframe that contains data for a given table across given years.
+Returns the dataframes that contain data for a given table by partition.
 
 ### *class* pudl.extract.dbf.FercFieldParser(table, memofile=None)
 
@@ -228,9 +224,13 @@ Return the name of the dataset this datastore works with.
 
 Open the given resource file as [`csv.DictReader`](https://docs.python.org/3/library/csv.html#csv.DictReader).
 
-#### get_archive(year: [int](https://docs.python.org/3/builtins/functions.html#int), \*\*filters) → [FercDbfArchive](#pudl.extract.dbf.FercDbfArchive)
+#### get_archive(\*\*filters) → [FercDbfArchive](#pudl.extract.dbf.FercDbfArchive)
 
 Returns single dbf archive matching given filters.
+
+* **Parameters:**
+  **filters** – The partition of the archive. It must include `year`, which
+  selects the DBC file that describes the archive’s schema.
 
 #### get_table_names() → [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
@@ -310,7 +310,7 @@ Returns dataset relevant data configuration from ferc_to_sqlite_data_config.
 
 Returns appropriate instance of AbstractFercDbfReader to access the data.
 
-#### get_db_path() → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+#### get_db_path() → [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 Returns the path to the sqlite database.
 

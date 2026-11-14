@@ -207,15 +207,9 @@ Module Contents
 
 
 
-   .. py:method:: get_table_schema(table_name: str, year: int) -> DbfTableSchema
+   .. py:method:: load_table_dfs(table_name: str, partitions: list[dict[str, Any]]) -> list[PartitionedDataFrame]
 
-      Returns schema for a given table and a given year.
-
-
-
-   .. py:method:: load_table_dfs(table_name: str, partitions: list[dict[str, Any]]) -> pandas.DataFrame | None
-
-      Returns dataframe that contains data for a given table across given years.
+      Returns the dataframes that contain data for a given table by partition.
 
 
 
@@ -315,9 +309,12 @@ Module Contents
 
 
 
-   .. py:method:: get_archive(year: int, **filters) -> FercDbfArchive
+   .. py:method:: get_archive(**filters) -> FercDbfArchive
 
       Returns single dbf archive matching given filters.
+
+      :param filters: The partition of the archive. It must include ``year``, which
+                      selects the DBC file that describes the archive's schema.
 
 
 
@@ -428,7 +425,7 @@ Module Contents
 
 
 
-   .. py:method:: get_db_path() -> str
+   .. py:method:: get_db_path() -> pathlib.Path
 
       Returns the path to the sqlite database.
 

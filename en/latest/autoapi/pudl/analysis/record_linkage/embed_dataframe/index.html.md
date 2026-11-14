@@ -182,6 +182,16 @@ Implement ColumnTransformation for CompanyNameCleaner.
 
 #### return_as_dframe *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
+Whether to return a dataframe, rather than a Series of the cleaned names.
+
+The vectorizers that follow a name cleaner in an embedding pipeline need a Series.
+A dataframe is needed by the cleaning pipeline, which builds a dataframe with a
+column for the output of each of its steps.
+
+#### \_clean_names_as_series(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+
+Clean the names in the one column of a dataframe, and return them as a Series.
+
 #### as_transformer()
 
 Return configured CompanyNameCleaner.

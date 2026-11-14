@@ -204,7 +204,7 @@ Module Contents
    research of the plants on the Internet.
 
 .. py:data:: PLANT_TYPE_CATEGORIES_HYDRO
-   :type:  dict[str, set[str]]
+   :type:  dict[str, dict[str, set[str]]]
 
    A mapping from canonical plant kinds (keys) to the associated freeform strings
    (values) identified as being associated with that kind of plant in the FERC Form 1 Hydro

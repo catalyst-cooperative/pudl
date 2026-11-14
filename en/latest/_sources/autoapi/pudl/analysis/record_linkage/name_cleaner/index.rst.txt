@@ -249,7 +249,7 @@ Module Contents
 
 
 
-   .. py:method:: get_clean_data(col: pandas.Series) -> pandas.Series
+   .. py:method:: clean_series(col: pandas.Series) -> pandas.Series
 
       Clean names and normalize legal terms.
 
@@ -259,18 +259,13 @@ Module Contents
 
 
 
-   .. py:method:: apply_name_cleaning(df: pandas.DataFrame, return_as_dframe: bool = False) -> pandas.DataFrame
+   .. py:method:: clean_dataframe(df: pandas.DataFrame) -> pandas.DataFrame
 
-      Clean up text names in a dataframe.
+      Clean up the text names in each column of a dataframe.
 
-      :param df: the input dataframe that contains the text's name to be cleaned.
-      :param return_as_dframe: whether to return the cleaned data as a dataframe or
-                               series. Useful to return as a dataframe if used in a cleaning pipeline
-                               with no vectorization step after name cleaning. If multiple columns are
-                               passed in for cleaning then output will be a dataframe regardless of
-                               this parameter.
+      :param df: the input dataframe, whose columns contain the names to be cleaned.
 
-      :returns: A clean version of the input dataframe.
+      :returns: A dataframe with the same index and columns, containing the cleaned names.
 
 
 

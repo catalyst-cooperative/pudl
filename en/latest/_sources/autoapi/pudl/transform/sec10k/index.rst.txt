@@ -52,7 +52,7 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:function:: _year_quarter_to_date(year_quarter: pandas.Series) -> pandas.Series
+.. py:function:: _year_quarter_to_date(year_quarter: pandas.Series) -> pandas.DatetimeIndex
 
    Convert a year quarter in the format '2024q1' to date type.
 

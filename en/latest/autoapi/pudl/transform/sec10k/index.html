@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.transform.sec10k &#8212; PUDL 2026.11.1.dev3 documentation</title>
+    <title>pudl.transform.sec10k &#8212; PUDL 2026.11.1.dev4 documentation</title>
   
   
   
@@ -44,7 +44,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=7e24c9f5" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -52,10 +52,10 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=ac740541"></script>
+    <script src="../../../../_static/documentation_options.js?v=445744f1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../../_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/transform/sec10k/index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev4 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev4 documentation - Home"/>
   
   
 </a></div>
@@ -824,7 +824,7 @@ for denormalized output tables.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.sec10k._year_quarter_to_date" title="pudl.transform.sec10k._year_quarter_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_year_quarter_to_date</span></code></a>(year_quarter) → pandas.Series</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.sec10k._year_quarter_to_date" title="pudl.transform.sec10k._year_quarter_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_year_quarter_to_date</span></code></a>(year_quarter) → pandas.DatetimeIndex</p></td>
 <td><p>Convert a year quarter in the format '2024q1' to date type.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.sec10k._simplify_filename_sec10k" title="pudl.transform.sec10k._simplify_filename_sec10k"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_simplify_filename_sec10k</span></code></a>(filename_sec10k) → pandas.Series</p></td>
@@ -894,7 +894,7 @@ for denormalized output tables.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.sec10k._year_quarter_to_date">
-<span class="sig-prename descclassname"><span class="pre">pudl.transform.sec10k.</span></span><span class="sig-name descname"><span class="pre">_year_quarter_to_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_quarter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/sec10k.html#_year_quarter_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.sec10k._year_quarter_to_date" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.sec10k.</span></span><span class="sig-name descname"><span class="pre">_year_quarter_to_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_quarter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DatetimeIndex.html#pandas.DatetimeIndex" title="(in pandas v3.1)"><span class="pre">pandas.DatetimeIndex</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/sec10k.html#_year_quarter_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.sec10k._year_quarter_to_date" title="Link to this definition">#</a></dt>
 <dd><p>Convert a year quarter in the format ‘2024q1’ to date type.</p>
 </dd></dl>
 

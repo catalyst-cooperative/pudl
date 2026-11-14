@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.embed_dataframe &#8212; PUDL 2026.11.1.dev3 documentation</title>
+    <title>pudl.analysis.record_linkage.embed_dataframe &#8212; PUDL 2026.11.1.dev4 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=7e24c9f5" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -48,10 +48,10 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=ac740541"></script>
+    <script src="../../../../_static/documentation_options.js?v=445744f1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../../_static/design-tabs.js?v=fcb327ea"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
 
 
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev4 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev4 documentation - Home"/>
   
   
 </a></div>
@@ -874,6 +874,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1053,7 +1054,9 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@op</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name_prefix</span><span class="si">}</span><span class="s2">_apply"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">apply_dataframe_embedder</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">transformer</span><span class="p">:</span> <span class="n">ColumnTransformer</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Use :class:`sklearn.compose.ColumnTransformer` to transform input."""</span>
-        <span class="k">return</span> <span class="n">FeatureMatrix</span><span class="p">(</span><span class="n">matrix</span><span class="o">=</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="c1"># ColumnTransformer returns a CSR matrix when the output is mostly sparse.</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">FeatureMatrix</span><span class="p">(</span><span class="n">matrix</span><span class="o">=</span><span class="n">matrix</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
     <span class="nd">@graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name_prefix</span><span class="si">}</span><span class="s2">_embed_graph"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">embed_dataframe_graph</span><span class="p">(</span>
@@ -1085,7 +1088,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">column_transform</span><span class="o">.</span><span class="n">as_pipeline</span><span class="p">(),</span> <span class="n">column_transform</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">column_transform</span> <span class="ow">in</span> <span class="n">vectorizers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">],</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">set_output</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Modifies the transformer in place, and returns it as a BaseEstimator.</span>
+        <span class="n">column_transformer</span><span class="o">.</span><span class="n">set_output</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">column_transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
@@ -1098,6 +1103,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            transformer key (i.e. the key from the ``vectorizers`` dict).</span>
 <span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>  <span class="c1"># set_output(transform="pandas")</span>
         <span class="n">result</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vectorizers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">result</span>
 
@@ -1265,15 +1271,27 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.return_as_dframe">[docs]</a>
     <span class="n">return_as_dframe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
+<span class="w">    </span><span class="sd">"""Whether to return a dataframe, rather than a Series of the cleaned names.</span>
+
+<span class="sd">    The vectorizers that follow a name cleaner in an embedding pipeline need a Series.</span>
+<span class="sd">    A dataframe is needed by the cleaning pipeline, which builds a dataframe with a</span>
+<span class="sd">    column for the output of each of its steps.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="NameCleaner._clean_names_as_series">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html#pudl.analysis.record_linkage.embed_dataframe.NameCleaner._clean_names_as_series">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clean_names_as_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clean the names in the one column of a dataframe, and return them as a Series."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">company_cleaner</span><span class="o">.</span><span class="n">clean_series</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span></div>
+
 
 <div class="viewcode-block" id="NameCleaner.as_transformer">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.as_transformer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">as_transformer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Return configured CompanyNameCleaner."""</span>
-        <span class="k">return</span> <span class="n">FunctionTransformer</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">company_cleaner</span><span class="o">.</span><span class="n">apply_name_cleaning</span><span class="p">,</span>
-            <span class="n">kw_args</span><span class="o">=</span><span class="p">{</span><span class="s2">"return_as_dframe"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_as_dframe</span><span class="p">},</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_as_dframe</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">company_cleaner</span><span class="o">.</span><span class="n">clean_dataframe</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_clean_names_as_series</span><span class="p">)</span></div>
 </div>
 
 

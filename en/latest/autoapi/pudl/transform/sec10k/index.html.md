@@ -13,7 +13,7 @@ for denormalized output tables.
 
 ## Functions
 
-| [`_year_quarter_to_date`](#pudl.transform.sec10k._year_quarter_to_date)(year_quarter) → pandas.Series                                 | Convert a year quarter in the format '2024q1' to date type.                          |
+| [`_year_quarter_to_date`](#pudl.transform.sec10k._year_quarter_to_date)(year_quarter) → pandas.DatetimeIndex                          | Convert a year quarter in the format '2024q1' to date type.                          |
 |--------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | [`_simplify_filename_sec10k`](#pudl.transform.sec10k._simplify_filename_sec10k)(filename_sec10k) → pandas.Series                          | Strip non-unique path and file type extension from partial SEC 10-K filenames.       |
 | [`_extract_filer_cik_from_filename`](#pudl.transform.sec10k._extract_filer_cik_from_filename)(filename_col) → pandas.Series                      | Extract filer company's central index key from the first token of filename.          |
@@ -38,7 +38,7 @@ for denormalized output tables.
 
 ### pudl.transform.sec10k.logger
 
-### pudl.transform.sec10k.\_year_quarter_to_date(year_quarter: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+### pudl.transform.sec10k.\_year_quarter_to_date(year_quarter: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.DatetimeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DatetimeIndex.html#pandas.DatetimeIndex)
 
 Convert a year quarter in the format ‘2024q1’ to date type.
 

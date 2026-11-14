@@ -160,7 +160,7 @@ Apply the normalization of legal terms according to dictionary of regex rules.
 
 Remove legal terms from a string.
 
-#### get_clean_data(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
+#### clean_series(col: [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)) → [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)
 
 Clean names and normalize legal terms.
 
@@ -169,16 +169,11 @@ Clean names and normalize legal terms.
 * **Returns:**
   A the clean version of the column.
 
-#### apply_name_cleaning(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), return_as_dframe: [bool](https://docs.python.org/3/builtins/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### clean_dataframe(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Clean up text names in a dataframe.
+Clean up the text names in each column of a dataframe.
 
 * **Parameters:**
-  * **df** – the input dataframe that contains the text’s name to be cleaned.
-  * **return_as_dframe** – whether to return the cleaned data as a dataframe or
-    series. Useful to return as a dataframe if used in a cleaning pipeline
-    with no vectorization step after name cleaning. If multiple columns are
-    passed in for cleaning then output will be a dataframe regardless of
-    this parameter.
+  **df** – the input dataframe, whose columns contain the names to be cleaned.
 * **Returns:**
-  A clean version of the input dataframe.
+  A dataframe with the same index and columns, containing the cleaned names.

@@ -127,7 +127,7 @@ these PUDL-assigned ID’s can be accessed in the database tables
   an augmented version of the input `df` with a new column that replaces
   the natively reported respondent ID with the PUDL-assigned respondent ID.
 
-### pudl.transform.ferc714.\_filter_for_freshest_data_xbrl(raw_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), instant_or_duration: Literal['instant', 'duration'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/builtins/constants.html#None) = None)
+### pudl.transform.ferc714.\_filter_for_freshest_data_xbrl(raw_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/builtins/stdtypes.html#str), instant_or_duration: Literal['instant', 'duration'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths))
 
 Wrapper around filter_for_freshest_data_xbrl.
 
