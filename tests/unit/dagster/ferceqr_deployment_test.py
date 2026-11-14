@@ -4,7 +4,7 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 import dagster as dg
 import pytest
@@ -743,8 +743,10 @@ def test_is_production_target(path, expected):
     assert deploy_ferceqr._is_production_target(UPath(path)) is expected
 
 
-def _targets(*paths: str):
-    return [SimpleNamespace(final=UPath(p)) for p in paths]
+def _targets(*paths: str) -> list[deploy_ferceqr._DeploymentTarget]:
+    return [
+        deploy_ferceqr._DeploymentTarget(final=UPath(p), build_id="test") for p in paths
+    ]
 
 
 def test_redeploy_eel_hole_triggers_for_production_target(mocker):
@@ -830,8 +832,11 @@ def test_deploy_ferceqr_reports_eel_hole_outcome(mocker, tmp_path):
         deploy_ferceqr, "build_ferceqr_notification", return_value="message"
     )
 
-    result = deploy_ferceqr.deploy_ferceqr(deploy_context)
+    # Calling an asset directly runs its function, but the decorator types the result
+    # as object, so we tell the type checker what the function actually returns.
+    result = cast(dg.MaterializeResult, deploy_ferceqr.deploy_ferceqr(deploy_context))
 
     assert notification.call_args.kwargs["eel_hole"] == "FAILED"
+    assert result.metadata is not None
     assert result.metadata["eel_hole"] == "FAILED"
     assert (tmp_path / "FERCEQR_SUCCESS").exists()

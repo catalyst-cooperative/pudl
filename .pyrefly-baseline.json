@@ -21,11 +21,6 @@
       "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
     },
     {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `PudlPaths | None` is not assignable to parameter `pudl_paths` with type `PudlPaths` in function `pudl.transform.ferc.get_primary_key_raw_xbrl`"
-    },
-    {
       "path": "src/pudl/transform/sec10k.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `Series[str]` is not assignable to parameter `df` with type `DataFrame` in function `pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning`"
@@ -66,21 +61,6 @@
       "concise_description": "Argument `str` is not assignable to parameter `db_path` with type `Path` in function `convert_db_into_parquet`"
     },
     {
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['Electricity : Electric Power Sector : Capacity'], Literal['Electricity : Electric Power Sector : Generation'], Literal['Electricity : Electric Power Sector : Cumulative Retirements'], Literal['Electricity : Electric Power Sector : Cumulative Planned Additions'], Literal['Electricity : Electric Power Sector : Cumulative Unplanned Additions'], Literal['Electricity : Electric Power Sector : Cumulative Total Additions']]` is not assignable to parameter `relevant_series_names` with type `tuple[str]` in function `filter_enrich_sanitize`"
-    },
-    {
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['Electricity : End-Use Sectors : Capacity'], Literal['Electricity : End-Use Sectors : Generation']]` is not assignable to parameter `relevant_series_names` with type `tuple[str]` in function `filter_enrich_sanitize`"
-    },
-    {
-      "path": "src/pudl/transform/eiaaeo.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `tuple[Literal['Energy Use : Commercial'], Literal['Energy Use : Electric Power'], Literal['Energy Use : Industrial'], Literal['Energy Use : Residential'], Literal['Energy Use : Total'], Literal['Energy Use : Transportation'], Literal['Energy Use : Unspecified']]` is not assignable to parameter `relevant_series_names` with type `tuple[str]` in function `filter_enrich_sanitize`"
-    },
-    {
       "path": "src/pudl/extract/excel.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `ExcelExtractor.METADATA` overrides parent class `GenericExtractor` in an inconsistent manner"
@@ -97,11 +77,6 @@
     },
     {
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
-      "name": "bad-return",
-      "concise_description": "Generator function should return `Generator`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
       "name": "bad-return",
       "concise_description": "Generator function should return `Generator`"
     },
@@ -166,16 +141,6 @@
       "concise_description": "Object of class `GenericMetadata` has no attribute `get_skiprows`"
     },
     {
-      "path": "src/pudl/transform/eia176.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `Index` has no attribute `levels`"
-    },
-    {
-      "path": "src/pudl/extract/xbrl.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `NoneType` has no attribute `years`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `Path` has no attribute `endswith`"
@@ -189,11 +154,6 @@
       "path": "src/pudl/helpers.py",
       "name": "missing-attribute",
       "concise_description": "Object of class `ndarray` has no attribute `filled`"
-    },
-    {
-      "path": "src/pudl/transform/eia860m.py",
-      "name": "missing-attribute",
-      "concise_description": "Object of class `object` has no attribute `assign`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/embed_dataframe.py",
@@ -221,24 +181,9 @@
       "concise_description": "Returned type `FercDbfReader` is not assignable to declared return type `AbstractFercDbfReader`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `FercDbfToSqliteDataConfig | FercGenericXbrlToSqliteDataConfig | None` is not assignable to declared return type `FercDbfToSqliteDataConfig`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
       "name": "bad-return",
       "concise_description": "Returned type `Series` is not assignable to declared return type `DataFrame`"
-    },
-    {
-      "path": "src/pudl/extract/extractor.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `defaultdict[str, list[Unknown]]` is not assignable to declared return type `dict[str, DataFrame]`"
-    },
-    {
-      "path": "src/pudl/extract/vcerare.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `tuple[dict[Unknown, Unknown], ...]` is not assignable to declared return type `tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]`"
     },
     {
       "path": "src/pudl/extract/excel.py",
@@ -254,26 +199,6 @@
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
       "name": "unbound-name",
       "concise_description": "`all_multi_matches_list` may be uninitialized"
-    },
-    {
-      "path": "src/pudl/transform/params/ferc1.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`"
-    },
-    {
-      "path": "src/pudl/extract/gridpathratoolkit.py",
-      "name": "bad-assignment",
-      "concise_description": "`dict[str, str]` is not assignable to dict key `op_tags` with type `set[str] | str`"
-    },
-    {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "not-iterable",
-      "concise_description": "`in` is not supported between `Literal['control_id_eia']` and `Hashable`"
-    },
-    {
-      "path": "src/pudl/transform/eia860.py",
-      "name": "not-iterable",
-      "concise_description": "`not in` is not supported between `Literal['control_id_eia']` and `Hashable`"
     },
     {
       "path": "src/pudl/analysis/record_linkage/eia_ferc1_train.py",
