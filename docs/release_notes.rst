@@ -25,6 +25,13 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Validate that the margins and equities, long-term debt, noncurrent obligations,
+  current and accrued liabilities, and total liabilities and other credits in
+  :ref:`core_rus7__yearly_balance_sheet_liabilities` and
+  :ref:`out_rus7__yearly_balance_sheet_liabilities` equal the sum of their
+  subcomponents. Unapplied payments are subtracted from total long-term debt. See
+  :issue:`5760`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
