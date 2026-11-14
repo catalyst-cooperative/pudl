@@ -18,7 +18,7 @@ logger = logging_helpers.get_logger(__name__)
 ######################################################################
 ### Helper functions for cleaning and reshaping the SEC 10-K data. ###
 ######################################################################
-def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
+def _year_quarter_to_date(year_quarter: pd.Series) -> pd.DatetimeIndex:
     """Convert a year quarter in the format '2024q1' to date type."""
     return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
 
@@ -106,7 +106,8 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
     sic_name_zero = sic_df["industry_name_sic"].str.contains("0000").fillna(False)
     sic_df.loc[sic_name_zero, "industry_name_sic"] = pd.NA
     sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
-        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)
+        # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)  # type: ignore[bad-argument-type]
     )
     sic_id_zero = (sic_df["industry_id_sic"] == "0000").fillna(False)
     sic_df.loc[sic_id_zero, "industry_id_sic"] = pd.NA
@@ -165,7 +166,7 @@ def _standardize_company_name(col: pd.Series) -> pd.Series:
         ],
         legal_term_location=2,
     )
-    col = company_name_cleaner.apply_name_cleaning(col).str.strip()
+    col = company_name_cleaner.clean_series(col).str.strip()
     col = col.replace("", pd.NA)
 
     return col
@@ -183,7 +184,7 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
     legal_term_remover = name_cleaner.CompanyNameCleaner(
         cleaning_rules_list=[], handle_legal_terms=2
     )
-    clean_col = legal_term_remover.apply_name_cleaning(col).str.strip()
+    clean_col = legal_term_remover.clean_series(col).str.strip()
     # some common bad names that aren't removed by the legal term remover
     clean_col = clean_col.replace(
         [
@@ -204,7 +205,8 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
         ],
         pd.NA,
     )
-    return col.where(~clean_col.isnull(), pd.NA)
+    # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+    return col.where(~clean_col.isnull(), pd.NA)  # type: ignore[bad-argument-type]
 
 
 def _standardize_location(loc_col: pd.Series) -> pd.Series:

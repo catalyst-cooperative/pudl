@@ -298,7 +298,7 @@ class CompanyNameCleaner(BaseModel):
         clean_col = clean_col.str.strip(".,!?()':;[]* \n\t")
         return clean_col
 
-    def get_clean_data(self, col: pd.Series) -> pd.Series:
+    def clean_series(self, col: pd.Series) -> pd.Series:
         """Clean names and normalize legal terms.
 
         Arguments:
@@ -331,30 +331,13 @@ class CompanyNameCleaner(BaseModel):
 
         return clean_col
 
-    def apply_name_cleaning(
-        self, df: pd.DataFrame, return_as_dframe: bool = False
-    ) -> pd.DataFrame:
-        """Clean up text names in a dataframe.
+    def clean_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Clean up the text names in each column of a dataframe.
 
         Arguments:
-            df: the input dataframe that contains the text's name to be cleaned.
-            return_as_dframe: whether to return the cleaned data as a dataframe or
-                series. Useful to return as a dataframe if used in a cleaning pipeline
-                with no vectorization step after name cleaning. If multiple columns are
-                passed in for cleaning then output will be a dataframe regardless of
-                this parameter.
+            df: the input dataframe, whose columns contain the names to be cleaned.
 
         Returns:
-            A clean version of the input dataframe.
+            A dataframe with the same index and columns, containing the cleaned names.
         """
-        if isinstance(df, pd.DataFrame) and len(df.columns) > 1:
-            clean_df = pd.DataFrame()
-            for col in df.columns:
-                clean_df = pd.concat(
-                    [clean_df, self.get_clean_data(clean_df[col])], axis=1
-                )
-            return clean_df
-        out = self.get_clean_data(df.squeeze())
-        if return_as_dframe:
-            return out.to_frame()
-        return out
+        return pd.DataFrame({col: self.clean_series(df[col]) for col in df.columns})

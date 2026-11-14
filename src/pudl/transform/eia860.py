@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
+from typing import cast
+
 import numpy as np
 import pandas as pd
 from dagster import asset, asset_check
@@ -68,10 +70,13 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     # we'll be notified.
 
     # The plant & generator ID values we know have duplicates to remove.
-    known_dupes = (
+    # Selecting this plant & generator ID from the MultiIndex gives several records, but
+    # pandas-stubs types the result as a scalar.
+    known_dupes = cast(
+        pd.DataFrame,
         own_df.set_index(["plant_id_eia", "generator_id"])
         .sort_index()
-        .loc[(56032, "1")]
+        .loc[(56032, "1")],
     )
     assert isinstance(known_dupes, pd.DataFrame)
     # Index of own_df w/ duplicated records removed.
@@ -1236,8 +1241,9 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
         # Melt the table so that the control id column is in one row and the type of
         # control id (the pollutant type) is in another column. This makes it easier
         # combine all of the tables for different pollutants.
-        value_col = [col for col in table if "control_id_eia" in col]
-        id_cols = [col for col in table if "control_id_eia" not in col]
+        table_columns = [str(col) for col in table.columns]
+        value_col = [col for col in table_columns if "control_id_eia" in col]
+        id_cols = [col for col in table_columns if "control_id_eia" not in col]
         # Each table should only have one column with control_id_eia in the name
         assert len(value_col) == 1
         table = pd.melt(

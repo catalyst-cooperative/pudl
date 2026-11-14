@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA176 data tables."""
 
+from typing import cast
+
 import pandas as pd
 from dagster import (
     AssetCheckResult,
@@ -397,7 +399,8 @@ def validate_totals(
     # to see that they are all this specific case and then ignore them.
     if not state_diff.empty:
         assert (
-            state_diff.columns.levels[0] == ["alternative_fuel_fleet_1_yes_0_no"]
+            cast(pd.MultiIndex, state_diff.columns).levels[0]
+            == ["alternative_fuel_fleet_1_yes_0_no"]
         ).all()
         assert (state_diff["alternative_fuel_fleet_1_yes_0_no"]["self"] == 1.0).all()
         assert (
@@ -406,7 +409,8 @@ def validate_totals(
 
     if not us_diff.empty:
         assert (
-            us_diff.columns.levels[0] == ["alternative_fuel_fleet_1_yes_0_no"]
+            cast(pd.MultiIndex, us_diff.columns).levels[0]
+            == ["alternative_fuel_fleet_1_yes_0_no"]
         ).all()
         assert (us_diff["alternative_fuel_fleet_1_yes_0_no"]["self"] == 1.0).all()
         assert (
@@ -679,7 +683,7 @@ def core_eia176__yearly_gas_imports(
     assert len(mismatches) <= 2, "More than 2 line 300 total mismatches"
 
     # Clean supplier name and map a few values to N/A
-    df["supplier_name"] = name_cleaner.get_clean_data(df["supplier_name"])
+    df["supplier_name"] = name_cleaner.clean_series(df["supplier_name"])
     df["supplier_name"] = df["supplier_name"].replace(list(UNKNOWN_TYPES), pd.NA)
 
     return df.sort_values(
@@ -819,7 +823,7 @@ def core_eia176__yearly_gas_exports(
     )
     assert len(mismatches) <= 4, "More than 4 line 1400 total mismatches"
 
-    df["recipient_name"] = name_cleaner.get_clean_data(df["recipient_name"])
+    df["recipient_name"] = name_cleaner.clean_series(df["recipient_name"])
     df["recipient_name"] = df["recipient_name"].replace(list(UNKNOWN_TYPES), pd.NA)
 
     return df.sort_values(
