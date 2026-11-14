@@ -18,7 +18,7 @@ logger = logging_helpers.get_logger(__name__)
 ######################################################################
 ### Helper functions for cleaning and reshaping the SEC 10-K data. ###
 ######################################################################
-def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
+def _year_quarter_to_date(year_quarter: pd.Series) -> pd.DatetimeIndex:
     """Convert a year quarter in the format '2024q1' to date type."""
     return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
 

@@ -1072,7 +1072,7 @@ class HourlyPlanningAreaDemand:
         codes = codes.groupby("respondent_id_ferc714").transform(
             lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
         )
-        return codes
+        return codes["utc_offset_code"]
 
     @staticmethod
     def clean_utc_code_offsets_and_set_timezone(df):

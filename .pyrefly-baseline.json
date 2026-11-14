@@ -11,11 +11,6 @@
       "concise_description": "Argument `Categorical | polars.datatypes.classes.DataType | ExtensionDtype | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`"
     },
     {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `DataFrame | None` is not assignable to parameter `dfs` with type `list[PartitionedDataFrame]` in function `FercDbfExtractor.aggregate_table_frames`"
-    },
-    {
       "path": "src/pudl/analysis/record_linkage/name_cleaner.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `DataFrame | Series | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to parameter `col` with type `Series` in function `CompanyNameCleaner.get_clean_data`"
@@ -54,11 +49,6 @@
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "name": "bad-argument-type",
       "concise_description": "Argument `ndarray | tuple[ndarray, ndarray] | None` is not assignable to parameter `obj` with type `Sized` in function `len`"
-    },
-    {
-      "path": "src/pudl/extract/dbf.py",
-      "name": "bad-argument-type",
-      "concise_description": "Argument `str` is not assignable to parameter `db_path` with type `Path` in function `convert_db_into_parquet`"
     },
     {
       "path": "src/pudl/extract/excel.py",
@@ -161,19 +151,9 @@
       "concise_description": "Object of class `spmatrix` has no attribute `columns`"
     },
     {
-      "path": "src/pudl/transform/ferc714.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `DataFrame` is not assignable to declared return type `Series`"
-    },
-    {
       "path": "src/pudl/metadata/classes.py",
       "name": "bad-return",
       "concise_description": "Returned type `DataType | type[DataType]` is not assignable to declared return type `DataType`"
-    },
-    {
-      "path": "src/pudl/transform/sec10k.py",
-      "name": "bad-return",
-      "concise_description": "Returned type `DatetimeIndex` is not assignable to declared return type `Series`"
     },
     {
       "path": "src/pudl/extract/dbf.py",
