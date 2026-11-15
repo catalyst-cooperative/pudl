@@ -69,7 +69,7 @@ Module Contents
    from the actual header row rather than hardcoded.
 
 
-.. py:function:: extract_vcerare(context) -> tuple[dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData], dict[int, pudl.helpers.ParquetData]]
+.. py:function:: extract_vcerare(context) -> collections.abc.Iterator[dagster.Output]
 
    Extract data from all vcerare pages and write to parquet files.
 

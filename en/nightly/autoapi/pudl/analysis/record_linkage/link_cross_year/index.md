@@ -60,7 +60,7 @@ The metric can be any string accepted by [`scipy.spatial.distance.pdist()`](http
 
 #### metric *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'euclidean'*
 
-### *class* pudl.analysis.record_linkage.link_cross_year.DistanceMatrix(feature_matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), original_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), config: [PenalizeReportYearDistanceConfig](#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig))
+### *class* pudl.analysis.record_linkage.link_cross_year.DistanceMatrix(feature_matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray) | [scipy.sparse.csr_matrix](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html#scipy.sparse.csr_matrix), original_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), config: [PenalizeReportYearDistanceConfig](#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig))
 
 Class to wrap a distance matrix saved in a np.memmap.
 
@@ -72,7 +72,7 @@ Class to wrap a distance matrix saved in a np.memmap.
 
 Return a distance matrix with only distances within a cluster.
 
-### pudl.analysis.record_linkage.link_cross_year.get_average_distance_matrix(distance_matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), cluster_groups: [list](https://docs.python.org/3/builtins/stdtypes.html#list)[[list](https://docs.python.org/3/builtins/stdtypes.html#list)[[int](https://docs.python.org/3/builtins/functions.html#int)]]) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
+### pudl.analysis.record_linkage.link_cross_year.get_average_distance_matrix(distance_matrix: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), cluster_groups: numba.typed.typedlist.List) → [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray)
 
 Compute average distance between two clusters of records given indices of each cluster.
 

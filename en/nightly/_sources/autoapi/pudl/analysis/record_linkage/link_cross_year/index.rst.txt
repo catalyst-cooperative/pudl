@@ -89,7 +89,7 @@ Module Contents
 
 
 
-.. py:class:: DistanceMatrix(feature_matrix: numpy.ndarray, original_df: pandas.DataFrame, config: PenalizeReportYearDistanceConfig)
+.. py:class:: DistanceMatrix(feature_matrix: numpy.ndarray | scipy.sparse.csr_matrix, original_df: pandas.DataFrame, config: PenalizeReportYearDistanceConfig)
 
    Class to wrap a distance matrix saved in a np.memmap.
 
@@ -105,7 +105,7 @@ Module Contents
    Return a distance matrix with only distances within a cluster.
 
 
-.. py:function:: get_average_distance_matrix(distance_matrix: numpy.ndarray, cluster_groups: list[list[int]]) -> numpy.ndarray
+.. py:function:: get_average_distance_matrix(distance_matrix: numpy.ndarray, cluster_groups: numba.typed.typedlist.List) -> numpy.ndarray
 
    Compute average distance between two clusters of records given indices of each cluster.
 

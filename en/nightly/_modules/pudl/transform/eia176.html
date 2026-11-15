@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.11.1.dev3 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.11.1.dev5 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -48,10 +48,10 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=ac740541"></script>
+    <script src="../../../_static/documentation_options.js?v=ed173097"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
 
 
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -871,6 +871,8 @@ window.runMermaid = runMermaid;</script>
                   
   <h1>Source code for pudl.transform.eia176</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Module to perform data cleaning functions on EIA176 data tables."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1316,7 +1318,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># to see that they are all this specific case and then ignore them.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">state_diff</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">state_diff</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"alternative_fuel_fleet_1_yes_0_no"</span><span class="p">]</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">,</span> <span class="n">state_diff</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">==</span> <span class="p">[</span><span class="s2">"alternative_fuel_fleet_1_yes_0_no"</span><span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">assert</span> <span class="p">(</span><span class="n">state_diff</span><span class="p">[</span><span class="s2">"alternative_fuel_fleet_1_yes_0_no"</span><span class="p">][</span><span class="s2">"self"</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">assert</span> <span class="p">(</span>
@@ -1325,7 +1328,8 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">us_diff</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">us_diff</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"alternative_fuel_fleet_1_yes_0_no"</span><span class="p">]</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">,</span> <span class="n">us_diff</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">==</span> <span class="p">[</span><span class="s2">"alternative_fuel_fleet_1_yes_0_no"</span><span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">assert</span> <span class="p">(</span><span class="n">us_diff</span><span class="p">[</span><span class="s2">"alternative_fuel_fleet_1_yes_0_no"</span><span class="p">][</span><span class="s2">"self"</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">assert</span> <span class="p">(</span>
@@ -1604,7 +1608,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"More than 2 line 300 total mismatches"</span>
 
     <span class="c1"># Clean supplier name and map a few values to N/A</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"supplier_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"supplier_name"</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"supplier_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">clean_series</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"supplier_name"</span><span class="p">])</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">"supplier_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"supplier_name"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">UNKNOWN_TYPES</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
@@ -1750,7 +1754,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"More than 4 line 1400 total mismatches"</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="s2">"recipient_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"recipient_name"</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"recipient_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">clean_series</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"recipient_name"</span><span class="p">])</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">"recipient_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"recipient_name"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">UNKNOWN_TYPES</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>

@@ -148,7 +148,7 @@ Module Contents
              the natively reported respondent ID with the PUDL-assigned respondent ID.
 
 
-.. py:function:: _filter_for_freshest_data_xbrl(raw_xbrl: pandas.DataFrame, table_name: str, instant_or_duration: Literal['instant', 'duration'], pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
+.. py:function:: _filter_for_freshest_data_xbrl(raw_xbrl: pandas.DataFrame, table_name: str, instant_or_duration: Literal['instant', 'duration'], pudl_paths: pudl.workspace.setup.PudlPaths)
 
    Wrapper around filter_for_freshest_data_xbrl.
 

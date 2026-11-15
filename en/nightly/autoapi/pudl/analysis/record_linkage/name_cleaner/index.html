@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.analysis.record_linkage.name_cleaner &#8212; PUDL 2026.11.1.dev3 documentation</title>
+    <title>pudl.analysis.record_linkage.name_cleaner &#8212; PUDL 2026.11.1.dev5 documentation</title>
   
   
   
@@ -44,7 +44,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=7e24c9f5" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -52,10 +52,10 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../../_static/documentation_options.js?v=ac740541"></script>
+    <script src="../../../../../_static/documentation_options.js?v=ed173097"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../../../_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/analysis/record_linkage/name_cleaner/index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -1079,8 +1079,8 @@ format [rule name] : [‘replacement’, ‘regex rule’]</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.get_clean_data">
-<span class="sig-name descname"><span class="pre">get_clean_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/name_cleaner.html#CompanyNameCleaner.get_clean_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.get_clean_data" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_series">
+<span class="sig-name descname"><span class="pre">clean_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><span class="pre">pandas.Series</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/name_cleaner.html#CompanyNameCleaner.clean_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_series" title="Link to this definition">#</a></dt>
 <dd><p>Clean names and normalize legal terms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1093,22 +1093,15 @@ format [rule name] : [‘replacement’, ‘regex rule’]</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning">
-<span class="sig-name descname"><span class="pre">apply_name_cleaning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_as_dframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/name_cleaner.html#CompanyNameCleaner.apply_name_cleaning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning" title="Link to this definition">#</a></dt>
-<dd><p>Clean up text names in a dataframe.</p>
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_dataframe">
+<span class="sig-name descname"><span class="pre">clean_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/name_cleaner.html#CompanyNameCleaner.clean_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_dataframe" title="Link to this definition">#</a></dt>
+<dd><p>Clean up the text names in each column of a dataframe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> – the input dataframe that contains the text’s name to be cleaned.</p></li>
-<li><p><strong>return_as_dframe</strong> – whether to return the cleaned data as a dataframe or
-series. Useful to return as a dataframe if used in a cleaning pipeline
-with no vectorization step after name cleaning. If multiple columns are
-passed in for cleaning then output will be a dataframe regardless of
-this parameter.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>df</strong> – the input dataframe, whose columns contain the names to be cleaned.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A clean version of the input dataframe.</p>
+<dd class="field-even"><p>A dataframe with the same index and columns, containing the cleaned names.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1208,8 +1201,8 @@ this parameter.</p></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_cleaning_rules"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner._apply_cleaning_rules()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_normalization_of_legal_terms"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner._apply_normalization_of_legal_terms()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_removal_of_legal_terms"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner._apply_removal_of_legal_terms()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.get_clean_data"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner.get_clean_data()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner.apply_name_cleaning()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_series"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner.clean_series()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_dataframe"><code class="docutils literal notranslate"><span class="pre">CompanyNameCleaner.clean_dataframe()</span></code></a></li>
 </ul>
 </li>
 </ul>

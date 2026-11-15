@@ -187,7 +187,7 @@ classified as these do not indicate if they are solar thermal or photovoltaic. V
 on Steam (e.g. “steam 72” and “steam and gas”) were classified based on additional
 research of the plants on the Internet.
 
-### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES_HYDRO *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]*
+### pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES_HYDRO *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]]*
 
 A mapping from canonical plant kinds (keys) to the associated freeform strings
 (values) identified as being associated with that kind of plant in the FERC Form 1 Hydro

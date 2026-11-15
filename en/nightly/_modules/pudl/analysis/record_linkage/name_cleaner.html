@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.name_cleaner &#8212; PUDL 2026.11.1.dev3 documentation</title>
+    <title>pudl.analysis.record_linkage.name_cleaner &#8212; PUDL 2026.11.1.dev5 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=7e24c9f5" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -48,10 +48,10 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=ac740541"></script>
+    <script src="../../../../_static/documentation_options.js?v=ed173097"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../../_static/design-tabs.js?v=fcb327ea"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
 
 
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -1268,9 +1268,9 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">clean_col</span></div>
 
 
-<div class="viewcode-block" id="CompanyNameCleaner.get_clean_data">
-<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.get_clean_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_clean_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<div class="viewcode-block" id="CompanyNameCleaner.clean_series">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_series">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Clean names and normalize legal terms.</span>
 
 <span class="sd">        Arguments:</span>
@@ -1304,35 +1304,18 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">clean_col</span></div>
 
 
-<div class="viewcode-block" id="CompanyNameCleaner.apply_name_cleaning">
-<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">apply_name_cleaning</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">return_as_dframe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Clean up text names in a dataframe.</span>
+<div class="viewcode-block" id="CompanyNameCleaner.clean_dataframe">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.clean_dataframe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clean up the text names in each column of a dataframe.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">            df: the input dataframe that contains the text's name to be cleaned.</span>
-<span class="sd">            return_as_dframe: whether to return the cleaned data as a dataframe or</span>
-<span class="sd">                series. Useful to return as a dataframe if used in a cleaning pipeline</span>
-<span class="sd">                with no vectorization step after name cleaning. If multiple columns are</span>
-<span class="sd">                passed in for cleaning then output will be a dataframe regardless of</span>
-<span class="sd">                this parameter.</span>
+<span class="sd">            df: the input dataframe, whose columns contain the names to be cleaned.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A clean version of the input dataframe.</span>
+<span class="sd">            A dataframe with the same index and columns, containing the cleaned names.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">clean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">clean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">clean_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">clean_df</span><span class="p">[</span><span class="n">col</span><span class="p">])],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-                <span class="p">)</span>
-            <span class="k">return</span> <span class="n">clean_df</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">return_as_dframe</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">out</span></div>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">col</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_series</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">})</span></div>
 </div>
 
 </pre></div>

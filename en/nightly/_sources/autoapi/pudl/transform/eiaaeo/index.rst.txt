@@ -117,7 +117,7 @@ Module Contents
              ``summands``.
 
 
-.. py:function:: filter_enrich_sanitize(raw_df: pandas.DataFrame, relevant_series_names: tuple[str]) -> pandas.DataFrame
+.. py:function:: filter_enrich_sanitize(raw_df: pandas.DataFrame, relevant_series_names: tuple[str, ...]) -> pandas.DataFrame
 
    Basic cleaning steps common to all AEO tables.
 

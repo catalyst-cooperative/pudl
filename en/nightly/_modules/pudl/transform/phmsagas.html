@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.phmsagas &#8212; PUDL 2026.11.1.dev3 documentation</title>
+    <title>pudl.transform.phmsagas &#8212; PUDL 2026.11.1.dev5 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
@@ -48,10 +48,10 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=ac740541"></script>
+    <script src="../../../_static/documentation_options.js?v=ed173097"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
 
 
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev3 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -878,6 +878,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_cols_dtypes</span><span class="p">,</span>
     <span class="n">standardize_na_values</span><span class="p">,</span>
     <span class="n">standardize_phone_column</span><span class="p">,</span>
     <span class="n">zero_pad_numeric_string</span><span class="p">,</span>
@@ -1333,7 +1334,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">_core_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">YEARLY_DISTRIBUTION_FILING_COLUMNS</span><span class="p">]</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">standardize_na_values</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">convert_cols_dtypes</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">convert_cols_dtypes</span><span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_check_and_drop_log_if_always_in_report_id</span><span class="p">)</span>
         <span class="c1"># Streamline the initial and supplementary report columns</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -1431,7 +1432,11 @@ window.runMermaid = runMermaid;</script>
             <span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span>
             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">state_to_abbr</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">state_to_abbr</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+            <span class="c1"># pandas-stubs does not accept a scalar pd.NA as the replacement value.</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">state_to_abbr</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>  <span class="c1"># type: ignore[bad-argument-type]</span>
+            <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="c1"># Standardize zip codes</span>

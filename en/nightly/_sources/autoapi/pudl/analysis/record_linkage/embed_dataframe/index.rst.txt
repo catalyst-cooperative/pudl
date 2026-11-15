@@ -290,6 +290,18 @@ Module Contents
       :value: False
 
 
+      Whether to return a dataframe, rather than a Series of the cleaned names.
+
+      The vectorizers that follow a name cleaner in an embedding pipeline need a Series.
+      A dataframe is needed by the cleaning pipeline, which builds a dataframe with a
+      column for the output of each of its steps.
+
+
+   .. py:method:: _clean_names_as_series(df: pandas.DataFrame) -> pandas.Series
+
+      Clean the names in the one column of a dataframe, and return them as a Series.
+
+
 
    .. py:method:: as_transformer()
 
