@@ -323,7 +323,7 @@ class FercDbfReader:
                 from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
         """
-        self._cache = {}
+        self._archives: dict[tuple, FercDbfArchive] = {}
         self.datastore = datastore
         self.dataset = dataset
         self.field_parser = field_parser
@@ -350,24 +350,30 @@ class FercDbfReader:
         csv_path = PUDL_PACKAGE_DATA_PATH / self.dataset / base_filename
         return csv.DictReader(csv_path.open())
 
-    @lru_cache  # noqa: B019
     def get_archive(self: Self, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters.
+
+        Archives are cached per reader instance, by their filters. The cache is a
+        plain dict rather than :func:`functools.lru_cache` so that this stays an
+        ordinary method, as :class:`AbstractFercDbfReader` declares it.
 
         Args:
             filters: The partition of the archive. It must include ``year``, which
                 selects the DBC file that describes the archive's schema.
         """
-        nfilters = self._normalize(filters)
-        # Not using a context manager for the zipfile here because it would
-        # close the file after this method returns the FercDbfArchive instance.
-        return FercDbfArchive(
-            self.datastore.get_zipfile_resource(self.dataset, **nfilters),
-            dbc_path=self._dbc_path[int(filters["year"])],
-            partition=filters,
-            table_file_map=self._table_file_map,
-            field_parser=self.field_parser,
-        )
+        key = tuple(sorted(filters.items()))
+        if key not in self._archives:
+            nfilters = self._normalize(filters)
+            # Not using a context manager for the zipfile here because it would
+            # close the file after this method returns the FercDbfArchive instance.
+            self._archives[key] = FercDbfArchive(
+                self.datastore.get_zipfile_resource(self.dataset, **nfilters),
+                dbc_path=self._dbc_path[int(filters["year"])],
+                partition=filters,
+                table_file_map=self._table_file_map,
+                field_parser=self.field_parser,
+            )
+        return self._archives[key]
 
     def get_table_names(self: Self) -> list[str]:
         """Returns list of tables that this datastore provides access to."""
