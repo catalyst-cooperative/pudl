@@ -12,7 +12,7 @@ from typing import NamedTuple, cast
 import dagster as dg
 import duckdb
 from dbt.artifacts.schemas.results import TestStatus
-from dbt.artifacts.schemas.run import RunExecutionResult
+from dbt.artifacts.schemas.run import RunExecutionResult, RunResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
@@ -91,7 +91,13 @@ def install_dbt_deps(dbt: dbtRunner | None = None) -> dbtRunner:
 
 def __get_failed_nodes(results: RunExecutionResult) -> list[GenericTestNode]:
     """Get test node output from tests that failed."""
-    return [res.node for res in results if res.status == TestStatus.Fail]
+    failed_nodes = []
+    for res in results:
+        if res.status == TestStatus.Fail:
+            assert isinstance(res, RunResult)  # Only RunResults carry a node.
+            assert isinstance(res.node, GenericTestNode)  # dbt tests are test nodes.
+            failed_nodes.append(res.node)
+    return failed_nodes
 
 
 def __get_quantile_contexts(
