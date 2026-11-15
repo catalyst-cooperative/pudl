@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.11.1.dev5 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.11.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=ed173097"></script>
+    <script src="../../../_static/documentation_options.js?v=cda6aa7c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -2105,28 +2105,24 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">"""Encode this field def as a Pandera column."""</span>
         <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span>
         <span class="n">checks</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">to_pandera_checks</span><span class="p">(</span><span class="n">use_pandas_backend</span><span class="p">)</span>
+        <span class="n">column_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"checks"</span><span class="p">:</span> <span class="n">checks</span><span class="p">,</span>
+            <span class="s2">"nullable"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">constraints</span><span class="o">.</span><span class="n">required</span><span class="p">,</span>
+            <span class="s2">"unique"</span><span class="p">:</span> <span class="n">constraints</span><span class="o">.</span><span class="n">unique</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># For enum fields the physical dtype is unconstrained Categorical/"category"</span>
+        <span class="c1"># (see Field.to_polars_dtype / Field.to_pandas_dtype); the enum value</span>
+        <span class="c1"># constraint itself is enforced by the `checks` (Check.isin) above, not by</span>
+        <span class="c1"># the declared column dtype.</span>
+        <span class="k">if</span> <span class="n">use_pandas_backend</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pr_pandas</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s2">"category"</span><span class="p">,</span> <span class="o">**</span><span class="n">column_options</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"geometry"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pr_pandas</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">(),</span> <span class="o">**</span><span class="n">column_options</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pr_pandas</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">FIELD_DTYPES_PANDAS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">],</span> <span class="o">**</span><span class="n">column_options</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
-            <span class="c1"># The physical dtype is unconstrained Categorical/"category" (see</span>
-            <span class="c1"># Field.to_polars_dtype / Field.to_pandas_dtype); the enum value</span>
-            <span class="c1"># constraint itself is enforced by the `checks` (Check.isin) above,</span>
-            <span class="c1"># not by the declared column dtype.</span>
-            <span class="n">column_type</span> <span class="o">=</span> <span class="s2">"category"</span> <span class="k">if</span> <span class="n">use_pandas_backend</span> <span class="k">else</span> <span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"geometry"</span><span class="p">:</span>
-            <span class="n">column_type</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">column_type</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">use_pandas_backend</span>
-                <span class="k">else</span> <span class="n">FIELD_DTYPES_POLARS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
-            <span class="p">)</span>
-
-        <span class="n">pandera_module</span> <span class="o">=</span> <span class="n">pr_pandas</span> <span class="k">if</span> <span class="n">use_pandas_backend</span> <span class="k">else</span> <span class="n">pr_polars</span>
-        <span class="k">return</span> <span class="n">pandera_module</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
-            <span class="n">column_type</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">nullable</span><span class="o">=</span><span class="ow">not</span> <span class="n">constraints</span><span class="o">.</span><span class="n">required</span><span class="p">,</span>
-            <span class="n">unique</span><span class="o">=</span><span class="n">constraints</span><span class="o">.</span><span class="n">unique</span><span class="p">,</span>
-        <span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(),</span> <span class="o">**</span><span class="n">column_options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">FIELD_DTYPES_POLARS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">],</span> <span class="o">**</span><span class="n">column_options</span><span class="p">)</span></div>
 </div>
 
 
@@ -3234,9 +3230,11 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.harvest">[docs]</a>
     <span class="n">harvest</span><span class="p">:</span> <span class="n">ResourceHarvest</span> <span class="o">=</span> <span class="n">ResourceHarvest</span><span class="p">()</span></div>
 
+    <span class="c1"># "schema" is the Frictionless datapackage property name, so it can't be renamed.</span>
+    <span class="c1"># It shadows the deprecated pydantic v1 BaseModel.schema() classmethod.</span>
 <div class="viewcode-block" id="Resource.schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.schema">[docs]</a>
-    <span class="n">schema</span><span class="p">:</span> <span class="n">Schema</span></div>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">Schema</span>  <span class="c1"># type: ignore[bad-override-mutable-attribute]</span></div>
 
     <span class="c1"># Alias required to avoid shadowing Python built-in format()</span>
 <div class="viewcode-block" id="Resource.format_">
@@ -3613,9 +3611,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Resource.to_polars_dtypes">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_polars_dtypes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_polars_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_polars_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Schema</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return Polars data type of each field by field name."""</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">to_polars_dtype</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">Schema</span><span class="p">({</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">to_polars_dtype</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="Resource.to_pandas_dtypes">

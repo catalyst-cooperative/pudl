@@ -1829,7 +1829,7 @@ Module Contents
 
 
 
-   .. py:method:: to_polars_dtypes() -> dict[str, polars.DataType]
+   .. py:method:: to_polars_dtypes() -> polars.Schema
 
       Return Polars data type of each field by field name.
 

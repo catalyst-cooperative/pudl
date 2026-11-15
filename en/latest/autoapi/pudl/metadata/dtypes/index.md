@@ -52,7 +52,7 @@ cycle.
 
 ## Module Contents
 
-### pudl.metadata.dtypes.FIELD_DTYPES_POLARS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [type](../classes/index.md#pudl.metadata.classes.Field.type)[polars.DataType] | polars.DataType]*
+### pudl.metadata.dtypes.FIELD_DTYPES_POLARS *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), polars.DataType]*
 
 Polars data type by simplified PUDL field type.
 

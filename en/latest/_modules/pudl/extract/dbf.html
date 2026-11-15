@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.dbf &#8212; PUDL 2026.11.1.dev5 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.11.1.dev6 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=ed173097"></script>
+    <script src="../../../_static/documentation_options.js?v=cda6aa7c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -1308,9 +1308,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                from package_data/{dataset} subdirectory.</span>
 <span class="sd">            field_parser: FieldParser class to use when loading data</span>
 <span class="sd">        """</span>
-<div class="viewcode-block" id="FercDbfReader._cache">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._cache">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span></div>
+<div class="viewcode-block" id="FercDbfReader._archives">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._archives">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_archives</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">FercDbfArchive</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="FercDbfReader.datastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader.datastore">[docs]</a>
@@ -1359,26 +1359,32 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">open</span><span class="p">())</span></div>
 
 
-    <span class="nd">@lru_cache</span>  <span class="c1"># noqa: B019</span>
 <div class="viewcode-block" id="FercDbfReader.get_archive">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader.get_archive">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfArchive</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Returns single dbf archive matching given filters.</span>
 
+<span class="sd">        Archives are cached per reader instance, by their filters. The cache is a</span>
+<span class="sd">        plain dict rather than :func:`functools.lru_cache` so that this stays an</span>
+<span class="sd">        ordinary method, as :class:`AbstractFercDbfReader` declares it.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            filters: The partition of the archive. It must include ``year``, which</span>
 <span class="sd">                selects the DBC file that describes the archive's schema.</span>
 <span class="sd">        """</span>
-        <span class="n">nfilters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
-        <span class="c1"># Not using a context manager for the zipfile here because it would</span>
-        <span class="c1"># close the file after this method returns the FercDbfArchive instance.</span>
-        <span class="k">return</span> <span class="n">FercDbfArchive</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">nfilters</span><span class="p">),</span>
-            <span class="n">dbc_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbc_path</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])],</span>
-            <span class="n">partition</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span>
-            <span class="n">table_file_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span><span class="p">,</span>
-            <span class="n">field_parser</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_parser</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archives</span><span class="p">:</span>
+            <span class="n">nfilters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+            <span class="c1"># Not using a context manager for the zipfile here because it would</span>
+            <span class="c1"># close the file after this method returns the FercDbfArchive instance.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_archives</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">FercDbfArchive</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">nfilters</span><span class="p">),</span>
+                <span class="n">dbc_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbc_path</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])],</span>
+                <span class="n">partition</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span>
+                <span class="n">table_file_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span><span class="p">,</span>
+                <span class="n">field_parser</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_parser</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archives</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="FercDbfReader.get_table_names">

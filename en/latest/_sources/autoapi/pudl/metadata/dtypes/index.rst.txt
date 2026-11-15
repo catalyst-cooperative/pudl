@@ -67,7 +67,7 @@ Module Contents
 ---------------
 
 .. py:data:: FIELD_DTYPES_POLARS
-   :type:  dict[str, type[polars.DataType] | polars.DataType]
+   :type:  dict[str, polars.DataType]
 
    Polars data type by simplified PUDL field type.
 

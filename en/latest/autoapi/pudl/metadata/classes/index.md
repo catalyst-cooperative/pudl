@@ -1243,7 +1243,7 @@ Construct a PyArrow schema for the resource.
 
 Return Polars data type of each field by field name.
 
-#### to_polars_dtypes() → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), polars.DataType]
+#### to_polars_dtypes() → polars.Schema
 
 Return Polars data type of each field by field name.
 
