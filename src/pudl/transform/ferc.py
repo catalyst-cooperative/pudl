@@ -4,6 +4,7 @@ import json
 from typing import Literal
 
 import pandas as pd
+from pandas.core.groupby import DataFrameGroupBy
 
 import pudl.logging_helpers
 from pudl.workspace.setup import PudlPaths
@@ -12,14 +13,14 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def __apply_diffs(
-    duped_groups: pd.core.groupby.DataFrameGroupBy,
+    duped_groups: DataFrameGroupBy,
 ) -> pd.DataFrame:
     """Take the latest reported non-null value for each group."""
     return duped_groups.last()
 
 
 def __best_snapshot(
-    duped_groups: pd.core.groupby.DataFrameGroupBy,
+    duped_groups: DataFrameGroupBy,
 ) -> pd.DataFrame:
     """Take the row that has most non-null values out of each group."""
     # As of pandas 3 groupby(...).apply() excludes the grouping columns from both the

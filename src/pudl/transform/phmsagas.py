@@ -6,6 +6,7 @@ from dagster import AssetCheckResult, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.helpers import (
+    convert_cols_dtypes,
     standardize_na_values,
     standardize_phone_column,
     zero_pad_numeric_string,
@@ -414,7 +415,7 @@ def _core_phmsagas__yearly_distribution_filings(
     df = (
         _core_phmsagas__yearly_distribution.loc[:, YEARLY_DISTRIBUTION_FILING_COLUMNS]
         .pipe(standardize_na_values)
-        .pipe(pudl.helpers.convert_cols_dtypes)
+        .pipe(convert_cols_dtypes)
         .pipe(_check_and_drop_log_if_always_in_report_id)
         # Streamline the initial and supplementary report columns
         .assign(

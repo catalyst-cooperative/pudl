@@ -2145,7 +2145,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyogrio-0.13.0-py314h276eb8b_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyproj-3.8.0-py314h08533f4_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyrefly-1.4.1-hf19af3b_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/pyside6-6.11.3-py314h574d94f_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pyside6-6.11.3-py314h574d94f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.10-hcd007b5_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-calamine-0.9.1-py314h7e8cd81_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-crfsuite-0.9.12-py314hf3b331d_1.conda
@@ -2415,11 +2415,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/nomkl-1.0-h5ca1d4c_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/notebook-7.6.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/notebook-shim-0.2.4-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/numpy-typing-compat-20260602.2.5-pyhb860519_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/oauthlib-4.0.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-api-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-proto-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-sdk-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.66b2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/optype-0.19.0-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
@@ -2502,6 +2505,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3fs-2026.9.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.19.3-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scipy-stubs-1.18.1.1-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/send2trash-2.2.0-pyh4a3486f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/shellingham-1.5.4-pyhd8ed1ab_2.conda
@@ -2826,7 +2830,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyogrio-0.13.0-py314ha84cb0a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyproj-3.8.0-py314h16a14fe_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyrefly-1.4.1-h328a733_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyside6-6.11.3-py314h11268ef_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyside6-6.11.3-py314h11268ef_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-3.14.10-hbec3b18_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-calamine-0.9.1-py314h231d840_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-crfsuite-0.9.12-py314h8ac86d4_1.conda
@@ -3096,11 +3100,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/networkx-3.7-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/notebook-7.6.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/notebook-shim-0.2.4-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/numpy-typing-compat-20260602.2.5-pyhb860519_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/oauthlib-4.0.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-api-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-proto-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-sdk-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.66b2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/optype-0.19.0-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
@@ -3182,6 +3189,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3fs-2026.9.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.19.3-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scipy-stubs-1.18.1.1-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/send2trash-2.2.0-pyh4a3486f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/shellingham-1.5.4-pyhd8ed1ab_2.conda
@@ -3471,11 +3479,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/networkx-3.7-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/notebook-7.6.5-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/notebook-shim-0.2.4-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/numpy-typing-compat-20260602.2.5-pyhb860519_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/oauthlib-4.0.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-api-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-proto-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-sdk-1.45.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.66b2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/optype-0.19.0-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
@@ -3558,6 +3569,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3fs-2026.9.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.19.3-pyh5ded981_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scipy-stubs-1.18.1.1-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/send2trash-2.2.0-pyhd24e8f7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/shellingham-1.5.4-pyhd8ed1ab_2.conda
@@ -4530,7 +4542,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/cffi?source=compressed-mapping
+  - pkg:pypi/cffi?source=hash-mapping
   run_exports: {}
   size: 307262
   timestamp: 1788485305536
@@ -4906,7 +4918,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/frozenlist?source=hash-mapping
+  - pkg:pypi/frozenlist?source=compressed-mapping
   run_exports: {}
   size: 61417
   timestamp: 1792669350219
@@ -7407,7 +7419,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/msgpack?source=hash-mapping
+  - pkg:pypi/msgpack?source=compressed-mapping
   run_exports: {}
   size: 122174
   timestamp: 1793105660971
@@ -7531,7 +7543,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numba?source=hash-mapping
+  - pkg:pypi/numba?source=compressed-mapping
   run_exports: {}
   size: 6247985
   timestamp: 1793629394915
@@ -8124,33 +8136,32 @@ packages:
   run_exports: {}
   size: 13141902
   timestamp: 1793855906742
-- conda: https://conda.anaconda.org/conda-forge/linux-64/pyside6-6.11.3-py314h574d94f_0.conda
-  sha256: 1aa78e166a4acec5fd510ae3605f72b082b2f524c8214970cbe227fb798142d5
-  md5: 982d7ab5201fdf85ca435d5e3870e178
+- conda: https://conda.anaconda.org/conda-forge/linux-64/pyside6-6.11.3-py314h574d94f_1.conda
+  sha256: 015cccaa4bed142bf2dd1e006ed9ebb265ad414e7cc49690a400f5499b0344f7
+  md5: ceea9cd045be12cce155a1745b7191c8
   depends:
   - python
   - qt6-main 6.11.3.*
+  - libstdcxx >=15
   - libgcc >=15
   - __glibc >=2.17,<3.0.a0
-  - libstdcxx >=15
-  - libopengl >=1.7.0,<2.0a0
+  - libxml2
+  - libxml2-16 >=2.15.4
+  - libegl >=1.7.0,<2.0a0
   - qt6-main >=6.11.3,<7.0a0
+  - libclang13 >=23.1.5
   - libgl >=1.7.0,<2.0a0
+  - libopengl >=1.7.0,<2.0a0
   - libxslt >=1.1.45,<2.0a0
   - libvulkan-loader >=1.4.357.0,<2.0a0
   - python_abi 3.14.* *_cp314
-  - libclang13 >=23.1.4
-  - libegl >=1.7.0,<2.0a0
-  - libxml2
-  - libxml2-16 >=2.15.4
   license: LGPL-3.0-only
-  license_family: LGPL
   purls:
   - pkg:pypi/pyside6?source=hash-mapping
   - pkg:pypi/shiboken6?source=hash-mapping
   run_exports: {}
-  size: 13955742
-  timestamp: 1793476637511
+  size: 13954231
+  timestamp: 1794663344821
 - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.10-hcd007b5_100_cp314.conda
   build_number: 100
   sha256: bb457298c776d0edd30d727d96629e57df63e9a4ba2dd11553019267b61ef5f4
@@ -8261,7 +8272,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pyyaml?source=hash-mapping
+  - pkg:pypi/pyyaml?source=compressed-mapping
   run_exports: {}
   size: 226626
   timestamp: 1793655133957
@@ -8462,7 +8473,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/rpds-py?source=hash-mapping
+  - pkg:pypi/rpds-py?source=compressed-mapping
   run_exports: {}
   size: 302823
   timestamp: 1791202484532
@@ -8841,7 +8852,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/wrapt?source=hash-mapping
+  - pkg:pypi/wrapt?source=compressed-mapping
   run_exports: {}
   size: 157827
   timestamp: 1793358807107
@@ -12969,7 +12980,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/polars-runtime-32?source=compressed-mapping
+  - pkg:pypi/polars-runtime-32?source=hash-mapping
   run_exports: {}
   size: 38361310
   timestamp: 1793016568894
@@ -13253,32 +13264,31 @@ packages:
   run_exports: {}
   size: 12719767
   timestamp: 1793855889105
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyside6-6.11.3-py314h11268ef_0.conda
-  sha256: 7ff7a4b3b4a31c23de7e775e9a628274d14348b97857ef089d1708994593cfa0
-  md5: 230bc1f7e159c82b6cc8a8c0af77bac1
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyside6-6.11.3-py314h11268ef_1.conda
+  sha256: b799ec1fe7b1b9c3ff1494090561d1b2052a5cdb910ff62ffb867a70dd29b5e5
+  md5: c6a6b902d0b5e1e922d3dd83fdaf6b57
   depends:
   - python
   - qt6-main 6.11.3.*
   - libgcc >=15
   - libstdcxx >=15
-  - libopengl >=1.7.0,<2.0a0
-  - libxslt >=1.1.45,<2.0a0
-  - libegl >=1.7.0,<2.0a0
-  - libgl >=1.7.0,<2.0a0
-  - qt6-main >=6.11.3,<7.0a0
-  - python_abi 3.14.* *_cp314
-  - libvulkan-loader >=1.4.357.0,<2.0a0
-  - libclang13 >=23.1.4
   - libxml2
   - libxml2-16 >=2.15.4
+  - libxslt >=1.1.45,<2.0a0
+  - libegl >=1.7.0,<2.0a0
+  - libclang13 >=23.1.5
+  - libgl >=1.7.0,<2.0a0
+  - libopengl >=1.7.0,<2.0a0
+  - qt6-main >=6.11.3,<7.0a0
+  - libvulkan-loader >=1.4.357.0,<2.0a0
+  - python_abi 3.14.* *_cp314
   license: LGPL-3.0-only
-  license_family: LGPL
   purls:
   - pkg:pypi/pyside6?source=hash-mapping
   - pkg:pypi/shiboken6?source=hash-mapping
   run_exports: {}
-  size: 12928077
-  timestamp: 1793476640108
+  size: 12928056
+  timestamp: 1794663367398
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-3.14.10-hbec3b18_100_cp314.conda
   build_number: 100
   sha256: 1d3db41917590d2a665e2400844d08698f1352ceaf0ff07a98161b54eb346ef2
@@ -13385,7 +13395,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pyyaml?source=hash-mapping
+  - pkg:pypi/pyyaml?source=compressed-mapping
   run_exports: {}
   size: 219454
   timestamp: 1793655093301
@@ -15722,7 +15732,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/flexcache?source=compressed-mapping
+  - pkg:pypi/flexcache?source=hash-mapping
   run_exports: {}
   size: 18768
   timestamp: 1788605834431
@@ -15737,7 +15747,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/flexparser?source=hash-mapping
+  - pkg:pypi/flexparser?source=compressed-mapping
   run_exports: {}
   size: 30745
   timestamp: 1788605800152
@@ -16010,7 +16020,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/gitpython?source=hash-mapping
+  - pkg:pypi/gitpython?source=compressed-mapping
   run_exports: {}
   size: 186188
   timestamp: 1792007726948
@@ -16268,7 +16278,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/grpc-google-iam-v1?source=hash-mapping
+  - pkg:pypi/grpc-google-iam-v1?source=compressed-mapping
   run_exports: {}
   size: 31363
   timestamp: 1792736869836
@@ -16758,7 +16768,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/jsonschema?source=compressed-mapping
+  - pkg:pypi/jsonschema?source=hash-mapping
   run_exports: {}
   size: 82084
   timestamp: 1787579299493
@@ -16876,7 +16886,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/jupyter-client?source=compressed-mapping
+  - pkg:pypi/jupyter-client?source=hash-mapping
   run_exports: {}
   size: 118962
   timestamp: 1787929615607
@@ -17484,7 +17494,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/nbclient?source=compressed-mapping
+  - pkg:pypi/nbclient?source=hash-mapping
   run_exports: {}
   size: 29971
   timestamp: 1788212974885
@@ -17496,7 +17506,8 @@ packages:
   - nbconvert-pandoc ==7.17.2 hb164111_0
   license: BSD-3-Clause
   license_family: BSD
-  purls: []
+  purls:
+  - pkg:pypi/nbconvert?source=compressed-mapping
   run_exports: {}
   size: 5364
   timestamp: 1791807053228
@@ -17556,7 +17567,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/nbformat?source=compressed-mapping
+  - pkg:pypi/nbformat?source=hash-mapping
   run_exports: {}
   size: 107750
   timestamp: 1787133512599
@@ -17634,6 +17645,20 @@ packages:
   run_exports: {}
   size: 16817
   timestamp: 1733408419340
+- conda: https://conda.anaconda.org/conda-forge/noarch/numpy-typing-compat-20260602.2.5-pyhb860519_1.conda
+  sha256: 510cf01dd2b3934078f8fda5360a645649e0652a4edd94fcaace58e0d53bde56
+  md5: f337e1f9bbae5c509a95f77dc3a47a14
+  depends:
+  - python >=3.12
+  - numpy <2.6,>=2.5
+  - python
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/numpy-typing-compat?source=hash-mapping
+  run_exports: {}
+  size: 13203
+  timestamp: 1782221065995
 - conda: https://conda.anaconda.org/conda-forge/noarch/oauthlib-4.0.1-pyh5ded981_0.conda
   sha256: 404a880006c32764b3079753e8efbb8a32d9e3c9d0f234fb9dae5e41a6ea63ec
   md5: c0857f922fec23e9eac98c3a13005467
@@ -17707,6 +17732,35 @@ packages:
   run_exports: {}
   size: 135112
   timestamp: 1793322095845
+- conda: https://conda.anaconda.org/conda-forge/noarch/optype-0.19.0-pyhc364b38_0.conda
+  sha256: 013fc3a118df9be5df418c5104b2b4bb66ecd9a9aa0674ce5dce7accaee86ad2
+  md5: 9f0be34e931c80715be66fdbe3761b22
+  depends:
+  - python >=3.12
+  - typing-extensions >=4.10
+  - python
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/optype?source=compressed-mapping
+  run_exports: {}
+  size: 117470
+  timestamp: 1791111008867
+- conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
+  sha256: c8a0f8dda563a1e2faaffb36f56471ab8764e8577cf5dc446b4ac4b4ed37874d
+  md5: 49ea46cdc11231ee3071c1657f72664b
+  depends:
+  - python >=3.12
+  - numpy >=2.0,<2.8
+  - numpy-typing-compat >=20260602.2.0,<20260603.2.0
+  - optype ==0.19.0 pyhc364b38_0
+  - python
+  license: BSD-3-Clause
+  license_family: BSD
+  purls: []
+  run_exports: {}
+  size: 10678
+  timestamp: 1791111008867
 - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
   sha256: 865834288b908c3768bb7141285543e834d0739edb9a2a493909feaffced926a
   md5: c6c25606833dc272bc08a270201821ec
@@ -18269,7 +18323,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pydata-sphinx-theme?source=hash-mapping
+  - pkg:pypi/pydata-sphinx-theme?source=compressed-mapping
   run_exports: {}
   size: 847915
   timestamp: 1793637713776
@@ -18881,6 +18935,22 @@ packages:
   run_exports: {}
   size: 77613
   timestamp: 1792497265490
+- conda: https://conda.anaconda.org/conda-forge/noarch/scipy-stubs-1.18.1.1-pyhc364b38_0.conda
+  sha256: ec9ae62dca0181c47b3e8d2bbdeed8e1ad598c570cc88580626050c59e63919d
+  md5: 7b7c491bd04225969e10a4e8c5cd8a36
+  depends:
+  - python >=3.12
+  - optype-numpy >=0.15.0,<0.20.0
+  - python
+  constrains:
+  - scipy >=1.18.1,<1.19.0
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/scipy-stubs?source=compressed-mapping
+  run_exports: {}
+  size: 421555
+  timestamp: 1789945811431
 - conda: https://conda.anaconda.org/conda-forge/noarch/send2trash-2.2.0-pyh4a3486f_0.conda
   sha256: a317e8f4e2be7f8cba5dba471c5bed454f9dd0626193685ca0164f1286b01b2c
   md5: a589db2c9de9ffd6e05c365508f6f2d6
@@ -19048,7 +19118,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/soupsieve?source=hash-mapping
+  - pkg:pypi/soupsieve?source=compressed-mapping
   run_exports: {}
   size: 52388
   timestamp: 1794285419684
@@ -19078,7 +19148,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/sphinx?source=hash-mapping
+  - pkg:pypi/sphinx?source=compressed-mapping
   run_exports: {}
   size: 1588783
   timestamp: 1792587728747
@@ -19600,7 +19670,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/truststore?source=compressed-mapping
+  - pkg:pypi/truststore?source=hash-mapping
   run_exports: {}
   size: 24467
   timestamp: 1791873594717
@@ -20023,7 +20093,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/xyzservices?source=hash-mapping
+  - pkg:pypi/xyzservices?source=compressed-mapping
   run_exports: {}
   size: 53963
   timestamp: 1788530754725
@@ -20859,7 +20929,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/frozenlist?source=hash-mapping
+  - pkg:pypi/frozenlist?source=compressed-mapping
   run_exports: {}
   size: 55924
   timestamp: 1792669218434
@@ -22864,7 +22934,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/msgpack?source=hash-mapping
+  - pkg:pypi/msgpack?source=compressed-mapping
   run_exports: {}
   size: 107235
   timestamp: 1793105676025
@@ -22984,7 +23054,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numba?source=hash-mapping
+  - pkg:pypi/numba?source=compressed-mapping
   run_exports: {}
   size: 6231552
   timestamp: 1793629426099

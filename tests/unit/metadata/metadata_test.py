@@ -19,6 +19,7 @@ import pytest
 import sqlalchemy as sa
 from pandera.errors import SchemaErrors
 from shapely import Point
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from pudl.metadata.classes import (
     DATAPACKAGES,
@@ -165,7 +166,7 @@ def test_datetime_field_sql_check_constraint_accepts_real_values(
         else:
             with (
                 engine.begin() as conn,
-                pytest.raises(sa.exc.IntegrityError, match="CHECK constraint failed"),
+                pytest.raises(IntegrityError, match="CHECK constraint failed"),
             ):
                 conn.execute(insert, {"value": value})
     finally:
@@ -194,7 +195,7 @@ def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
         )  # would raise a Parser Error for bare REGEXP
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO t (code) VALUES ('AB')"))
-            with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
+            with pytest.raises(DBAPIError, match="CHECK constraint failed"):
                 conn.execute(sa.text("INSERT INTO t (code) VALUES ('abc')"))
     finally:
         engine.dispose()
@@ -302,7 +303,7 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
             conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
-            with pytest.raises(sa.exc.DBAPIError):
+            with pytest.raises(DBAPIError):
                 conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('steam')"))
     finally:
         engine.dispose()

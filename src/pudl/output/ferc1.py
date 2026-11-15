@@ -31,8 +31,10 @@ from pydantic import (
 )
 
 import pudl.analysis.fuel_by_plant
+import pudl.extract.ferc1
 import pudl.helpers
 import pudl.logging_helpers
+import pudl.metadata.classes
 import pudl.transform.ferc1
 from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.transform.ferc1 import (

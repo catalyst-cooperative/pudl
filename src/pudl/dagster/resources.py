@@ -315,7 +315,7 @@ class FercEqrDeploymentResource(dg.ConfigurableResource):
             return []
 
         return self.from_yaml(
-            deployment_config_path=str(deployment_config_path)
+            deployment_config_path=deployment_config_path
         ).deployment_targets
 
     def resolved_targets(self) -> list[UPath]:
@@ -326,7 +326,7 @@ class FercEqrDeploymentResource(dg.ConfigurableResource):
         """
         resolved_targets: list[UPath] = []
         for target in self.configured_targets():
-            resolved_target = UPath(str(target.path), **target.storage_options)
+            resolved_target = UPath(target.path, **target.storage_options)
             if target.append_build_id:
                 build_id = os.getenv("BUILD_ID")
                 if not build_id:

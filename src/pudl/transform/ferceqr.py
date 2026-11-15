@@ -479,7 +479,7 @@ def _latest_check_evaluations_by_quarter(
     ``core_ferceqr__*`` tables' ``pandera_schema_check`` results itself, rather
     than being able to ask the instance for exactly those upfront.
     """
-    records = instance.get_event_records(
+    records = instance.event_log_storage.get_event_records(
         dg.EventRecordsFilter(event_type=dg.DagsterEventType.ASSET_CHECK_EVALUATION),
         limit=_CHECK_EVALUATION_FETCH_LIMIT,
         ascending=False,  # most recent first, so first-seen per table+quarter wins

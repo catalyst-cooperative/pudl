@@ -1241,7 +1241,7 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
         # Melt the table so that the control id column is in one row and the type of
         # control id (the pollutant type) is in another column. This makes it easier
         # combine all of the tables for different pollutants.
-        table_columns = [str(col) for col in table.columns]
+        table_columns = list(table.columns)
         value_col = [col for col in table_columns if "control_id_eia" in col]
         id_cols = [col for col in table_columns if "control_id_eia" not in col]
         # Each table should only have one column with control_id_eia in the name
