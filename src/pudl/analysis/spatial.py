@@ -1,9 +1,8 @@
 """Spatial operations for demand allocation."""
 
 import itertools
-import warnings
 from collections.abc import Callable, Iterable
-from typing import Literal, cast
+from typing import Literal
 
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
@@ -33,7 +32,6 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         raise AttributeError("GeoDataFrame has no geometry")
     if not isinstance(gdf.geometry, gpd.GeoSeries):
         raise TypeError("Geometry is not a GeoSeries")
-    warnings.filterwarnings("ignore", "GeoSeries.isna", UserWarning)
     if gdf.geometry.isna().any():
         raise ValueError("Geometry contains null geometries")
     if not gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"]).all():
@@ -290,7 +288,7 @@ def overlay(
                 )
         if dfs:
             # Assumed to be faster than incremental concat
-            result = cast(gpd.GeoDataFrame, pd.concat([result] + dfs, axis="columns"))
+            result = pd.concat([result] + dfs, axis="columns")
     return result.drop(columns=keys)
 
 

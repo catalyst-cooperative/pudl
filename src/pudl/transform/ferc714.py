@@ -418,7 +418,7 @@ def _filter_for_freshest_data_xbrl(
     raw_xbrl: pd.DataFrame,
     table_name: str,
     instant_or_duration: Literal["instant", "duration"],
-    pudl_paths: PudlPaths | None = None,
+    pudl_paths: PudlPaths,
 ):
     """Wrapper around filter_for_freshest_data_xbrl.
 
@@ -1063,7 +1063,7 @@ class HourlyPlanningAreaDemand:
         # Clean UTC offset codes
         df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
         # We only need a couple of columns here:
-        codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
+        codes = df[["respondent_id_ferc714", "utc_offset_code"]]
         # Set all blank "" missing UTC codes to np.nan
         codes["utc_offset_code"] = codes.utc_offset_code.mask(
             codes.utc_offset_code == ""
@@ -1072,7 +1072,7 @@ class HourlyPlanningAreaDemand:
         codes = codes.groupby("respondent_id_ferc714").transform(
             lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
         )
-        return codes
+        return codes["utc_offset_code"]
 
     @staticmethod
     def clean_utc_code_offsets_and_set_timezone(df):

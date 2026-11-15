@@ -146,7 +146,7 @@ additional information about FIPS state codes.
         },
         "etl_group": "state_demand",
         "field_namespace": "pudl",
-        "sources": ["ferc714", "eia861", "censusdp1"],
+        "sources": ["ferc714", "eia861", "censusdp1tract"],
         "create_database_schema": False,
     },
 }

@@ -10607,8 +10607,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether the utility supplying energy to a RUS borrower is an EIA respondent.",
     },
     "supplier_code_rus": {
-        "type": "string",
-        "description": "Unique numeric identifier for the utility supplying energy to a RUS borrower.",
+        "type": "integer",
+        "description": (
+            "Unique numeric identifier for the utility supplying energy to a RUS borrower. "
+            "Codes below 600000 are EIA utility IDs (`utility_id_eia`). Codes of 600000 "
+            "and above are RUS-specific and have no EIA counterpart, e.g. placeholders "
+            "for adjustments, miscellaneous and renewable energy suppliers."
+        ),
     },
     "wheeling_and_other_charges": {
         "type": "number",

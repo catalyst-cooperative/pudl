@@ -119,7 +119,7 @@ class MetadataView:
 
     def has_file(self, page: str, partition: str) -> bool:
         """Whether the file map has a source file for a page and partition."""
-        return self.file_map.loc[partition, page] != ABSENT
+        return bool(self.file_map.loc[partition, page] != ABSENT)
 
     def listed_partitions(self) -> dict[str, list[str]]:
         """List the partitions that each file has rows for, before they are expanded."""

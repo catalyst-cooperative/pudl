@@ -19,7 +19,6 @@ from pudl.deploy.pudl import (
     StageStatus,
     build_deploy_zulip_message,
     clear_deployment_path,
-    dispatch_github_workflow,
     download_build_outputs,
     get_build_from_tag,
     get_deployment_type_from_tag,
@@ -29,7 +28,6 @@ from pudl.deploy.pudl import (
     send_zulip_message,
     trigger_zenodo_release,
     update_git_branch,
-    update_pudl_viewer,
     upload_outputs,
 )
 
@@ -530,56 +528,6 @@ def test_update_git_branch_staging():
 
 
 @pytest.mark.parametrize(
-    "inputs,expected_json",
-    [
-        (None, {"ref": "main"}),
-        (
-            {"env": "sandbox", "publish": "publish"},
-            {"ref": "main", "inputs": {"env": "sandbox", "publish": "publish"}},
-        ),
-    ],
-)
-def test_dispatch_github_workflow_posts_expected_payload(inputs, expected_json):
-    """dispatch_github_workflow should POST a bare ref, or one with inputs attached."""
-    with patch("pudl.deploy.pudl.requests.post") as mock_post:
-        mock_post.return_value = MagicMock(status_code=204)
-
-        dispatch_github_workflow(
-            repo="catalyst-cooperative/eel-hole",
-            workflow_file="build-deploy.yml",
-            ref="main",
-            token="fake-token",  # noqa: S106  # pragma: allowlist secret
-            inputs=inputs,
-        )
-
-        mock_post.return_value.raise_for_status.assert_called_once()
-        args, kwargs = mock_post.call_args
-        assert args[0] == (
-            "https://api.github.com/repos/catalyst-cooperative/eel-hole"
-            "/actions/workflows/build-deploy.yml/dispatches"
-        )
-        assert kwargs["headers"]["Authorization"] == "Bearer fake-token"
-        assert kwargs["json"] == expected_json
-
-
-def test_dispatch_github_workflow_raises_on_http_error():
-    """A failed dispatch should propagate the HTTP error."""
-    with patch("pudl.deploy.pudl.requests.post") as mock_post:
-        mock_post.return_value = MagicMock(status_code=422)
-        mock_post.return_value.raise_for_status.side_effect = requests.HTTPError(
-            "422 Client Error"
-        )
-
-        with pytest.raises(requests.HTTPError):
-            dispatch_github_workflow(
-                repo="catalyst-cooperative/pudl",
-                workflow_file="zenodo-data-release.yml",
-                ref="main",
-                token="fake-token",  # noqa: S106  # pragma: allowlist secret
-            )
-
-
-@pytest.mark.parametrize(
     "deploy_type,build_ref,source_suffix,expected_env,expected_publish,expected_pudl_version",
     [
         (
@@ -641,31 +589,6 @@ def test_trigger_zenodo_release_dispatches_expected_inputs(
                 "publish": expected_publish,
                 "pudl_version": expected_pudl_version,
             },
-        )
-
-
-@pytest.mark.parametrize(
-    "environment,expected_workflow_file",
-    [
-        ("staging", "build-deploy-staging.yml"),
-        ("production", "build-deploy.yml"),
-    ],
-)
-def test_update_pudl_viewer_selects_workflow_by_environment(
-    environment, expected_workflow_file
-):
-    """Staging and production should dispatch different Eel Hole workflows."""
-    with patch("pudl.deploy.pudl.dispatch_github_workflow") as mock_dispatch:
-        update_pudl_viewer(
-            token="fake-token",  # noqa: S106  # pragma: allowlist secret
-            environment=environment,
-        )
-
-        mock_dispatch.assert_called_once_with(
-            repo="catalyst-cooperative/eel-hole",
-            workflow_file=expected_workflow_file,
-            ref="main",
-            token="fake-token",  # noqa: S106  # pragma: allowlist secret
         )
 
 

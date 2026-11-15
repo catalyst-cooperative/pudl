@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import cast
 
 import mlflow
 import numpy as np
@@ -137,7 +138,9 @@ def dataframe_embedder_factory(
     @op(name=f"{name_prefix}_apply")
     def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
         """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
-        return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
+        # ColumnTransformer returns a CSR matrix when the output is mostly sparse.
+        matrix = cast(np.ndarray | scipy.sparse.csr_matrix, transformer.transform(df))
+        return FeatureMatrix(matrix=matrix, index=df.index)
 
     @graph(name=f"{name_prefix}_embed_graph")
     def embed_dataframe_graph(
@@ -166,7 +169,9 @@ def dataframe_cleaner_factory(
                 (name, column_transform.as_pipeline(), column_transform.columns)
                 for name, column_transform in vectorizers.items()
             ],
-        ).set_output(transform="pandas")
+        )
+        # Modifies the transformer in place, and returns it as a BaseEstimator.
+        column_transformer.set_output(transform="pandas")
 
         return column_transformer.fit(df)
 
@@ -178,7 +183,8 @@ def dataframe_cleaner_factory(
             A DataFrame with one column per transformer, named after the
             transformer key (i.e. the key from the ``vectorizers`` dict).
         """
-        result = transformer.transform(df)
+        result: object = transformer.transform(df)
+        assert isinstance(result, pd.DataFrame)  # set_output(transform="pandas")
         result.columns = list(vectorizers.keys())
         return result
 
@@ -271,13 +277,22 @@ class NameCleaner(TransformStep):
     name: str = "name_cleaner"
     company_cleaner: CompanyNameCleaner = CompanyNameCleaner(legal_term_location=2)
     return_as_dframe: bool = False
+    """Whether to return a dataframe, rather than a Series of the cleaned names.
+
+    The vectorizers that follow a name cleaner in an embedding pipeline need a Series.
+    A dataframe is needed by the cleaning pipeline, which builds a dataframe with a
+    column for the output of each of its steps.
+    """
+
+    def _clean_names_as_series(self, df: pd.DataFrame) -> pd.Series:
+        """Clean the names in the one column of a dataframe, and return them as a Series."""
+        return self.company_cleaner.clean_series(df.iloc[:, 0])
 
     def as_transformer(self):
         """Return configured CompanyNameCleaner."""
-        return FunctionTransformer(
-            self.company_cleaner.apply_name_cleaning,
-            kw_args={"return_as_dframe": self.return_as_dframe},
-        )
+        if self.return_as_dframe:
+            return FunctionTransformer(self.company_cleaner.clean_dataframe)
+        return FunctionTransformer(self._clean_names_as_series)
 
 
 class FuelTypeFiller(TransformStep):

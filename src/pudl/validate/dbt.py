@@ -186,7 +186,7 @@ def build_with_context(
         cli_args += ["--exclude", node_exclusion]
     if parquet_base_path:
         # These will live on for the full python process, but won't persist beyond that
-        os.environ["PARQUET_BASE_PATH"] = str(parquet_base_path)
+        os.environ["PARQUET_BASE_PATH"] = parquet_base_path
 
     dbt = install_dbt_deps()
 

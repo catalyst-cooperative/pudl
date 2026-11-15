@@ -421,7 +421,7 @@ is for those supplies."""
             "foreign_key_rules": {"fields": [["mine_id_pudl"]]},
         },
         "field_namespace": "eia",
-        "sources": ["eia923"],
+        "sources": ["eia923", "censuspep"],
         "etl_group": "eia923",
     },
     "core_eia923__fuel_receipts_costs": {

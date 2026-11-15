@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -458,10 +458,13 @@ def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataF
             all_data[page].append(dfs[page])
 
     # concatenate the dataframes in each list in the dictionary into a single dataframe
-    for page in all_data:
-        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
-
-    return all_data
+    # In pandas 3 read_excel() and read_csv() return one block per column, and
+    # that survives concatenation. The deep copy consolidates the blocks once, so
+    # downstream column insertions don't emit a PerformanceWarning each time.
+    return {
+        page: pd.concat(dfs_for_page).reset_index(drop=True).copy()
+        for page, dfs_for_page in all_data.items()
+    }
 
 
 def _is_dict_str_strint(_context: TypeCheckContext, x: Any) -> bool:
@@ -530,7 +533,7 @@ def partitions_from_data_config_factory(name: str) -> OpDefinition:
         required_resource_keys={"global_data_config"},
         name=f"{name}_partitions_from_data_config",
     )
-    def partitions_from_data_config(context) -> DynamicOutput:
+    def partitions_from_data_config(context) -> Iterator[DynamicOutput]:
         """Produce target partitions for the given dataset from the dataset data config.
 
         These will be used to kick off worker processes to extract each year of data in

@@ -85,9 +85,9 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         )
         # Add a state FIPS code so we can merge in the state code
         .assign(
-            state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})").astype(
-                "category"
-            )
+            state_id_fips=lambda x: x.county_id_fips.str.extract(
+                r"(\d{2})", expand=False
+            ).astype("category")
         )
         # Extract the county or lake name from the county_state_name field
         .assign(

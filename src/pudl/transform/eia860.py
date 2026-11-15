@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
+from typing import cast
+
 import numpy as np
 import pandas as pd
 from dagster import asset, asset_check
@@ -35,8 +37,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     """
     # Preliminary clean and get rid of unnecessary 'year' column
     own_df = (
-        raw_eia860__ownership.copy()
-        .pipe(pudl.helpers.standardize_na_values)
+        pudl.helpers.standardize_na_values(raw_eia860__ownership)
         .pipe(pudl.helpers.convert_to_date)
         .drop(columns=["year"])
     )
@@ -69,11 +70,15 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     # we'll be notified.
 
     # The plant & generator ID values we know have duplicates to remove.
-    known_dupes = (
+    # Selecting this plant & generator ID from the MultiIndex gives several records, but
+    # pandas-stubs types the result as a scalar.
+    known_dupes = cast(
+        pd.DataFrame,
         own_df.set_index(["plant_id_eia", "generator_id"])
         .sort_index()
-        .loc[(56032, "1")]
+        .loc[(56032, "1")],
     )
+    assert isinstance(known_dupes, pd.DataFrame)
     # Index of own_df w/ duplicated records removed.
     without_known_dupes_idx = own_df.set_index(
         ["plant_id_eia", "generator_id"]
@@ -201,9 +206,6 @@ def _core_eia860__generators(
     Returns:
         Cleaned ``_core_eia860__generators`` dataframe ready for harvesting.
     """
-    # Groupby objects were creating chained assignment warning that is N/A
-    pd.options.mode.chained_assignment = None
-
     # There are three sets of generator data reported in the EIA860 table,
     # planned, existing, and retired generators. We're going to concatenate
     # them all together into a single big table, with a column that indicates
@@ -324,9 +326,8 @@ def _core_eia860__generators(
         .pipe(
             pudl.helpers.simplify_strings,
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
-            copy=False,
         )
-        .pipe(pudl.helpers.convert_to_date, copy=False)
+        .pipe(pudl.helpers.convert_to_date)
     )
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
@@ -339,7 +340,7 @@ def _core_eia860__generators(
         (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
         "balancing_authority_code_eia",
     ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
+    gens_df = PUDL_PACKAGE.encode(gens_df)
 
     # spot fix one proposed fusion plant's technology description. It's assumed to be wrong
     # because we learned via pudl.output.eia.fill_generator_technology_description
@@ -704,7 +705,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
         p_df.county.str.replace(r"[^a-z,A-Z]+", " ", regex=True)
         .str.strip()
         .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(pudl.helpers.UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.title()
     )
 
@@ -1240,8 +1241,9 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
         # Melt the table so that the control id column is in one row and the type of
         # control id (the pollutant type) is in another column. This makes it easier
         # combine all of the tables for different pollutants.
-        value_col = [col for col in table if "control_id_eia" in col]
-        id_cols = [col for col in table if "control_id_eia" not in col]
+        table_columns = list(table.columns)
+        value_col = [col for col in table_columns if "control_id_eia" in col]
+        id_cols = [col for col in table_columns if "control_id_eia" not in col]
         # Each table should only have one column with control_id_eia in the name
         assert len(value_col) == 1
         table = pd.melt(

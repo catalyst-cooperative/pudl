@@ -291,16 +291,6 @@ KEYWORDS: dict[str, list[str]] = {
         "government",
         "federal",
     ],
-    "msha": [
-        "msha",
-        "mshamines",
-        "mine safety and health administration",
-        "mines",
-        "mining",
-        "coal",
-        "metal",
-        "department of labor",
-    ],
     "phmsa": [
         "phmsa",
         "phmsagas",
@@ -319,14 +309,6 @@ KEYWORDS: dict[str, list[str]] = {
     "sec": [
         "sec",
         "securities and exchange commission",
-    ],
-    "eia_water": [
-        "eia thermoelectric cooling water",
-        "eia waterthermoelectric",
-        "cooling water",
-        "water usage",
-        "water energy nexus",
-        "energy water nexus",
     ],
     "rus": [
         "usda",

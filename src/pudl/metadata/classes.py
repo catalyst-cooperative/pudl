@@ -644,7 +644,7 @@ class Field(PudlMeta):
     Examples:
         >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
@@ -2193,7 +2193,6 @@ class Resource(PudlMeta):
         if matches is None:
             # Primary key present but no matches were found
             return self.format_df()
-        df = df.copy()
         # Rename periodic key columns (if any) to the requested period
         df = df.rename(columns=matches)
         # Cast integer year fields to datetime
@@ -2217,9 +2216,9 @@ class Resource(PudlMeta):
                     )
         df = (
             # Reorder columns and insert missing columns
-            df.reindex(columns=list(dtypes), copy=False)
+            df.reindex(columns=list(dtypes))
             # Coerce columns to correct data type
-            .astype(dtypes, copy=False)
+            .astype(dtypes)
         )
         # Convert periodic key columns to the requested period
         for df_key, key in matches.items():
@@ -2791,8 +2790,20 @@ class Package(PudlMeta):
         any duplicates. We may also get values directly from the Package inputs.
         """
         compiled = self._compile_from_resources(self.resources)
+        redundant = sorted(
+            {s.name for s in self.sources} & {s.name for s in compiled["sources"]}
+        )
+        if redundant:
+            raise ValueError(
+                f"Package {self.name!r} explicitly lists sources that its resources "
+                f"already use: {redundant}. Explicit sources are only for data "
+                "sources with no tables in the package, so remove them from the "
+                "explicit list (e.g. PUDL_SOURCES_WITHOUT_TABLES)."
+            )
         for key, values in compiled.items():
             setattr(self, key, _unique(getattr(self, key), values))
+        # Keep the package level sources in a stable, readable order.
+        self.sources = sorted(self.sources, key=lambda source: source.name)
         return self
 
     @classmethod
@@ -2807,6 +2818,7 @@ class Package(PudlMeta):
         description: str | None = None,
         version: str | None = None,
         name: str = "pudl",
+        extra_source_ids: tuple[str, ...] = (),
     ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2831,7 +2843,13 @@ class Package(PudlMeta):
             description: Human-readable description of the package.
             version: Version string for the package.
             name: Name of the datapackage.
+            extra_source_ids: Data source IDs (keys of
+                :py:const:`pudl.metadata.sources.SOURCES`) to list in the package
+                level ``sources`` in addition to those compiled from the resources,
+                e.g. sources that are part of PUDL but have no tables yet. Needs to
+                be a tuple so that it is hashable for ``lru_cache``.
         """
+        extra_sources = Package._extra_source_dicts(extra_source_ids)
         if isinstance(excluded_etl_groups, str) or isinstance(included_etl_groups, str):
             raise TypeError(
                 "ETL groups must be a collection of names, not a single string."
@@ -2871,8 +2889,17 @@ class Package(PudlMeta):
             title=title,
             description=description,
             version=version,
+            sources=extra_sources,
             resources=resources,
         )
+
+    @staticmethod
+    def _extra_source_dicts(source_ids: Iterable[str]) -> list[dict]:
+        """Look up explicitly requested data sources, rejecting unknown IDs."""
+        unknown = [x for x in source_ids if x not in SOURCES]
+        if unknown:
+            raise ValueError(f"Unknown data source IDs: {unknown}")
+        return [DataSource.dict_from_id(x, sources=SOURCES) for x in source_ids]
 
     @staticmethod
     def get_etl_group_tables(
@@ -3002,21 +3029,16 @@ class Package(PudlMeta):
                 assert encoders[field.name].ignored_codes == encoder.ignored_codes
         return encoders
 
-    def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Clean up all coded columns in a dataframe based on PUDL coding tables.
-
-        Running with ``copy=False`` is intended for memory-intensive data frames where no
-        upstream process retains a reference to the data. Use care with this option,
-        and keep an eye out for spooky data changes showing up in unexpected places.
 
         Args:
             df: DataFrame whose code columns are being cleaned up.
-            copy: (Default True) Return a copy, making no changes to the original data.
 
         Returns:
             A dataframe with clean code columns.
         """
-        encoded_df = df.copy() if copy else df
+        encoded_df = df.copy(deep=False)
         for col in encoded_df.columns:
             if col in self.encoders:
                 encoded_df[col] = self.encoders[col].encode(
@@ -3029,10 +3051,13 @@ class Package(PudlMeta):
     ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage.
 
-        The datapackage describes every resource in this package. Its sources,
-        contributors, licenses and keywords are compiled from just those resources, so
-        a package like ``ferceqr``, which is distributed separately from the rest of
-        PUDL, gets an independent descriptor that lists only what it uses.
+        The datapackage describes every resource in this package. Its contributors,
+        licenses and keywords are compiled from just those resources, so a package like
+        ``ferceqr``, which is distributed separately from the rest of PUDL, gets an
+        independent descriptor that lists only what it uses. Its sources are
+        :attr:`sources`: those compiled from the resources plus any listed explicitly
+        when the package was built (see ``extra_source_ids`` in
+        :meth:`from_resource_ids`).
         """
         pudl_resources = list(self.resources)
         compiled = self._compile_from_resources(pudl_resources)
@@ -3053,7 +3078,7 @@ class Package(PudlMeta):
             ],
             keywords=list(compiled["keywords"]),
             resources=[r.to_frictionless() for r in pudl_resources],
-            sources=[s.to_frictionless() for s in compiled["sources"]],
+            sources=[s.to_frictionless() for s in self.sources],
         )
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
@@ -3080,6 +3105,19 @@ FERCEQR_PACKAGE = Package.from_resource_ids(
 )
 
 
+PUDL_SOURCES_WITHOUT_TABLES: tuple[str, ...] = (
+    "eia757a",
+    "ferc2",
+    "ferc6",
+    "ferc60",
+)
+"""Data sources that are part of PUDL but have no tables in the PUDL package (yet).
+
+They are listed explicitly in the package level ``sources`` so that downstream
+consumers of the metadata still learn about them. ``ferceqr`` is deliberately absent:
+it is distributed as its own package.
+"""
+
 PUDL_PACKAGE = Package.from_resource_ids(
     title="The Public Utility Data Liberation Project (PUDL)",
     version=_get_version("catalystcoop.pudl"),
@@ -3093,6 +3131,7 @@ PUDL_PACKAGE = Package.from_resource_ids(
         "providers."
     ),
     excluded_etl_groups=("ferceqr",),
+    extra_source_ids=PUDL_SOURCES_WITHOUT_TABLES,
 )
 """Define a global PUDL package object for use across the entire codebase.
 
