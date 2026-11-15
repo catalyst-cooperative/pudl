@@ -42,13 +42,13 @@ from sqlalchemy.types import TypeEngine as SATypeEngine
 
 from pudl.metadata.fields import FIELD_METADATA, FIELD_METADATA_BY_NAMESPACE
 
-FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
-    "boolean": polars_datatypes.Boolean,
-    "date": polars_datatypes.Date,
+FIELD_DTYPES_POLARS: dict[str, pl.DataType] = {
+    "boolean": polars_datatypes.Boolean(),
+    "date": polars_datatypes.Date(),
     "datetime": polars_datatypes.Datetime(time_unit="us"),
-    "integer": polars_datatypes.Int64,
-    "number": polars_datatypes.Float64,
-    "string": polars_datatypes.String,
+    "integer": polars_datatypes.Int64(),
+    "number": polars_datatypes.Float64(),
+    "string": polars_datatypes.String(),
     "year": polars_datatypes.Datetime(time_unit="us"),
 }
 """Polars data type by simplified PUDL field type."""
