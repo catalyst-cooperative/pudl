@@ -2248,11 +2248,13 @@ def assert_cols_areclose(
     # we use df.loc, so if we use a debugger in here we can see the actual data
     # instead of just whether or not there are matches.
     mismatch = df.loc[
-        ~np.isclose(
-            np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
-            np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
-            equal_nan=True,
-        ).filled()
+        ~np.ma.filled(
+            np.isclose(
+                np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
+                np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
+                equal_nan=True,
+            )
+        )
     ]
     mismatch_ratio = len(mismatch) / len(df)
     if mismatch_ratio > mismatch_threshold:
@@ -3169,7 +3171,8 @@ def parse_address(addr: str):
             parsed.get("StateName", None),
             parsed.get("ZipCode", None),
         )
-    except usaddress.RepeatedLabelError:
+    # usaddress's bundled type stubs omit the RepeatedLabelError exception class.
+    except usaddress.RepeatedLabelError:  # type: ignore[missing-attribute]
         logger.warning(f"Could not parse {addr}")
         return (addr, None, None, None)
 

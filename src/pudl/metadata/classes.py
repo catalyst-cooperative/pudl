@@ -1786,7 +1786,9 @@ class Resource(PudlMeta):
     title: String | None = None
     description: String
     harvest: ResourceHarvest = ResourceHarvest()
-    schema: Schema
+    # "schema" is the Frictionless datapackage property name, so it can't be renamed.
+    # It shadows the deprecated pydantic v1 BaseModel.schema() classmethod.
+    schema: Schema  # type: ignore[bad-override-mutable-attribute]
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
