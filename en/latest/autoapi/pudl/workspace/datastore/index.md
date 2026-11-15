@@ -106,7 +106,7 @@ Returns series of PudlResourceKey identifiers for matching resources.
     constraints. The constraints are matched against the ‘parts’ field of
     the resource entry in the datapackage.json.
 
-#### get_partitions(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]]
+#### get_partitions(name: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None) = None) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [set](https://docs.python.org/3/builtins/stdtypes.html#set)[Any]]
 
 Return mapping of known partition keys to their allowed known values.
 

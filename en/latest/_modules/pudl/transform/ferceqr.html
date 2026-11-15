@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.11.1.dev4 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.11.1.dev5 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=445744f1"></script>
+    <script src="../../../_static/documentation_options.js?v=ed173097"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev4 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev4 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -1407,7 +1407,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``core_ferceqr__*`` tables' ``pandera_schema_check`` results itself, rather</span>
 <span class="sd">    than being able to ask the instance for exactly those upfront.</span>
 <span class="sd">    """</span>
-    <span class="n">records</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">get_event_records</span><span class="p">(</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">event_log_storage</span><span class="o">.</span><span class="n">get_event_records</span><span class="p">(</span>
         <span class="n">dg</span><span class="o">.</span><span class="n">EventRecordsFilter</span><span class="p">(</span><span class="n">event_type</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">DagsterEventType</span><span class="o">.</span><span class="n">ASSET_CHECK_EVALUATION</span><span class="p">),</span>
         <span class="n">limit</span><span class="o">=</span><span class="n">_CHECK_EVALUATION_FETCH_LIMIT</span><span class="p">,</span>
         <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># most recent first, so first-seen per table+quarter wins</span>

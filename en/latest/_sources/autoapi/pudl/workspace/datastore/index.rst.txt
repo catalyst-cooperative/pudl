@@ -145,7 +145,7 @@ Module Contents
 
 
 
-   .. py:method:: get_partitions(name: str | None = None) -> dict[str, set[str]]
+   .. py:method:: get_partitions(name: str | None = None) -> dict[str, set[Any]]
 
       Return mapping of known partition keys to their allowed known values.
 
