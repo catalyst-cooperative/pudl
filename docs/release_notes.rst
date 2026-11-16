@@ -17,6 +17,13 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Added Puerto Rico generators to the :ref:`core_eia860m__changelog_generators` table.
+  Previously the Puerto Rico tabs of EIA-860M were only included in the EIA-860 tables.
+  See issue :issue:`5370` and PR :pr:`XXXX`.
+
 Documentation
 ^^^^^^^^^^^^^
 
