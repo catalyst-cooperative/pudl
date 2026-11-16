@@ -1480,11 +1480,7 @@ def test_get_parquet_table_polars_full_read_dtypes(mocker, tmp_path):
     resource = _make_multi_type_resource(
         "_test__get_parquet_table_polars_full_read_dtypes"
     )
-    # Pre-existing pyrefly complaint, same as the identical cast() call in
-    # PudlParquetIOManager.handle_output.
-    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(
-        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
-    )
+    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(resource.to_polars_dtypes())
 
     paths = _make_test_pudl_paths(tmp_path)
     parquet_path = paths.parquet_path(resource.name)
@@ -1543,7 +1539,7 @@ def _polars_categorical_writer(resource: Resource, path) -> None:
     -- unlike the pandas writer above.
     """
     pl.LazyFrame({"id": _CATEGORY_IDS, "code": _CATEGORY_VALUES}).cast(
-        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
+        resource.to_polars_dtypes()
     ).sink_parquet(path)
 
 
