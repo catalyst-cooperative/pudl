@@ -1,7 +1,5 @@
 """Unit tests for the EIA-860M transform module."""
 
-import inspect
-
 import pandas as pd
 
 from pudl.transform import eia860m
@@ -46,9 +44,11 @@ def test_append_puerto_rico_generators_keeps_all_columns():
 
 def test_changelog_generators_depends_on_puerto_rico_raw_assets():
     """The EIA-860M generator changelog should take the Puerto Rico raw pages."""
-    changelog_fn = eia860m.core_eia860m__changelog_generators.op.compute_fn.decorated_fn
-    params = set(inspect.signature(changelog_fn).parameters)
-    assert params == {
+    upstream = {
+        key.to_user_string()
+        for key in eia860m.core_eia860m__changelog_generators.dependency_keys
+    }
+    assert upstream == {
         "raw_eia860m__generator_proposed",
         "raw_eia860m__generator_existing",
         "raw_eia860m__generator_retired",
