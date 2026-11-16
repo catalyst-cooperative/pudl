@@ -1,6 +1,7 @@
 """Unit tests for the EIA-860M transform module."""
 
 import pandas as pd
+import pytest
 
 from pudl.transform import eia860m
 
@@ -56,3 +57,37 @@ def test_changelog_generators_depends_on_puerto_rico_raw_assets():
         "raw_eia860m__puerto_rico_generator_existing",
         "raw_eia860m__puerto_rico_generator_retired",
     }
+
+
+class _StopAfterGeneratorsCallError(Exception):
+    """Raised by the mocked EIA-860 generators transform to end the asset early."""
+
+
+def test_changelog_generators_pairs_puerto_rico_pages_with_mainland(mocker):
+    """Each Puerto Rico page should be appended to the matching mainland page."""
+    mocked_generators = mocker.patch.object(
+        eia860m,
+        "_core_eia860__generators",
+        side_effect=_StopAfterGeneratorsCallError,
+    )
+    pages = {
+        f"raw_eia860m__{region}generator_{status}": pd.DataFrame(
+            {"source_page": [f"{region}{status}"]}
+        )
+        for region in ["", "puerto_rico_"]
+        for status in ["proposed", "existing", "retired"]
+    }
+
+    with pytest.raises(_StopAfterGeneratorsCallError):
+        eia860m.core_eia860m__changelog_generators(**pages)
+
+    passed = mocked_generators.call_args.kwargs
+    for status in ["proposed", "existing", "retired"]:
+        assert passed[f"raw_eia860__generator_{status}"]["source_page"].tolist() == [
+            status,
+            f"puerto_rico_{status}",
+        ]
+    # The retired tabs have no operational status code, for Puerto Rico as well.
+    assert (
+        passed["raw_eia860__generator_retired"]["operational_status_code"].isna().all()
+    )
