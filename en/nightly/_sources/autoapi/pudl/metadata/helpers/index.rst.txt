@@ -274,7 +274,7 @@ Module Contents
    AggregationError({'a': [0, 0, 1], 'b': [1]})
 
 
-.. py:function:: groupby_apply(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
+.. py:function:: groupby_apply(df: pandas.DataFrame, by: str | list[str], aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
 
    Aggregate dataframe and capture errors (using apply).
 
@@ -318,7 +318,7 @@ Module Contents
    dtype: object
 
 
-.. py:function:: groupby_aggregate(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
+.. py:function:: groupby_aggregate(df: pandas.DataFrame, by: str | list[str], aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
 
    Aggregate dataframe and capture errors (using aggregate).
 

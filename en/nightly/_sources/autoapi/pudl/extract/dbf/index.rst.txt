@@ -279,7 +279,8 @@ Module Contents
    Wrapper to provide standardized access to FERC DBF databases.
 
 
-   .. py:attribute:: _cache
+   .. py:attribute:: _archives
+      :type:  dict[tuple, FercDbfArchive]
 
 
    .. py:attribute:: datastore
@@ -312,6 +313,10 @@ Module Contents
    .. py:method:: get_archive(**filters) -> FercDbfArchive
 
       Returns single dbf archive matching given filters.
+
+      Archives are cached per reader instance, by their filters. The cache is a
+      plain dict rather than :func:`functools.lru_cache` so that this stays an
+      ordinary method, as :class:`AbstractFercDbfReader` declares it.
 
       :param filters: The partition of the archive. It must include ``year``, which
                       selects the DBC file that describes the archive's schema.

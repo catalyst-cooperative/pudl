@@ -204,7 +204,7 @@ This class bundles [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/st
 
 Wrapper to provide standardized access to FERC DBF databases.
 
-#### \_cache
+#### \_archives *: [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple), [FercDbfArchive](#pudl.extract.dbf.FercDbfArchive)]*
 
 #### datastore
 
@@ -227,6 +227,10 @@ Open the given resource file as [`csv.DictReader`](https://docs.python.org/3/lib
 #### get_archive(\*\*filters) → [FercDbfArchive](#pudl.extract.dbf.FercDbfArchive)
 
 Returns single dbf archive matching given filters.
+
+Archives are cached per reader instance, by their filters. The cache is a
+plain dict rather than [`functools.lru_cache()`](https://docs.python.org/3/library/functools.html#functools.lru_cache) so that this stays an
+ordinary method, as [`AbstractFercDbfReader`](#pudl.extract.dbf.AbstractFercDbfReader) declares it.
 
 * **Parameters:**
   **filters** – The partition of the archive. It must include `year`, which
