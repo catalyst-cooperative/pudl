@@ -5,3 +5,14 @@ sources:
       - name: core_ferceqr__transactions
         data_tests:
           - expect_columns_not_all_null
+          # EQR data dictionary v4.0: Total Transaction Charge is "Transaction Quantity
+          # times Price plus Total Transmission Charge"
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  total_transaction_charge
+                  - (transaction_quantity * price + COALESCE(total_transmission_charge, 0))
+                min_value: -1
+                max_value: 1
+                max_fraction_below: 0.002
+                max_fraction_above: 0.002 # observed ~0.06% total in 2013q3-q4

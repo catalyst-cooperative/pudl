@@ -5,6 +5,13 @@ sources:
       - name: core_ferceqr__transactions
         data_tests:
           - expect_columns_not_all_null
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: total_transaction_charge - (transaction_quantity * price + COALESCE(total_transmission_charge, 0))
+                min_value: -1
+                max_value: 1
+                max_fraction_below: 0.002
+                max_fraction_above: 0.002
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
