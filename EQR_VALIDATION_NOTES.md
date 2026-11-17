@@ -89,6 +89,6 @@ observed rate and the observed rates are recorded in YAML comments.
   around by running with a scratch output dir:
   `mkdir /tmp/pudl_out && ln -s $PUDL_OUTPUT/parquet /tmp/pudl_out/parquet`, then
   `PUDL_OUTPUT=/tmp/pudl_out pixi run --frozen dbt_helper validate ...`.
-- The full transactions table is ~1B rows locally, so the not-all-null test takes minutes.
+- The full transactions table is several hundred million rows locally, so the not-all-null test takes minutes.
 - An unrelated uncommitted change to `src/pudl/scripts/dbt_helper.py` (strip trailing
   `/` from `parquet_base_path`) was in the working tree and is not part of this work.
