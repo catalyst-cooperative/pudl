@@ -28,6 +28,20 @@ sources:
                 max_value: 0
                 max_fraction_below: 0.01
                 max_fraction_above: 0.02
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(SIGN(standardized_quantity) != SIGN(transaction_quantity) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: standardized_quantity != 0 AND transaction_quantity != 0
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(SIGN(standardized_price) != SIGN(price) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.0001
+                row_condition: standardized_price != 0 AND price != 0
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc

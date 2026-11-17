@@ -43,3 +43,26 @@ sources:
                 max_value: 0
                 max_fraction_below: 0.01
                 max_fraction_above: 0.02
+          # Quantities and prices can legitimately be negative (some filers report all
+          # of their sales with negative quantities, and RTO/ISO prices can be
+          # negative), so we don't test for non-negativity. But the standardized
+          # values are just unit conversions of the reported ones, so their signs
+          # should agree. Observed mismatch rates are at most 0.04% for quantity and
+          # 0.002% for price across the 2013-2026 quarters we have locally.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(SIGN(standardized_quantity) != SIGN(transaction_quantity)
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: standardized_quantity != 0 AND transaction_quantity != 0
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(SIGN(standardized_price) != SIGN(price) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.0001
+                row_condition: standardized_price != 0 AND price != 0
