@@ -16,3 +16,30 @@ sources:
                 max_value: 1
                 max_fraction_below: 0.002
                 max_fraction_above: 0.002 # observed ~0.06% total in 2013q3-q4
+          # Transactions can't end before they begin.
+          - dbt_expectations.expression_is_true:
+              arguments:
+                expression: transaction_end_date >= transaction_begin_date
+          # Transactions should begin in the quarter they were filed for. A midnight
+          # start on the first day of the next quarter is a boundary case (seen once
+          # in 2016q4), so allow a vanishingly small fraction.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(year_quarter != CONCAT(YEAR(transaction_begin_date), 'q',
+                  QUARTER(transaction_begin_date)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.000001
+          # The trade date is when the price was agreed, so it should not follow the
+          # transaction begin date. The dictionary says to fall back to the contract
+          # execution date when unknown, so some filers violate this: observed
+          # 0.9-1.3% after the begin date and 0.4-0.7% more than 10 years before it
+          # (mostly placeholder dates like 0001-01-01) in 2013-2016 quarters.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: trade_date - CAST(transaction_begin_date AS DATE)
+                min_value: -3650
+                max_value: 0
+                max_fraction_below: 0.01
+                max_fraction_above: 0.02

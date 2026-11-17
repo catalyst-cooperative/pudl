@@ -12,6 +12,22 @@ sources:
                 max_value: 1
                 max_fraction_below: 0.002
                 max_fraction_above: 0.002
+          - dbt_expectations.expression_is_true:
+              arguments:
+                expression: transaction_end_date >= transaction_begin_date
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(year_quarter != CONCAT(YEAR(transaction_begin_date), 'q', QUARTER(transaction_begin_date)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 1.0e-06
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: trade_date - CAST(transaction_begin_date AS DATE)
+                min_value: -3650
+                max_value: 0
+                max_fraction_below: 0.01
+                max_fraction_above: 0.02
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
