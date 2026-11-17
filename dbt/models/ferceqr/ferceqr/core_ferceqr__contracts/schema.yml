@@ -5,6 +5,37 @@ sources:
       - name: core_ferceqr__contracts
         data_tests:
           - expect_columns_not_all_null
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(contract_termination_date < commencement_date_of_contract_term AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.015
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(actual_termination_date < commencement_date_of_contract_term AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.02
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(actual_termination_date > LAST_DAY(MAKE_DATE(CAST(LEFT(year_quarter, 4) AS INTEGER), CAST(RIGHT(year_quarter, 1) AS INTEGER) * 3, 1)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(end_date < begin_date AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.01
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: contract_execution_date - LAST_DAY(MAKE_DATE(CAST(LEFT(year_quarter, 4) AS INTEGER), CAST(RIGHT(year_quarter, 1) AS INTEGER) * 3, 1))
+                min_value: -25000
+                max_value: 0
+                max_fraction_below: 0.002
+                max_fraction_above: 0.01
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
