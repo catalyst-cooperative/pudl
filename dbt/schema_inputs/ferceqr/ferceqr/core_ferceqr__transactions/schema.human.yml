@@ -66,3 +66,41 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.0001
                 row_condition: standardized_price != 0 AND price != 0
+          # Rate units should be dimensionally consistent with the product sold:
+          # capacity is priced per unit of power ($/MW-MO, $/KW-DAY, ...), not per
+          # unit of energy ($/MWH, CENTS/KWH, ...), and energy is priced per unit of
+          # energy. Appendix D of the EQR data dictionary lists the allowed rate units.
+          # FLAT RATE and NULL are neither, so they are excluded. Observed: capacity with energy units <=0.043%, energy with power units <=0.0001% across local quarters.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH'
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.00001
+                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
+          # Booked out power is energy that was contractually committed but not
+          # delivered, so (like ENERGY) it should be priced per unit of energy. Unlike
+          # CAPACITY and ENERGY this is a looser check: ~1.9% of local rows use power
+          # units, almost all from a single filer in 2022q1 (Boston Energy Trading and
+          # Marketing, $/MW-MO). In every other quarter the rate is <=0.03%. The
+          # threshold is table-wide, so it only catches large new problems.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.05
+                row_condition: product_name = 'BOOKED OUT POWER' AND rate_units IS NOT NULL
