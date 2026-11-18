@@ -77,3 +77,14 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.02
                 row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
+          # Energy imbalance is priced per unit of energy. Observed ~1.2% of rows with
+          # power units (up to ~10% in a single quarter), so the threshold is loose.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.03
+                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL

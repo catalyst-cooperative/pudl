@@ -104,3 +104,53 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.05
                 row_condition: product_name = 'BOOKED OUT POWER' AND rate_units IS NOT NULL
+          # More products that are essentially always priced per unit of energy; flag
+          # any rate in power or capacity units. Thresholds are table-wide and set above
+          # the rates observed in the complete local quarters (not yet re-run on all of
+          # them): ENERGY IMBALANCE ~0.00001%, EXCHANGE ~0.09%, GENERATOR IMBALANCE
+          # ~0.02%, REAL POWER TRANSMISSION LOSS ~0.03%, TOLLING ENERGY ~0.11%.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 1e-05
+                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.002
+                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.002
+                row_condition: product_name = 'GENERATOR IMBALANCE' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.005
+                row_condition: product_name = 'TOLLING ENERGY' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.005
+                row_condition: product_name = 'EXCHANGE' AND rate_units IS NOT NULL
