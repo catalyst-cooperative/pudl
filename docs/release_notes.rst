@@ -23,6 +23,8 @@ EIA-860M
 * Added Puerto Rico generators to the :ref:`core_eia860m__changelog_generators` table.
   Previously the Puerto Rico tabs of EIA-860M were only included in the EIA-860 tables.
   See issue :issue:`5370` and PR :pr:`5769`.
+  The EIA-860 data source page now notes that the August through November 2018
+  EIA-860M spreadsheets lack a Puerto Rico retired generators tab.
 
 Documentation
 ^^^^^^^^^^^^^
