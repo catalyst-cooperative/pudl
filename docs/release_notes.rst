@@ -25,6 +25,12 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added ``dbt`` data validation tests for the FERC EQR tables based on the rules in the
+  EQR Data Dictionary (v4.0). Also added the ``expect_fraction_missing_foreign_key``
+  ``dbt`` generic test, which is a tolerance-based variant of ``foreign_key`` that fails
+  only if the fraction of child keys missing from the parent exceeds a threshold. See
+  :issue:`5770` and :pr:`5772`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
