@@ -98,6 +98,29 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.005
                 row_condition: product_name = 'EXCHANGE' AND rate_units IS NOT NULL
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                max_fraction: 0.0005
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                pk_table_name: source('ferceqr', 'core_ferceqr__contracts')
+                pk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                max_fraction: 0.002
+                distinct_keys: true
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc

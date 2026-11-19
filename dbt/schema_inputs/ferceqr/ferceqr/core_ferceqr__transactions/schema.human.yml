@@ -154,3 +154,34 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.005
                 row_condition: product_name = 'EXCHANGE' AND rate_units IS NOT NULL
+          # Cross-table checks. Every seller in a quarter's transactions should have filed
+          # an identity record for that quarter (observed 0.007% of rows missing overall,
+          # at most 0.5% in a single quarter).
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                max_fraction: 0.0005
+          # Each (seller, contract service agreement ID) pair in transactions should
+          # appear in that quarter's contracts. Compared as distinct pairs, since a few
+          # contracts account for most transactions. Observed 0.03% of pairs missing
+          # overall (0.4% at most in one quarter), and every miss was also a seller
+          # absent from the identity table.
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                pk_table_name: source('ferceqr', 'core_ferceqr__contracts')
+                pk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                max_fraction: 0.002
+                distinct_keys: true

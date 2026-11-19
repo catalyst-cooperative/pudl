@@ -88,3 +88,15 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.03
                 row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
+          # Every seller in a quarter's contracts should have filed an identity record
+          # for that quarter (observed at most 0.003% of rows missing in a quarter).
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                max_fraction: 0.0005
