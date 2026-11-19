@@ -116,7 +116,7 @@ sources:
                   AS INTEGER)
                 min_value: 0
                 max_value: 0
-                max_fraction_above: 1e-05
+                max_fraction_above: 0.00001
                 row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
           - expect_column_fraction_outside_range:
               arguments:

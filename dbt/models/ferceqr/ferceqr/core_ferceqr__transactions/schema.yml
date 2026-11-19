@@ -68,7 +68,7 @@ sources:
                 column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
                 min_value: 0
                 max_value: 0
-                max_fraction_above: 1e-05
+                max_fraction_above: 1.0e-05
                 row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
           - expect_column_fraction_outside_range:
               arguments:
