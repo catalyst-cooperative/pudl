@@ -12,16 +12,19 @@
 
 ### Documentation
 
-- Added data source page for [EPA MATS](data_sources/epamats.html.md).
+* Added data source page for [EPA MATS](data_sources/epamats.html.md).
 
 ### New Data Tests & Validations
 
-- Validate that the margins and equities, long-term debt, noncurrent obligations,
+* Added accounting validation tests for `core_rus12__yearly_balance_sheet_assets` and
+  `out_rus12__yearly_balance_sheet_assets` to check that balance sheet components sum
+  to their reported totals. See issue [#5728](https://github.com/catalyst-cooperative/pudl/issues/5728) and PR [#5749](https://github.com/catalyst-cooperative/pudl/pull/5749).
+* Validated that the margins and equities, long-term debt, noncurrent obligations,
   current and accrued liabilities, and total liabilities and other credits in
   [core_rus7_\_yearly_balance_sheet_liabilities](data_dictionaries/pudl_db.html.md#core-rus7-yearly-balance-sheet-liabilities) and
   [out_rus7_\_yearly_balance_sheet_liabilities](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-liabilities) equal the sum of their
   subcomponents. Unapplied payments are subtracted from total long-term debt. See
-  [#5760](https://github.com/catalyst-cooperative/pudl/issues/5760).
+  issue [#5760](https://github.com/catalyst-cooperative/pudl/issues/5760) and PR [#5762](https://github.com/catalyst-cooperative/pudl/pull/5762).
 
 ### Bug Fixes & Data Cleaning
 
