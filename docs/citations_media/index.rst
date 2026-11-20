@@ -7,5 +7,6 @@ Citations & Media
 
     catalyst_publications
     citing_pudl
+    mentioning_pudl
     citing_cooperative
     further_reading
