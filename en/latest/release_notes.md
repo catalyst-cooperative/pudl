@@ -16,6 +16,13 @@
 
 ### New Data Tests & Validations
 
+- Validate that the margins and equities, long-term debt, noncurrent obligations,
+  current and accrued liabilities, and total liabilities and other credits in
+  [core_rus7_\_yearly_balance_sheet_liabilities](data_dictionaries/pudl_db.md#core-rus7-yearly-balance-sheet-liabilities) and
+  [out_rus7_\_yearly_balance_sheet_liabilities](data_dictionaries/pudl_db.md#out-rus7-yearly-balance-sheet-liabilities) equal the sum of their
+  subcomponents. Unapplied payments are subtracted from total long-term debt. See
+  [#5760](https://github.com/catalyst-cooperative/pudl/issues/5760).
+
 ### Bug Fixes & Data Cleaning
 
 ### Performance Improvements
