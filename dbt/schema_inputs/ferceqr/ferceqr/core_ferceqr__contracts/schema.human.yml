@@ -5,3 +5,98 @@ sources:
       - name: core_ferceqr__contracts
         data_tests:
           - expect_columns_not_all_null
+          # Date ordering rules implied by the EQR data dictionary v4.0. Filers
+          # sometimes get these wrong (or use placeholder dates), so each test
+          # tolerates a small fraction of violations. Observed maximum violation
+          # rates are from the 8 quarters between 2013q3 and 2026q3 available locally.
+          # The contract can't expire before its terms took effect (observed <=0.9%).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(contract_termination_date < commencement_date_of_contract_term
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.015
+          # Likewise for the actual termination date (observed <=1.4%).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(actual_termination_date < commencement_date_of_contract_term
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.02
+          # A contract that has actually terminated must have done so by the end of the
+          # filing quarter (observed 0%).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(actual_termination_date > LAST_DAY(MAKE_DATE(CAST(LEFT(year_quarter, 4) AS INTEGER), CAST(RIGHT(year_quarter, 1) AS INTEGER) * 3, 1)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+          # End date should be before begin date
+          # (observed <=0.6%).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(end_date < begin_date AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.01
+          # The contract execution date should fall on or before the end of the filing
+          # quarter (observed <=0.5%) and not be implausibly old, e.g. a placeholder
+          # date (more than ~68 years before; observed <=0.05%).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: contract_execution_date - LAST_DAY(MAKE_DATE(CAST(LEFT(year_quarter, 4) AS INTEGER), CAST(RIGHT(year_quarter, 1) AS INTEGER) * 3, 1))
+                min_value: -25000
+                max_value: 0
+                max_fraction_below: 0.002
+                max_fraction_above: 0.01
+          # Rate units should be dimensionally consistent with the product sold:
+          # capacity is priced per unit of power ($/MW-MO, $/KW-DAY, ...), not per
+          # unit of energy ($/MWH, CENTS/KWH, ...), and energy is priced per unit of
+          # energy. Appendix D of the EQR data dictionary lists the allowed rate units.
+          # FLAT RATE and NULL are neither, so they are excluded. Observed: capacity with energy rate units <=0.035%, energy with power rate units <=1.1% (2013-2014) and <=0.4% since. The `units` column is not tested because contract quantities for ENERGY are often stated in MW, and ~3% of CAPACITY contracts use energy units.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH'
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.02
+                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
+          # Energy imbalance is priced per unit of energy. Observed ~1.2% of rows with
+          # power units (up to ~10% in a single quarter), so the threshold is loose.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.03
+                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
+          # Every seller in a quarter's contracts should have filed an identity record
+          # for that quarter (observed at most 0.003% of rows missing in a quarter).
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                max_fraction: 0.0005

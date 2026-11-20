@@ -5,3 +5,28 @@ sources:
       - name: core_ferceqr__quarterly_index_pub
         data_tests:
           - expect_columns_not_all_null
+          # Index price publisher records only exist for filers that filed an identity
+          # record for the quarter, and only if that identity record says transactions
+          # were reported to index price publishers (both observed to hold exactly).
+          # filer_unique_id is *not* a shared key across the two tables: index_pub uses
+          # FS2, FS3, ... for additional publishers where identity has FS1 or FA1.
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                parent_row_condition: transactions_reported_to_index_price_publishers
+                distinct_keys: true

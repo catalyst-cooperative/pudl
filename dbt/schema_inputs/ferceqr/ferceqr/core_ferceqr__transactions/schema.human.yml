@@ -5,3 +5,183 @@ sources:
       - name: core_ferceqr__transactions
         data_tests:
           - expect_columns_not_all_null
+          # EQR data dictionary v4.0: Total Transaction Charge is "Transaction Quantity
+          # times Price plus Total Transmission Charge"
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  total_transaction_charge
+                  - (transaction_quantity * price + COALESCE(total_transmission_charge, 0))
+                min_value: -1
+                max_value: 1
+                max_fraction_below: 0.002
+                max_fraction_above: 0.002 # observed ~0.06% total in 2013q3-q4
+          # Transactions can't end before they begin.
+          - dbt_expectations.expression_is_true:
+              arguments:
+                expression: transaction_end_date >= transaction_begin_date
+          # Transactions should begin in the quarter they were filed for. A midnight
+          # start on the first day of the next quarter is a boundary case (seen once
+          # in 2016q4), so allow a vanishingly small fraction.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(year_quarter != CONCAT(YEAR(transaction_begin_date), 'q',
+                  QUARTER(transaction_begin_date)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.000001
+          # The trade date is when the price was agreed, so it should not follow the
+          # transaction begin date. The dictionary says to fall back to the contract
+          # execution date when unknown, so some filers violate this: observed
+          # 0.9-1.3% after the begin date and 0.4-0.7% more than 10 years before it
+          # (mostly placeholder dates like 0001-01-01) in 2013-2016 quarters.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: trade_date - CAST(transaction_begin_date AS DATE)
+                min_value: -3650
+                max_value: 0
+                max_fraction_below: 0.01
+                max_fraction_above: 0.02
+          # Quantities and prices can legitimately be negative (some filers report all
+          # of their sales with negative quantities, and RTO/ISO prices can be
+          # negative), so we don't test for non-negativity. But the standardized
+          # values are just unit conversions of the reported ones, so their signs
+          # should agree. Observed mismatch rates are at most 0.04% for quantity and
+          # 0.002% for price across the 2013-2026 quarters we have locally.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(SIGN(standardized_quantity) != SIGN(transaction_quantity)
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: standardized_quantity != 0 AND transaction_quantity != 0
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(SIGN(standardized_price) != SIGN(price) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.0001
+                row_condition: standardized_price != 0 AND price != 0
+          # Rate units should be dimensionally consistent with the product sold:
+          # capacity is priced per unit of power ($/MW-MO, $/KW-DAY, ...), not per
+          # unit of energy ($/MWH, CENTS/KWH, ...), and energy is priced per unit of
+          # energy. Appendix D of the EQR data dictionary lists the allowed rate units.
+          # FLAT RATE and NULL are neither, so they are excluded. Observed: capacity with energy units <=0.043%, energy with power units <=0.0001% across local quarters.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH'
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.00001
+                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
+          # Booked out power is energy that was contractually committed but not
+          # delivered, so (like ENERGY) it should be priced per unit of energy. Unlike
+          # CAPACITY and ENERGY this is a looser check: ~1.9% of local rows use power
+          # units, almost all from a single filer in 2022q1 (Boston Energy Trading and
+          # Marketing, $/MW-MO). In every other quarter the rate is <=0.03%. The
+          # threshold is table-wide, so it only catches large new problems.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.05
+                row_condition: product_name = 'BOOKED OUT POWER' AND rate_units IS NOT NULL
+          # More products that are essentially always priced per unit of energy; flag
+          # any rate in power or capacity units. Thresholds are table-wide and set above
+          # the rates observed in the complete local quarters (not yet re-run on all of
+          # them): ENERGY IMBALANCE ~0.00001%, EXCHANGE ~0.09%, GENERATOR IMBALANCE
+          # ~0.02%, REAL POWER TRANSMISSION LOSS ~0.03%, TOLLING ENERGY ~0.11%.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.00001
+                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.002
+                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.002
+                row_condition: product_name = 'GENERATOR IMBALANCE' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.005
+                row_condition: product_name = 'TOLLING ENERGY' AND rate_units IS NOT NULL
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.005
+                row_condition: product_name = 'EXCHANGE' AND rate_units IS NOT NULL
+          # Cross-table checks. Every seller in a quarter's transactions should have filed
+          # an identity record for that quarter (observed 0.007% of rows missing overall,
+          # at most 0.5% in a single quarter).
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                max_fraction: 0.0005
+          # Each (seller, contract service agreement ID) pair in transactions should
+          # appear in that quarter's contracts. Compared as distinct pairs, since a few
+          # contracts account for most transactions. Observed 0.03% of pairs missing
+          # overall (0.4% at most in one quarter), and every miss was also a seller
+          # absent from the identity table.
+          - expect_fraction_missing_foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                pk_table_name: source('ferceqr', 'core_ferceqr__contracts')
+                pk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                max_fraction: 0.002
+                distinct_keys: true

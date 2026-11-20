@@ -486,7 +486,9 @@ def validate(
         "node_selection": node_selection,
         "node_exclusion": exclude,
         "dbt_target": override_target if override_target else "etl-full",
-        "parquet_base_path": parquet_base_path,
+        "parquet_base_path": parquet_base_path.rstrip("/")
+        if parquet_base_path is not None
+        else None,
     }
 
     if dry_run:
