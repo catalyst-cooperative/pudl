@@ -51,15 +51,6 @@ points to a different version each time we publish a new release, so a citation 
 uses it won't tell your readers which data you analyzed. The concept DOI is useful when
 you want to refer to PUDL in general, or point someone to the latest release.
 
-To find the version-specific DOI for a release:
-
-#. Go to the `latest PUDL data release on Zenodo
-   <https://doi.org/10.5281/zenodo.3653158>`__.
-#. In the **Versions** panel on the right-hand side of the page, select the version you
-   used (``View all versions`` lists older releases).
-#. Copy the DOI shown on that version's page. Zenodo's **Citation** panel will also
-   generate a citation in many formats, including BibTeX, APA, and Chicago.
-
 If you accessed the data through the ``stable`` path on S3 or the PUDL Data Viewer,
 it is the most recent versioned release. If you accessed it through the ``nightly``
 path on S3 or the PUDL Data Viewer, it's from the nightly builds.
@@ -80,7 +71,16 @@ Citing a Versioned Release
 -------------------------------------------------------------------------------
 
 Cite the version you used, with its version-specific DOI. For example, for the
-``v2026.11.0`` release (replace ``XXXXXXXX`` with the version-specific DOI from Zenodo):
+``v2026.11.0`` release (replace ``XXXXXXXX`` with the version-specific DOI from Zenodo)
+
+To find the version-specific DOI for a release:
+
+#. Go to the `latest PUDL data release on Zenodo
+   <https://doi.org/10.5281/zenodo.3653158>`__.
+#. In the **Versions** panel on the right-hand side of the page, select the version you
+   used (``View all versions`` lists older releases).
+#. Copy the DOI shown on that version's page. Zenodo's **Citation** panel will also
+   generate a citation in many formats, including BibTeX, APA, and Chicago.
 
     Selvans, Z., Gosnell, C., Sharpe, A., Schira, Z., Xia, D., Belfer, E., & Mazaitis,
     K. (2026). *The Public Utility Data Liberation (PUDL) Project* (v2026.11.0) [Data
