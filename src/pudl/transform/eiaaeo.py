@@ -131,7 +131,7 @@ def series_sum_ratio(summands: pd.DataFrame, total: pd.Series) -> float:
 
 
 def filter_enrich_sanitize(
-    raw_df: pd.DataFrame, relevant_series_names: tuple[str]
+    raw_df: pd.DataFrame, relevant_series_names: tuple[str, ...]
 ) -> pd.DataFrame:
     """Basic cleaning steps common to all AEO tables.
 

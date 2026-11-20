@@ -2351,7 +2351,7 @@ class Ferc1AbstractTableTransformer(
         """
         col_name_new = col_name_xbrl
         for rename_stage in self.params.rename_dicts_xbrl:
-            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
+            col_name_new = rename_stage.columns.get(col_name_new, col_name_new)
 
         for value_type in self.params.wide_to_tidy_value_types:
             if col_name_new.endswith(f"_{value_type}"):

@@ -76,7 +76,7 @@ def _fake_check_evaluation_record(
     passed: bool,
     metadata: dict,
 ):
-    """Build a minimal stand-in for the event record shape ``get_event_records`` returns.
+    """Build a stand-in for the record shape ``get_event_records`` returns.
 
     ``dg.materialize()``'s single-process test harness doesn't thread a run's
     ``partition_key`` through to ASSET_CHECK_EVALUATION events the way it does
@@ -143,7 +143,7 @@ def test_latest_check_evaluations_by_quarter_groups_by_quarter_and_table(mocker)
         ),
     ]
     instance = mocker.MagicMock()
-    instance.get_event_records.return_value = records
+    instance.event_log_storage.get_event_records.return_value = records
 
     result = _latest_check_evaluations_by_quarter(instance)
 

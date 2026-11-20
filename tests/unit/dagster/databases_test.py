@@ -9,6 +9,7 @@ import duckdb
 import pandas as pd
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.exc import DBAPIError
 
 from pudl.dagster.assets.output.databases import (
     TableWriteErrorInfo,
@@ -468,7 +469,7 @@ def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
         )
         conn.exec_driver_sql('INSERT INTO "boiler_status" VALUES (1, ?)', ("retired",))
         conn.commit()
-        with pytest.raises(sa.exc.DBAPIError):
+        with pytest.raises(DBAPIError):
             conn.exec_driver_sql(
                 'INSERT INTO "generator_status" VALUES (2, ?)', ("bogus",)
             )

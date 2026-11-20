@@ -113,11 +113,13 @@ def convert_form(
 
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
+    xbrl_config = ferc_to_sqlite.get_data_config(dataset=str(form), data_format="xbrl")
+    if xbrl_config is None:
+        raise ValueError(
+            f"ferc_to_sqlite.{form}_xbrl must be configured but is not set."
+        )
     filings_archives: list[BytesIO] = [
-        datastore.get_filings(year, form)
-        for year in ferc_to_sqlite.get_data_config(
-            dataset=str(form), data_format="xbrl"
-        ).years
+        datastore.get_filings(year, form) for year in xbrl_config.years
     ]
     # if we set clobber=True, clobbers on *every* call to run_main;
     # we already delete the existing base on `clobber=True` in `xbrl2sqlite`

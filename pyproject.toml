@@ -68,6 +68,7 @@ botocore = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.11,<1.12"
+"catalystcoop.pudl_diff" = ">=0.1.1,<0.2"
 click = ">=8.5"
 coloredlogs = ">=14.0"
 coverage = ">=7.15"
@@ -190,6 +191,7 @@ types-networkx = ">=3.6.1"
 types-shapely = ">=2.1.0"
 types-geopandas = ">=1.1.4"
 pandas-stubs = ">=3"
+scipy-stubs = ">=1.18"
 
 # On conda-forge, linux-aarch64 only has marimo <=0.13, which doesn't support our
 # minimum supported Python version, so to get a modern version in all the other

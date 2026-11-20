@@ -359,7 +359,7 @@ on Steam (e.g. "steam 72" and "steam and gas") were classified based on addition
 research of the plants on the Internet.
 """
 
-PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
+PLANT_TYPE_CATEGORIES_HYDRO: dict[str, dict[str, set[str]]] = {
     "categories": {
         "hydro": {
             "conventional",

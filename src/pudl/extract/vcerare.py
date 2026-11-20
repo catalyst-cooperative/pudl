@@ -14,12 +14,12 @@ read in when the fips partition is set to True.
 """
 
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from io import BytesIO
 from pathlib import Path
 
 import pandas as pd
-from dagster import AssetOut, asset, multi_asset
+from dagster import AssetOut, Output, asset, multi_asset
 
 from pudl import logging_helpers
 from pudl.helpers import (
@@ -75,11 +75,9 @@ def _vcerare_column_types(year: int) -> Callable[[list[str]], dict[str, str]]:
         "global_data_config",
     },
 )
-def extract_vcerare(
-    context,
-) -> tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]:
+def extract_vcerare(context) -> Iterator[Output]:
     """Extract data from all vcerare pages and write to parquet files."""
-    extracted_tables = defaultdict(dict)
+    extracted_tables: defaultdict[str, dict[int, ParquetData]] = defaultdict(dict)
 
     # Loop through all years in settings and extract
     for year in context.resources.global_data_config.pudl.vcerare.years:
@@ -104,8 +102,9 @@ def extract_vcerare(
                     )
                 }
             )
-    # For each raw table, return a dict mapping years to a ParquetData object
-    return tuple(extracted_tables.values())
+    # For each raw table, output a dict mapping years to a ParquetData object
+    for table_name in VCERARE_PAGES.values():
+        yield Output(output_name=table_name, value=extracted_tables[table_name])
 
 
 @asset(required_resource_keys={"datastore", "global_data_config"})
