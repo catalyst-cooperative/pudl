@@ -15,6 +15,84 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 partition_expr: EXTRACT(YEAR FROM report_date)
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - memberships
+                  - patronage_capital
+                  - operating_margins_prior_years
+                  - operating_margins_current_year
+                  - non_operating_margins
+                  - other_margins_and_equities
+                total_label: total_margins_and_equities
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - long_term_debt_rus
+                  - long_term_debt_ffb_rus_guaranteed
+                  - long_term_debt_other_rus_guaranteed
+                  - long_term_debt_other
+                  - long_term_debt_rus_economic_development
+                negative_subcomponents_list:
+                  - payments_unapplied
+                total_label: total_long_term_debt
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - noncurrent_obligations_under_capital_leases
+                  - noncurrent_obligations_asset_retirement
+                total_label: total_noncurrent_obligations
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - notes_payable
+                  - accounts_payable
+                  - consumer_deposits
+                  - current_maturities_long_term_debt
+                  - economic_development
+                  - current_maturities_capital_leases
+                  - other_current_and_accrued_liabilities
+                total_label: total_current_and_accrued_liabilities
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: liability_type
+                value_column: ending_balance
+                subcomponents_list:
+                  - total_margins_and_equities
+                  - total_long_term_debt
+                  - total_noncurrent_obligations
+                  - total_current_and_accrued_liabilities
+                  - regulatory
+                  - other_deferred_credits
+                total_label: total_liabilities_and_other_credits
+                tolerance: 10
         columns:
           - name: report_date
           - name: borrower_id_rus
