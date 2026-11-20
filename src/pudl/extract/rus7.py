@@ -29,7 +29,7 @@ class Extractor(CsvExtractor):
         """
         _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
         return str(
-            _file_name.loc[str(self.METADATA._get_partition_selection(partition)), page]
+            _file_name.loc[self.METADATA._get_partition_selection(partition), page]
         )
 
     def process_raw(self, df, page, **partition):

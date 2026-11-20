@@ -11,13 +11,13 @@ import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
-import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 from geopandas.testing import assert_geodataframe_equal
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 from polars.testing import assert_frame_equal as assert_pl_frame_equal
+from pyarrow.types import is_dictionary
 from shapely.geometry import Point
 
 import pudl.helpers
@@ -1480,11 +1480,7 @@ def test_get_parquet_table_polars_full_read_dtypes(mocker, tmp_path):
     resource = _make_multi_type_resource(
         "_test__get_parquet_table_polars_full_read_dtypes"
     )
-    # Pre-existing pyrefly complaint, same as the identical cast() call in
-    # PudlParquetIOManager.handle_output.
-    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(
-        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
-    )
+    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(resource.to_polars_dtypes())
 
     paths = _make_test_pudl_paths(tmp_path)
     parquet_path = paths.parquet_path(resource.name)
@@ -1543,7 +1539,7 @@ def _polars_categorical_writer(resource: Resource, path) -> None:
     -- unlike the pandas writer above.
     """
     pl.LazyFrame({"id": _CATEGORY_IDS, "code": _CATEGORY_VALUES}).cast(
-        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
+        resource.to_polars_dtypes()
     ).sink_parquet(path)
 
 
@@ -1880,7 +1876,7 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     )
 
     schema = pq.read_schema(parquet_data.parquet_path)
-    assert pa.types.is_dictionary(schema.field("code").type)
+    assert is_dictionary(schema.field("code").type)
 
     written_col = pq.read_table(parquet_data.parquet_path)["code"].combine_chunks()
     assert written_col.dictionary.to_pylist() == ["a", "b", "c"]
@@ -2178,7 +2174,7 @@ def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(
     )
 
     schema = pq.read_schema(parquet_data.parquet_path)
-    assert not pa.types.is_dictionary(schema.field("name").type)
+    assert not is_dictionary(schema.field("name").type)
 
     pandas_result = pd.read_parquet(parquet_data.parquet_path)
     assert pandas_result["name"].tolist() == ["a", "b", "a"]
@@ -2236,7 +2232,7 @@ def test_persist_table_as_parquet_native_writer_allow_enum_columns_flattens_to_s
     )
 
     schema = pq.read_schema(parquet_data.parquet_path)
-    assert not pa.types.is_dictionary(schema.field("code").type)
+    assert not is_dictionary(schema.field("code").type)
 
     pandas_result = pd.read_parquet(parquet_data.parquet_path)
     assert pandas_result["code"].tolist() == ["a", "b"]

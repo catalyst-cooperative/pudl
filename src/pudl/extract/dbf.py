@@ -219,14 +219,10 @@ class AbstractFercDbfReader(Protocol):
         """Returns single archive matching specific filters."""
         ...
 
-    def get_table_schema(self: Self, table_name: str, year: int) -> DbfTableSchema:
-        """Returns schema for a given table and a given year."""
-        ...
-
     def load_table_dfs(
         self: Self, table_name: str, partitions: list[dict[str, Any]]
-    ) -> pd.DataFrame | None:
-        """Returns dataframe that contains data for a given table across given years."""
+    ) -> list[PartitionedDataFrame]:
+        """Returns the dataframes that contain data for a given table by partition."""
         ...
 
 
@@ -327,7 +323,7 @@ class FercDbfReader:
                 from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
         """
-        self._cache = {}
+        self._archives: dict[tuple, FercDbfArchive] = {}
         self.datastore = datastore
         self.dataset = dataset
         self.field_parser = field_parser
@@ -354,19 +350,30 @@ class FercDbfReader:
         csv_path = PUDL_PACKAGE_DATA_PATH / self.dataset / base_filename
         return csv.DictReader(csv_path.open())
 
-    @lru_cache  # noqa: B019
-    def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
-        """Returns single dbf archive matching given filters."""
-        nfilters = self._normalize(filters)
-        # Not using a context manager for the zipfile here because it would
-        # close the file after this method returns the FercDbfArchive instance.
-        return FercDbfArchive(
-            self.datastore.get_zipfile_resource(self.dataset, year=year, **nfilters),
-            dbc_path=self._dbc_path[year],
-            partition=filters,
-            table_file_map=self._table_file_map,
-            field_parser=self.field_parser,
-        )
+    def get_archive(self: Self, **filters) -> FercDbfArchive:
+        """Returns single dbf archive matching given filters.
+
+        Archives are cached per reader instance, by their filters. The cache is a
+        plain dict rather than :func:`functools.lru_cache` so that this stays an
+        ordinary method, as :class:`AbstractFercDbfReader` declares it.
+
+        Args:
+            filters: The partition of the archive. It must include ``year``, which
+                selects the DBC file that describes the archive's schema.
+        """
+        key = tuple(sorted(filters.items()))
+        if key not in self._archives:
+            nfilters = self._normalize(filters)
+            # Not using a context manager for the zipfile here because it would
+            # close the file after this method returns the FercDbfArchive instance.
+            self._archives[key] = FercDbfArchive(
+                self.datastore.get_zipfile_resource(self.dataset, **nfilters),
+                dbc_path=self._dbc_path[int(filters["year"])],
+                partition=filters,
+                table_file_map=self._table_file_map,
+                field_parser=self.field_parser,
+            )
+        return self._archives[key]
 
     def get_table_names(self: Self) -> list[str]:
         """Returns list of tables that this datastore provides access to."""
@@ -469,17 +476,22 @@ class FercDbfExtractor:
         self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
     ) -> FercDbfToSqliteDataConfig:
         """Returns dataset relevant data configuration from ferc_to_sqlite_data_config."""
-        return ferc_to_sqlite_data_config.get_data_config(
+        data_config = ferc_to_sqlite_data_config.get_data_config(
             dataset=self.DATASET, data_format="dbf"
         )
+        if not isinstance(data_config, FercDbfToSqliteDataConfig):
+            raise ValueError(
+                f"ferc_to_sqlite.{self.DATASET}_dbf must be configured but is not set."
+            )
+        return data_config
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
         """Returns appropriate instance of AbstractFercDbfReader to access the data."""
         return FercDbfReader(datastore, dataset=self.DATASET)
 
-    def get_db_path(self) -> str:
+    def get_db_path(self) -> Path:
         """Returns the path to the sqlite database."""
-        return str(Path(self.output_path) / self.DATABASE_NAME)
+        return Path(self.output_path) / self.DATABASE_NAME
 
     def get_db_uri(self) -> str:
         """Returns the connection string for the sqlite database."""

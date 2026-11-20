@@ -30,7 +30,7 @@ class Extractor(GenericExtractor):
         """
         _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
         return str(
-            _file_name.loc[str(self.METADATA._get_partition_selection(partition)), page]
+            _file_name.loc[self.METADATA._get_partition_selection(partition), page]
         )
 
     def load_source(self, page: str, **partition):

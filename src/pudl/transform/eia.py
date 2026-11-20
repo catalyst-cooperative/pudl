@@ -42,6 +42,7 @@ from pudl.helpers import (
     clean_eia_counties,
     convert_cols_dtypes,
     make_changelog,
+    sum_na,
 )
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
@@ -1093,7 +1094,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     bf_eia923 = (
         bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
         .groupby([pd.Grouper(freq="YS"), "plant_id_eia", "boiler_id"])
-        .agg({"total_heat_content_mmbtu": pudl.helpers.sum_na})
+        .agg({"total_heat_content_mmbtu": sum_na})
         .reset_index()
         .drop_duplicates(subset=["plant_id_eia", "report_date", "boiler_id"])
     )

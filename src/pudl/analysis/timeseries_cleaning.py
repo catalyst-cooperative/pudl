@@ -1676,7 +1676,7 @@ def impute_flagged_values(
             # Add empty columns back and save result
             result[blank] = np.nan
             results.append(result)
-    return cast(DataFrame[TimeseriesMatrix], pd.concat(results))
+    return pd.concat(results)
 
 
 @dataclass

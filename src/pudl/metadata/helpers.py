@@ -422,7 +422,7 @@ def try_aggfunc(
 
 def groupby_apply(
     df: pd.DataFrame,
-    by: Iterable,
+    by: str | list[str],
     aggfuncs: dict[Any, Callable],
     raised: bool = True,
     error: Callable | None = None,
@@ -508,7 +508,7 @@ def groupby_apply(
 
 def groupby_aggregate(
     df: pd.DataFrame,
-    by: Iterable,
+    by: str | list[str],
     aggfuncs: dict[Any, Callable],
     raised: bool = True,
     error: Callable | None = None,

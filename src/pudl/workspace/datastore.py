@@ -169,9 +169,9 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str | None = None) -> dict[str, set[str]]:
+    def get_partitions(self, name: str | None = None) -> dict[str, set[Any]]:
         """Return mapping of known partition keys to their allowed known values."""
-        partitions: dict[str, set[str]] = defaultdict(set)
+        partitions: dict[str, set[Any]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
                 continue

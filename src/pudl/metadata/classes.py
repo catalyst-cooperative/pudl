@@ -1001,28 +1001,24 @@ class Field(PudlMeta):
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
+        column_options: dict[str, Any] = {
+            "checks": checks,
+            "nullable": not constraints.required,
+            "unique": constraints.unique,
+        }
+        # For enum fields the physical dtype is unconstrained Categorical/"category"
+        # (see Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
+        # constraint itself is enforced by the `checks` (Check.isin) above, not by
+        # the declared column dtype.
+        if use_pandas_backend:
+            if constraints.enum:
+                return pr_pandas.Column("category", **column_options)
+            if self.type == "geometry":
+                return pr_pandas.Column(gpd.array.GeometryDtype(), **column_options)
+            return pr_pandas.Column(FIELD_DTYPES_PANDAS[self.type], **column_options)
         if constraints.enum:
-            # The physical dtype is unconstrained Categorical/"category" (see
-            # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
-            # constraint itself is enforced by the `checks` (Check.isin) above,
-            # not by the declared column dtype.
-            column_type = "category" if use_pandas_backend else pl.Categorical()
-        elif self.type == "geometry":
-            column_type = gpd.array.GeometryDtype()
-        else:
-            column_type = (
-                FIELD_DTYPES_PANDAS[self.type]
-                if use_pandas_backend
-                else FIELD_DTYPES_POLARS[self.type]
-            )
-
-        pandera_module = pr_pandas if use_pandas_backend else pr_polars
-        return pandera_module.Column(
-            column_type,
-            checks=checks,
-            nullable=not constraints.required,
-            unique=constraints.unique,
-        )
+            return pr_polars.Column(pl.Categorical(), **column_options)
+        return pr_polars.Column(FIELD_DTYPES_POLARS[self.type], **column_options)
 
 
 # ---- Classes: Resource ---- #
@@ -1790,7 +1786,9 @@ class Resource(PudlMeta):
     title: String | None = None
     description: String
     harvest: ResourceHarvest = ResourceHarvest()
-    schema: Schema
+    # "schema" is the Frictionless datapackage property name, so it can't be renamed.
+    # It shadows the deprecated pydantic v1 BaseModel.schema() classmethod.
+    schema: Schema  # type: ignore[bad-override-mutable-attribute]
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
@@ -2083,9 +2081,9 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_duckdb_dtype(conn) for f in self.schema.fields}
 
-    def to_polars_dtypes(self) -> dict[str, pl.DataType]:
+    def to_polars_dtypes(self) -> pl.Schema:
         """Return Polars data type of each field by field name."""
-        return {f.name: f.to_polars_dtype() for f in self.schema.fields}
+        return pl.Schema({f.name: f.to_polars_dtype() for f in self.schema.fields})
 
     def to_pandas_dtypes(self) -> dict[str, PandasDtype]:
         """Return Pandas data type of each field by field name."""

@@ -2,7 +2,7 @@
 
 import itertools
 from collections.abc import Callable, Iterable
-from typing import Literal, cast
+from typing import Literal
 
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
@@ -288,7 +288,7 @@ def overlay(
                 )
         if dfs:
             # Assumed to be faster than incremental concat
-            result = cast(gpd.GeoDataFrame, pd.concat([result] + dfs, axis="columns"))
+            result = pd.concat([result] + dfs, axis="columns")
     return result.drop(columns=keys)
 
 
