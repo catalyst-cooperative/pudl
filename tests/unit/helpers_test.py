@@ -11,17 +11,18 @@ import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
-import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 from geopandas.testing import assert_geodataframe_equal
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 from polars.testing import assert_frame_equal as assert_pl_frame_equal
+from pyarrow.types import is_dictionary
 from shapely.geometry import Point
 
 import pudl.helpers
 from pudl.helpers import (
+    UNICODE_WHITESPACE_REGEX,
     ParquetData,
     add_fips_ids,
     apply_pudl_dtypes,
@@ -34,16 +35,20 @@ from pudl.helpers import (
     diff_wide_tables,
     duckdb_connect,
     duckdb_extract_zipped_csv,
+    duckdb_relation_from_parquet,
     env_var_is_true,
     expand_timeseries,
     flatten_list,
     get_parquet_table,
     get_parquet_table_polars,
     make_changelog,
+    month_year_to_date,
     normalize_year_fragments,
+    null_dates_outside_ns_bounds,
     persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
+    simplify_strings,
     standardize_na_values,
     standardize_percentages_ratio,
     standardize_phone_column,
@@ -488,6 +493,70 @@ def test_convert_to_date():
     assert_frame_equal(out_df, expected_df)
 
 
+def test_null_dates_outside_ns_bounds():
+    """Dates that overflow nanosecond resolution are nulled, like they were in pandas 2."""
+    dates = pd.to_datetime(
+        pd.Series(["0006-03-29", "1677-09-21", "2001-04-11", None, "9650-06-01"]),
+        errors="coerce",
+    )
+    out = null_dates_outside_ns_bounds(dates)
+    assert out.dtype == dates.dtype
+    assert out.isna().tolist() == [True, True, False, True, True]
+    assert out[2] == pd.Timestamp("2001-04-11")
+
+
+def test_month_year_to_date_nulls_out_of_bounds_dates():
+    """Implausible operating years become NaT instead of a bogus timestamp."""
+    in_df = pd.DataFrame(
+        {
+            "boiler_operating_month": [6, 12, 3],
+            "boiler_operating_year": [9650, 1559, 2010],
+        }
+    )
+    out = month_year_to_date(in_df)
+    assert list(out.columns) == ["boiler_operating_date"]
+    assert out["boiler_operating_date"].isna().tolist() == [True, True, False]
+    assert out["boiler_operating_date"].iloc[2] == pd.Timestamp("2010-03-01")
+
+
+@pytest.mark.parametrize("dtype", ["Int64", "Float64", "float64", object])
+def test_month_year_to_date_with_missing_parts(dtype):
+    """Rows missing a month or year become NaT for nullable and plain numeric dtypes.
+
+    ``pd.to_datetime`` raises "cannot convert NA to integer" on nullable integer
+    columns that contain NA, so this guards the NA-to-NaN cast in the function.
+    """
+    in_df = pd.DataFrame(
+        {
+            "unit_operating_year": [2010, None, 2012, None],
+            "unit_operating_month": [3, 4, None, None],
+            "other": [1, 2, 3, 4],
+        }
+    ).astype({"unit_operating_year": dtype, "unit_operating_month": dtype})
+    out = month_year_to_date(in_df)
+    assert list(out.columns) == ["other", "unit_operating_date"]
+    assert out["unit_operating_date"].isna().tolist() == [False, True, True, True]
+    assert out["unit_operating_date"].iloc[0] == pd.Timestamp("2010-03-01")
+
+
+@pytest.mark.parametrize("dtype", [object, "string", str])
+def test_unicode_whitespace_regex(dtype):
+    """Unicode whitespace is collapsed for every string dtype, as it was in pandas 2."""
+    col = pd.Series(
+        ["4809\xa0Jefferson\xa0Highway", "a\u2009 b\u3000c", "d  e"], dtype=dtype
+    )
+    out = col.str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
+    assert out.tolist() == ["4809 Jefferson Highway", "a b c", "d e"]
+
+
+def test_simplify_strings_collapses_non_breaking_spaces():
+    """Non-breaking spaces are normalized like other whitespace."""
+    in_df = pd.DataFrame({"addr": ["  4809\xa0Jefferson\xa0\xa0Highway ", None]})
+    out_df = simplify_strings(in_df, columns=["addr"])
+    assert out_df["addr"].iloc[0] == "4809 jefferson highway"
+    assert pd.isna(out_df["addr"].iloc[1])
+
+
 def test_standardize_na_values():
     """Test cleanup of bad EIA spreadsheet NA values."""
     in_df = pd.DataFrame(
@@ -673,6 +742,49 @@ def test_convert_col_to_bool():
     )
 
 
+@pytest.mark.parametrize(
+    "func,kwargs,df",
+    [
+        pytest.param(
+            convert_col_to_bool,
+            {"col_name": "x", "true_values": ["A"], "false_values": ["B"]},
+            pd.DataFrame({"x": ["A", "B"]}),
+            id="convert_col_to_bool",
+        ),
+        pytest.param(
+            pudl.helpers.oob_to_nan,
+            {"cols": ["x"], "lb": 0, "ub": 1},
+            pd.DataFrame({"x": [-1.0, 0.5, 2.0]}),
+            id="oob_to_nan",
+        ),
+        pytest.param(
+            simplify_strings,
+            {"columns": ["x"]},
+            pd.DataFrame({"x": ["  A  B ", "c"]}),
+            id="simplify_strings",
+        ),
+        pytest.param(
+            month_year_to_date,
+            {},
+            pd.DataFrame({"a_year": [2020, 2021], "a_month": [1, 2]}),
+            id="month_year_to_date",
+        ),
+        pytest.param(
+            convert_to_date,
+            {"year_col": "y"},
+            pd.DataFrame({"y": [2020, 2021]}),
+            id="convert_to_date",
+        ),
+    ],
+)
+def test_shallow_copy_helpers_dont_mutate_input(func, kwargs, df):
+    """Helpers that shallow-copy their input return a new object and leave it intact."""
+    original = df.copy()
+    out = func(df, **kwargs)
+    assert out is not df
+    assert_frame_equal(df, original)
+
+
 def test_convert_col_to_bool_unspecified_value_raises():
     """Values not in true_values or false_values should raise AssertionError."""
     df = pd.DataFrame({"col1": ["A", "B", "C"], "col2": [1, 2, 3]})
@@ -711,11 +823,14 @@ def test_diff_wide_tables():
     assert empty_diff.changed.empty
 
     def assert_diff_equal(observed, expected):
-        observed_reshaped = observed.droplevel(level=0, axis="columns")
-        expected_reshaped = expected.set_index(observed_reshaped.index.names)
-        # pandas 3 infers a str dtype for these columns, pandas 2 leaves object.
-        # TODO: pandas3 set check_dtype=True after migration See #3737
-        assert_frame_equal(observed_reshaped, expected_reshaped, check_dtype=False)
+        # Under pandas 3 the melted value columns infer as the default string dtype
+        # (missing values as nan) rather than object (missing values as None); normalize
+        # both sides to nullable string so the comparison is about content, not sentinel.
+        observed_reshaped = observed.droplevel(level=0, axis="columns").astype("string")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names).astype(
+            "string"
+        )
+        assert_frame_equal(observed_reshaped, expected_reshaped)
 
     diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
 
@@ -905,7 +1020,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         window=12,
         min_periods=6,
         win_type="triang",
-    ).round(2)
+    ).round({"fuel_cost_per_mmbtu_rolling": 2})
     pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
     # reorder the input df using sample to make sure this works
     # no matter how the input df is sorted
@@ -916,7 +1031,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         window=12,
         min_periods=6,
         win_type="triang",
-    ).round(2)
+    ).round({"fuel_cost_per_mmbtu_rolling": 2})
     pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)
 
 
@@ -1365,11 +1480,7 @@ def test_get_parquet_table_polars_full_read_dtypes(mocker, tmp_path):
     resource = _make_multi_type_resource(
         "_test__get_parquet_table_polars_full_read_dtypes"
     )
-    # Pre-existing pyrefly complaint, same as the identical cast() call in
-    # PudlParquetIOManager.handle_output.
-    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(
-        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
-    )
+    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(resource.to_polars_dtypes())
 
     paths = _make_test_pudl_paths(tmp_path)
     parquet_path = paths.parquet_path(resource.name)
@@ -1428,7 +1539,7 @@ def _polars_categorical_writer(resource: Resource, path) -> None:
     -- unlike the pandas writer above.
     """
     pl.LazyFrame({"id": _CATEGORY_IDS, "code": _CATEGORY_VALUES}).cast(
-        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
+        resource.to_polars_dtypes()
     ).sink_parquet(path)
 
 
@@ -1765,7 +1876,7 @@ def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     )
 
     schema = pq.read_schema(parquet_data.parquet_path)
-    assert pa.types.is_dictionary(schema.field("code").type)
+    assert is_dictionary(schema.field("code").type)
 
     written_col = pq.read_table(parquet_data.parquet_path)["code"].combine_chunks()
     assert written_col.dictionary.to_pylist() == ["a", "b", "c"]
@@ -1815,7 +1926,7 @@ def _forensics_records() -> pd.DataFrame:
 
 def test_make_changelog_valid_until_is_per_column():
     """valid_until_date follows the next change in the same column, not other columns."""
-    out = make_changelog(_forensics_records(), ["plant_id_eia", "report_date"])
+    out = make_changelog(_forensics_records(), ["plant_id_eia"])
     valid_until = {
         (plant, column, value, start): end
         for plant, column, value, start, end in zip(
@@ -1829,14 +1940,14 @@ def test_make_changelog_valid_until_is_per_column():
     }
     assert valid_until == {
         # Unchanged values collapse to one record. With no later change in its own
-        # column it is valid until the entity's last report date.
-        (1, "state", "AK", "2020-01-01"): "2022-01-01",
+        # column it is valid until one month past the entity's last report date.
+        (1, "state", "AK", "2020-01-01"): "2022-02-01",
         (1, "county", "Kenai", "2020-01-01"): "2021-01-01",
-        (1, "county", "Kodiak", "2021-01-01"): "2022-01-01",
+        (1, "county", "Kodiak", "2021-01-01"): "2022-02-01",
         (1, "zip_code", "99661", "2020-01-01"): "2021-01-01",
         (1, "zip_code", "99662", "2021-01-01"): "2022-01-01",
         (1, "zip_code", "99663", "2022-01-01"): "2022-02-01",
-        (2, "state", "WA", "2020-01-01"): "2021-01-01",
+        (2, "state", "WA", "2020-01-01"): "2021-02-01",
     }
     assert (out["valid_until_date"] > out["report_date"]).all()
 
@@ -1844,9 +1955,9 @@ def test_make_changelog_valid_until_is_per_column():
 @pytest.mark.parametrize("seed", range(5))
 def test_make_changelog_is_order_independent(seed: int):
     """Shuffling the input rows must not change the changelog."""
-    ordered = make_changelog(_forensics_records(), ["plant_id_eia", "report_date"])
+    ordered = make_changelog(_forensics_records(), ["plant_id_eia"])
     shuffled_in = _forensics_records().sample(frac=1, random_state=seed)
-    shuffled = make_changelog(shuffled_in, ["plant_id_eia", "report_date"])
+    shuffled = make_changelog(shuffled_in, ["plant_id_eia"])
     assert_frame_equal(ordered.reset_index(drop=True), shuffled.reset_index(drop=True))
 
 
@@ -1875,8 +1986,8 @@ def test_make_changelog_handles_mixed_record_value_types():
             ),
         }
     )
-    idx = ["plant_id_eia", "report_date"]
-    out = make_changelog(df.copy(), idx).reset_index(drop=True)
+    id_cols = ["plant_id_eia"]
+    out = make_changelog(df.copy(), id_cols).reset_index(drop=True)
     # The unchanged operating date collapses to a single record.
     assert out.groupby("column_name").size().to_dict() == {
         "capacity": 2,
@@ -1890,7 +2001,7 @@ def test_make_changelog_handles_mixed_record_value_types():
     ]
     assert first_capacity.valid_until_date.iloc[0] == pd.Timestamp("2021-01-01")
     # Row order of the input doesn't matter.
-    shuffled = make_changelog(df.sample(frac=1, random_state=3), idx)
+    shuffled = make_changelog(df.sample(frac=1, random_state=3), id_cols)
     assert_frame_equal(out, shuffled.reset_index(drop=True))
 
 
@@ -1906,8 +2017,8 @@ def test_make_changelog_without_record_value_column():
             "county": ["Kenai", "Kodiak", "X", "X"],
         }
     )
-    idx = ["plant_id_eia", "report_date"]
-    out = make_changelog(df.copy(), idx).reset_index(drop=True)
+    id_cols = ["plant_id_eia"]
+    out = make_changelog(df.copy(), id_cols).reset_index(drop=True)
     assert "record_value" not in out.columns
     assert "column_name" not in out.columns
 
@@ -1923,19 +2034,120 @@ def test_make_changelog_without_record_value_column():
     }
     assert valid_until == {
         # Plant 1's county changes, so the first record is valid until the change
-        # (2021-01-01), and the changed record -- itself the entity's last report --
-        # is valid one more month past its own report date.
+        # (2021-01-01), and the changed record is valid one month past the entity's
+        # last report.
         (1, "Kenai", "2020-01-01"): "2021-01-01",
         (1, "Kodiak", "2021-01-01"): "2021-02-01",
         # Plant 2's second report is an exact duplicate of the first and collapses
-        # away, so the surviving record is valid until the entity's last report date,
-        # without the extra month (it wasn't itself reported on that date).
-        (2, "X", "2020-01-01"): "2021-01-01",
+        # away, but the value was still reported on the entity's last report date, so
+        # the surviving record ends at the same date as plant 1's last record.
+        (2, "X", "2020-01-01"): "2021-02-01",
     }
 
     # Row order of the input doesn't matter.
-    shuffled = make_changelog(df.sample(frac=1, random_state=3), idx)
+    shuffled = make_changelog(df.sample(frac=1, random_state=3), id_cols)
     assert_frame_equal(out, shuffled.reset_index(drop=True))
+
+
+def _gen_status_changelog(statuses: list[str | None]) -> pd.DataFrame:
+    """Run make_changelog on one generator reporting one status per month."""
+    df = pd.DataFrame(
+        {
+            "plant_id_eia": 1,
+            "generator_id": "A",
+            "report_date": pd.date_range(
+                "2026-01-01", periods=len(statuses), freq="MS"
+            ),
+            "operational_status_code": statuses,
+        }
+    )
+    return make_changelog(df, ["plant_id_eia", "generator_id"])
+
+
+@pytest.mark.parametrize(
+    "statuses,expected_months",
+    [
+        # Regression test for #5730: a value that reverts to an earlier state must
+        # get a new record, not be swallowed as a duplicate of the older one.
+        (["OP", "OA", "OP"], [1, 2, 3]),
+        (["OP", "OA", "SB"], [1, 2, 3]),
+        (["OP", "OP", "OA"], [1, 3]),
+        (["OP", "OP", "OP"], [1]),
+        (["OP", "OA", "OP", "OP", "OA"], [1, 2, 3, 5]),
+        # Missing values compare as equal to each other.
+        (["OP", None, None, "OP"], [1, 2, 4]),
+    ],
+)
+def test_make_changelog_keeps_reverted_values(statuses, expected_months):
+    """Records are kept when they differ from the *previous* record, not any earlier.
+
+    Comparing against every earlier record (as ``drop_duplicates`` does) drops a
+    record whose values return to an earlier state (A, B, A), leaving the
+    intermediate value B in force.
+    """
+    out = _gen_status_changelog(statuses)
+    assert out["report_date"].dt.month.tolist() == expected_months
+    # The record in force on the final date is the one actually reported then.
+    assert out["operational_status_code"].iloc[-1] == statuses[-1] or (
+        statuses[-1] is None and pd.isna(out["operational_status_code"].iloc[-1])
+    )
+
+
+def test_make_changelog_reverted_value_validity_periods():
+    """Each kept record is valid until the next one starts.
+
+    The final value goes one month past the end of the series.
+    """
+    out = _gen_status_changelog(["OP", "OA", "OP"])
+    assert out["valid_until_date"].tolist() == list(
+        pd.to_datetime(["2026-02-01", "2026-03-01", "2026-04-01"])
+    )
+
+
+def test_make_changelog_last_records_all_end_on_the_same_date():
+    """Every series' last record ends one month past the entity's last report.
+
+    It doesn't matter whether the last value began earlier or on the last report date.
+    """
+    constant = _gen_status_changelog(["OP", "OP", "OP"])
+    changed_last = _gen_status_changelog(["OP", "OP", "OA"])
+    assert constant["valid_until_date"].tolist() == [pd.Timestamp("2026-04-01")]
+    assert changed_last["valid_until_date"].iloc[-1] == pd.Timestamp("2026-04-01")
+
+
+def test_make_changelog_reverted_value_in_tall_table():
+    """Reverted values are tracked per column in tall forensics tables."""
+    df = pd.DataFrame(
+        {
+            "plant_id_eia": 1,
+            "report_date": pd.to_datetime(
+                ["2020-01-01", "2021-01-01", "2022-01-01"] * 2
+            ),
+            "column_name": ["state"] * 3 + ["county"] * 3,
+            "record_value": ["AK", "WA", "AK", "X", "X", "X"],
+        }
+    )
+    out = make_changelog(df, ["plant_id_eia"])
+    kept = list(zip(out["column_name"], out["report_date"].dt.year, strict=True))
+    assert kept == [("county", 2020), ("state", 2020), ("state", 2021), ("state", 2022)]
+
+
+def test_make_changelog_multiple_records_per_series_and_date():
+    """Several distinct values on one series/date are compared as a set."""
+    df = pd.DataFrame(
+        {
+            "plant_id_eia": 1,
+            "report_date": pd.to_datetime(
+                ["2020-01-01"] * 2 + ["2021-01-01"] * 2 + ["2022-01-01"] * 2
+            ),
+            "column_name": "state",
+            "record_value": ["AK", "WA", "WA", "AK", "AK", "OR"],
+        }
+    )
+    out = make_changelog(df, ["plant_id_eia"])
+    # 2021 reports the same set as 2020 (in a different order), so it's not a change.
+    assert out["report_date"].dt.year.tolist() == [2020, 2020, 2022, 2022]
+    assert (out["valid_until_date"] > out["report_date"]).all()
 
 
 def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(
@@ -1962,7 +2174,7 @@ def test_persist_table_as_parquet_native_writer_round_trips_non_enum_relation(
     )
 
     schema = pq.read_schema(parquet_data.parquet_path)
-    assert not pa.types.is_dictionary(schema.field("name").type)
+    assert not is_dictionary(schema.field("name").type)
 
     pandas_result = pd.read_parquet(parquet_data.parquet_path)
     assert pandas_result["name"].tolist() == ["a", "b", "a"]
@@ -2020,7 +2232,7 @@ def test_persist_table_as_parquet_native_writer_allow_enum_columns_flattens_to_s
     )
 
     schema = pq.read_schema(parquet_data.parquet_path)
-    assert not pa.types.is_dictionary(schema.field("code").type)
+    assert not is_dictionary(schema.field("code").type)
 
     pandas_result = pd.read_parquet(parquet_data.parquet_path)
     assert pandas_result["code"].tolist() == ["a", "b"]
@@ -2064,6 +2276,36 @@ class TestDuckdbConnect:
 
 
 @pytest.mark.parametrize(
+    ("use_all_partitions", "expected_read_ahead_depth"),
+    [(True, 0), (False, -1)],
+)
+def test_duckdb_relation_from_parquet_read_ahead(
+    use_all_partitions, expected_read_ahead_depth, tmp_path, mocker
+):
+    """Directory-wide reads disable read-ahead so thousands of files don't stay open."""
+    mocker.patch.object(
+        ParquetData,
+        "parquet_directory",
+        new_callable=mocker.PropertyMock,
+        return_value=tmp_path,
+    )
+    mocker.patch.object(
+        ParquetData,
+        "parquet_path",
+        new_callable=mocker.PropertyMock,
+        return_value=tmp_path / "a.parquet",
+    )
+    pd.DataFrame({"x": [1]}).to_parquet(tmp_path / "a.parquet")
+    parquet_data = ParquetData(table_name="_test__read_ahead", partitions={})
+    with duckdb_relation_from_parquet(
+        parquet_data, use_all_partitions=use_all_partitions
+    ) as (_, conn):
+        depth = conn.execute("select current_setting('read_ahead_depth')").fetchone()
+        assert depth is not None
+        assert depth[0] == expected_read_ahead_depth
+
+
+@pytest.mark.parametrize(
     ("kind", "writer"),
     [
         ("pandas", (pd.DataFrame, "to_parquet")),
@@ -2086,6 +2328,7 @@ def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
         "polars": lambda: pl.LazyFrame({"a": [1, 2]}),
         "duckdb": lambda: duckdb.sql("SELECT 1 AS a UNION ALL SELECT 2"),
     }[kind]()
+    assert data is not None  # duckdb.sql() is typed Optional (None for non-SELECT)
     spy = mocker.spy(*writer)
 
     parquet_data = persist_table_as_parquet(data, table_name=f"_test__{kind}_zstd")

@@ -213,7 +213,7 @@ class ZenodoClient:
                         response=response,
                     )
                 return response
-            except (requests.RequestException, OSError, requests.HTTPError) as exc:
+            except (requests.RequestException, OSError) as exc:
                 if attempt == max_tries:
                     raise
                 wait = 2**attempt

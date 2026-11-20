@@ -41,7 +41,7 @@ def test_clean_utility_name_variations_param(raw, expected_nonnull_count):
     if len(non_null) > 0:
         assert non_null[0] == non_null[0].strip()
     # Ensure empty string and None become pd.NA somewhere in the result
-    assert any(pd.isna(x) for x in cleaned.iloc[len(raw) - 2 :].to_numpy())
+    assert cleaned.iloc[len(raw) - 2 :].isna().any()
 
 
 @pytest.mark.parametrize(
@@ -307,6 +307,7 @@ def test_add_new_matches_assigns_new_ids_and_notes_param(
         matches_new=matches_new, existing_glue_df=existing_glue_df
     )
 
+    assert updated is not None
     # Expect the updated dataframe length to equal original + number of new matches
     assert len(updated) == len(existing_glue_df) + expected_new_rows
     # Notes column should exist

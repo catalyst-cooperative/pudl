@@ -2,7 +2,9 @@
 
 import json
 import re
+from collections.abc import Callable
 from datetime import date
+from itertools import chain
 from typing import Any, Literal
 
 import duckdb.sqltypes
@@ -17,15 +19,21 @@ import pytest
 import sqlalchemy as sa
 from pandera.errors import SchemaErrors
 from shapely import Point
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from pudl.metadata.classes import (
+    DATAPACKAGES,
+    FERCEQR_PACKAGE,
     PUDL_PACKAGE,
+    PUDL_SOURCES_WITHOUT_TABLES,
     DataSource,
     Field,
     FieldConstraints,
     Package,
     PudlResourceDescriptor,
     Resource,
+    all_resources,
+    find_resource,
 )
 from pudl.metadata.descriptions import (
     PARTITION_OFFSETS,
@@ -34,6 +42,7 @@ from pudl.metadata.descriptions import (
 )
 from pudl.metadata.dtypes import (
     PudlDtypeBackend,
+    _get_resource_dtypes,
     apply_pudl_dtypes,
     apply_pudl_dtypes_polars,
     get_pudl_dtypes,
@@ -48,6 +57,7 @@ from pudl.metadata.sources import SOURCES
 from pudl.metadata.units import PUDL_UNIT_REGISTRY
 
 PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
+FERCEQR_RESOURCES = {r.name: r for r in FERCEQR_PACKAGE.resources}
 PUDL_ENCODERS = PUDL_PACKAGE.encoders
 
 
@@ -156,7 +166,7 @@ def test_datetime_field_sql_check_constraint_accepts_real_values(
         else:
             with (
                 engine.begin() as conn,
-                pytest.raises(sa.exc.IntegrityError, match="CHECK constraint failed"),
+                pytest.raises(IntegrityError, match="CHECK constraint failed"),
             ):
                 conn.execute(insert, {"value": value})
     finally:
@@ -180,10 +190,12 @@ def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
     sa.Table("t", metadata, field.to_sql(dialect="duckdb"))
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)  # would raise a Parser Error for bare REGEXP
+        metadata.create_all(
+            engine, checkfirst=False
+        )  # would raise a Parser Error for bare REGEXP
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO t (code) VALUES ('AB')"))
-            with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
+            with pytest.raises(DBAPIError, match="CHECK constraint failed"):
                 conn.execute(sa.text("INSERT INTO t (code) VALUES ('abc')"))
     finally:
         engine.dispose()
@@ -210,7 +222,9 @@ def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
     resource.to_sql(metadata, dialect="duckdb")
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)  # would raise if SERIAL were emitted
+        metadata.create_all(
+            engine, checkfirst=False
+        )  # would raise if SERIAL were emitted
     finally:
         engine.dispose()
 
@@ -285,11 +299,11 @@ def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types(
 
     engine = sa.create_engine("duckdb:///:memory:")
     try:
-        metadata.create_all(engine)
+        metadata.create_all(engine, checkfirst=False)
         with engine.begin() as conn:
             conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
             conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
-            with pytest.raises(sa.exc.DBAPIError):
+            with pytest.raises(DBAPIError):
                 conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('steam')"))
     finally:
         engine.dispose()
@@ -703,7 +717,7 @@ def test_field_unit_strings() -> None:
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()
-    for resource in PUDL_RESOURCES.values():
+    for resource in chain(PUDL_RESOURCES.values(), FERCEQR_RESOURCES.values()):
         used_fields |= {f.name for f in resource.schema.fields}
     defined_fields = set(FIELD_METADATA.keys())
     unused_fields = sorted(defined_fields - used_fields)
@@ -862,6 +876,18 @@ def test_resource_descriptors_can_encode_schemas(
             ),
             id="duplicate PK",
         ),
+        pytest.param(
+            "column 'unexpected' not in DataFrameSchema",
+            pl.DataFrame(
+                {
+                    "plant_id_eia": [12345],
+                    "city": ["Bloomington"],
+                    "capacity_mw": [1.3],
+                    "unexpected": ["extra column"],
+                }
+            ),
+            id="extra column",
+        ),
     ],
 )
 def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
@@ -910,9 +936,78 @@ def test_resource_descriptor_schema_failures_w_geometry(
         dummy_pandera_schema_w_geometry.validate(data)
 
 
-def test_frictionless_data_package_non_empty(tmp_path):
-    datapackage = PUDL_PACKAGE.to_frictionless()
-    assert len(datapackage.resources) == len(RESOURCE_METADATA)
+def test_resource_sources_are_all_known_data_sources():
+    """Every source ID in the resource metadata must be a key in SOURCES.
+
+    Resource construction silently drops unknown source IDs, so a typo would
+    otherwise leave a resource without the source it was meant to cite.
+    """
+    unknown = {
+        name: sorted(set(resource.get("sources", [])) - set(SOURCES))
+        for name, resource in RESOURCE_METADATA.items()
+    }
+    unknown = {name: ids for name, ids in unknown.items() if ids}
+    assert not unknown, f"Resources cite sources not in SOURCES: {unknown}"
+
+
+def test_frictionless_data_package_non_empty():
+    pudl_datapackage = PUDL_PACKAGE.to_frictionless()
+    ferceqr_datapackage = FERCEQR_PACKAGE.to_frictionless()
+    assert len(pudl_datapackage.resources + ferceqr_datapackage.resources) == len(
+        RESOURCE_METADATA
+    )
+
+
+def _descriptor_source_names(package: Package) -> list[str]:
+    return [
+        s["name"] for s in json.loads(package.to_frictionless().to_json())["sources"]
+    ]
+
+
+def test_package_sources_default_to_resource_sources():
+    """With no extra sources, package sources are the union of resource sources."""
+    package = Package.from_resource_ids(
+        resource_ids=("core_eia__codes_averaging_periods",), name="test"
+    )
+    expected = {s.name for r in package.resources for s in r.sources}
+    assert set(_descriptor_source_names(package)) == expected
+
+
+def test_package_extra_source_ids_are_added_and_sorted():
+    package = Package.from_resource_ids(
+        included_etl_groups=("ferceqr",),
+        name="test",
+        extra_source_ids=("ferc60", "ferc2"),
+    )
+    assert [s.name for s in package.sources] == ["ferc2", "ferc60", "ferceqr"]
+    assert _descriptor_source_names(package) == ["ferc2", "ferc60", "ferceqr"]
+
+
+def test_package_extra_source_id_already_used_by_resources_raises():
+    with pytest.raises(ValueError, match=r"already use: \['ferceqr'\]"):
+        Package.from_resource_ids(
+            included_etl_groups=("ferceqr",),
+            name="test",
+            extra_source_ids=("ferc2", "ferceqr"),
+        )
+
+
+def test_package_unknown_extra_source_id_raises():
+    with pytest.raises(ValueError, match="Unknown data source IDs"):
+        Package.from_resource_ids(extra_source_ids=("not_a_source",), name="bad")
+
+
+def test_sources_without_tables_are_not_used_by_any_resource():
+    """Sources that gain a table must be removed from the explicit list."""
+    used = {s.name for r in all_resources() for s in r.sources}
+    assert used.isdisjoint(PUDL_SOURCES_WITHOUT_TABLES)
+
+
+def test_pudl_package_lists_sources_without_tables():
+    names = set(_descriptor_source_names(PUDL_PACKAGE))
+    assert set(PUDL_SOURCES_WITHOUT_TABLES) <= names
+    assert "ferceqr" not in names
+    assert _descriptor_source_names(FERCEQR_PACKAGE) == ["ferceqr"]
 
 
 METADATA_OVERRIDE_KEYS = [
@@ -1023,17 +1118,88 @@ def test_multiple_path_resources(dummy_resource_dict):
     assert set(frictionless_resource.normpaths) == set(paths)
 
 
+def test_datapackages_registry_is_keyed_by_package_name_and_complete():
+    """Every defined resource is in at least one registered package.
+
+    This deliberately checks completeness only: a resource may belong to several
+    packages, so the packages are not required to be disjoint.
+    """
+    assert all(name == package.name for name, package in DATAPACKAGES.items())
+    assert {"pudl", "ferceqr"} == set(DATAPACKAGES)
+    registered = {
+        r.name for package in DATAPACKAGES.values() for r in package.resources
+    }
+    assert registered == set(RESOURCE_METADATA)
+    assert {r.name for r in all_resources()} == set(RESOURCE_METADATA)
+
+
+def test_each_resources_dbt_source_is_a_package_containing_it():
+    """A resource's ``dbt_source`` must name a registered package that has the table.
+
+    ``dbt_source`` is set by hand in the resource metadata, and dbt looks for the
+    table's model and Parquet files under it, so it must not drift from the packages.
+    """
+    for resource in all_resources():
+        assert resource.dbt_source in DATAPACKAGES, resource.name
+        package = DATAPACKAGES[resource.dbt_source]
+        assert resource.name in {r.name for r in package.resources}, resource.name
+
+
+def test_find_resource_searches_every_registered_package():
+    """Name-only lookups find PUDL and FERC EQR tables alike."""
+    assert find_resource("core_pudl__codes_subdivisions").name == (
+        "core_pudl__codes_subdivisions"
+    )
+    eqr = find_resource("core_ferceqr__contracts")
+    assert eqr is FERCEQR_PACKAGE.get_resource("core_ferceqr__contracts")
+    with pytest.raises(ValueError, match="not part of any registered data package"):
+        find_resource("not_a_table")
+
+
+def test_registry_tolerates_a_resource_in_several_packages(mocker):
+    """Overlapping packages give first-match lookups and listings unique by name."""
+    shared = "core_pudl__codes_subdivisions"
+    other = Package.from_resource_ids(resource_ids=(shared,), name="other")
+    before = [r.name for r in all_resources()]
+    mocker.patch.dict(DATAPACKAGES, {"other": other})
+
+    assert find_resource(shared) is PUDL_PACKAGE.get_resource(shared)
+    after = [r.name for r in all_resources()]
+    assert after == before
+    assert len(after) == len(set(after))
+
+
+def test_resource_dtypes_are_available_for_ferceqr_tables():
+    """Resource dtype lookups are not limited to the main PUDL package."""
+    dtypes = _get_resource_dtypes("core_ferceqr__contracts")
+    assert {f.name for f in find_resource("core_ferceqr__contracts").schema.fields} == (
+        set(dtypes)
+    )
+
+
+def test_from_resource_ids_etl_groups_exact_match():
+    """ETL group filters match whole group names, and reject bare strings."""
+    eqr_ids = tuple(r.name for r in FERCEQR_PACKAGE.resources)
+    # "eqr" is a substring of "ferceqr" but not a group name: nothing is excluded.
+    kept = Package.from_resource_ids(resource_ids=eqr_ids, excluded_etl_groups=("eqr",))
+    assert {r.name for r in kept.resources} == set(eqr_ids)
+    mixed_ids = (*eqr_ids, "core_pudl__codes_subdivisions")
+    excluded = Package.from_resource_ids(
+        resource_ids=mixed_ids, excluded_etl_groups=("ferceqr",)
+    )
+    assert {r.name for r in excluded.resources} == {"core_pudl__codes_subdivisions"}
+    with pytest.raises(TypeError, match="not a single string"):
+        Package.from_resource_ids(excluded_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
+    with pytest.raises(TypeError, match="not a single string"):
+        Package.from_resource_ids(included_etl_groups="ferceqr")  # type: ignore[bad-argument-type]
+
+
 def test_frictionless_data_package_filter_resources():
     """Test that filtering resources when converting Package to frictionless works as expected."""
-    eqr_pattern = r"core_ferceqr.*"
     expected_num_eqr_resources = 4
-    all_resources = PUDL_PACKAGE.to_frictionless().resources
-    no_eqr_resources = PUDL_PACKAGE.to_frictionless(
-        exclude_pattern=eqr_pattern
-    ).resources
-    only_eqr_resources = PUDL_PACKAGE.to_frictionless(
-        include_pattern=eqr_pattern
-    ).resources
+    no_eqr_resources = PUDL_PACKAGE.to_frictionless().resources
+    only_eqr_resources = FERCEQR_PACKAGE.to_frictionless().resources
+    all_resources = no_eqr_resources + only_eqr_resources
 
     assert len(no_eqr_resources) == (len(all_resources) - expected_num_eqr_resources)
     assert len(only_eqr_resources) == expected_num_eqr_resources
@@ -1179,6 +1345,7 @@ EXPECT_NO_AVAILABILITY = {
     "core_eia__entity_generators",
     "core_eia__entity_plants",
     "core_eia__entity_utilities",
+    "core_eia923__entity_coalmine",
     "core_ferc__entity_companies",
     "core_gridpathratoolkit__assn_generator_aggregation_group",
     "core_pudl__assn_eia_pudl_plants",
@@ -1307,19 +1474,21 @@ def test_get_pudl_dtypes_global_type() -> None:
 @pytest.mark.parametrize(
     ("dtype_backend", "expected_dtype"),
     [
-        ("pandas", "Int64"),
-        ("polars", pl.Int64),
-        ("sqlite", sa.BigInteger),
-        ("duckdb", duckdb.sqltypes.BIGINT),
-        ("pyarrow", pa.int64()),
+        ("pandas", lambda: "Int64"),
+        ("polars", lambda: pl.Int64),
+        ("sqlite", lambda: sa.BigInteger),
+        # Built lazily: a DuckDBPyType held in the collected test items would outlive
+        # the test session and be reported by nanobind as leaked at interpreter exit.
+        ("duckdb", lambda: duckdb.sqltypes.BIGINT),
+        ("pyarrow", lambda: pa.int64()),
     ],
 )
 def test_get_pudl_dtypes_named_backend(
-    dtype_backend: PudlDtypeBackend, expected_dtype: Any
+    dtype_backend: PudlDtypeBackend, expected_dtype: Callable[[], Any]
 ) -> None:
     """Named dtype backends should select the expected canonical mapping."""
     dtypes = get_pudl_dtypes(dtype_backend=dtype_backend)
-    assert dtypes[_OVERRIDE_FIELD] == expected_dtype
+    assert dtypes[_OVERRIDE_FIELD] == expected_dtype()
 
 
 def test_get_pudl_dtypes_polars_skips_unsupported_types() -> None:

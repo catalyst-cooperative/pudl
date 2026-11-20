@@ -3,6 +3,8 @@
 import io
 import json
 import logging
+import os
+from collections import Counter
 from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
@@ -10,13 +12,27 @@ from typing import NamedTuple, cast
 import dagster as dg
 import duckdb
 from dbt.artifacts.schemas.results import TestStatus
-from dbt.artifacts.schemas.run import RunExecutionResult
+from dbt.artifacts.schemas.run import RunExecutionResult, RunResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
 from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
+from pudl.metadata.classes import DATAPACKAGES
 from pudl.workspace.setup import PudlPaths
+
+DBT_SOURCES = tuple(DATAPACKAGES)
+"""Names of the dbt sources: one per datapackage, each validated against its own set
+of Parquet outputs."""
+
+DEFAULT_DBT_SOURCE = "pudl"
+"""The dbt source validated when none is specified."""
+
+ALL_DBT_SOURCES = "*"
+"""Selector value meaning every dbt source."""
+
+DBT_UNIT_TESTS_PATH = "tests/unit_tests"
+"""Path, relative to the dbt project, of the unit tests of our dbt macros."""
 
 logger = get_logger(__name__)
 
@@ -54,6 +70,8 @@ class BuildResult(NamedTuple):
 
     success: bool
     failure_contexts: list[NodeContext]
+    status_counts: dict[str, int]
+    """Number of dbt nodes (tests and seeds) with each result status, e.g. ``pass``."""
 
     def format_failure_contexts(self) -> str:
         """Nice legible output for logs."""
@@ -73,7 +91,13 @@ def install_dbt_deps(dbt: dbtRunner | None = None) -> dbtRunner:
 
 def __get_failed_nodes(results: RunExecutionResult) -> list[GenericTestNode]:
     """Get test node output from tests that failed."""
-    return [res.node for res in results if res.status == TestStatus.Fail]
+    failed_nodes = []
+    for res in results:
+        if res.status == TestStatus.Fail:
+            assert isinstance(res, RunResult)  # Only RunResults carry a node.
+            assert isinstance(res.node, GenericTestNode)  # dbt tests are test nodes.
+            failed_nodes.append(res.node)
+    return failed_nodes
 
 
 def __get_quantile_contexts(
@@ -100,7 +124,9 @@ def __get_quantile_contexts(
             )
             continue
 
-        table_name = parents[0].rsplit(".")[-1]
+        # Parent IDs look like ``source.<project>.<source_name>.<table>``. The macro
+        # defaults to the ``pudl`` source, which doesn't contain e.g. FERC EQR tables.
+        *_, source_name, table_name = parents[0].split(".")
         cmd = [
             "run-operation",
             "debug_quantile_constraints",
@@ -108,7 +134,9 @@ def __get_quantile_contexts(
             "etl-full",
             "--no-use-colors",
             "--args",
-            json.dumps({"table": table_name, "test": node.name}),
+            json.dumps(
+                {"table": table_name, "test": node.name, "source_name": source_name}
+            ),
         ]
         buffer = io.StringIO()
         with chdir(dbt_dir), redirect_stdout(buffer):
@@ -127,6 +155,8 @@ def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContex
     duckdb_path = PudlPaths().output_file("pudl_dbt_tests.duckdb")
     with duckdb.connect(duckdb_path) as con:
         for node in nodes:
+            if node.compiled_code is None:
+                raise ValueError(f"dbt test {node.name} has no compiled SQL.")
             con.execute(node.compiled_code)
             node_df = con.fetchdf()
             # tabulate can raise on pd.NA, so normalize nulls to a sentinel string.
@@ -146,6 +176,7 @@ def build_with_context(
     node_selection: str,
     dbt_target: str,
     node_exclusion: str | None = None,
+    parquet_base_path: str | None = None,
 ) -> BuildResult:
     """Run the DBT build and get failure information back.
 
@@ -159,6 +190,10 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
+    if parquet_base_path:
+        # These will live on for the full python process, but won't persist beyond that
+        os.environ["PARQUET_BASE_PATH"] = parquet_base_path
+
     dbt = install_dbt_deps()
 
     with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):
@@ -181,9 +216,14 @@ def build_with_context(
     )
     compiled_sql_contexts = __get_compiled_sql_contexts(compiled_sql_failures)
 
+    status_counts = Counter(
+        str(getattr(res.status, "value", res.status)) for res in build_results
+    )
+
     return BuildResult(
         success=build_output.success,
         failure_contexts=compiled_sql_contexts + weighted_quantile_contexts,
+        status_counts=dict(status_counts),
     )
 
 

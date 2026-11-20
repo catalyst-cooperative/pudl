@@ -418,7 +418,7 @@ def _filter_for_freshest_data_xbrl(
     raw_xbrl: pd.DataFrame,
     table_name: str,
     instant_or_duration: Literal["instant", "duration"],
-    pudl_paths: PudlPaths | None = None,
+    pudl_paths: PudlPaths,
 ):
     """Wrapper around filter_for_freshest_data_xbrl.
 
@@ -960,14 +960,17 @@ class HourlyPlanningAreaDemand:
         confirmation from FERC staff that this is always the case, but it seems like a
         decent assumption.
 
-        So, this step converts all of the hour 24 records to be hour 00 of the next day.
+        So, this step converts all of the hour 24 records to be hour 00 of the next day,
+        and converts the ``report_date`` strings to datetimes.
         """
-        bad_24_hour_mask = xbrl.report_date.str.contains("T24:")
-
-        xbrl.loc[bad_24_hour_mask, "report_date"] = pd.to_datetime(
-            xbrl[bad_24_hour_mask].report_date.str.replace("T24:", "T23:"),
-            format="%Y-%m-%dT%H:%M:%S",
-        ) + np.timedelta64(1, "h")
+        # Parse hour 24 as hour 00 of the same day, then move those records forward a day.
+        is_hour_24 = xbrl["report_date"].str.contains("T24:")
+        report_date = pd.to_datetime(
+            xbrl["report_date"].str.replace("T24:", "T00:"), format="ISO8601"
+        )
+        xbrl["report_date"] = report_date.mask(
+            is_hour_24, report_date + pd.Timedelta(days=1)
+        )
         return xbrl
 
     @staticmethod
@@ -1060,7 +1063,7 @@ class HourlyPlanningAreaDemand:
         # Clean UTC offset codes
         df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
         # We only need a couple of columns here:
-        codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
+        codes = df[["respondent_id_ferc714", "utc_offset_code"]]
         # Set all blank "" missing UTC codes to np.nan
         codes["utc_offset_code"] = codes.utc_offset_code.mask(
             codes.utc_offset_code == ""
@@ -1069,7 +1072,7 @@ class HourlyPlanningAreaDemand:
         codes = codes.groupby("respondent_id_ferc714").transform(
             lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
         )
-        return codes
+        return codes["utc_offset_code"]
 
     @staticmethod
     def clean_utc_code_offsets_and_set_timezone(df):

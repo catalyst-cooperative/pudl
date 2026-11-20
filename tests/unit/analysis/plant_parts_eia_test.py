@@ -5,7 +5,6 @@ import pytest
 
 import pudl.analysis.plant_parts_eia
 import pudl.helpers
-from pudl import PUDL_PACKAGE_DATA_PATH
 
 GENS_MEGA = pd.DataFrame(
     {
@@ -325,7 +324,7 @@ def test_make_mega_gen_tbl():
                 "operator_utility_id_pudl": "Int64",
             }
         )
-        .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
+        .set_index(pd.Index([0, 1, 2, 3, 0, 1, 2, 3]))
         .convert_dtypes()
     )
     pd.testing.assert_frame_equal(out, out_expected)
@@ -764,7 +763,7 @@ def test_label_true_grans():
     pd.testing.assert_frame_equal(expected_out, out)
 
 
-def test_one_to_many():
+def test_one_to_many(test_dir):
     plant_part_list_input = pd.DataFrame(
         {
             "report_date": ["2020-01-01"] * 8,
@@ -824,7 +823,9 @@ def test_one_to_many():
         }
     )
 
-    path_to_one_to_many = PUDL_PACKAGE_DATA_PATH / "test" / "test_one_to_many.csv"
+    path_to_one_to_many = (
+        test_dir / "data/analysis/plant_parts_eia/test_one_to_many.csv"
+    )
 
     parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts()
 
@@ -940,3 +941,37 @@ def test_one_to_many():
         .set_index("record_id_eia")
     )
     pd.testing.assert_frame_equal(one_to_many_df, plant_gen_one_to_many_expected)
+
+
+def test_add_record_id_null_utility():
+    """Records with a null utility_id_eia still get a non-null, unique record ID ending in ``null``.
+
+    pandas 3's ``astype(str)`` turns nulls into ``NaN``, which would propagate through
+    the string concatenation and null out the entire record ID.
+    """
+    part_df = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1],
+            "generator_id": ["a", "a"],
+            "report_date": pd.to_datetime(["2020-01-01", "2020-01-01"]),
+            "plant_part": ["plant_gen", "plant_gen"],
+            "ownership_record_type": ["total", "owned"],
+            "utility_id_eia": pd.array([None, 111], dtype="Int64"),
+            "operational_status_pudl": ["operating", "operating"],
+        }
+    )
+    id_cols = ["plant_id_eia", "generator_id"]
+
+    with_year = pudl.analysis.plant_parts_eia.add_record_id(part_df, id_cols)
+    assert with_year.record_id_eia.tolist() == [
+        "1_a_2020_plant_gen_total_null",
+        "1_a_2020_plant_gen_owned_111",
+    ]
+
+    without_year = pudl.analysis.plant_parts_eia.add_record_id(
+        part_df, id_cols, year=False
+    )
+    assert without_year.plant_part_id_eia.tolist() == [
+        "1_a_plant_gen_total_null",
+        "1_a_plant_gen_owned_111",
+    ]

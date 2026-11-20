@@ -187,4 +187,4 @@ def test_generate_all_override_spreadsheets():
         raise AssertionError("Mapping spreadsheet has no contents")
 
     # Remove this test file
-    Path.unlink(f"{Path.cwd()}/NextEra_fix_FERC-EIA_overrides.xlsx")
+    Path(f"{Path.cwd()}/NextEra_fix_FERC-EIA_overrides.xlsx").unlink()

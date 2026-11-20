@@ -2,7 +2,6 @@
 
 import csv
 import json
-import warnings
 import zipfile
 from collections import defaultdict
 from collections.abc import Callable, Iterator
@@ -138,6 +137,7 @@ class FercDbfArchive:
                 obj_name = row.get("OBJECTNAME")
                 obj_type = row.get("OBJECTTYPE", None)
                 if obj_type == "Table":
+                    assert isinstance(obj_name, str), f"Table {obj_id} has no name."
                     table_names[obj_id] = obj_name
                 elif obj_type == "Field":
                     parent_id = row.get("PARENTID")
@@ -176,7 +176,15 @@ class FercDbfArchive:
                 raise ValueError(
                     f"DBF field name mismatch: {dbf_col.name} != {long_name}"
                 )
-            col_type = DBF_TYPES[dbf_col.type]
+            if dbf_col.type not in DBF_TYPES:
+                description = UNSUPPORTED_DBF_TYPES.get(dbf_col.type, "unknown type")
+                raise NotImplementedError(
+                    f"DBF field type {dbf_col.type} ({description}) of {dbf_col.name} "
+                    f"in {table_name} is not supported."
+                )
+            col_type: type[sa.types.TypeEngine] | sa.types.TypeEngine = DBF_TYPES[
+                dbf_col.type
+            ]
             if col_type == sa.String:
                 col_type = sa.String(length=dbf_col.length)
             schema.add_column(long_name, col_type, short_name=dbf_col.name)
@@ -211,14 +219,10 @@ class AbstractFercDbfReader(Protocol):
         """Returns single archive matching specific filters."""
         ...
 
-    def get_table_schema(self: Self, table_name: str, year: int) -> DbfTableSchema:
-        """Returns schema for a given table and a given year."""
-        ...
-
     def load_table_dfs(
         self: Self, table_name: str, partitions: list[dict[str, Any]]
-    ) -> pd.DataFrame | None:
-        """Returns dataframe that contains data for a given table across given years."""
+    ) -> list[PartitionedDataFrame]:
+        """Returns the dataframes that contain data for a given table by partition."""
         ...
 
 
@@ -251,7 +255,7 @@ class FercFieldParser(FieldParser):
         return super().parseN(field, data)
 
 
-DBF_TYPES = {
+DBF_TYPES: dict[str, type[sa.types.TypeEngine]] = {
     "C": sa.String,
     "D": sa.Date,
     "F": sa.Float,
@@ -261,11 +265,6 @@ DBF_TYPES = {
     "N": sa.Float,
     "T": sa.DateTime,
     "0": sa.Integer,  # based on dbf2sqlite mapping
-    "B": "XXX",  # .DBT block number, binary string
-    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
-    "+": "XXX",  # Autoincrement (e.g. for IDs)
-    "O": "XXX",  # Double, 8 bytes
-    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
 }
 """Dict: A mapping of DBF field types to SQLAlchemy Column types.
 
@@ -274,8 +273,21 @@ to the corresponding generic SQLAlchemy Column types: These definitions come fro
 combination of the dbfread example program dbf2sqlite and this DBF file format
 documentation page:
 http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'
-which should result in an error if encountered.
+
+Field types that are not mapped are in :data:`UNSUPPORTED_DBF_TYPES`.
+"""
+
+UNSUPPORTED_DBF_TYPES: dict[str, str] = {
+    "B": ".DBT block number, binary string",
+    "@": "Timestamp... Date = Julian Day, Time is in milliseconds?",
+    "+": "Autoincrement (e.g. for IDs)",
+    "O": "Double, 8 bytes",
+    "G": "OLE 10 digit/byte number of a .DBT block, stored as string",
+}
+"""Dict: DBF field types that are not mapped to SQLAlchemy types, with descriptions.
+
+A :class:`NotImplementedError` is raised if a field of one of these types is
+encountered.
 """
 
 
@@ -311,7 +323,7 @@ class FercDbfReader:
                 from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
         """
-        self._cache = {}
+        self._archives: dict[tuple, FercDbfArchive] = {}
         self.datastore = datastore
         self.dataset = dataset
         self.field_parser = field_parser
@@ -338,19 +350,30 @@ class FercDbfReader:
         csv_path = PUDL_PACKAGE_DATA_PATH / self.dataset / base_filename
         return csv.DictReader(csv_path.open())
 
-    @lru_cache  # noqa: B019
-    def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
-        """Returns single dbf archive matching given filters."""
-        nfilters = self._normalize(filters)
-        # Not using a context manager for the zipfile here because it would
-        # close the file after this method returns the FercDbfArchive instance.
-        return FercDbfArchive(
-            self.datastore.get_zipfile_resource(self.dataset, year=year, **nfilters),
-            dbc_path=self._dbc_path[year],
-            partition=filters,
-            table_file_map=self._table_file_map,
-            field_parser=self.field_parser,
-        )
+    def get_archive(self: Self, **filters) -> FercDbfArchive:
+        """Returns single dbf archive matching given filters.
+
+        Archives are cached per reader instance, by their filters. The cache is a
+        plain dict rather than :func:`functools.lru_cache` so that this stays an
+        ordinary method, as :class:`AbstractFercDbfReader` declares it.
+
+        Args:
+            filters: The partition of the archive. It must include ``year``, which
+                selects the DBC file that describes the archive's schema.
+        """
+        key = tuple(sorted(filters.items()))
+        if key not in self._archives:
+            nfilters = self._normalize(filters)
+            # Not using a context manager for the zipfile here because it would
+            # close the file after this method returns the FercDbfArchive instance.
+            self._archives[key] = FercDbfArchive(
+                self.datastore.get_zipfile_resource(self.dataset, **nfilters),
+                dbc_path=self._dbc_path[int(filters["year"])],
+                partition=filters,
+                table_file_map=self._table_file_map,
+                field_parser=self.field_parser,
+            )
+        return self._archives[key]
 
     def get_table_names(self: Self) -> list[str]:
         """Returns list of tables that this datastore provides access to."""
@@ -431,7 +454,7 @@ class FercDbfExtractor:
     def __init__(
         self,
         datastore: Datastore,
-        data_config: FercDbfToSqliteDataConfig,
+        data_config: FercToSqliteDataConfig,
         output_path: Path,
     ):
         """Constructs new instance of FercDbfExtractor.
@@ -453,17 +476,22 @@ class FercDbfExtractor:
         self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
     ) -> FercDbfToSqliteDataConfig:
         """Returns dataset relevant data configuration from ferc_to_sqlite_data_config."""
-        return ferc_to_sqlite_data_config.get_data_config(
+        data_config = ferc_to_sqlite_data_config.get_data_config(
             dataset=self.DATASET, data_format="dbf"
         )
+        if not isinstance(data_config, FercDbfToSqliteDataConfig):
+            raise ValueError(
+                f"ferc_to_sqlite.{self.DATASET}_dbf must be configured but is not set."
+            )
+        return data_config
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
         """Returns appropriate instance of AbstractFercDbfReader to access the data."""
         return FercDbfReader(datastore, dataset=self.DATASET)
 
-    def get_db_path(self) -> str:
+    def get_db_path(self) -> Path:
         """Returns the path to the sqlite database."""
-        return str(Path(self.output_path) / self.DATABASE_NAME)
+        return Path(self.output_path) / self.DATABASE_NAME
 
     def get_db_uri(self) -> str:
         """Returns the connection string for the sqlite database."""
@@ -618,14 +646,7 @@ class FercDbfExtractor:
         """
         if not dfs:
             return None
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                action="ignore",
-                category=FutureWarning,
-                message="The behavior of DataFrame concatenation with empty or all-NA entries is deprecated",
-            )
-            aggregated_df = pd.concat([df.df for df in dfs])
-        return aggregated_df
+        return pd.concat([df.df for df in dfs])
 
     def load_table_data(self):
         """Loads all tables from fox pro database and writes them to sqlite."""
@@ -660,7 +681,8 @@ class FercDbfExtractor:
                 self.sqlite_engine,
                 if_exists="append",
                 chunksize=100000,
-                dtype=coltypes,
+                # pandas-stubs only allows pandas dtypes, but SQLAlchemy types work.
+                dtype=coltypes,  # type: ignore[bad-argument-type]
                 index=False,
             )
 

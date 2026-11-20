@@ -1,5 +1,7 @@
 """Unit tests for the FERC SQLite provenance helpers."""
 
+from typing import Literal
+
 import dagster as dg
 import pytest
 
@@ -66,6 +68,7 @@ def test_ferc_sqlite_provenance_record_round_trip_datapackage(tmp_path):
     recovered = FercSqliteProvenanceRecord.from_datapackage(
         datapackage_path, source="local_new"
     )
+    assert recovered is not None
     assert recovered == record
     assert recovered.data_config == data_config
 
@@ -229,7 +232,7 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_doi_mismatch(
 def test_ferc_sqlite_provenance_is_compatible_rejects_xbrl_extractor_mismatch(
     mocker,
     warning_log,
-    data_format: str,
+    data_format: Literal["dbf", "xbrl"],
     should_raise: bool,
 ) -> None:
     """A Zenodo DOI mismatch should raise a descriptive RuntimeError."""

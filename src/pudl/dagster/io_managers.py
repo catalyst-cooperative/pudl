@@ -68,10 +68,12 @@ def _get_dagster_instance_if_available(
 
 def get_table_name_from_context(context: InputContext | OutputContext) -> str:
     """Retrieves the table name from the context object."""
-    # TODO(rousik): Figure out which kind of identifier is used when.
-    if context.has_asset_key:
-        return context.asset_key.to_python_identifier()
-    return context.get_identifier()
+    if not context.has_asset_key:
+        raise ValueError(
+            "These IO managers can only be used with assets, since "
+            "the table name is taken from the asset key."
+        )
+    return context.asset_key.to_python_identifier()
 
 
 class PudlParquetIOManager(dg.ConfigurableIOManager):

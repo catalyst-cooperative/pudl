@@ -90,6 +90,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             f"core_ferceqr__quarterly_identity/{part}.parquet"
             for part in PARTITIONS[1:]
         ],
+        "dbt_source": "ferceqr",
     },
     "core_ferceqr__contracts": {
         "description": TABLE_DESCRIPTIONS["contracts"],
@@ -137,6 +138,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "extrapaths": [
             f"core_ferceqr__contracts/{part}.parquet" for part in PARTITIONS[1:]
         ],
+        "dbt_source": "ferceqr",
     },
     "core_ferceqr__transactions": {
         "description": TABLE_DESCRIPTIONS["transactions"],
@@ -180,6 +182,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "extrapaths": [
             f"core_ferceqr__transactions/{part}.parquet" for part in PARTITIONS[1:]
         ],
+        "dbt_source": "ferceqr",
     },
     "core_ferceqr__quarterly_index_pub": {
         "description": TABLE_DESCRIPTIONS["index_pub"],
@@ -202,5 +205,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             f"core_ferceqr__quarterly_index_pub/{part}.parquet"
             for part in PARTITIONS[1:]
         ],
+        "dbt_source": "ferceqr",
     },
 }

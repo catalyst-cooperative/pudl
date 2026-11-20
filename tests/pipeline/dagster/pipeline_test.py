@@ -36,11 +36,12 @@ def test_pudl_sqlite_connection(pudl_sqlite_connection: duckdb.DuckDBPyConnectio
     }
     for table_name in EXPECTED_TABLES:
         assert table_name in table_names
-        first_row_exists = (
-            pudl_sqlite_connection.execute(
-                f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
-            ).fetchone()
-            is not None
+        first_row_exists = bool(
+            pudl_sqlite_connection.sql(
+                f'SELECT 1 FROM "{table_name}"'  # noqa: S608
+            )
+            .limit(1)
+            .fetchall()
         )
         assert first_row_exists, f"Expected {table_name} to contain data."
 
@@ -62,19 +63,27 @@ def test_pudl_duckdb_connection(pudl_duckdb_connection: duckdb.DuckDBPyConnectio
     }
     for table_name in EXPECTED_TABLES:
         assert table_name in table_names
-        first_row_exists = (
-            pudl_duckdb_connection.execute(
-                f'SELECT 1 FROM "{table_name}" LIMIT 1'  # noqa: S608
-            ).fetchone()
-            is not None
+        first_row_exists = bool(
+            pudl_duckdb_connection.sql(
+                f'SELECT 1 FROM "{table_name}"'  # noqa: S608
+            )
+            .limit(1)
+            .fetchall()
         )
         assert first_row_exists, f"Expected {table_name} to contain data."
 
-        table_comment_row = pudl_duckdb_connection.execute(
-            "SELECT comment FROM duckdb_tables() WHERE table_name = ?", [table_name]
-        ).fetchone()
-        assert table_comment_row is not None, f"Expected {table_name} to exist."
-        assert table_comment_row[0], f"Expected {table_name} to have a table comment."
+        table_comment_rows = (
+            pudl_duckdb_connection.sql(
+                "SELECT comment FROM duckdb_tables() WHERE table_name = ?",
+                params=[table_name],
+            )
+            .limit(1)
+            .fetchall()
+        )
+        assert table_comment_rows, f"Expected {table_name} to exist."
+        assert table_comment_rows[0][0], (
+            f"Expected {table_name} to have a table comment."
+        )
 
         column_comments = [
             row[0]

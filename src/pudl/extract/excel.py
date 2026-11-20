@@ -72,19 +72,19 @@ class ExcelMetadata(GenericMetadata):
 
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.loc[str(self._get_partition_selection(partition)), page]
+        return self._sheet_name.loc[self._get_partition_selection(partition), page]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
-        return self._skiprows.loc[str(self._get_partition_selection(partition)), page]
+        return self._skiprows.loc[self._get_partition_selection(partition), page]
 
     def get_skipfooter(self, page, **partition):
         """Return number of footer rows to skip when loading a partition and page."""
-        return self._skipfooter.loc[str(self._get_partition_selection(partition)), page]
+        return self._skipfooter.loc[self._get_partition_selection(partition), page]
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
-        return self._file_name.loc[str(self._get_partition_selection(partition)), page]
+        return self._file_name.loc[self._get_partition_selection(partition), page]
 
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
@@ -176,7 +176,9 @@ class ExcelExtractor(GenericExtractor):
             maturity = "provisional"
         elif ("EIA923_Schedule" in file_name) and ("final" not in file_name.lower()):
             maturity = "incremental_ytd"
-        df = df.assign(data_maturity=maturity)
+        # read_excel() leaves wide frames with one block per column. Consolidate them
+        # once here so this and later column insertions don't emit PerformanceWarnings.
+        df = df.copy().assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
 

@@ -136,6 +136,7 @@ def transform_unstack(
         .unstack(level="core_metric_parameter")
     )
     assert isinstance(nrelatb_unstacked, pd.DataFrame)
+    assert isinstance(nrelatb_unstacked.columns, pd.MultiIndex)
     nrelatb_unstacked.columns = nrelatb_unstacked.columns.droplevel()
     return nrelatb_unstacked.reset_index()
 

@@ -1,10 +1,13 @@
 """Configure logging for the PUDL package."""
 
 import logging
+import os
 from typing import Literal
 
 import coloredlogs
 from dagster import get_dagster_logger
+
+type LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 DEFAULT_DEPENDENCY_LOGLEVELS: dict[str, int] = {
     "aiobotocore": logging.WARNING,
@@ -27,8 +30,8 @@ def get_logger(name: str):
 
 
 def configure_root_logger(
-    logfile: str | None = None,
-    loglevel: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO",
+    logfile: str | os.PathLike[str] | None = None,
+    loglevel: LogLevel = "INFO",
     dependency_loglevels: dict[str, int] | None = None,
     color_logs: bool = True,
     propagate: bool = False,

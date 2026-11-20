@@ -1,5 +1,5 @@
 {% test expect_complete_valid_ownership(model, n_acceptable_failures=0) %}
-with OwnSum as (
+with OwnSum as not materialized (
     select
         report_date,
         plant_id_eia,
@@ -14,7 +14,7 @@ with OwnSum as (
     having fraction_owned not null
 ), OwnSumInvalid as (
     select * from OwnSum where fraction_owned > 1.02
-    limit 1e6 offset {{ n_acceptable_failures }}
+    limit 1000000 offset {{ n_acceptable_failures }}
 ), PercentileScores as (
     select
         fraction_owned,

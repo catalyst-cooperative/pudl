@@ -55,13 +55,15 @@ def _to_timeseries_matrix(
     frequency: int = 24,
 ) -> DataFrame[timeseries_cleaning.TimeseriesMatrix]:
     start_date = "2025-03-20 00:00:00"
-    return pd.DataFrame(
-        x,
-        columns=pd.Index(range(n), name="id_col"),
-        index=pd.DatetimeIndex(
-            pd.date_range(periods=periods * frequency, freq="h", start=start_date),
-            name="datetime",
-        ),
+    return DataFrame[timeseries_cleaning.TimeseriesMatrix](
+        pd.DataFrame(
+            x,
+            columns=pd.Index(range(n), name="id_col"),
+            index=pd.DatetimeIndex(
+                pd.date_range(periods=periods * frequency, freq="h", start=start_date),
+                name="datetime",
+            ),
+        )
     )
 
 
@@ -200,7 +202,7 @@ def test_merge_imputed_preserves_reported_values_for_unflagged_cells() -> None:
             index=datetimes,
         )
         matrix.columns.name = "id_col"
-        return matrix
+        return DataFrame[timeseries_cleaning.TimeseriesMatrix](matrix)
 
     @pa.check_types
     def _flags() -> DataFrame[timeseries_cleaning.TimeseriesMatrix]:
@@ -209,7 +211,7 @@ def test_merge_imputed_preserves_reported_values_for_unflagged_cells() -> None:
             index=datetimes,
         )
         flags.columns.name = "id_col"
-        return flags
+        return DataFrame[timeseries_cleaning.TimeseriesMatrix](flags)
 
     merged = timeseries_cleaning._merge_imputed(_aligned_df(), _matrix(), _flags())
     merged = merged.set_index("datetime")["imputed_value_col"]

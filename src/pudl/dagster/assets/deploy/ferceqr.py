@@ -12,12 +12,12 @@ import re
 import time
 import traceback
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
-from typing import Literal, cast
+from typing import Any, Literal, NamedTuple, cast
 
 import dagster as dg
 import pandas as pd
@@ -27,12 +27,13 @@ from pudl.dagster.resources import (
     FercEqrDeploymentResource,
     ZulipNotificationResource,
 )
+from pudl.deploy.github import redeploy_eel_hole
 from pudl.deploy.s3_transfer import copy_objects as s3_copy_objects
 from pudl.deploy.s3_transfer import upload_files as s3_upload_files
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
-from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.sources import SOURCES
+from pudl.validate.dbt import BuildResult, build_with_context
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -48,10 +49,10 @@ FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__quarterly_index_pub",
 ]
 
-# Name of the descriptor in $PUDL_OUTPUT. It cannot simply be ``datapackage.json``:
-# the PUDL ETL already writes $PUDL_OUTPUT/parquet/datapackage.json (next to the EQR
-# Parquet files), and $PUDL_OUTPUT holds several ``<dataset>_datapackage.json`` files.
-DATAPACKAGE_FILENAME = "ferceqr_parquet_datapackage.json"
+# The datapackage descriptor is produced by this asset, which is materialized
+# earlier in the FERC EQR deployment job. Its materialization metadata records
+# the path the descriptor was written to.
+FERCEQR_DATAPACKAGE_ASSET_KEY = dg.AssetKey("ferceqr_datapackage")
 
 # Name of the descriptor in the deployed FERC EQR prefix, which holds nothing but
 # this dataset. ``datapackage.json`` is the only filename the Data Package spec
@@ -71,6 +72,60 @@ PREVIOUS_DIRNAME = "._ferceqr_previous"
 
 # Type alias: asset name -> partition name -> status name
 StepStatusTable = dict[str, dict[str, str]]
+
+# Constants used for dbt tests
+FERCEQR_DBT_SOURCE = "ferceqr"
+
+
+class ValidationStage(NamedTuple):
+    """The :class:`BuildResult` of one named dbt validation stage."""
+
+    name: str
+    result: BuildResult
+
+
+def _run_ferceqr_validation() -> list[ValidationStage]:
+    """Run the dbt data validations for the FERC EQR tables.
+
+    Selects every dbt node downstream of the FERC EQR source. Mirrors the pytest
+    validation in ``tests/validate/data_test.py``.
+    """
+    logger.info("Running dbt data validations for FERC EQR outputs.")
+    data_validation = build_with_context(
+        node_selection=f"source:{FERCEQR_DBT_SOURCE}+",
+        dbt_target="etl-full",
+    )
+    return [
+        ValidationStage(name="Data validation", result=data_validation),
+    ]
+
+
+def _markdown_validation_results(stages: list[ValidationStage]) -> str:
+    """Summarize dbt validation stage outcomes as a Markdown table.
+
+    Only the high-level pass/fail status of each stage is reported; failure
+    contexts are written to the build log, which the notification links to.
+    """
+    if len(stages) == 0:
+        return ""
+
+    table = pd.DataFrame(
+        [
+            {
+                "Validation Stage": stage.name,
+                "Status": ":check:" if stage.result.success else ":x:",
+            }
+            for stage in stages
+        ]
+    )
+    return "\n".join(
+        [
+            "",
+            "## Data Validation",
+            "",
+            table.to_markdown(index=False, colalign=("left", "center")),
+        ]
+    )
 
 
 def _write_status_file(
@@ -141,6 +196,62 @@ def _deployment_targets(resolved_targets: list[UPath]) -> list[_DeploymentTarget
         _DeploymentTarget(final=resolved, build_id=build_id)
         for resolved in resolved_targets
     ]
+
+
+# Production FERC EQR targets are exactly ``{gs,s3}://pudl.catalyst.coop/ferceqr``
+# (optionally with a sub-path). The path component must match whole, so scratch
+# prefixes like ``ferceqr_test`` do not count.
+_PRODUCTION_TARGET_RE = re.compile(r"^(gs|s3)://pudl\.catalyst\.coop/ferceqr(/.*)?$")
+
+
+def _is_production_target(target: UPath) -> bool:
+    """Whether a deployment target is a production FERC EQR location."""
+    return _PRODUCTION_TARGET_RE.match(str(target).rstrip("/")) is not None
+
+
+EelHoleOutcome = Literal["TRIGGERED", "NOT_PRODUCTION", "NO_TOKEN", "FAILED"]
+
+
+def _redeploy_eel_hole_if_production(
+    targets: list[_DeploymentTarget],
+) -> EelHoleOutcome:
+    """Redeploy the production Eel Hole after publishing to production targets.
+
+    Only deployments that wrote to a production target change the data Eel Hole
+    serves, so test and development builds are skipped. The data is already
+    published by this point, so failures here are logged rather than raised.
+
+    Returns:
+        What happened: ``TRIGGERED`` if the redeployment workflow was dispatched,
+        ``NOT_PRODUCTION`` if no target was a production target, ``NO_TOKEN`` if
+        ``PUDL_BOT_PAT`` was unset, or ``FAILED`` if the dispatch raised.
+    """
+    if not any(_is_production_target(t.final) for t in targets):
+        logger.info("No production FERC EQR targets; skipping Eel Hole redeployment.")
+        return "NOT_PRODUCTION"
+    token = os.environ.get("PUDL_BOT_PAT")
+    if not token:
+        logger.warning("PUDL_BOT_PAT is unset; skipping Eel Hole redeployment.")
+        return "NO_TOKEN"
+    try:
+        redeploy_eel_hole(token=token, environment="production")
+    except Exception:
+        logger.warning(
+            "Eel Hole redeployment failed; FERC EQR data is already deployed.\n"
+            + traceback.format_exc()
+        )
+        return "FAILED"
+    return "TRIGGERED"
+
+
+# Notification lines for outcomes worth a reader's attention. NOT_PRODUCTION is the
+# normal state of every test build, so it is deliberately not reported.
+EEL_HOLE_NOTIFICATION_LINES: dict[str, str] = {
+    "TRIGGERED": ":check: Eel Hole redeployment triggered",
+    "NO_TOKEN": ":warning: Eel Hole redeployment skipped: `PUDL_BOT_PAT` is unset",
+    "FAILED": ":warning: Eel Hole redeployment failed; redeploy it manually "
+    "(see the build log)",
+}
 
 
 def _source_parquet_files(source_partitions: list[str]) -> dict[str, list[Path]]:
@@ -526,12 +637,15 @@ def _compute_deploy_duration(context: dg.AssetExecutionContext) -> str | None:
 def build_ferceqr_notification(
     context: dg.AssetExecutionContext,
     outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
+    validation_stages: list[ValidationStage] | None = None,
+    eel_hole: EelHoleOutcome | None = None,
 ) -> str:
     """Build a Markdown notification string for FERC EQR deployment outcomes.
 
     Extracts all relevant information (source partitions, run ID, duration,
     step statuses, distribution paths, build ID) from the Dagster execution
-    context and returns a formatted Markdown message ready for Zulip.
+    context and returns a formatted Markdown message ready for Zulip. ``eel_hole``
+    is the outcome of the Eel Hole redeployment, if one was attempted.
     """
     build_id = os.getenv("BUILD_ID", "no-build-id")
     source_partitions: list[str] = []
@@ -587,6 +701,8 @@ def build_ferceqr_notification(
     if distribution_paths:
         lines.append("## Deployment Targets:")
         lines.extend(f"  - `{path}`" for path in distribution_paths)
+    if eel_hole in EEL_HOLE_NOTIFICATION_LINES:
+        lines.append(f"- {EEL_HOLE_NOTIFICATION_LINES[eel_hole]}")
     if backfill_duration:
         lines.append(f"## :time: Backfill duration: `[{backfill_duration}]`")
     if deploy_duration:
@@ -601,40 +717,82 @@ def build_ferceqr_notification(
                 asset_partition_statuses=asset_partition_statuses,
                 partitions=source_partitions or None,
             ),
+            _markdown_validation_results(validation_stages or []),
             _markdown_logfile_list(build_id),
         ]
     )
     return "\n".join(lines)
 
 
-def deployment_status_asset(asset_fn: Callable) -> dg.AssetsDefinition:
+def deployment_status_asset(
+    *,
+    deps: Sequence[dg.AssetKey] | None = None,
+) -> Callable[[Callable], dg.AssetsDefinition]:
     """Create a custom decorator for deployment handler assets.
 
     This allows us to gracefully handle errors if the deployment assets fail for any
     reason. When these assets fail, sometimes the logs don't show up in the batch job
     appropriately, and the status file never gets created, so the job keeps running
     until it eventually times out.
+
+    Args:
+        deps: Asset keys the generated asset depends on. Primarily to guarantee that the
+            success asset will only run after the datapackage asset has run.
     """
 
-    @dg.asset(
-        name=asset_fn.__name__,
-        required_resource_keys={
-            "pudl_paths",
-            "ferceqr_deployment_targets",
-            "zulip_notification",
-        },
-    )
-    def _status_handler_asset(context: dg.AssetExecutionContext):
-        try:
-            _clear_status_files(context.resources.pudl_paths)
-            asset_fn(context)
-        except Exception:
-            logger.error("FERC EQR deployment handler failed!")
-            logger.error(traceback.format_exc())
-            _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
-            raise
+    def decorator(asset_fn: Callable) -> dg.AssetsDefinition:
+        @dg.asset(
+            name=asset_fn.__name__,
+            deps=list(deps or []),
+            required_resource_keys={
+                "pudl_paths",
+                "ferceqr_deployment_targets",
+                "zulip_notification",
+            },
+        )
+        def _status_handler_asset(context: dg.AssetExecutionContext):
+            try:
+                _clear_status_files(context.resources.pudl_paths)
+                return asset_fn(context)
+            except Exception:
+                logger.error("FERC EQR deployment handler failed!")
+                logger.error(traceback.format_exc())
+                _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
+                raise
 
-    return _status_handler_asset
+        return _status_handler_asset
+
+    return decorator
+
+
+def _datapackage_path(context: dg.AssetExecutionContext) -> Path:
+    """Return the descriptor path recorded by the ``ferceqr_datapackage`` asset.
+
+    The descriptor is written by the datapackage asset, which records its output
+    location in materialization metadata under ``path``. Reading it back from the
+    event log keeps a single source of truth for where the file lives.
+    """
+    event = context.instance.get_latest_materialization_event(
+        FERCEQR_DATAPACKAGE_ASSET_KEY
+    )
+    materialization = event.asset_materialization if event is not None else None
+    if materialization is None:
+        raise RuntimeError(
+            f"No materialization found for {FERCEQR_DATAPACKAGE_ASSET_KEY.to_user_string()}; "
+            "the datapackage descriptor must be materialized before deployment."
+        )
+    path_entry = materialization.metadata.get("path")
+    if path_entry is None:
+        raise RuntimeError(
+            f"{FERCEQR_DATAPACKAGE_ASSET_KEY.to_user_string()} materialization has no "
+            "'path' metadata recording where the descriptor was written."
+        )
+    datapackage_path = Path(str(path_entry.value))
+    if not datapackage_path.is_file():
+        raise RuntimeError(
+            f"Datapackage descriptor recorded at {datapackage_path} does not exist."
+        )
+    return datapackage_path
 
 
 def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
@@ -653,7 +811,116 @@ def _deploy_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
     return _validate_partitions(run_tags.get(FERCEQR_SOURCE_PARTITIONS_TAG) or None)
 
 
-@deployment_status_asset
+def _notify_ferceqr_outcome(
+    context: dg.AssetExecutionContext,
+    zulip: ZulipNotificationResource,
+    outcome: Literal["SUCCESS", "FAILURE", "SKIPPED"],
+    validation_stages: list[ValidationStage] | None = None,
+    eel_hole: EelHoleOutcome | None = None,
+) -> None:
+    """Send a deployment outcome notification, never raising on failure."""
+    try:
+        zulip.send_stream_message(
+            stream="pudl-deployments",
+            topic="build-deploy-ferceqr",
+            content=build_ferceqr_notification(
+                context,
+                outcome=outcome,
+                validation_stages=validation_stages,
+                eel_hole=eel_hole,
+            ),
+        )
+    except Exception:
+        logger.error(
+            f"FERC EQR {outcome} notification failed:\n" + traceback.format_exc()
+        )
+
+
+def _source_backfill_id(
+    context: dg.AssetExecutionContext, source_run_id: str | None
+) -> str | None:
+    """Return the backfill ID of the run being deployed, if it can be determined.
+
+    The deployment run is launched by a sensor and doesn't carry the backfill tag
+    itself, so it's read from the source run that triggered the deployment.
+    """
+    if source_run_id is None:
+        return None
+    source_run_record = context.instance.get_run_record_by_id(source_run_id)
+    if source_run_record is None:
+        return None
+    return source_run_record.dagster_run.tags.get(DAGSTER_BACKFILL_TAG)
+
+
+def _deployment_metadata(
+    context: dg.AssetExecutionContext,
+    *,
+    outcome: Literal["DEPLOYED", "SKIPPED"],
+    source_partitions: list[str],
+    validation_stages: list[ValidationStage],
+    datapackage_path: Path,
+    targets: list[_DeploymentTarget],
+    table_files: dict[str, list[Path]] | None = None,
+    deploy_seconds: float | None = None,
+    eel_hole: EelHoleOutcome | None = None,
+) -> dict[str, Any]:
+    """Collect Dagster metadata describing what a deployment run did.
+
+    Args:
+        context: Execution context, used to look up the run tags.
+        outcome: Whether data was published, or the build succeeded but no targets
+            were configured.
+        source_partitions: The quarters built by the backfill being deployed.
+        validation_stages: Results of the dbt validation run before deployment.
+        datapackage_path: Local path of the datapackage descriptor.
+        targets: The destinations data was published to. Empty when skipped.
+        table_files: Local Parquet files published for each table, if any.
+        deploy_seconds: Wall time of the staging and promotion, if it happened.
+        eel_hole: Outcome of the Eel Hole redeployment, if one was attempted.
+    """
+    run_tags = (context.run.tags or {}) if context.run else {}
+    partitions = sorted(source_partitions)
+    source_run_id = run_tags.get(FERCEQR_SOURCE_RUN_ID_TAG)
+    metadata: dict[str, Any] = {
+        "outcome": outcome,
+        "source_run_id": source_run_id,
+        "source_backfill_id": _source_backfill_id(context, source_run_id),
+        "build_id": os.getenv("BUILD_ID"),
+        "partition_count": dg.MetadataValue.int(len(partitions)),
+        "first_partition": partitions[0],
+        "last_partition": partitions[-1],
+        "datapackage_path": dg.MetadataValue.path(datapackage_path),
+        "targets": dg.MetadataValue.json([str(target.final) for target in targets]),
+        "validation": dg.MetadataValue.json(
+            [
+                {
+                    "stage": stage.name,
+                    "success": stage.result.success,
+                    "dbt_status_counts": stage.result.status_counts,
+                    "failure_count": len(stage.result.failure_contexts),
+                }
+                for stage in validation_stages
+            ]
+        ),
+    }
+    if table_files is not None:
+        table_bytes = {
+            table: sum(file.stat().st_size for file in files)
+            for table, files in table_files.items()
+        }
+        metadata["file_count"] = dg.MetadataValue.int(
+            sum(len(files) for files in table_files.values())
+        )
+        metadata["parquet_bytes"] = dg.MetadataValue.int(sum(table_bytes.values()))
+        metadata["table_bytes"] = dg.MetadataValue.json(table_bytes)
+    if deploy_seconds is not None:
+        metadata["deploy_seconds"] = dg.MetadataValue.float(deploy_seconds)
+    if eel_hole is not None:
+        metadata["eel_hole"] = eel_hole
+    return metadata
+
+
+@deployment_status_asset(deps=[FERCEQR_DATAPACKAGE_ASSET_KEY])
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets.
 
@@ -684,14 +951,31 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     if not source_partitions:
         raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
 
-    # Write the datapackage alongside the parquet data in pudl_output so it can
-    # be deployed like any other file and remains as a record of the build. Built
-    # even when there is nothing to publish, so it can be reviewed and tested as
-    # a development artifact.
-    datapackage_path = Path(pudl_paths.pudl_output) / DATAPACKAGE_FILENAME
-    PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*").to_json(
-        str(datapackage_path)
-    )
+    # Validate before publishing: bad data should never reach a deployment target.
+    validation_stages = _run_ferceqr_validation()
+    if any(not stage.result.success for stage in validation_stages):
+        failed = [s.name for s in validation_stages if not s.result.success]
+        logger.error(
+            f"FERC EQR data validation failed ({', '.join(failed)}); not deploying.\n"
+            + "\n=====\n".join(
+                stage.result.format_failure_contexts()
+                for stage in validation_stages
+                if not stage.result.success
+            )
+        )
+        _notify_ferceqr_outcome(
+            context, zulip, outcome="FAILURE", validation_stages=validation_stages
+        )
+        _write_status_file("FERCEQR_FAILURE", pudl_paths)
+        raise RuntimeError(
+            f"FERC EQR data validation failed: {', '.join(failed)}. "
+            "See build logs for failure contexts."
+        )
+
+    # The descriptor was written by the upstream ferceqr_datapackage asset, which
+    # also runs when there is nothing to publish, so it remains available as a
+    # development artifact and a record of the build.
+    datapackage_path = _datapackage_path(context)
 
     targets = _deployment_targets(ferceqr_deployment.resolved_targets())
     if not targets:
@@ -703,17 +987,25 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             f"No FERC EQR deployment targets configured; build succeeded, "
             f"datapackage written to {datapackage_path}, skipping publish."
         )
-        zulip.send_stream_message(
-            stream="pudl-deployments",
-            topic="build-deploy-ferceqr",
-            content=build_ferceqr_notification(context, outcome="SKIPPED"),
+        _notify_ferceqr_outcome(
+            context, zulip, outcome="SKIPPED", validation_stages=validation_stages
         )
         _write_status_file("FERCEQR_SUCCESS", pudl_paths)
-        return
+        return dg.MaterializeResult(
+            metadata=_deployment_metadata(
+                context,
+                outcome="SKIPPED",
+                source_partitions=source_partitions,
+                validation_stages=validation_stages,
+                datapackage_path=datapackage_path,
+                targets=[],
+            )
+        )
 
     table_files = _source_parquet_files(source_partitions)
 
     logger.info("FERC EQR build successful, deploying FERC EQR data.")
+    deploy_start = time.perf_counter()
     try:
         # The per-target tasks below submit their per-file work to this same pool and
         # block on it. That deadlocks if the number of targets reaches the pool's
@@ -743,42 +1035,51 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         # Notify inline before the exception propagates: the sensor-triggered
         # failure asset never runs because the bash script kills the dagster
         # daemon as soon as FERCEQR_FAILURE appears.
-        try:
-            zulip.send_stream_message(
-                stream="pudl-deployments",
-                topic="build-deploy-ferceqr",
-                content=build_ferceqr_notification(context, outcome="FAILURE"),
-            )
-        except Exception:
-            logger.error(
-                "FERC EQR failure notification also failed:\n" + traceback.format_exc()
-            )
+        _notify_ferceqr_outcome(
+            context, zulip, outcome="FAILURE", validation_stages=validation_stages
+        )
         _remove_all_staging(targets)
         # Write the failure sentinel HERE so the log messages above are flushed
         # before the sentinel triggers killall.
         _write_status_file("FERCEQR_FAILURE", pudl_paths)
         raise
 
+    deploy_seconds = time.perf_counter() - deploy_start
+
+    # Redeploy before the success sentinel: the batch script kills the Dagster
+    # daemon as soon as it appears.
+    eel_hole = _redeploy_eel_hole_if_production(targets)
+
     logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
-    zulip.send_stream_message(
-        stream="pudl-deployments",
-        topic="build-deploy-ferceqr",
-        content=build_ferceqr_notification(context, outcome="SUCCESS"),
+    _notify_ferceqr_outcome(
+        context,
+        zulip,
+        outcome="SUCCESS",
+        validation_stages=validation_stages,
+        eel_hole=eel_hole,
     )
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
+    return dg.MaterializeResult(
+        metadata=_deployment_metadata(
+            context,
+            outcome="DEPLOYED",
+            source_partitions=source_partitions,
+            validation_stages=validation_stages,
+            datapackage_path=datapackage_path,
+            targets=targets,
+            table_files=table_files,
+            deploy_seconds=deploy_seconds,
+            eel_hole=eel_hole,
+        )
+    )
 
 
-@deployment_status_asset
+@deployment_status_asset()
 def handle_ferceqr_failure(context: dg.AssetExecutionContext):
     """Send notification if the FERC EQR build failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
     zulip: ZulipNotificationResource = context.resources.zulip_notification
 
     logger.error("FERC EQR build failed. Notifying Zulip.")
-    notification_markdown = build_ferceqr_notification(context, outcome="FAILURE")
-    zulip.send_stream_message(
-        stream="pudl-deployments",
-        topic="build-deploy-ferceqr",
-        content=notification_markdown,
-    )
+    _notify_ferceqr_outcome(context=context, zulip=zulip, outcome="FAILURE")
     _write_status_file("FERCEQR_FAILURE", pudl_paths)

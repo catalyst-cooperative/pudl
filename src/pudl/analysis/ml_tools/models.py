@@ -43,6 +43,8 @@ Configuration precedence (lowest → highest):
 * Values entered in the Dagster UI Launchpad (single-run override)
 """
 
+from collections.abc import Callable
+
 import yaml
 from dagster import (
     AssetIn,
@@ -80,7 +82,9 @@ def get_default_config(model_graph: GraphDefinition) -> dict:
         if isinstance(node, GraphDefinition):
             config = {
                 "ops": {
-                    child_node.name: _get_default_from_ops(child_node)
+                    # node_defs are OpDefinition | GraphDefinition, but are typed as the
+                    # private NodeDefinition base class.
+                    child_node.name: _get_default_from_ops(child_node)  # type: ignore[bad-argument-type]
                     for child_node in node.node_defs
                 }
             }
@@ -99,7 +103,9 @@ def get_default_config(model_graph: GraphDefinition) -> dict:
     return config
 
 
-def pudl_model(asset_name: str, config_from_yaml: bool = False) -> AssetsDefinition:
+def pudl_model(
+    asset_name: str, config_from_yaml: bool = False
+) -> Callable[[GraphDefinition], AssetsDefinition]:
     """Decorator for an ML model that will handle providing configuration to dagster."""
 
     def _decorator(model_graph: GraphDefinition):

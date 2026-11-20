@@ -31,8 +31,10 @@ from pydantic import (
 )
 
 import pudl.analysis.fuel_by_plant
+import pudl.extract.ferc1
 import pudl.helpers
 import pudl.logging_helpers
+import pudl.metadata.classes
 import pudl.transform.ferc1
 from pudl import PUDL_PACKAGE_DATA_PATH
 from pudl.transform.ferc1 import (
@@ -654,7 +656,7 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
         Fuel type other indicates we didn't know how to categorize the reported fuel
         type, which leads to records with incomplete and unusable data.
         """
-        return df[df.fuel_type_code_pudl != "other"].copy()
+        return df[df.fuel_type_code_pudl != "other"]
 
     thresh = context.op_config["thresh"]
     # The existing function expects `fuel_type_code_pudl` to be an object, rather than
@@ -1274,7 +1276,7 @@ class Exploder:
             self.calculation_components_xbrl_ferc1.table_name_parent.isin(
                 self.table_names
             )
-        ].copy()
+        ]
         # Groupby parent factoids
         gb = calc_explode.groupby(
             ["table_name_parent", "xbrl_factoid_parent"], as_index=False
@@ -3175,7 +3177,8 @@ def get_column_value_ratio(
         )
     ratio_df = (
         pd.DataFrame(
-            grouped_df.filter(regex="^ratio_").stack(future_stack=False),
+            # pandas 3 stack() keeps NaN rows; the legacy implementation dropped them.
+            grouped_df.filter(regex="^ratio_").stack().dropna(),
             columns=[f"ratio_{column}"],
         )
         .reset_index()

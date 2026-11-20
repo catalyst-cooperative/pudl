@@ -18,7 +18,7 @@ logger = logging_helpers.get_logger(__name__)
 ######################################################################
 ### Helper functions for cleaning and reshaping the SEC 10-K data. ###
 ######################################################################
-def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
+def _year_quarter_to_date(year_quarter: pd.Series) -> pd.DatetimeIndex:
     """Convert a year quarter in the format '2024q1' to date type."""
     return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
 
@@ -43,13 +43,29 @@ def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
 
 
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
-    """Clean percent ownership, convert to float, then convert percent to ratio."""
-    return (
-        percent_ownership.str.replace(r"(\.{2,})", r"\.", regex=True)
-        .replace("\\\\", "", regex=True)
-        .replace(".", "0.0", regex=False)
-        .astype("float")
-    ) / 100.0
+    """Clean percent ownership, convert to float, then convert percent to ratio.
+
+    The percentages were extracted from text tables, so some carry runs of leader dots
+    (e.g. ``"....99"`` or ``"65......"``). The dots are removed, and entries containing
+    nothing but dots are treated as missing.
+
+    All the extracted numerical values are treated as percentages, including those below
+    1, since there is no reliable way to tell a reported fraction (``"0.95"``) from a
+    small percentage (``"0.01"`` alongside ``"99.99"``) on a per-row basis. Ratios
+    outside of 0-1 (e.g. several adjacent percentages that have been run together) are
+    set to null.
+    """
+    only_dots = percent_ownership.str.fullmatch(r"\.+", na=False)
+    # Null rows that are only dots, then remove any runs of multiple dots from the
+    # remaining values. This will leave a string that can be unambiguously interpreted
+    # as a float after they get divided by 100 below (e.g. 0.95 or .99)
+    cleaned = percent_ownership.mask(only_dots).str.replace(r"\.{2,}", "", regex=True)
+    # Turn the percentage into a fraction. We treat all values as percentages because
+    # there are a significant number of cases where one company owns a de minimis stake
+    # in another (e.g. a 0.01% + 99.99% split) and there's no reliable way to identify
+    # which of those values is a percentage and which is a fraction.
+    fraction = cleaned.astype("float") / 100.0
+    return fraction.where(fraction.between(0.0, 1.0))
 
 
 def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
@@ -60,11 +76,11 @@ def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
     - Reformat to NN-NNNNNNN format.
     """
     tin = taxpayer_id_irs.astype("string").str.replace(r"[^\d]", "", regex=True)
-    not_nine_digits = ~tin.str.match(r"^\d{9}$")
+    not_nine_digits = ~tin.str.match(r"^\d{9}$").fillna(False)
     logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
-    nine_zeroes = tin == "000000000"
+    nine_zeroes = (tin == "000000000").fillna(False)
     logger.info(f"Nulling {sum(nine_zeroes.dropna())} all-zero TINs.")
-    tin.loc[(not_nine_digits | nine_zeroes)] = pd.NA
+    tin = tin.mask(not_nine_digits | nine_zeroes, pd.NA)
     tin = tin.str[:2] + "-" + tin.str[2:]
     return tin
 
@@ -90,7 +106,8 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
     sic_name_zero = sic_df["industry_name_sic"].str.contains("0000").fillna(False)
     sic_df.loc[sic_name_zero, "industry_name_sic"] = pd.NA
     sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
-        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)
+        # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)  # type: ignore[bad-argument-type]
     )
     sic_id_zero = (sic_df["industry_id_sic"] == "0000").fillna(False)
     sic_df.loc[sic_id_zero, "industry_id_sic"] = pd.NA
@@ -149,7 +166,7 @@ def _standardize_company_name(col: pd.Series) -> pd.Series:
         ],
         legal_term_location=2,
     )
-    col = company_name_cleaner.apply_name_cleaning(col).str.strip()
+    col = company_name_cleaner.clean_series(col).str.strip()
     col = col.replace("", pd.NA)
 
     return col
@@ -167,7 +184,7 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
     legal_term_remover = name_cleaner.CompanyNameCleaner(
         cleaning_rules_list=[], handle_legal_terms=2
     )
-    clean_col = legal_term_remover.apply_name_cleaning(col).str.strip()
+    clean_col = legal_term_remover.clean_series(col).str.strip()
     # some common bad names that aren't removed by the legal term remover
     clean_col = clean_col.replace(
         [
@@ -188,7 +205,8 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
         ],
         pd.NA,
     )
-    return col.where(~clean_col.isnull(), pd.NA)
+    # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+    return col.where(~clean_col.isnull(), pd.NA)  # type: ignore[bad-argument-type]
 
 
 def _standardize_location(loc_col: pd.Series) -> pd.Series:
@@ -588,7 +606,7 @@ def core_sec10k__quarterly_company_information(
     ]
     if len(dupes_df) > 0:
         filled_dupes = dupes_df.groupby(["filename_sec10k", "central_index_key"])[
-            cols_to_fill
+            list(cols_to_fill)
         ].transform(lambda group: group.ffill().bfill())
         clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
         clean_info = clean_info.drop_duplicates(subset=cols_to_fill)

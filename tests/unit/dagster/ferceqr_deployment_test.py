@@ -1,8 +1,10 @@
 """Unit tests for FERCEQR deployment sensors and deployment asset handlers."""
 
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, cast
 
 import dagster as dg
 import pytest
@@ -11,6 +13,14 @@ from upath import UPath
 
 from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
+from pudl.validate.dbt import BuildResult
+
+
+def _run_sensor(sensor, context) -> dg.RunRequest:
+    """Invoke a run-status sensor function and narrow its result to a RunRequest."""
+    run_request = sensor._run_status_sensor_fn(context)
+    assert isinstance(run_request, dg.RunRequest)
+    return run_request
 
 
 def _build_deploy_context(tmp_path, mocker, targets=None):
@@ -28,25 +38,54 @@ def _build_deploy_context(tmp_path, mocker, targets=None):
     )
 
 
+def _report_datapackage_materialization(deploy_context, tmp_path) -> Path:
+    """Seed the event log with the datapackage asset's materialization metadata.
+
+    ``deploy_ferceqr`` reads the descriptor path back out of the event log rather
+    than writing the descriptor itself, so the upstream materialization has to
+    exist before the asset is invoked.
+    """
+    datapackage_path = tmp_path / "ferceqr_datapackage.json"
+    datapackage_path.write_text("{}")
+    deploy_context.instance.report_runless_asset_event(
+        dg.AssetMaterialization(
+            asset_key=deploy_ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY,
+            metadata={"path": dg.MetadataValue.path(datapackage_path)},
+        )
+    )
+    return datapackage_path
+
+
+def _metadata_value(metadata: Mapping[str, Any], key: str):
+    """Return the raw value of a ``MaterializeResult`` metadata entry."""
+    entry = metadata[key]
+    return entry.value if isinstance(entry, dg.MetadataValue) else entry
+
+
+def _passing_validation_stages(mocker):
+    """Passing dbt validation stages, matching _run_ferceqr_validation's shape."""
+    return [
+        deploy_ferceqr.ValidationStage(
+            name=name,
+            result=BuildResult(
+                success=True, failure_contexts=[], status_counts={"pass": 4}
+            ),
+        )
+        for name in ("Data validation",)
+    ]
+
+
 def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partitions):
-    """Set up shared mocks for deploy_ferceqr tests: PUDL_PACKAGE, ParquetData, run tags.
+    """Set up shared mocks for deploy_ferceqr tests: datapackage, ParquetData, run tags.
 
     Creates source parquet files under *source_root* and mocks context.run tags
-    with *source_partitions*. Returns the mocked zulip resource for assertions.
+    with *source_partitions*. The dbt validation stages are stubbed out as passing
+    -- running dbt is far too slow for a unit test and needs real Parquet outputs.
+    Returns the mocked zulip resource for assertions.
     """
-    frictionless = mocker.Mock()
-    mock_package = mocker.Mock()
-
-    def _to_json_side_effect(path=None):
-        if path:
-            with Path(path).open("w") as f:
-                f.write("{}")
-            return "{}"
-        return "{}"
-
-    frictionless.to_json.side_effect = _to_json_side_effect
-    mock_package.to_frictionless.return_value = frictionless
-    mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
+    _report_datapackage_materialization(
+        deploy_context, Path(deploy_context.resources.pudl_paths.pudl_output)
+    )
 
     mocker.patch.object(
         type(deploy_context),
@@ -56,8 +95,19 @@ def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partit
             tags={
                 deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(
                     source_partitions
-                )
+                ),
+                deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "source-run",
             }
+        ),
+    )
+    # The backfill ID lives on the source run's tags, not the deployment run's.
+    mocker.patch.object(
+        deploy_context.instance,
+        "get_run_record_by_id",
+        return_value=SimpleNamespace(
+            dagster_run=SimpleNamespace(
+                tags={deploy_ferceqr.DAGSTER_BACKFILL_TAG: "bf123"}
+            )
         ),
     )
     mocker.patch.object(
@@ -71,6 +121,12 @@ def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partit
             self.parquet_directory = source_root / table_name
 
     mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
+
+    mocker.patch.object(
+        deploy_ferceqr,
+        "_run_ferceqr_validation",
+        return_value=_passing_validation_stages(mocker),
+    )
 
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
         table_dir = source_root / table_name
@@ -137,24 +193,24 @@ def test_sensor_skips_while_backfill_running(
 
 
 @pytest.mark.parametrize(
-    "sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset",
+    "sensor_fn, backfill_statuses, expected_run_key_prefix, expected_assets",
     [
         (
             sensors.ferceqr_success_sensor,
             [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.FAILURE],
             "ferceqr_deployment_failure_backfill",
-            "handle_ferceqr_failure",
+            ["handle_ferceqr_failure"],
         ),
         (
             sensors.ferceqr_failure_sensor,
             [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.SUCCESS],
             "ferceqr_deployment_success_backfill",
-            "deploy_ferceqr",
+            ["ferceqr_datapackage", "deploy_ferceqr"],
         ),
     ],
 )
 def test_sensors_converge_to_same_run_key_in_race_condition(
-    mocker, sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset
+    mocker, sensor_fn, backfill_statuses, expected_run_key_prefix, expected_assets
 ):
     """Both sensors produce the same run_key when they race on the same completed backfill.
 
@@ -181,7 +237,7 @@ def test_sensors_converge_to_same_run_key_in_race_condition(
 
     assert isinstance(result, dg.RunRequest)
     assert result.run_key == f"{expected_run_key_prefix}:bf-123"
-    assert result.asset_selection == [dg.AssetKey(expected_asset)]
+    assert result.asset_selection == [dg.AssetKey(a) for a in expected_assets]
 
 
 def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
@@ -205,7 +261,7 @@ def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
         ),
     ]
 
-    run_request = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+    run_request = _run_sensor(sensors.ferceqr_failure_sensor, context)
 
     assert run_request.run_key == "ferceqr_deployment_failure_backfill:bf-456"
     assert run_request.asset_selection == [dg.AssetKey("handle_ferceqr_failure")]
@@ -235,10 +291,13 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
         ),
     ]
 
-    run_request = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
+    run_request = _run_sensor(sensors.ferceqr_success_sensor, context)
 
     assert run_request.run_key == "ferceqr_deployment_success_backfill:bf-123"
-    assert run_request.asset_selection == [dg.AssetKey("deploy_ferceqr")]
+    assert run_request.asset_selection == [
+        deploy_ferceqr.FERCEQR_DATAPACKAGE_ASSET_KEY,
+        dg.AssetKey("deploy_ferceqr"),
+    ]
     assert run_request.tags == {
         deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q3", "2013q4"]),
         deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "run-123",
@@ -268,10 +327,39 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     old_file.parent.mkdir(parents=True)
     old_file.write_bytes(b"previous build")
 
-    deploy_ferceqr.deploy_ferceqr(deploy_context)
+    result = deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
+
+    # The materialization metadata records what was deployed, where, and how
+    # validation went.
+    assert isinstance(result, dg.MaterializeResult)
+    metadata = result.metadata
+    assert metadata is not None
+    assert metadata["outcome"] == "DEPLOYED"
+    assert metadata["source_run_id"] == "source-run"
+    assert metadata["source_backfill_id"] == "bf123"
+    assert _metadata_value(metadata, "partition_count") == 2
+    assert (metadata["first_partition"], metadata["last_partition"]) == (
+        "2013q3",
+        "2013q4",
+    )
+    assert _metadata_value(metadata, "targets") == [str(UPath(deploy_root))]
+    assert _metadata_value(metadata, "file_count") == 2 * len(
+        deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS
+    )
+    assert set(_metadata_value(metadata, "table_bytes")) == set(
+        deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS
+    )
+    assert _metadata_value(metadata, "validation") == [
+        {
+            "stage": "Data validation",
+            "success": True,
+            "dbt_status_counts": {"pass": 4},
+            "failure_count": 0,
+        }
+    ]
 
     # The built partitions land in the final layout. Promotion merges into the
     # existing prefix rather than replacing it, so 2012q4 is still there and the
@@ -342,12 +430,9 @@ def test_deploy_ferceqr_first_deployment_needs_no_existing_target(mocker, tmp_pa
     assert not (tmp_path / deploy_ferceqr.PREVIOUS_DIRNAME).exists()
 
 
-def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
-    mocker, tmp_path
-):
+def test_deploy_ferceqr_no_targets_skips_publish(mocker, tmp_path):
     """With no deployment targets configured (deployment_mode "none"), the build
-    is a success and the datapackage is still written for review, but nothing is
-    published -- and it is not an error."""
+    is a success and nothing is published -- and it is not an error."""
     source_root = tmp_path / "source"
     deploy_context = _build_deploy_context(tmp_path, mocker, targets=None)
     (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
@@ -358,15 +443,23 @@ def test_deploy_ferceqr_no_targets_writes_datapackage_and_skips_publish(
         return_value="build succeeded, deployment skipped",
     )
 
-    deploy_ferceqr.deploy_ferceqr(deploy_context)
+    result = deploy_ferceqr.deploy_ferceqr(deploy_context)
 
     assert (tmp_path / "FERCEQR_SUCCESS").exists()
     assert not (tmp_path / "FERCEQR_FAILURE").exists()
-    # Datapackage is written even though nothing is published.
-    assert (tmp_path / deploy_ferceqr.DATAPACKAGE_FILENAME).exists()
+    assert isinstance(result, dg.MaterializeResult)
+    assert result.metadata is not None
+    assert result.metadata["outcome"] == "SKIPPED"
+    assert _metadata_value(result.metadata, "targets") == []
+    assert "file_count" not in result.metadata
     # No staging directories were created -- nothing was uploaded.
     assert not any(p.name.startswith("._staging_") for p in tmp_path.iterdir())
-    notification.assert_called_once_with(deploy_context, outcome="SKIPPED")
+    notification.assert_called_once_with(
+        deploy_context,
+        outcome="SKIPPED",
+        validation_stages=mocker.ANY,
+        eel_hole=None,
+    )
     deploy_context.resources.zulip_notification.send_stream_message.assert_called_once()
 
 
@@ -534,7 +627,7 @@ def test_stage_target_s3_uploads_through_boto3_and_verifies(mocker, tmp_path):
     src.mkdir()
     parquet = src / "2013q3.parquet"
     parquet.write_bytes(b"parquet")
-    datapackage = src / deploy_ferceqr.DATAPACKAGE_FILENAME
+    datapackage = src / deploy_ferceqr.DEPLOYED_DATAPACKAGE_FILENAME
     datapackage.write_text("{}")
     target = deploy_ferceqr._DeploymentTarget(
         final=UPath(tmp_path / "dist" / "ferceqr"), build_id="b"
@@ -598,3 +691,152 @@ def test_verify_staged_reports_missing_unexpected_and_wrong_size(tmp_path):
     assert "data/t/absent.parquet" in message  # missing
     assert "data/t/extra.parquet" in message  # unexpected
     assert "short.parquet (expected 3 bytes, found 2)" in message  # wrong size
+
+
+def test_deploy_ferceqr_validation_failure_aborts_before_upload(mocker, tmp_path):
+    """Failing dbt validation reports failure and never touches the target."""
+    source_root = tmp_path / "source"
+    deploy_root = tmp_path / "deploy"
+    deploy_root.mkdir()
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(deploy_root)]
+    )
+    zulip_mock = _mock_deploy_dependencies(
+        mocker, deploy_context, source_root, ["2013q3"]
+    )
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+
+    stages = [
+        deploy_ferceqr.ValidationStage(
+            name="Data validation",
+            result=mocker.Mock(
+                success=False,
+                format_failure_contexts=mocker.Mock(return_value="nulls found"),
+            ),
+        )
+    ]
+    mocker.patch.object(deploy_ferceqr, "_run_ferceqr_validation", return_value=stages)
+
+    with pytest.raises(RuntimeError, match="data validation failed: Data validation"):
+        deploy_ferceqr.deploy_ferceqr(deploy_context)
+
+    assert (tmp_path / "FERCEQR_FAILURE").exists()
+    assert list(deploy_root.iterdir()) == []
+    zulip_mock.send_stream_message.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "path,expected",
+    [
+        ("gs://pudl.catalyst.coop/ferceqr", True),
+        ("s3://pudl.catalyst.coop/ferceqr", True),
+        ("s3://pudl.catalyst.coop/ferceqr/", True),
+        ("s3://pudl.catalyst.coop/ferceqr/build-1", True),
+        ("s3://pudl.catalyst.coop/ferceqr_test", False),
+        ("gs://test.catalyst.coop/ferceqr", False),
+        ("s3://pudl.catalyst.coop/nightly", False),
+        ("/tmp/ferceqr", False),  # noqa: S108
+    ],
+)
+def test_is_production_target(path, expected):
+    """Only whole-component ferceqr paths in the production bucket are production."""
+    assert deploy_ferceqr._is_production_target(UPath(path)) is expected
+
+
+def _targets(*paths: str) -> list[deploy_ferceqr._DeploymentTarget]:
+    return [
+        deploy_ferceqr._DeploymentTarget(final=UPath(p), build_id="test") for p in paths
+    ]
+
+
+def test_redeploy_eel_hole_triggers_for_production_target(mocker):
+    """A production target triggers a production Eel Hole redeploy."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
+    eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets("gs://test.catalyst.coop/ferceqr", "s3://pudl.catalyst.coop/ferceqr")
+    )
+    eel_hole.assert_called_once_with(token="tok", environment="production")  # noqa: S106
+    assert outcome == "TRIGGERED"
+
+
+def test_redeploy_eel_hole_skips_non_production_targets(mocker):
+    """Test-only targets never redeploy Eel Hole."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
+    eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets(
+            "gs://test.catalyst.coop/ferceqr", "s3://pudl.catalyst.coop/ferceqr_test"
+        )
+    )
+    eel_hole.assert_not_called()
+    assert outcome == "NOT_PRODUCTION"
+
+
+def test_redeploy_eel_hole_skips_without_token(mocker):
+    """A missing token skips the redeploy instead of failing the build."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {}, clear=True)
+    eel_hole = mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole")
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets("s3://pudl.catalyst.coop/ferceqr")
+    )
+    eel_hole.assert_not_called()
+    assert outcome == "NO_TOKEN"
+
+
+def test_redeploy_eel_hole_swallows_dispatch_errors(mocker):
+    """The data is already deployed, so a dispatch failure must not raise."""
+    mocker.patch.dict(deploy_ferceqr.os.environ, {"PUDL_BOT_PAT": "tok"})
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+    mocker.patch.object(deploy_ferceqr, "redeploy_eel_hole", side_effect=OSError)
+    outcome = deploy_ferceqr._redeploy_eel_hole_if_production(
+        _targets("s3://pudl.catalyst.coop/ferceqr")
+    )
+    assert outcome == "FAILED"
+
+
+@pytest.mark.parametrize(
+    "eel_hole,expected",
+    [
+        ("TRIGGERED", "Eel Hole redeployment triggered"),
+        ("NO_TOKEN", "`PUDL_BOT_PAT` is unset"),
+        ("FAILED", "Eel Hole redeployment failed"),
+        ("NOT_PRODUCTION", None),
+        (None, None),
+    ],
+)
+def test_build_notification_reports_eel_hole_outcome(mocker, eel_hole, expected):
+    """Notable Eel Hole outcomes appear in Zulip; non-production and unset do not."""
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
+    message = deploy_ferceqr.build_ferceqr_notification(
+        mocker.MagicMock(), outcome="SUCCESS", eel_hole=eel_hole
+    )
+    if expected is None:
+        assert "Eel Hole" not in message
+    else:
+        assert expected in message
+
+
+def test_deploy_ferceqr_reports_eel_hole_outcome(mocker, tmp_path):
+    """The redeploy outcome reaches both the Zulip message and asset metadata, and
+    a failed redeploy does not fail the deployment."""
+    source_root = tmp_path / "source"
+    deploy_context = _build_deploy_context(
+        tmp_path, mocker, targets=[UPath(tmp_path / "deploy")]
+    )
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
+    mocker.patch.object(
+        deploy_ferceqr, "_redeploy_eel_hole_if_production", return_value="FAILED"
+    )
+    notification = mocker.patch.object(
+        deploy_ferceqr, "build_ferceqr_notification", return_value="message"
+    )
+
+    # Calling an asset directly runs its function, but the decorator types the result
+    # as object, so we tell the type checker what the function actually returns.
+    result = cast(dg.MaterializeResult, deploy_ferceqr.deploy_ferceqr(deploy_context))
+
+    assert notification.call_args.kwargs["eel_hole"] == "FAILED"
+    assert result.metadata is not None
+    assert result.metadata["eel_hole"] == "FAILED"
+    assert (tmp_path / "FERCEQR_SUCCESS").exists()

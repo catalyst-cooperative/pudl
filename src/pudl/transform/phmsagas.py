@@ -2,10 +2,11 @@
 
 import numpy as np
 import pandas as pd
-from dagster import asset, asset_check
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.helpers import (
+    convert_cols_dtypes,
     standardize_na_values,
     standardize_phone_column,
     zero_pad_numeric_string,
@@ -141,13 +142,15 @@ MELT_PATTERNS = {
 
 
 @asset_check(asset="raw_phmsagas__yearly_distribution", blocking=True)
-def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
+def _check_all_raw_columns_being_transformed(
+    raw_df: pd.DataFrame,
+) -> AssetCheckResult:
     """Check to ensure that we are transforming all of the raw columns.
 
     Because we are using a lot of regex patterns to identify the columns
     to transform into various tables, we run this check to make sure the
     we are actually finding all of the raw columns. If a column is flagged
-    here, check the column mapping and the patterns in MELT_PATTERNS.1
+    here, check the column mapping and the patterns in MELT_PATTERNS.
     """
     pattern_cols = []
     for patterns in MELT_PATTERNS.values():
@@ -164,11 +167,20 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
             "report_year",
         ]
     )
-    untransformed_columns = set(raw_df.columns).difference(transformed_cols)
-    if untransformed_columns:
-        raise AssertionError(
-            f"Found {len(untransformed_columns)} columns that are not incorporated into the transform, but expected none: {untransformed_columns}"
-        )
+    untransformed_columns = sorted(set(raw_df.columns).difference(transformed_cols))
+    return AssetCheckResult(
+        passed=not untransformed_columns,
+        description=(
+            f"Found {len(untransformed_columns)} raw columns that are not "
+            "incorporated into the transform, but expected none."
+            if untransformed_columns
+            else None
+        ),
+        metadata={
+            "num_untransformed_columns": len(untransformed_columns),
+            "untransformed_columns": untransformed_columns,
+        },
+    )
 
 
 ##############################################################################
@@ -277,9 +289,9 @@ def backfill_zero_operator_id_phmsa(df: pd.DataFrame) -> pd.DataFrame:
         .sort_index()
     )
     still_zeros = (filled_in.operator_id_phmsa == 0).sum()
-    logger.info(
-        f"Backfilled {(og_zeros - still_zeros) / og_zeros:.1%} of zero's in operator_id_phmsa"
-    )
+    # When only some years are processed there may be no zeros to backfill.
+    backfilled_fraction = (og_zeros - still_zeros) / og_zeros if og_zeros else 0.0
+    logger.info(f"Backfilled {backfilled_fraction:.1%} of zero's in operator_id_phmsa")
     return filled_in
 
 
@@ -381,9 +393,11 @@ def _check_and_drop_log_if_always_in_report_id(df):
     # CG checked and there is another seemingly fully different
     # report_id ended in 1064 so this one seems like the log is wrong
     # so its seems chill to delete this column
+    is_suffix = test_log.apply(
+        lambda x: x.report_id.endswith(x.log_number), axis=1
+    ).astype(bool)
     log_not_report_suffix = test_log[
-        (~test_log.apply(lambda x: x.report_id.endswith(x.log_number), axis=1))
-        & (test_log.report_id != "19951063")
+        ~is_suffix & (test_log.report_id != "19951063").astype(bool)
     ]
     if not log_not_report_suffix.empty:
         raise AssertionError(
@@ -401,7 +415,7 @@ def _core_phmsagas__yearly_distribution_filings(
     df = (
         _core_phmsagas__yearly_distribution.loc[:, YEARLY_DISTRIBUTION_FILING_COLUMNS]
         .pipe(standardize_na_values)
-        .pipe(pudl.helpers.convert_cols_dtypes)
+        .pipe(convert_cols_dtypes)
         .pipe(_check_and_drop_log_if_always_in_report_id)
         # Streamline the initial and supplementary report columns
         .assign(
@@ -455,8 +469,11 @@ def core_phmsagas__yearly_distribution_operators(
         df[col] = pd.to_datetime(df[col])
 
     # Initial string cleaning
-    for col in df.select_dtypes(include=["object"]).columns:
-        df[col] = df[col].str.strip()
+    # Some object-dtype columns (e.g. supplemental_report_id) hold non-string
+    # values (plain Python floats), which the .str accessor rejects outright as
+    # of pandas 3. Strip only actual strings and leave everything else as-is.
+    for col in df.select_dtypes(include=["object", "string"]).columns:
+        df[col] = df[col].map(lambda v: v.strip() if isinstance(v, str) else v)
 
     # Specify the columns to convert to integer type
     cols_to_convert = YEARLY_DISTRIBUTION_OPERATORS_COLUMNS[
@@ -468,7 +485,7 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in a list of columns
-    cap_cols = df.select_dtypes(include=["object"]).columns.difference(
+    cap_cols = df.select_dtypes(include=["object", "string"]).columns.difference(
         YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
     )
     for col in cap_cols:
@@ -493,7 +510,11 @@ def core_phmsagas__yearly_distribution_operators(
             df[state_col]
             .str.strip()
             .replace(state_to_abbr)
-            .where(df[state_col].isin(state_to_abbr.values()), pd.NA)
+            # pandas-stubs does not accept a scalar pd.NA as the replacement value.
+            .where(
+                df[state_col].isin(state_to_abbr.values()),
+                pd.NA,  # type: ignore[bad-argument-type]
+            )
         )
 
     # Standardize zip codes
@@ -727,4 +748,4 @@ def core_phmsagas__yearly_distribution_by_install_decade(
         lower=0
     )  # Based on communication from PHMSA on 08/26, negative mains/services values should be set to zero.
     _assert_install_decade_totals_match_expected(df)
-    return df.loc[non_total_decade_mask].copy()
+    return df.loc[non_total_decade_mask]

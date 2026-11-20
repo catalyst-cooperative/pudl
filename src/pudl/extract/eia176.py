@@ -85,9 +85,10 @@ raw_eia176_assets = [
         "company_list": None,
         "continuation_text_lines": None,
         "custom": "numeric_data",
-        "natural_gas_deliveries": None,
-        "natural_gas_other_disposition_items": None,
-        "natural_gas_supply_items": None,
+        # Column maps for these pages have not been defined yet.
+        # "natural_gas_deliveries": None,
+        # "natural_gas_other_disposition_items": None,
+        # "natural_gas_supply_items": None,
         "type_of_operations_and_sector_items": "operation_types_and_sector_items",  # We rename this page
     }.items()
 ]

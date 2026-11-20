@@ -26,7 +26,6 @@ def test_notebook_exec(
     test_dir: Path,
 ):
     nb_path = test_dir.parent / notebook
-    with nb_path.open() as f:
-        nb = nbformat.read(f, as_version=4)
-        ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
-        _ = ep.preprocess(nb, resources={"Application": {"log_level": 5}})
+    nb = nbformat.v4.reads(nb_path.read_text())
+    ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
+    _ = ep.preprocess(nb, resources={"Application": {"log_level": 5}})

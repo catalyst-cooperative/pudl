@@ -63,7 +63,7 @@ def test_series_sum_ratio():
     totals = df.xs("total", level="dimension")
     assert (
         series_sum_ratio(
-            summands=totals.loc[:, ["var_1", "var_2"]], total=totals.var_total
+            summands=pd.DataFrame(totals[["var_1", "var_2"]]), total=totals.var_total
         )
         == 1 / 2
     )

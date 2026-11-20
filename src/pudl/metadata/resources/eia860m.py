@@ -58,7 +58,7 @@ report_date."""
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
         "field_namespace": "eia",
-        "sources": ["eia860"],
+        "sources": ["eia860m"],
         "etl_group": "eia860",
     },
 }

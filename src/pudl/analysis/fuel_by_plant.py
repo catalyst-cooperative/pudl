@@ -131,8 +131,11 @@ def fuel_by_plant_ferc1(
             # Sum up all the fuel heat content, and divide the individual fuel
             # heat contents by it (they are all contained in single higher
             # level group of columns labeled fuel_mmbtu)
+            # The columns are a MultiIndex, so this selection is a DataFrame, not the
+            # Series that pandas-stubs infers.
             df.loc[:, "fuel_mmbtu"].div(
-                df.loc[:, "fuel_mmbtu"].sum(axis=1), axis="rows"
+                df.loc[:, "fuel_mmbtu"].sum(axis=1),  # type: ignore[bad-argument-type]
+                axis="rows",
             ),
             # Merge that same total into the dataframe separately as well.
             plant_year_totals.loc[:, "fuel_mmbtu"],
@@ -149,7 +152,10 @@ def fuel_by_plant_ferc1(
             # Sum up all the fuel costs, and divide the individual fuel
             # costs by it (they are all contained in single higher
             # level group of columns labeled fuel_cost)
-            df.loc[:, "fuel_cost"].div(df.loc[:, "fuel_cost"].sum(axis=1), axis="rows"),
+            df.loc[:, "fuel_cost"].div(
+                df.loc[:, "fuel_cost"].sum(axis=1),  # type: ignore[bad-argument-type]
+                axis="rows",
+            ),
             # Merge that same total into the dataframe separately as well.
             plant_year_totals.loc[:, "fuel_cost"],
             right_index=True,

@@ -2,9 +2,12 @@
 
 import pathlib
 import sys
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import click
+
+if TYPE_CHECKING:
+    from pudl.logging_helpers import LogLevel
 
 
 @click.command(
@@ -98,8 +101,8 @@ def main(
     output_dir: pathlib.Path,
     limit_by_state: bool,
     years: list[int],
-    logfile: pathlib.Path,
-    loglevel: str,
+    logfile: pathlib.Path | None,
+    loglevel: LogLevel,
 ) -> int:
     """Compile historical utility and balancing area service territory geometries.
 

@@ -1015,7 +1015,7 @@ ASSET_TYPES_RUS12: set[str] = {
     "total_utility_plant",
     "depreciation_and_amortization",
     "net_utility_plant",
-    "non_utility_property_asset",
+    "non_utility_property",
     "investments_subsidiary_companies",
     "investments_associated_orgs_patronage_capital",
     "investments_associated_orgs_other_general_funds",

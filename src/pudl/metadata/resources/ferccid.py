@@ -24,7 +24,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "company_id_ferc",
             ],
         },
-        "sources": ["ferc"],
+        "sources": ["ferccid"],
         "etl_group": "entity_ferc",
         "field_namespace": "ferc",
     },

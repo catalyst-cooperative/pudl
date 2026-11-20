@@ -60,12 +60,10 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     Returns:
         plant_to_nuc_id: one to one mapping of plant_id_eia to nuclear_unit_id.
     """
-    nuc_fuel = nuc_fuel[nuc_fuel.nuclear_unit_id.notna()].copy()
+    nuc_fuel = nuc_fuel[nuc_fuel.nuclear_unit_id.notna()]
 
     # Find the plants with one nuclear unit
-    plant_nuc_unit_counts = (
-        nuc_fuel.groupby("plant_id_eia").nuclear_unit_id.nunique().copy()
-    )
+    plant_nuc_unit_counts = nuc_fuel.groupby("plant_id_eia").nuclear_unit_id.nunique()
 
     plant_id_with_one_unit = plant_nuc_unit_counts[plant_nuc_unit_counts.eq(1)].index
 
@@ -134,12 +132,12 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
         fuel_type_map: one to one mapping of plant_id_eia to prime_mover_codes.
     """
     # Remove fuels that don't have a prime mover.
-    gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()].copy()
+    gen_fuel = gen_fuel[~gen_fuel.prime_mover_code.isna()]
 
     # find plants with one prime mover
-    plant_prime_movers_counts = (
-        gen_fuel.groupby("plant_id_eia").prime_mover_code.nunique().copy()
-    )
+    plant_prime_movers_counts = gen_fuel.groupby(
+        "plant_id_eia"
+    ).prime_mover_code.nunique()
     plant_ids_with_one_pm = plant_prime_movers_counts[
         plant_prime_movers_counts.eq(1)
     ].index
@@ -313,9 +311,35 @@ def _aggregate_generation_fuel_duplicates(
     if nuclear:
         natural_key_fields += ["nuclear_unit_id"]
 
+    # These columns can come out of upstream extraction/transform steps as object
+    # dtype rather than a proper numeric dtype under pandas 3. Cast them explicitly,
+    # for duplicate and non-duplicate rows alike, so the select_dtypes(include="number")
+    # check below (and the aggregation and division further down) treat them as
+    # numeric, and so the concatenated output has clean numeric columns. We use NumPy
+    # float64 (not nullable Float64) so that nulls are np.nan, which keeps the all-zero
+    # check below free of pd.NA. pd.to_numeric converts any pd.NA / None in object
+    # columns to np.nan, which astype("float64") alone can't do, and raises on
+    # non-numeric values.
+    numeric_value_cols = [
+        "fuel_consumed_units",
+        "fuel_consumed_for_electricity_units",
+        "fuel_consumed_mmbtu",
+        "fuel_consumed_for_electricity_mmbtu",
+        "net_generation_mwh",
+        "fuel_mmbtu_per_unit",
+    ]
+    gen_fuel = gen_fuel.copy(deep=False)
+    gen_fuel[numeric_value_cols] = (
+        # This use of df.apply() is actually fast -- it's iterating over each column in
+        # the dataframe (the numeric values) and applying pd.to_numeric to the whole
+        # Series in a vectorized way. This is the default when you call df.apply() with
+        # a function that accepts a Series.
+        gen_fuel[numeric_value_cols].apply(pd.to_numeric).astype("float64")
+    )
+
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
-    duplicates = gen_fuel[is_duplicate].copy()
+    duplicates = gen_fuel[is_duplicate]
 
     # Remove duplicates where all numeric fields are 0 (only if there are other,
     # non-zero duplicates)
@@ -373,7 +397,7 @@ def _aggregate_generation_fuel_duplicates(
     ].replace([np.inf, -np.inf], np.nan)
 
     # Add the resolved records back to generation_fuel dataframe.
-    gen_df = gen_fuel[~is_duplicate].copy()
+    gen_df = gen_fuel[~is_duplicate]
     gen_df = pd.concat([gen_df, resolved_dupes])
 
     if gen_df[natural_key_fields].isnull().any().any():
@@ -441,11 +465,11 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     df = df.set_index(list(index_cols), append=True)
     # convert month names to numbers (january -> 1)
     col_df = multi_idx[ends_with_month_filter].to_frame(index=False)
-    col_df.loc[:, "report_month"] = col_df.loc[:, "report_month"].map(month_dict)
+    col_df["report_month"] = col_df["report_month"].map(month_dict)
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
-    stacked = df.stack(future_stack=True)
+    stacked = df.stack()
     # Preserve the prior behavior of dropping rows whose reshaped monthly
     # values are all null while still using pandas' new stack implementation.
     if isinstance(stacked, pd.Series):
@@ -583,7 +607,7 @@ def plants_eia923(
         A dictionary of DataFrame objects in which pages from EIA923 form (keys)
         correspond to normalized DataFrames of values from that page (values).
     """
-    plant_info_df = eia923_dfs["plant_frame"].copy()
+    plant_info_df = eia923_dfs["plant_frame"]
 
     # There are other fields being compiled in the plant_info_df from all of
     # the various EIA923 spreadsheet pages. Do we want to add them to the
@@ -766,13 +790,13 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     # Create separate nuclear unit fuel table
     nukes = gen_fuel[
         gen_fuel.nuclear_unit_id.notna() | gen_fuel.energy_source_code.eq("NUC")
-    ].copy()
+    ]
 
     gen_fuel_nuke = gen_fuel_nuclear(nukes)
 
     gen_fuel = gen_fuel[
         gen_fuel.nuclear_unit_id.isna() & gen_fuel.energy_source_code.ne("NUC")
-    ].copy()
+    ]
     gen_fuel = gen_fuel.drop(columns=["nuclear_unit_id"])
 
     # Backfill 2001, 2002 prime_mover_codes.
@@ -857,7 +881,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
     is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
     # copying bc a slice of this copy will be reassigned later
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
+    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate]
     boiler_fuel_groups = duplicates.groupby(key_cols)
 
     # For relative columns, take average weighted by fuel usage
@@ -990,7 +1014,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
     params_pk_dupes = InvalidRows(
-        invalid_values={pd.NA, np.nan, 0}, required_valid_cols=required_valid_cols
+        invalid_values={0}, required_valid_cols=required_valid_cols
     )
     bf_no_null_pks_dupes = drop_invalid_rows(
         df=bf[pk_dupe_mask], params=params_pk_dupes
@@ -1626,10 +1650,10 @@ def _clean_emissions_control_dates(
 
     is_spot_fix = raw.isin(spot_fixes)
     # Apply table-specific corrections first so malformed one-offs don't need to be
-    # encoded in general parsing logic. Guard against an empty selection, which
-    # would otherwise assign an empty object-dtype array into a datetime64 column.
+    # encoded in general parsing logic. Guard with .any() because pandas 3 refuses to
+    # set an empty / non-datetime RHS into a datetime64[ns] column.
     if is_spot_fix.any():
-        out.loc[is_spot_fix] = raw.loc[is_spot_fix].map(spot_fixes)
+        out.loc[is_spot_fix] = pd.to_datetime(raw.loc[is_spot_fix].map(spot_fixes))
 
     to_parse = ~(is_nullish | is_spot_fix)
 
@@ -1679,13 +1703,17 @@ def _clean_emissions_control_dates(
         (year_only, r"(?P<year>\d{4})", None, None),
     ]
     for mask, pattern, month_group, day_group in format_specs:
-        out.loc[mask] = _parse_emissions_control_date_subset(
-            raw_subset=raw.loc[mask],
-            pattern=pattern,
-            min_valid_year=min_valid_year,
-            max_valid_year=max_valid_year,
-            month_group=month_group,
-            day_group=day_group,
+        if not mask.any():
+            continue
+        out.loc[mask] = pd.to_datetime(
+            _parse_emissions_control_date_subset(
+                raw_subset=raw.loc[mask],
+                pattern=pattern,
+                min_valid_year=min_valid_year,
+                max_valid_year=max_valid_year,
+                month_group=month_group,
+                day_group=day_group,
+            )
         )
 
     return pd.to_datetime(out)

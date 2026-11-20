@@ -492,6 +492,10 @@ tables are documented in the :doc:`data_dictionaries/pudl_db`:
    * :ref:`core_ferceqr__quarterly_index_pub`
    * :ref:`core_ferceqr__transactions`
 
+A `Frictionless Data Package v2 <https://datapackage.org/>`__ descriptor for the whole
+dataset, with the size and SHA-256 hash of every file, is published at
+``s3://pudl.catalyst.coop/ferceqr/datapackage.json``.
+
 The subdirectories contain a number of Parquet files (``2025q3.parquet``,
 ``2025q2.parquet``, etc.), each containing one quarter of data for that table. Most
 tools for reading Parquet files out of cloud storage are able to query and read from

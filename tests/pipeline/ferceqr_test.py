@@ -30,7 +30,7 @@ from upath.implementations.local import LocalPath
 
 from pudl import PUDL_ROOT_PATH
 from pudl.dagster.assets.deploy.ferceqr import FERCEQR_TRANSFORM_ASSETS
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import FERCEQR_PACKAGE
 
 logger = logging.getLogger(__name__)
 
@@ -253,7 +253,7 @@ def test_ferceqr_parquet_deployed(ferceqr_outputs: Path, table: str):
 
     - Only the specified test partitions are deployed.
     - Each table has the expected Parquet tables.
-    - Each table has the expected columns based on the PUDL package schema.
+    - Each table has the expected columns based on the FERC EQR package schema.
     - Each table has at least some data (not empty)
     """
     table_dir = ferceqr_outputs / table
@@ -262,12 +262,9 @@ def test_ferceqr_parquet_deployed(ferceqr_outputs: Path, table: str):
     assert parquet_files == set(FERCEQR_TEST_PARTITIONS), (
         f"Unexpected Parquet partitions for table {table}: {parquet_files}"
     )
-    expected_fields = {f.name for f in PUDL_PACKAGE.get_resource(table).schema.fields}
-
-    # The core_ferceqr__quarterly_identity table outputs the filing_quarter
-    # field, even though it does not appear in the PUDL schema.
-    if table == "core_ferceqr__quarterly_identity":
-        expected_fields = expected_fields | {"filing_quarter"}
+    expected_fields = {
+        f.name for f in FERCEQR_PACKAGE.get_resource(table).schema.fields
+    }
 
     # Use lazy scanning to check metadata without loading all data
     lf = pl.scan_parquet(table_dir / "*.parquet")

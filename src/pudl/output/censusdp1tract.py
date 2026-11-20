@@ -1,6 +1,6 @@
 """Functions for reading data out of the Census DP1 SQLite Database."""
 
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, get_args
 
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
@@ -12,6 +12,9 @@ import pudl.logging_helpers
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+type CensusLayer = Literal["state", "county", "tract"]
+
+
 class LayerParams(TypedDict):
     """Simple class defining the expected structure of the layer processing params."""
 
@@ -20,7 +23,7 @@ class LayerParams(TypedDict):
 
 
 def census_asset_factory(
-    layer: Literal["state", "county", "tract"],
+    layer: CensusLayer,
 ) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
     common_rename: dict[str, str] = {
@@ -80,20 +83,18 @@ def census_asset_factory(
         census_conn = f"sqlite:///{raw_censusdp1tract__all_tables}"
         dp1_engine = sa.create_engine(census_conn)
 
-        def get_layer(
-            layer: Literal["state", "county", "tract"], dp1_engine: sa.Engine
-        ):
+        def get_layer(layer: CensusLayer, dp1_engine: sa.Engine):
             if not isinstance(layer, str):
                 raise TypeError(
                     f"Argument 'layer' must be a string, got arg of type {layer}."
                 )
-            layer = layer.lower()
-            if layer not in ["state", "county", "tract"]:
+            layer_name = layer.lower()
+            if layer_name not in ["state", "county", "tract"]:
                 raise ValueError(
                     "Census DP1 layer must be one of 'state', 'county' or 'tract', "
-                    f"but got {layer}."
+                    f"but got {layer_name}."
                 )
-            table_name = f"{layer}_2010census_dp1"
+            table_name = f"{layer_name}_2010census_dp1"
             df = pd.read_sql(
                 """
 SELECT geom_cols.f_table_name as table_name,
@@ -122,7 +123,7 @@ WHERE table_name = ?
                 )
                 .rename_geometry("geometry")
                 .drop(columns=["objectid"])
-                .rename(columns=layer_params[layer]["rename"])
+                .rename(columns=layer_params[layer_name]["rename"])
                 .astype(
                     {
                         "land_area": float,
@@ -144,5 +145,5 @@ WHERE table_name = ?
 
 
 census_dp1_layers = [
-    census_asset_factory(layer) for layer in ["state", "county", "tract"]
+    census_asset_factory(layer) for layer in get_args(CensusLayer.__value__)
 ]

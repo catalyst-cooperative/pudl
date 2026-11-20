@@ -245,7 +245,7 @@ def restrict_train_connections_on_date_range(
     logger.info(f"Restricting training data on years: {date_range_years_str}")
     train_df = train_df.assign(
         year_in_date_range=lambda x: x[id_col].str.extract(
-            r"_{1}" + f"({date_range_years_str})" + "_{1}"
+            r"_{1}" + f"({date_range_years_str})" + "_{1}", expand=False
         )
     )
     # pd.drop returns a copy, so no need to copy this portion of train_df

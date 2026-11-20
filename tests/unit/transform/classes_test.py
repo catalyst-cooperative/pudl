@@ -152,7 +152,7 @@ VALID_CAPACITY_MW = {
     "upper_bound": 4000.0,
 }
 
-ANIMAL_CATS: dict[str, set[str]] = {
+ANIMAL_CATS: dict[str, dict[str, set[str]]] = {
     "categories": {
         "cat": {
             "cat",
@@ -186,7 +186,7 @@ ANIMAL_CATS: dict[str, set[str]] = {
 
 
 @pytest.fixture
-def inline_animal_cats() -> dict[str, set[str]]:
+def inline_animal_cats() -> dict[str, dict[str, set[str]]]:
     """Fixture for a version of ANIMAL_CATS where the categories dict is defined inline."""
     return ANIMAL_CATS
 
@@ -219,7 +219,7 @@ STRING_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, pd.NA, np.nan],
+                "invalid_values": [0],
                 "required_valid_cols": [
                     "valid_year",
                     "valid_capacity_mw",
@@ -248,7 +248,7 @@ NUMERIC_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [0, pd.NA, np.nan],
+                "invalid_values": [0],
                 "required_valid_cols": [
                     "valid_year",
                     "valid_capacity_mw",
@@ -426,8 +426,8 @@ def fill_values(col: pd.Series, params: FillValue):
 
     Fills NA values with a number.
     """
-    col = col.copy().fillna(params.fill_value).infer_objects(copy=False)
-    col.name = col.name + "_filled"
+    col = col.copy().fillna(params.fill_value).infer_objects()
+    col.name = f"{col.name}_filled"
     return col
 
 
@@ -561,18 +561,18 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
     "invalid_rows,expectation",
     [
         pytest.param(
-            {"invalid_values": [0, pd.NA], "required_valid_cols": ["a", "b"]},
+            {"invalid_values": [0], "required_valid_cols": ["a", "b"]},
             does_not_raise(),
             id="good_required_valid_cols",
         ),
         pytest.param(
-            {"invalid_values": [0, pd.NA], "allowed_invalid_cols": ["a", "b"]},
+            {"invalid_values": [0], "allowed_invalid_cols": ["a", "b"]},
             does_not_raise(),
             id="good_allowed_invalid_cols",
         ),
         pytest.param(
             {
-                "invalid_values": [0, pd.NA],
+                "invalid_values": [0],
                 "allowed_invalid_cols": ["a", "b"],
                 "required_valid_cols": ["a", "b"],
             },
@@ -581,7 +581,7 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
         ),
         pytest.param(
             {
-                "invalid_values": [0, pd.NA],
+                "invalid_values": [0],
                 "like": "dude",
                 "regex": "wtf",
             },
@@ -590,7 +590,7 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
         ),
         pytest.param(
             {
-                "invalid_values": [0, pd.NA],
+                "invalid_values": [0],
                 "required_valid_cols": ["a", "b"],
                 "like": "omg",
             },
@@ -598,9 +598,23 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
             id="too_many_filters",
         ),
         pytest.param(
-            {"invalid_values": [0, pd.NA]},
+            {"invalid_values": [0]},
             does_not_raise(),
             id="no_filters",
+        ),
+        pytest.param(
+            {"invalid_values": [0, pd.NA], "required_valid_cols": ["a", "b"]},
+            pytest.raises(ValidationError),
+            id="null_in_invalid_values",
+        ),
+        pytest.param(
+            {
+                "invalid_values": [0],
+                "required_valid_cols": ["a", "b"],
+                "dropna": False,
+            },
+            does_not_raise(),
+            id="dropna_false",
         ),
         pytest.param(
             {"invalid_values": [], "allowed_invalid_cols": ["a", "b"]},
@@ -640,7 +654,7 @@ def test_categorize_strings(
 ) -> None:
     """Test string categorization function in isolation."""
     categorized = categorize_strings(
-        series, params=StringCategories(**request.getfixturevalue(params))
+        series, params=StringCategories.model_validate(request.getfixturevalue(params))
     )
     assert_series_equal(categorized, expected, check_names=False)
 
@@ -648,10 +662,10 @@ def test_categorize_strings(
 def test_string_categories_params(serialized_animal_cats) -> None:
     """Make sure StringCategories params class correctly loads from disk when "categories" is a Path."""
     # reference case: parse params when "categories" is a dict
-    inline_params = StringCategories(**ANIMAL_CATS)
+    inline_params = StringCategories.model_validate(ANIMAL_CATS)
 
     # test case: parse params when "categories" is a Path
-    serialized_params = StringCategories(**serialized_animal_cats)
+    serialized_params = StringCategories.model_validate(serialized_animal_cats)
 
     # must match
     assert inline_params == serialized_params
@@ -678,6 +692,16 @@ def test_nullify_outliers(series, expected, params):
     """Test outlier nullification function in isolation."""
     valid = nullify_outliers(series, params=ValidRange(**params))
     assert_series_equal(valid, expected, check_names=False)
+
+
+def test_nullify_outliers_does_not_mutate_numeric_input():
+    """``pd.to_numeric`` returns already-numeric input as-is; don't modify it."""
+    col = pd.Series([1.0, 5.0, 100.0])
+    original = col.copy()
+    out = nullify_outliers(col, params=ValidRange(lower_bound=0, upper_bound=10))
+    assert out is not col
+    assert out.isna().tolist() == [False, False, True]
+    assert_series_equal(col, original)
 
 
 @pytest.mark.parametrize(
@@ -923,7 +947,7 @@ def test_correct_units(corrections, expectation):
             NUMERIC_DATA,
             NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
             {
-                "invalid_values": [0, pd.NA, np.nan],
+                "invalid_values": [0],
                 "required_valid_cols": [
                     "valid_year",
                     "valid_capacity_mw",
@@ -936,7 +960,7 @@ def test_correct_units(corrections, expectation):
             NUMERIC_DATA,
             NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
             {
-                "invalid_values": [0, pd.NA, np.nan],
+                "invalid_values": [0],
                 "allowed_invalid_cols": [
                     "id",
                     "year",
@@ -954,6 +978,151 @@ def test_drop_invalid_rows(df, expected, params):
     invalid_row = InvalidRows(**params)
     actual = drop_invalid_rows(df, params=invalid_row)
     assert_frame_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "x,invalid_values,dropna,kept",
+    [
+        pytest.param(
+            pd.Series([0, 1, 2], dtype="int64"),
+            [0],
+            False,
+            [2, 3],
+            id="int_zero_invalid",
+        ),
+        pytest.param(
+            pd.Series([0, 1, 2], dtype="int64"),
+            [5],
+            False,
+            [1, 2, 3],
+            id="int_zero_valid",
+        ),
+        pytest.param(
+            pd.Series([0.0, 1.0, np.nan]),
+            [0],
+            False,
+            [2, 3],
+            id="float_zero_invalid_nan_valid",
+        ),
+        pytest.param(
+            pd.Series([0.0, 1.0, np.nan]),
+            [5],
+            True,
+            [1, 2],
+            id="float_dropna_nan_invalid_zero_valid",
+        ),
+        pytest.param(
+            pd.Series([0, 1, pd.NA], dtype="Int64"),
+            [0],
+            True,
+            [2],
+            id="nullable_int_zero_and_na_invalid",
+        ),
+        pytest.param(
+            pd.Series([0, 1, pd.NA], dtype="Int64"),
+            [5],
+            True,
+            [1, 2],
+            id="nullable_int_only_na_invalid",
+        ),
+        pytest.param(
+            pd.Series(["a", "", pd.NA], dtype="string"),
+            [""],
+            False,
+            [1, 3],
+            id="string_empty_invalid_na_valid",
+        ),
+        pytest.param(
+            pd.Series(["a", "", pd.NA], dtype="string"),
+            ["x"],
+            True,
+            [1, 2],
+            id="string_dropna_na_invalid_empty_valid",
+        ),
+        pytest.param(
+            pd.Series([0, 0.0, "0", "", "none", None, np.nan, pd.NA], dtype=object),
+            [0],
+            False,
+            [3, 4, 5, 6, 7, 8],
+            id="object_numeric_zero_not_string_zero_or_na",
+        ),
+        pytest.param(
+            pd.Series([0, 0.0, "0", "", "none", None, np.nan, pd.NA], dtype=object),
+            ["0", "", "none"],
+            False,
+            [1, 2, 6, 7, 8],
+            id="object_strings_invalid_numeric_zero_valid",
+        ),
+        pytest.param(
+            pd.Series([0, 0.0, "0", "", "none", None, np.nan, pd.NA], dtype=object),
+            [0, "0", "", "none"],
+            True,
+            [],
+            id="object_ferc1_style_everything_invalid",
+        ),
+        pytest.param(
+            pd.Series([False, True, 0, 1], dtype=object),
+            [0],
+            False,
+            [1, 2, 4],
+            id="object_bools_are_not_integers",
+            marks=pytest.mark.xfail(
+                strict=True,
+                reason="set[Any] and equality-based matching conflate bools with ints.",
+            ),
+        ),
+        pytest.param(
+            pd.Series([False, True, 0, 1], dtype=object),
+            [True],
+            False,
+            [1, 3, 4],
+            id="object_one_is_not_true",
+            marks=pytest.mark.xfail(
+                strict=True,
+                reason="set[Any] and equality-based matching conflate bools with ints.",
+            ),
+        ),
+    ],
+)
+def test_drop_invalid_rows_value_matching(x, invalid_values, dropna, kept):
+    """A value is invalid only if it is found in ``invalid_values``, or is null.
+
+    Matching should not depend on incidental equality or hashing quirks between
+    different types (e.g. ``False == 0``). ``0`` and ``0.0`` are the same value, and
+    when ``dropna`` is True any NA-like value (``pd.NA``, ``np.nan``, ``None``) is
+    invalid. Rows are dropped only when all checked columns are invalid.
+    """
+    df = pd.DataFrame({"id": range(1, len(x) + 1), "x": x})
+    params = InvalidRows(
+        invalid_values=invalid_values, dropna=dropna, required_valid_cols=["x"]
+    )
+    actual = drop_invalid_rows(df, params=params)
+    assert actual["id"].tolist() == kept
+
+
+def test_drop_invalid_rows_requires_all_columns_invalid():
+    """Only rows where every checked column is invalid are dropped."""
+    df = pd.DataFrame(
+        {
+            "id": [1, 2, 3, 4],
+            "a": [0, 0, 1, 0],
+            "b": [0.0, 2.0, 0.0, np.nan],
+            "c": ["z", "z", "z", "z"],
+        }
+    )
+    params = InvalidRows(invalid_values=[0], required_valid_cols=["a", "b"])
+    actual = drop_invalid_rows(df, params=params)
+    assert actual["id"].tolist() == [2, 3]
+
+
+def test_drop_invalid_rows_dropna_false_keeps_null_rows():
+    """Rows containing only nulls are kept when ``dropna`` is False."""
+    df = pd.DataFrame({"id": [1, 2, 3], "a": [0, pd.NA, 1], "b": [0, np.nan, 2]})
+    params = InvalidRows(
+        invalid_values=[0], dropna=False, required_valid_cols=["a", "b"]
+    )
+    actual = drop_invalid_rows(df, params=params)
+    assert actual["id"].tolist() == [2, 3]
 
 
 @pytest.mark.parametrize(
@@ -1014,10 +1183,11 @@ class TableId(enum.Enum):
     TEST_TABLE = "test_table"
 
 
-class TableTransformer(AbstractTableTransformer):
+class TableTransformer(AbstractTableTransformer[TableId, TableTransformParams]):
     """A concrete TableTransformer for testing purposes."""
 
-    table_id: enum.Enum = TableId.TEST_TABLE
+    table_id = TableId.TEST_TABLE
+    parameter_model = TableTransformParams
 
     @cache_df(key="start")
     def transform_start(self, df: pd.DataFrame) -> pd.DataFrame:

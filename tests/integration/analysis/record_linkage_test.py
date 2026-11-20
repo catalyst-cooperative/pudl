@@ -107,10 +107,14 @@ def _generate_random_test_df(
     size: int = 2022 - 1994,
     plant_name_max_edits: int = 5,
     plant_type=random.choice(
-        list(StringCategories(**PLANT_TYPE_CATEGORIES).categories.keys())
+        list(StringCategories.model_validate(PLANT_TYPE_CATEGORIES).categories.keys())
     ),
     construction_type=random.choice(
-        list(StringCategories(**CONSTRUCTION_TYPE_CATEGORIES).categories.keys())
+        list(
+            StringCategories.model_validate(
+                CONSTRUCTION_TYPE_CATEGORIES
+            ).categories.keys()
+        )
     ),
     plant_type_error_prob: float = 0.01,
     construction_type_error_prob: float = 0.01,
@@ -156,7 +160,7 @@ def _generate_random_test_df(
     generated_df = _modify_categorical(
         generated_df,
         "construction_type",
-        list(StringCategories(**CONSTRUCTION_TYPE_CATEGORIES).categories),
+        list(StringCategories.model_validate(CONSTRUCTION_TYPE_CATEGORIES).categories),
         construction_type_error_prob,
     )
     generated_df = _modify_categorical(
@@ -168,7 +172,7 @@ def _generate_random_test_df(
     generated_df = _modify_categorical(
         generated_df,
         "plant_type",
-        list(StringCategories(**PLANT_TYPE_CATEGORIES).categories),
+        list(StringCategories.model_validate(PLANT_TYPE_CATEGORIES).categories),
         plant_type_error_prob,
     )
 
@@ -264,7 +268,8 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
     ]
     config["ops"]["ferc_to_ferc_tracker"]["config"]["run_context"] = "testing"
     label_df = (
-        ferc_to_ferc.node_def.to_job()
+        # node_def is a GraphDefinition, but is typed as the NodeDefinition base class.
+        ferc_to_ferc.node_def.to_job()  # type: ignore[missing-attribute]
         .execute_in_process(
             run_config=config,
             input_values={

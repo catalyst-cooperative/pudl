@@ -148,9 +148,6 @@ from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-AllocationFrequency = Literal["YS", "MS"]
-"""The two frequencies at which generation & fuel data can be allocated."""
-
 IDX_GENS = ["report_date", "plant_id_eia", "generator_id"]
 """Primary key columns for generator records."""
 
@@ -208,7 +205,7 @@ MISSING_SENTINEL = 0.00001
 
 
 def allocate_gen_fuel_asset_factory(
-    freq: AllocationFrequency,
+    freq: pudl.helpers.AggregationFreq,
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build yearly and monthly net generation & fuel consumption allocation assets."""
@@ -252,7 +249,6 @@ def allocate_gen_fuel_asset_factory(
         gens: pd.DataFrame,
     ) -> pd.DataFrame:
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
-        pd.options.mode.copy_on_write = True
         gf, bf, gen, bga, gens = select_input_data(
             gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
         )
@@ -322,11 +318,9 @@ def allocate_gen_fuel_asset_factory(
     return assets
 
 
-ALLOCATION_FREQUENCIES: tuple[AllocationFrequency, ...] = ("YS", "MS")
-
 allocate_gen_fuel_assets = [
     allocated_net_gen_asset
-    for freq in ALLOCATION_FREQUENCIES
+    for freq in pudl.helpers.AGGREGATION_FREQS
     for allocated_net_gen_asset in allocate_gen_fuel_asset_factory(
         freq=freq,
         io_manager_key="parquet_io_manager",
@@ -340,7 +334,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     gen: pd.DataFrame,
     bga: pd.DataFrame,
     gens: pd.DataFrame,
-    freq: AllocationFrequency,
+    freq: pudl.helpers.AggregationFreq,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
@@ -489,7 +483,10 @@ def select_input_data(
 
 
 def standardize_input_frequency(
-    bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: AllocationFrequency
+    bf: pd.DataFrame,
+    gens: pd.DataFrame,
+    gen: pd.DataFrame,
+    freq: pudl.helpers.AggregationFreq,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Standardize the frequency of the input tables.
 
@@ -632,8 +629,10 @@ def stack_generators(
     # get a list of all energy_source_code, planned_energy_source_code, and startup_source_code columns
     esc = list(gens.filter(regex="source_code"))
 
+    # pandas 3's stack() keeps null entries (pandas 2 dropped them by default), so
+    # drop them explicitly to avoid a spurious null energy source per generator.
     gens_stack_prep = (
-        pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
+        pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0).dropna())
         .reset_index()
         .rename(columns={"level_3": cat_col, 0: stacked_col})
         .pipe(apply_pudl_dtypes, field_namespace="eia")
@@ -1789,7 +1788,7 @@ def distribute_annually_reported_data_to_months_if_annual(
     df: pd.DataFrame,
     key_columns: list[str],
     data_column_name: str,
-    freq: AllocationFrequency,
+    freq: pudl.helpers.AggregationFreq,
 ) -> pd.DataFrame:
     """Allocates annually-reported data from the gen or bf table to each month.
 
@@ -1839,7 +1838,7 @@ def distribute_annually_reported_data_to_months_if_annual(
                 )
             )
 
-        reporters = df.copy().pipe(assign_plant_year)
+        reporters = assign_plant_year(df)
         # get a count of the number of missing values in a year
         key_columns_annual = ["plant_year"] + [
             col for col in key_columns if col != "report_date"

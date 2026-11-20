@@ -1,5 +1,7 @@
 """Tests for timeseries anomalies detection and imputation."""
 
+from typing import cast
+
 import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
@@ -42,6 +44,16 @@ def test_lookup_state_invalid(state: str | int) -> None:
     """Check that invalid state identifiers raise KeyError or TypeError."""
     with pytest.raises((KeyError, TypeError)):
         lookup_state(state)
+
+
+def _estimate_state_demand(*args, **kwargs) -> pl.LazyFrame:
+    """Call the asset function directly, narrowing its type to a LazyFrame."""
+    # The @asset decorator wraps the function in an AssetsDefinition, whose call
+    # signature Dagster types as returning ``object``. At runtime a direct call just
+    # runs the original function, which is annotated to return a LazyFrame.
+    return cast(
+        pl.LazyFrame, out_ferc714__hourly_estimated_state_demand(*args, **kwargs)
+    )
 
 
 @pytest.fixture
@@ -94,7 +106,7 @@ def mock_out_ferc714__hourly_estimated_state_demand_context(
 
 def test_sales(mocker, out_ferc714__hourly_estimated_state_demand_args):
     pd.testing.assert_frame_equal(
-        out_ferc714__hourly_estimated_state_demand(
+        _estimate_state_demand(
             # we need this context because we're calling the asset def directly instead of using dg.materialize().
             # arbitrarily we choose to run with mean_overlaps off, since that's the default.
             context=mock_out_ferc714__hourly_estimated_state_demand_context(
@@ -156,7 +168,7 @@ def test_overlaps(
 
     pd.testing.assert_frame_equal(
         expected,
-        out_ferc714__hourly_estimated_state_demand(
+        _estimate_state_demand(
             context=mock_out_ferc714__hourly_estimated_state_demand_context(
                 mocker, mean_overlaps=mean_overlaps
             ),

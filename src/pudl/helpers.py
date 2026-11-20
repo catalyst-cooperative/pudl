@@ -22,7 +22,7 @@ from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, get_args
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
@@ -55,7 +55,41 @@ generation is reported normally, then the fuel consumption for the year needs to
 otherwise we'll get unrealistic heat rates.
 """
 
+type AggregationFreq = Literal["YS", "MS"]
+"""Pandas frequency aliases for annual (year start) and monthly (month start) data."""
+
+AGGREGATION_FREQS: tuple[AggregationFreq, ...] = get_args(AggregationFreq.__value__)
+"""All of the :data:`AggregationFreq` values, for iterating over."""
+
 logger = pudl.logging_helpers.get_logger(__name__)
+
+UNICODE_WHITESPACE_REGEX = (
+    "[\\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\x85]+"
+)
+"""Regex matching a run of ASCII or Unicode whitespace characters.
+
+Python's :mod:`re` matches Unicode whitespace like the non-breaking space with ``\\s``,
+but the RE2 engine that pyarrow uses for pandas' default ``str`` dtype only matches
+ASCII whitespace. Listing the characters explicitly gives the same result for ``object``,
+``string`` and ``str`` columns.
+"""
+
+
+def null_dates_outside_ns_bounds(dates: pd.Series) -> pd.Series:
+    """Set datetimes that can't be represented with nanosecond resolution to ``NaT``.
+
+    Pandas 2 always parsed datetimes at nanosecond resolution, so implausible dates
+    outside of 1677-09-21 to 2262-04-11 (typically typos like the year ``0006``)
+    overflowed and were coerced to ``NaT``. Pandas 3 infers a coarser resolution
+    and keeps them. This preserves the original behavior.
+
+    Args:
+        dates: A datetime Series, e.g. from ``pd.to_datetime(..., errors="coerce")``.
+
+    Returns:
+        The Series with out-of-bounds datetimes replaced by ``NaT``.
+    """
+    return dates.where(dates.between(pd.Timestamp.min, pd.Timestamp.max))
 
 
 def run_git(args: list[str], cwd: Path | None = None) -> str:
@@ -185,7 +219,7 @@ def multi_index_stack(
     df.columns = pd.MultiIndex.from_frame(
         df.columns.str.extract(pattern, expand=True)
     ).set_names(match_names)
-    df = df.stack(level=unstack_level, future_stack=True).reset_index()
+    df = df.stack(level=unstack_level).reset_index()
     # remove the remaining multi-index
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")
@@ -450,12 +484,12 @@ def clean_eia_counties(
         state_col: state column name - default is state.
         county_col: state column name - default is county.
     """
-    df = df.copy()
+    df = df.copy(deep=False)
     df[county_col] = (
         df[county_col]
         .str.strip()
         # Condense multiple whitespace chars.
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.replace(r"^St ", "St. ", regex=True)  # Standardize abbreviation.
         # Standardize abbreviation.
         .str.replace(r"^Ste ", "Ste. ", regex=True)
@@ -482,7 +516,8 @@ def clean_eia_counties(
     for fix in fixes.itertuples():
         state_mask = df[state_col] == fix.state
         county_mask = df[county_col] == fix.eia_county
-        df.loc[state_mask & county_mask, county_col] = fix.fips_county
+        # itertuples() attributes are typed as the union of all scalar types.
+        df.loc[state_mask & county_mask, county_col] = fix.fips_county  # type: ignore[unsupported-operation]
     return df
 
 
@@ -505,7 +540,7 @@ def oob_to_nan(
     Returns:
         The altered DataFrame.
     """
-    out_df = df.copy()
+    out_df = df.copy(deep=False)
     for col in cols:
         # Force column to be numeric if possible, NaN otherwise:
         out_df.loc[:, col] = pd.to_numeric(out_df[col], errors="coerce")
@@ -739,7 +774,7 @@ def date_merge(
     """
 
     def separate_date_cols(df, date_col_name, date_on):
-        out_df = df.copy()
+        out_df = df.copy(deep=False)
         out_df.loc[:, date_col_name] = pd.to_datetime(out_df[date_col_name])
         if "year_temp_for_merge" in date_on:
             out_df.loc[:, "year_temp_for_merge"] = out_df[date_col_name].dt.year
@@ -852,7 +887,7 @@ def expand_timeseries(
         pd.concat([df, end_dates.reset_index()])
         .set_index(date_col)
         .groupby(key_cols)
-        .resample(freq, include_groups=False)
+        .resample(freq)
         .ffill()
         .reset_index()
     )
@@ -886,9 +921,7 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(
-    df: pd.DataFrame, columns: list[str], copy: bool = True
-) -> pd.DataFrame:
+def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -898,19 +931,14 @@ def simplify_strings(
 
     Leaves null values unaltered. Casts other values with astype(str).
 
-    Running with ``copy=False`` is intended for memory-intensive data frames where no
-    upstream process retains a reference to the data. Use care with this option,
-    and keep an eye out for spooky data changes showing up in unexpected places.
-
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
-        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy() if copy else df
+    out_df = df.copy(deep=False)
     for col in columns:
         if col in out_df.columns:
             mask = out_df[col].notnull()
@@ -921,7 +949,7 @@ def simplify_strings(
                     .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
                     .str.strip()
                     .str.lower()
-                    .str.replace(r"\s+", " ", regex=True)
+                    .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
                 )
     return out_df
 
@@ -954,7 +982,10 @@ def cleanstrings_series(
     """
     if simplify:
         col = (
-            col.astype(str).str.strip().str.lower().str.replace(r"\s+", " ", regex=True)
+            col.astype(str)
+            .str.strip()
+            .str.lower()
+            .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         )
         for k in str_map:
             str_map[k] = [re.sub(r"\s+", " ", s.lower().strip()) for s in str_map[k]]
@@ -971,7 +1002,8 @@ def cleanstrings_series(
         # leftover strings to fix -- otherwise it runs forever because we
         # are replacing nothing with nothing.
         if len(badstrings) > 0:
-            col = col.replace(badstrings.tolist(), unmapped)
+            # pandas-stubs' Series.replace() does not accept pd.NA as the new value.
+            col = col.replace(badstrings.tolist(), unmapped)  # type: ignore[no-matching-overload]
 
     return col
 
@@ -1014,7 +1046,7 @@ def cleanstrings(
     Returns:
         The function returns a new DataFrame containing the cleaned strings.
     """
-    out_df = df.copy()
+    out_df = df.copy(deep=False)
     for col, str_map in zip(columns, stringmaps, strict=True):
         out_df[col] = cleanstrings_series(
             out_df[col], str_map, unmapped=unmapped, simplify=simplify
@@ -1092,53 +1124,33 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A DataFrame in which the year/month fields have been converted into Date fields.
     """
-    df = df.copy()
-    month_regex = "_month$"
-    year_regex = "_year$"
-    # Columns that match our month or year patterns.
-    month_cols = list(df.filter(regex=month_regex).columns)
-    year_cols = list(df.filter(regex=year_regex).columns)
+    # Base names (the part before _month/_year) of columns that have BOTH a month and
+    # a year -- otherwise there's no point in creating a Date.
+    cols = df.columns.astype(str)
+    months_base = cols[cols.str.endswith("_month")].str.removesuffix("_month")
+    years_base = set(cols[cols.str.endswith("_year")].str.removesuffix("_year"))
+    date_bases = [base for base in months_base if base in years_base]
 
-    # Base column names that don't include the month or year pattern
-    months_base = [re.sub(month_regex, "", m) for m in month_cols]
-    years_base = [re.sub(year_regex, "", y) for y in year_cols]
-
-    # We only want to retain columns that have BOTH month and year
-    # matches -- otherwise there's no point in creating a Date.
-    date_base = [base for base in months_base if base in years_base]
-
-    # For each base column that DOES have both a month and year,
-    # We need to grab the real column names corresponding to each,
-    # so we can access the values in the data frame, and use them
-    # to create a corresponding Date column named [BASE]_date
-    month_year_date = []
-    for base in date_base:
-        base_month_regex = f"^{base}{month_regex}"
-        month_col = list(df.filter(regex=base_month_regex).columns)
-        if not len(month_col) == 1:
-            raise AssertionError
-        month_col = month_col[0]
-        base_year_regex = f"^{base}{year_regex}"
-        year_col = list(df.filter(regex=base_year_regex).columns)
-        if not len(year_col) == 1:
-            raise AssertionError
-        year_col = year_col[0]
-        date_col = f"{base}_date"
-        month_year_date.append((month_col, year_col, date_col))
-
-    for month_col, year_col, date_col in month_year_date:
-        date_mask = df[[year_col, month_col]].notna().all(axis="columns")
-        years = df.loc[date_mask, year_col]
-        months = df.loc[date_mask, month_col]
-
-        df.loc[date_mask, date_col] = pd.to_datetime(
-            {"year": years, "month": months, "day": 1}, errors="coerce"
+    # Casting to float64 turns NA in nullable integer columns into NaN, which
+    # to_datetime(errors="coerce") turns into NaT. (With NA present, to_datetime
+    # raises on nullable integers.)
+    new_dates = {
+        f"{base}_date": null_dates_outside_ns_bounds(
+            pd.to_datetime(
+                {
+                    "year": df[f"{base}_year"].astype("float64"),
+                    "month": df[f"{base}_month"].astype("float64"),
+                    "day": 1,
+                },
+                errors="coerce",
+            )
         )
+        for base in date_bases
+    }
 
-        # Now that we've replaced these fields with a date, we drop them.
-        df = df.drop([month_col, year_col], axis=1)
-
-    return df
+    # Replace the month/year fields with the new date fields.
+    old_cols = [f"{base}_{part}" for base in date_bases for part in ("month", "year")]
+    return df.drop(columns=old_cols).assign(**new_dates)
 
 
 def convert_to_date(
@@ -1149,7 +1161,6 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
-    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1157,10 +1168,6 @@ def convert_to_date(
     conversion is applied, and the original dataframe is returned unchanged.
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
-
-    Running with ``copy=False`` is intended for memory-intensive data frames where no
-    upstream process retains a reference to the data. Use care with this option,
-    and keep an eye out for spooky data changes showing up in unexpected places.
 
     Args:
         df: dataframe to convert
@@ -1171,14 +1178,12 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
-        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    if copy:
-        df = df.copy()
+    df = df.copy(deep=False)
     if date_col in df.columns:
         return df
 
@@ -1192,12 +1197,14 @@ def convert_to_date(
 
     day = day_na_value if day_col not in df.columns else df[day_col]
 
-    df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
+    dates = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
 
-    if copy:
-        return df.drop(cols_to_drop, axis="columns")
-    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
+    # In pandas 3 drop() leaves one block per column, so consolidate with a deep copy
+    # before inserting the date column to avoid a PerformanceWarning on the insert
+    # (and on later inserts into the returned frame).
+    df = df.drop(cols_to_drop, axis="columns").copy()
+    df[date_col] = dates
     return df
 
 
@@ -1284,7 +1291,7 @@ def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
         .str.strip()
         .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(UNICODE_WHITESPACE_REGEX, " ", regex=True)
         .str.replace(" ", "_")
     )
     return df
@@ -1520,7 +1527,7 @@ def fillna_w_rolling_avg(
     return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
-def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | None:
+def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | NAType:
     """Get either the unique source in a group or return mixed.
 
     Custom function for groupby.agg. Written specifically for
@@ -1572,7 +1579,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
             .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
-            .str.replace(r"\s+", "_", regex=True)
+            .str.replace(UNICODE_WHITESPACE_REGEX, "_", regex=True)
         )
     return df
 
@@ -1612,7 +1619,8 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
         # Remove any whitespace
         .replace(r"\s+", "", regex=True)
         # Replace anything that's not entirely digits with NA
-        .replace(r"[^\d]+", pd.NA, regex=True)
+        # pandas-stubs' Series.replace() does not accept pd.NA as the new value.
+        .replace(r"[^\d]+", pd.NA, regex=True)  # type: ignore[no-matching-overload]
         # Set any string longer than n_digits to NA
         .replace(f"[\\d]{{{n_digits + 1},}}", pd.NA, regex=True)
         # Pad the numeric string with leading zeroes to n_digits length
@@ -1775,6 +1783,10 @@ def standardize_percentages_ratio(
             dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
                 frac_df.report_date.dt.year <= max(years_to_standardize)
             )
+        else:
+            raise AssertionError(
+                "Standardization requires a report_year or report_date column."
+            )
         frac_df.loc[dates, col] = frac_df.loc[dates, col] / 100
         if frac_df[col].max() > 1:
             raise AssertionError(
@@ -1785,7 +1797,7 @@ def standardize_percentages_ratio(
 
 def calc_capacity_factor(
     df: pd.DataFrame,
-    freq: Literal["YS", "MS"],
+    freq: AggregationFreq,
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:
@@ -1973,13 +1985,13 @@ def get_asset_keys(
     Returns:
         A set of asset keys.
     """
-    asset_keys = set()
+    asset_keys: set[AssetKey] = set()
     for asset in assets:
         if isinstance(asset, AssetSpec):
             if not exclude_asset_specs:
-                asset_keys = asset_keys.union(asset.key)
+                asset_keys.add(asset.key)
         else:
-            asset_keys = asset_keys.union(asset.keys)
+            asset_keys.update(asset.keys)
     return asset_keys
 
 
@@ -2039,9 +2051,9 @@ def convert_col_to_bool(
     # Set values as true or value. Astype boolean should preserve NA values.
     # This is easier than building an input dictionary for pandas map or replace
     # functions.
-    df = df.copy()
+    df = df.copy(deep=False)
     # Build the boolean column as a whole rather than assigning True/False into the
-    # existing (possibly string) column, which pandas 3.0 rejects as a lossy setitem.
+    # existing (possibly string) column, which pandas 3 rejects as a lossy setitem.
     bool_col = pd.Series(pd.NA, index=df.index, dtype="boolean")
     bool_col[df[col_name].isin(true_values)] = True
     bool_col[df[col_name].isin(false_values)] = False
@@ -2204,13 +2216,13 @@ def scale_by_ownership(
     gens = pd.concat(
         [
             gens,
-            gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
+            gens.assign(fraction_owned=1, ownership_record_type="total"),
         ]
     )
     # Scaling by a fractional ownership share is inherently fractional, so the scaled
     # columns are always float64. We deliberately assign with ``gens[scale_cols] =``
     # rather than ``gens.loc[:, scale_cols] =``: ``.loc`` writes into the existing
-    # columns in place and so keeps their dtype, and pandas 3.0 raises when that would
+    # columns in place and so keeps their dtype, and pandas 3 raises when that would
     # put float results into an integer column. Plain ``[]`` assignment replaces the
     # columns wholesale, letting their dtype change. The explicit cast before the
     # multiply makes the output dtype independent of the input dtype.
@@ -2236,11 +2248,13 @@ def assert_cols_areclose(
     # we use df.loc, so if we use a debugger in here we can see the actual data
     # instead of just whether or not there are matches.
     mismatch = df.loc[
-        ~np.isclose(
-            np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
-            np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
-            equal_nan=True,
-        ).filled()
+        ~np.ma.filled(
+            np.isclose(
+                np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
+                np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
+                equal_nan=True,
+            )
+        )
     ]
     mismatch_ratio = len(mismatch) / len(df)
     if mismatch_ratio > mismatch_threshold:
@@ -2759,7 +2773,13 @@ def duckdb_relation_from_parquet(
         use_all_partitions: If true read the entire directory of parquet files.
             Otherwise only read data from the partition specified in parquet_data.
     """
-    with duckdb_connect() as conn:
+    # Reading a whole directory can mean globbing thousands of small files (e.g. the
+    # per-filing FERC EQR raw tables). DuckDB 2.0's asynchronous read-ahead holds
+    # each prefetched file open, which needed ~1,000 simultaneous file handles and
+    # failed with "Too many open files". Read-ahead only helps with remote storage,
+    # so disable it for these local reads.
+    overrides = {"read_ahead_depth": "0"} if use_all_partitions else {}
+    with duckdb_connect(**overrides) as conn:
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
@@ -2992,56 +3012,126 @@ def normalize_year_fragments(
     return year
 
 
-def make_changelog(df_all: pd.DataFrame, idx: list[str]) -> pd.DataFrame:
+def _valid_until(changes: pd.DataFrame, series_cols: list[str]) -> pd.Series:
+    """Find the date until which each changelog record is valid.
+
+    A record is valid until the next record in the same series begins, so the intervals
+    ``[report_date, valid_until_date)`` are half-open. A series' last record has no
+    successor, and was still in force when the entity was last reported, so it is valid
+    until one month past the entity's last report date (``report_date_max``). Every
+    series' last record therefore ends on the same date. The month is fixed, and
+    assumes monthly reporting.
+
+    Args:
+        changes: One row per kept changelog record, with ``report_date`` and
+            ``report_date_max`` columns, sorted by ``report_date`` within each series.
+        series_cols: Columns identifying a series (the groups within which records
+            succeed one another).
+
+    Returns:
+        The ``valid_until_date`` for each row of ``changes``.
+    """
+    next_report_date = changes.groupby(series_cols, dropna=False)["report_date"].shift(
+        -1
+    )
+    return next_report_date.fillna(changes["report_date_max"] + pd.DateOffset(months=1))
+
+
+def make_changelog(df_all: pd.DataFrame, id_cols: list[str]) -> pd.DataFrame:
     """Make a changelog table with unique instances of values over time.
 
-    Each record is valid from its ``report_date`` until the ``report_date`` of the next
-    distinct record in the same series. A series is a unique combination of the
-    non-date ``idx`` columns and, if present, ``column_name`` (as in the "tall" forensics
-    tables, where many different columns and values share one entity ID). Records
-    reported on the entity's last report date are valid for one more month.
+    Three nested groupings of the input are used, each identified by its own columns:
+
+    * An *entity* is the thing the data describes, identified by ``id_cols`` (e.g. a
+      plant, or a generator).
+    * A *series* is one tracked quantity of an entity: the ``id_cols`` plus
+      ``column_name``, if present (as in the "tall" forensics tables, where many
+      different columns and values share one entity ID). In a wide table with no
+      ``column_name``, every column is tracked together, so each entity has a single
+      series and a change to any column starts a new record.
+    * A *snapshot* is a series as reported on one ``report_date``: the set of distinct
+      records reported for it on that date. This is usually just one record, but
+      conflicting reports of the same thing can yield several.
+
+    A report date is kept in the changelog if it is the first for its series, or if its
+    snapshot differs from the snapshot on the series' *previous* report date. Comparing
+    only with the previous date (rather than with every earlier one) means a value that
+    changes and later reverts (``OP`` -> ``OA`` -> ``OP``) gets a new record for the
+    reversion, so the changelog never claims that an outdated value is still in force.
+    Missing values compare as equal to each other.
+
+    Each kept record is valid over the half-open interval ``[report_date,
+    valid_until_date)``: ``valid_until_date`` is the first date it is *no longer* in
+    force, which is the ``report_date`` of the next kept record in the same series.
+    A series' last record has no successor, and was still in force when the entity was
+    last reported, so its ``valid_until_date`` is one month past the entity's
+    last ``report_date`` (``report_date_max``). The month is fixed, and assumes monthly
+    reporting.
 
     The output is fully sorted, so it doesn't depend on the order of the input rows.
+
+    Args:
+        df_all: Records to summarize. Must contain ``report_date`` and the columns in
+            ``id_cols``. May contain ``column_name`` and ``record_value``.
+        id_cols: Columns identifying an entity, not including ``report_date``, e.g.
+            ``["plant_id_eia", "generator_id"]``.
+
+    Returns:
+        The records at which a series' snapshot changed, with the entity's last report
+        date in ``report_date_max`` and the end of the record's validity in
+        ``valid_until_date``.
     """
-    idx_no_date = [c for c in idx if c != "report_date"]
-    series_cols = idx_no_date + [c for c in ["column_name"] if c in df_all.columns]
-    # Tie-breakers, so that rows sharing an ID and report date sort deterministically.
-    tiebreak_cols = [c for c in ["record_value"] if c in df_all.columns]
-    sort_cols = series_cols + ["report_date"] + tiebreak_cols
+    series_cols = id_cols + (["column_name"] if "column_name" in df_all else [])
+    snapshot_cols = series_cols + ["report_date"]
 
-    def _sort_key(col: pd.Series) -> pd.Series:
-        # record_value holds values of many types (floats, timestamps, strings, ...)
-        # from different columns, which can't be ordered against each other, so order
-        # them by their string representation instead.
-        return col.astype("string") if col.name == "record_value" else col
+    # Identical rows within a snapshot carry no information.
+    records = df_all.drop_duplicates()
 
-    # assign a max report_date column for use in the valid_until_date column
-    df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
-        "max"
+    # Give each distinct combination of values an integer ID (missing values are
+    # equal to each other) so that a snapshot can be represented as a set of IDs.
+    value_cols = [c for c in records if c not in snapshot_cols]
+    records = records.assign(
+        _value_id=records.groupby(value_cols, dropna=False, sort=False).ngroup()
     )
 
-    df_changelog = df_all.sort_values(
-        sort_cols, kind="stable", key=_sort_key
-    ).drop_duplicates(
-        subset=[c for c in df_all if c != "report_date"],
-        keep="first",
+    # One row per series and report date, in date order within each series.
+    snapshots = (
+        records.groupby(snapshot_cols, dropna=False)["_value_id"]
+        .agg(frozenset)
+        .rename("snapshot")
+        .reset_index()
+        .assign(
+            report_date_max=lambda df: df.groupby(id_cols)["report_date"].transform(
+                "max"
+            )
+        )
     )
 
-    # Within each series, a record is valid until the next record begins.
-    next_report_date = df_changelog.groupby(series_cols)["report_date"].shift(-1)
-    df_changelog["valid_until_date"] = next_report_date.fillna(
-        df_changelog["report_date_max"]
-    )
+    # Keep the first date of each series, and any date whose snapshot differs from the
+    # previous date's snapshot in that series (the shift of a first date is NaN).
+    previous_snapshot = snapshots.groupby(series_cols, dropna=False)["snapshot"].shift()
+    changes = snapshots[snapshots["snapshot"] != previous_snapshot].copy()
+    changes["valid_until_date"] = _valid_until(changes, series_cols)
 
-    # for all of the last month records, use the next month as the valid until date
-    report_date_max_mask = (
-        df_changelog["report_date"] == df_changelog["report_date_max"]
-    )
-    df_changelog.loc[report_date_max_mask, "valid_until_date"] = df_changelog.loc[
-        report_date_max_mask, "report_date"
-    ] + pd.DateOffset(months=1)
+    # Rows sharing a snapshot are ordered by record_value, so output is deterministic.
+    sort_cols = snapshot_cols + (["record_value"] if "record_value" in df_all else [])
 
-    return df_changelog.sort_values(sort_cols, kind="stable", key=_sort_key)
+    return (
+        # Bring the full records back for the dates that were kept.
+        records.merge(
+            changes[snapshot_cols + ["report_date_max", "valid_until_date"]],
+            on=snapshot_cols,
+        )
+        .drop(columns="_value_id")
+        .sort_values(
+            sort_cols,
+            kind="stable",
+            # record_value holds values of many types (floats, timestamps, strings,
+            # ...) from different columns, which can't be ordered against each other,
+            # so sort on their string representation instead.
+            key=lambda col: col.astype("string") if col.name == "record_value" else col,
+        )
+    )
 
 
 def parse_address(addr: str):
@@ -3051,7 +3141,7 @@ def parse_address(addr: str):
             return (addr, None, None, None)
         tagged, addr_type = usaddress.tag(addr)
 
-        parsed = defaultdict(str)
+        parsed: defaultdict[str, str | None] = defaultdict(str)
         for key, val in tagged.items():
             parsed[key] = val.strip() if val else None
 
@@ -3081,7 +3171,8 @@ def parse_address(addr: str):
             parsed.get("StateName", None),
             parsed.get("ZipCode", None),
         )
-    except usaddress.RepeatedLabelError:
+    # usaddress's bundled type stubs omit the RepeatedLabelError exception class.
+    except usaddress.RepeatedLabelError:  # type: ignore[missing-attribute]
         logger.warning(f"Could not parse {addr}")
         return (addr, None, None, None)
 

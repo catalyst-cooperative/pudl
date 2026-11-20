@@ -9,7 +9,7 @@ resulting geometries for use in other applications.
 import math
 import pathlib
 from collections.abc import Iterable
-from typing import Literal
+from typing import Literal, cast
 
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
@@ -357,7 +357,8 @@ def compile_geoms(
         assn=assn,
         assn_col=assn_col,
         core_eia861__yearly_service_territory=core_eia861__yearly_service_territory,
-        census_gdf=census_counties,
+        # The census counties are read from GeoParquet, so they are a GeoDataFrame.
+        census_gdf=cast(gpd.GeoDataFrame, census_counties),
         limit_by_state=limit_by_state,
         dissolve=dissolve,
     )
@@ -379,7 +380,7 @@ def compile_geoms(
 def service_territory_asset_factory(
     entity_type: Literal["balancing_authority", "utility"],
     io_manager_key: str | None = None,
-) -> list[AssetsDefinition]:
+) -> AssetsDefinition:
     """Build asset definitions for balancing authority and utility territories."""
 
     @asset(
@@ -445,11 +446,16 @@ def service_territory_asset_factory(
     return _service_territory
 
 
+_ENTITY_TYPES: list[Literal["balancing_authority", "utility"]] = [
+    "balancing_authority",
+    "utility",
+]
+
 service_territory_eia861_assets = [
     service_territory_asset_factory(
         entity_type=entity, io_manager_key="parquet_io_manager"
     )
-    for entity in ["balancing_authority", "utility"]
+    for entity in _ENTITY_TYPES
 ]
 
 

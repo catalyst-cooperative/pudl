@@ -6,7 +6,7 @@ import json
 import re
 import zipfile
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -77,6 +77,14 @@ class DatapackageDescriptor:
             )
         return resource_path
 
+    def get_checksum(self, name: str) -> str:
+        """Return the expected md5 checksum of the named resource.
+
+        Raises:
+            KeyError: if the datapackage has no resource with this name.
+        """
+        return self._get_resource_metadata(name)["hash"]
+
     def get_download_size(self) -> int:
         """Returns the total download size of all the resources in MB."""
         total_bytes = 0
@@ -84,15 +92,43 @@ class DatapackageDescriptor:
             total_bytes += res["bytes"]
         return int(total_bytes / 1_000_000)
 
-    def validate_checksum(self, name: str, content: str) -> bool:
-        """Returns True if content matches checksum for given named resource."""
-        expected_checksum = self._get_resource_metadata(name)["hash"]
+    def validate_checksum(self, name: str, content: bytes) -> None:
+        """Verify that in-memory content matches the checksum of a named resource.
+
+        Raises:
+            ChecksumMismatchError: if the content does not match the expected checksum.
+        """
+        expected_checksum = self.get_checksum(name)
         m = hashlib.md5()  # noqa: S324 Unfortunately md5 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
             raise ChecksumMismatchError(
-                f"Checksum for resource {name} does not match."
+                f"Checksum for resource {name} does not match. "
                 f"Expected {expected_checksum}, got {m.hexdigest()}"
+            )
+
+    def validate_file_checksum(self, name: str, path: str | Path) -> None:
+        """Verify that a file on disk matches the checksum for a named resource.
+
+        Hashes the file incrementally instead of reading it into memory, so it can be
+        used on resources too large to buffer like the multi-gigabyte quarterly FERC
+        EQR archives, which are streamed to local disk before being opened.
+
+        Args:
+            name: name of the resource as it appears in this datapackage descriptor.
+            path: local path to the file whose contents should be checked.
+
+        Raises:
+            ChecksumMismatchError: if the digest does not match the expected checksum.
+        """
+        expected_checksum = self.get_checksum(name)
+        with Path(path).open("rb") as f:
+            # Unfortunately md5 is required by Zenodo.
+            digest = hashlib.file_digest(f, "md5").hexdigest()
+        if digest != expected_checksum:
+            raise ChecksumMismatchError(
+                f"Checksum for resource {name} does not match. "
+                f"Expected {expected_checksum}, got {digest}"
             )
 
     def _matches(self, res: dict, **filters: Any):
@@ -133,9 +169,9 @@ class DatapackageDescriptor:
                     dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
-    def get_partitions(self, name: str | None = None) -> dict[str, set[str]]:
+    def get_partitions(self, name: str | None = None) -> dict[str, set[Any]]:
         """Return mapping of known partition keys to their allowed known values."""
-        partitions: dict[str, set[str]] = defaultdict(set)
+        partitions: dict[str, set[Any]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
                 continue
@@ -316,7 +352,7 @@ class ZenodoFetcher:
             api_root = "https://zenodo.org/api"
         else:
             raise ValueError(f"Invalid Zenodo DOI: {doi}")
-        return f"{api_root}/records/{zenodo_id}/files"
+        return HttpUrl(f"{api_root}/records/{zenodo_id}/files")
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
@@ -478,25 +514,26 @@ class Datastore:
     def get_resources(
         self,
         dataset: str,
+        filters: Mapping[str, Any] | None = None,
+        *,
         cached_only: bool = False,
         skip_optimally_cached: bool = False,
-        **filters: Any,
     ) -> Iterator[tuple[PudlResourceKey, bytes]]:
         """Return content of the matching resources.
 
         Args:
             dataset: name of the dataset to query.
+            filters: only return resources that match the key-value mapping in their
+                metadata["parts"].
             cached_only: if True, only retrieve resources that are present in the cache.
             skip_optimally_cached: if True, only retrieve resources that are not optimally
                 cached. This triggers attempt to optimally cache these resources.
-            filters (key=val): only return resources that match the key-value mapping in their
-            metadata["parts"].
 
         Yields:
             (PudlResourceKey, io.BytesIO) holding content for each matching resource
         """
         desc = self.get_datapackage_descriptor(dataset)
-        for res in desc.get_resources(**filters):
+        for res in desc.get_resources(**(filters or {})):
             if desc.get_resource_path(res.name).startswith("gs://"):
                 logger.info(
                     f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). Skipping download."
@@ -525,7 +562,7 @@ class Datastore:
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
         """Returns content of a resource assuming there is exactly one that matches."""
-        res = self.get_resources(dataset, **filters)
+        res = self.get_resources(dataset, filters)
         try:
             _, content = next(res)
         except StopIteration as err:
@@ -549,7 +586,7 @@ class Datastore:
             )
             return zipfile.ZipFile(resource)
 
-        return retry(retryable, retry_on=(zipfile.BadZipFile))
+        return retry(retryable, retry_on=(zipfile.BadZipFile,))
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""
@@ -568,7 +605,7 @@ def validate_cache(
         num_invalid = 0
         descriptor = dstore.get_datapackage_descriptor(single_ds)
         for res, content in dstore.get_resources(
-            single_ds, cached_only=True, **partition
+            single_ds, partition, cached_only=True
         ):
             try:
                 num_total += 1
@@ -594,7 +631,7 @@ def fetch_resources(
     """Retrieve all matching resources and store them in the cache."""
     for single_ds in datasets:
         for res, contents in dstore.get_resources(
-            single_ds, skip_optimally_cached=True, **partition
+            single_ds, partition, skip_optimally_cached=True
         ):
             logger.info(f"Retrieved {res}.")
             # If the cloud_cache_path is specified and we don't want

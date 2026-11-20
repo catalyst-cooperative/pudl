@@ -39,6 +39,7 @@ PUDL_DOCS_PATH: Path = PUDL_ROOT_PATH / "docs"
 PUDL_NIGHTLY_BUILDS_BASE_PATH: UPath = UPath(
     "s3://pudl.catalyst.coop/nightly/", anon=True
 )
+FERCEQR_BUILDS_BASE_PATH: UPath = UPath("s3://pudl.catalyst.coop/ferceqr/", anon=True)
 """Base path to PUDL nightly builds outputs."""
 PUDL_EEL_HOLE_BASE_PATH: UPath = UPath("s3://pudl.catalyst.coop/eel-hole/", anon=True)
 """Base path to eel-hole s3 outputs."""

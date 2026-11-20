@@ -132,6 +132,9 @@ macros:
           A list of column names present in both tables. The test will succeed only if
           all combinations of column values present in at least one row in the
           comparison table are present in this table.
+      - name: compare_source
+        type: string
+        description: Name of dbt source corresponding to compare_table_name. This should be either 'pudl' or 'ferceqr'
 
   - name: test_expect_columns_not_all_null
     description: >

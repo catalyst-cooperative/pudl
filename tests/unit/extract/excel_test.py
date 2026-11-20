@@ -6,11 +6,19 @@ import pytest
 from pudl.extract import excel
 
 
+@pytest.fixture(autouse=True)
+def fake_dataset_root(mocker, test_dir):
+    """Look for the datasets of the metadata in the test data, not in the package."""
+    mocker.patch(
+        "pudl.extract.extractor.PUDL_PACKAGE_DATA_PATH", test_dir / "data/extract"
+    )
+
+
 class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
 
     @pytest.fixture(autouse=True)
-    def setUp(self):
+    def setUp(self, fake_dataset_root):
         """Constructs test metadata instance for testing."""
         self._metadata = excel.ExcelMetadata("test")
 
@@ -49,7 +57,7 @@ class FakeExtractor(excel.ExcelExtractor):
         """
         self.METADATA = excel.ExcelMetadata("test")
         self.BLACKLISTED_PAGES = ["shoes"]
-        super().__init__(ds=None)
+        super().__init__(ds=None)  # type: ignore[bad-argument-type]
 
     def load_source(self, page, **partition):
         """Returns fake file contents for given page and partition."""

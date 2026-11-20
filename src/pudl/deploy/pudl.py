@@ -27,6 +27,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from upath import UPath
 
 from pudl import PUDL_ROOT_PATH
+from pudl.deploy.github import dispatch_github_workflow
 from pudl.deploy.zenodo_metadata import get_latest_release_tag
 from pudl.helpers import run_git
 from pudl.logging_helpers import configure_root_logger, get_logger
@@ -167,7 +168,7 @@ class DeploymentPlan(BaseModel):
 
     @property
     def redeploy_eel_hole(self) -> bool:
-        """Whether this deployment should redeploy the PUDL Viewer (Eel Hole)."""
+        """Whether this deployment should redeploy Eel Hole."""
         return self.deploy_type == DeploymentType.NIGHTLY
 
     @property
@@ -269,6 +270,15 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     for log_file in local_path.glob("*.log"):
         logger.info(f"Excluding {log_file.name} from public distribution.")
         log_file.unlink()
+
+    # The unmapped FERC1/EIA ID CSVs (see pudl.dagster.assets.core.unmapped_ids,
+    # whose asset names -- and thus these filenames -- all start with "missing_")
+    # are development-only artifacts for updating the manual PUDL ID mapping
+    # spreadsheet. They belong in the raw build outputs on builds.catalyst.coop,
+    # but must never reach the public S3/GCS buckets or Zenodo releases.
+    for unmapped_ids_csv in local_path.glob("missing_*.csv"):
+        logger.info(f"Excluding {unmapped_ids_csv.name} from public distribution.")
+        unmapped_ids_csv.unlink()
 
     # The "success" sentinel is internal build-completion plumbing (see
     # check_build_success/get_build_from_tag) with no meaning for consumers of the
@@ -510,38 +520,6 @@ def update_git_branch(
     logger.info(f"Git branch {branch} updated successfully")
 
 
-def dispatch_github_workflow(
-    repo: str,
-    workflow_file: str,
-    ref: str,
-    token: str,
-    inputs: dict[str, str] | None = None,
-) -> None:
-    """Trigger a workflow_dispatch event on a GitHub Actions workflow.
-
-    Args:
-        repo: GitHub repo in "owner/name" form (e.g. "catalyst-cooperative/pudl").
-        workflow_file: Workflow filename (e.g. "zenodo-data-release.yml").
-        ref: Git branch or tag to run the workflow from.
-        token: Bearer token to authenticate to GitHub.
-        inputs: workflow_dispatch inputs, if the workflow takes any.
-    """
-    payload: dict[str, str | dict[str, str]] = {"ref": ref}
-    if inputs:
-        payload["inputs"] = inputs
-
-    response = requests.post(
-        f"https://api.github.com/repos/{repo}/actions/workflows/{workflow_file}/dispatches",
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-        },
-        json=payload,
-        timeout=10,
-    )
-    response.raise_for_status()
-
-
 def trigger_zenodo_release(
     build_ref: str,
     deploy_type: DeploymentType,
@@ -595,32 +573,6 @@ def trigger_zenodo_release(
     )
 
     logger.info("Zenodo release workflow triggered")
-
-
-def update_pudl_viewer(
-    token: str,
-    environment: Literal["staging", "production"],
-) -> None:
-    """Update PUDL Viewer Cloud Run service to latest image.
-
-    Args:
-        token: the bearer token to authenticate to GitHub.
-        environment: deploy staging or production version of viewer.
-    """
-    logger.info("Updating PUDL Viewer Cloud Run service")
-
-    workflow_file = (
-        "build-deploy-staging.yml" if environment == "staging" else "build-deploy.yml"
-    )
-
-    dispatch_github_workflow(
-        repo="catalyst-cooperative/eel-hole",
-        workflow_file=workflow_file,
-        ref="main",
-        token=token,
-    )
-
-    logger.info("PUDL Viewer Cloud Run service updated")
 
 
 def set_gcs_temporary_hold(gcs_path: str, billing_project: str = "") -> None:

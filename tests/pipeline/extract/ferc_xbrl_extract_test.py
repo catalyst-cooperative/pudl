@@ -27,7 +27,9 @@ def _find_empty_tables(db_conn, tables: set[str]) -> set[str]:
     empty_tables = []
     for table_name in tables:
         query = f"SELECT COUNT(*) FROM '{table_name}';"  # noqa: S608
-        if db_conn.execute(query).fetchone()[0] == 0:
+        # sql() + fetchall() leaves no unfinished result on the connection; a lone
+        # execute().fetchone() does, and a later conn.table() then raises ResourceInUse.
+        if db_conn.sql(query).fetchall()[0][0] == 0:
             empty_tables.append(table_name)
     return set(empty_tables)
 
@@ -38,6 +40,7 @@ def test_sqlite_duckdb_equivalence(
     pudl_test_paths,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
+    assert global_data_config.ferc_to_sqlite is not None
     for form in FercForm:
         if not global_data_config.ferc_to_sqlite.get_dataset_years(
             dataset=form, data_format="xbrl"

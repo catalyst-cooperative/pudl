@@ -10,7 +10,6 @@ from functools import cached_property, lru_cache
 from hashlib import sha1
 from importlib.metadata import version as _get_version
 from pathlib import Path
-from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 
 import duckdb
@@ -614,9 +613,7 @@ class Encoder(PudlMeta):
         rendered = template.render(
             Encoder=self,
             # just get the resolved resource summary & drop all the other sections of the description
-            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
-                "\n\n"
-            )[0],
+            description=find_resource(self.name).description.partition("\n\n")[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -647,7 +644,7 @@ class Field(PudlMeta):
     Examples:
         >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=str)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
@@ -1004,28 +1001,24 @@ class Field(PudlMeta):
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
+        column_options: dict[str, Any] = {
+            "checks": checks,
+            "nullable": not constraints.required,
+            "unique": constraints.unique,
+        }
+        # For enum fields the physical dtype is unconstrained Categorical/"category"
+        # (see Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
+        # constraint itself is enforced by the `checks` (Check.isin) above, not by
+        # the declared column dtype.
+        if use_pandas_backend:
+            if constraints.enum:
+                return pr_pandas.Column("category", **column_options)
+            if self.type == "geometry":
+                return pr_pandas.Column(gpd.array.GeometryDtype(), **column_options)
+            return pr_pandas.Column(FIELD_DTYPES_PANDAS[self.type], **column_options)
         if constraints.enum:
-            # The physical dtype is unconstrained Categorical/"category" (see
-            # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
-            # constraint itself is enforced by the `checks` (Check.isin) above,
-            # not by the declared column dtype.
-            column_type = "category" if use_pandas_backend else pl.Categorical()
-        elif self.type == "geometry":
-            column_type = gpd.array.GeometryDtype()
-        else:
-            column_type = (
-                FIELD_DTYPES_PANDAS[self.type]
-                if use_pandas_backend
-                else FIELD_DTYPES_POLARS[self.type]
-            )
-
-        pandera_module = pr_pandas if use_pandas_backend else pr_polars
-        return pandera_module.Column(
-            column_type,
-            checks=checks,
-            nullable=not constraints.required,
-            unique=constraints.unique,
-        )
+            return pr_polars.Column(pl.Categorical(), **column_options)
+        return pr_polars.Column(FIELD_DTYPES_POLARS[self.type], **column_options)
 
 
 # ---- Classes: Resource ---- #
@@ -1169,6 +1162,8 @@ class Schema(PudlMeta):
                 for field in self.fields
             },
             unique=self.primary_key,
+            # Columns not declared in the schema are errors, not silently written.
+            strict=True,
         )
 
 
@@ -1320,11 +1315,6 @@ class DataSource(PudlMeta):
         if datastore is None:
             datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
         dp_desc = datastore.get_datapackage_descriptor(self.name)
-        partitions = dp_desc.get_partitions()
-        if "year" in partitions:
-            partitions["years"] = partitions["year"]
-        elif "year_month" in partitions:
-            partitions["year_month"] = max(partitions["year_month"])
         self.source_file_dict["download_size"] = dp_desc.get_download_size()
 
     def to_rst(
@@ -1665,6 +1655,7 @@ class PudlResourceDescriptor(PudlMeta):
     create_database_schema: bool = True
     path: str | None = None
     extrapaths: list[str] | None = None
+    dbt_source: str = "pudl"
 
 
 class Resource(PudlMeta):
@@ -1795,7 +1786,9 @@ class Resource(PudlMeta):
     title: String | None = None
     description: String
     harvest: ResourceHarvest = ResourceHarvest()
-    schema: Schema
+    # "schema" is the Frictionless datapackage property name, so it can't be renamed.
+    # It shadows the deprecated pydantic v1 BaseModel.schema() classmethod.
+    schema: Schema  # type: ignore[bad-override-mutable-attribute]
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
@@ -1809,6 +1802,7 @@ class Resource(PudlMeta):
     extrapaths: list[str] | None = None
     field_namespace: FieldNamespace | None = None
     etl_group: EtlGroup | None = None
+    dbt_source: str = "pudl"
     create_database_schema: bool = True
 
     _check_unique = field_validator("contributors", "keywords", "licenses", "sources")(
@@ -2057,7 +2051,7 @@ class Resource(PudlMeta):
             name=self.name,
             title=self.title,
             description=self.description,
-            sources=[s.to_frictionless() for s in self.sources],
+            sources=[{"title": source.title} for source in self.sources],
             licenses=[
                 lic.model_dump(mode="json", exclude_none=True) for lic in self.licenses
             ],
@@ -2087,9 +2081,9 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_duckdb_dtype(conn) for f in self.schema.fields}
 
-    def to_polars_dtypes(self) -> dict[str, pl.DataType]:
+    def to_polars_dtypes(self) -> pl.Schema:
         """Return Polars data type of each field by field name."""
-        return {f.name: f.to_polars_dtype() for f in self.schema.fields}
+        return pl.Schema({f.name: f.to_polars_dtype() for f in self.schema.fields})
 
     def to_pandas_dtypes(self) -> dict[str, PandasDtype]:
         """Return Pandas data type of each field by field name."""
@@ -2197,7 +2191,6 @@ class Resource(PudlMeta):
         if matches is None:
             # Primary key present but no matches were found
             return self.format_df()
-        df = df.copy()
         # Rename periodic key columns (if any) to the requested period
         df = df.rename(columns=matches)
         # Cast integer year fields to datetime
@@ -2221,9 +2214,9 @@ class Resource(PudlMeta):
                     )
         df = (
             # Reorder columns and insert missing columns
-            df.reindex(columns=list(dtypes), copy=False)
+            df.reindex(columns=list(dtypes))
             # Coerce columns to correct data type
-            .astype(dtypes, copy=False)
+            .astype(dtypes)
         )
         # Convert periodic key columns to the requested period
         for df_key, key in matches.items():
@@ -2795,8 +2788,20 @@ class Package(PudlMeta):
         any duplicates. We may also get values directly from the Package inputs.
         """
         compiled = self._compile_from_resources(self.resources)
+        redundant = sorted(
+            {s.name for s in self.sources} & {s.name for s in compiled["sources"]}
+        )
+        if redundant:
+            raise ValueError(
+                f"Package {self.name!r} explicitly lists sources that its resources "
+                f"already use: {redundant}. Explicit sources are only for data "
+                "sources with no tables in the package, so remove them from the "
+                "explicit list (e.g. PUDL_SOURCES_WITHOUT_TABLES)."
+            )
         for key, values in compiled.items():
             setattr(self, key, _unique(getattr(self, key), values))
+        # Keep the package level sources in a stable, readable order.
+        self.sources = sorted(self.sources, key=lambda source: source.name)
         return self
 
     @classmethod
@@ -2806,9 +2811,12 @@ class Package(PudlMeta):
         resource_ids: tuple[str, ...] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
         excluded_etl_groups: tuple[str, ...] = (),
+        included_etl_groups: tuple[str, ...] = (),
         title: str | None = None,
         description: str | None = None,
         version: str | None = None,
+        name: str = "pudl",
+        extra_source_ids: tuple[str, ...] = (),
     ) -> Package:
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2827,10 +2835,24 @@ class Package(PudlMeta):
                 foreign keys.
             excluded_etl_groups: Collection of ETL groups used to filter resources
                 out of Package.
+            included_etl_groups: Collection of ETL groups used to filter resources
+                in Package.
             title: Human-readable title for the package.
             description: Human-readable description of the package.
             version: Version string for the package.
+            name: Name of the datapackage.
+            extra_source_ids: Data source IDs (keys of
+                :py:const:`pudl.metadata.sources.SOURCES`) to list in the package
+                level ``sources`` in addition to those compiled from the resources,
+                e.g. sources that are part of PUDL but have no tables yet. Needs to
+                be a tuple so that it is hashable for ``lru_cache``.
         """
+        extra_sources = Package._extra_source_dicts(extra_source_ids)
+        if isinstance(excluded_etl_groups, str) or isinstance(included_etl_groups, str):
+            raise TypeError(
+                "ETL groups must be a collection of names, not a single string."
+            )
+
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
             # Add missing resources based on foreign keys
@@ -2853,13 +2875,29 @@ class Package(PudlMeta):
                 if resource["etl_group"] not in excluded_etl_groups
             ]
 
+        if included_etl_groups:
+            resources = [
+                resource
+                for resource in resources
+                if resource["etl_group"] in included_etl_groups
+            ]
+
         return cls(
-            name="pudl",
+            name=name,
             title=title,
             description=description,
             version=version,
+            sources=extra_sources,
             resources=resources,
         )
+
+    @staticmethod
+    def _extra_source_dicts(source_ids: Iterable[str]) -> list[dict]:
+        """Look up explicitly requested data sources, rejecting unknown IDs."""
+        unknown = [x for x in source_ids if x not in SOURCES]
+        if unknown:
+            raise ValueError(f"Unknown data source IDs: {unknown}")
+        return [DataSource.dict_from_id(x, sources=SOURCES) for x in source_ids]
 
     @staticmethod
     def get_etl_group_tables(
@@ -2892,7 +2930,7 @@ class Package(PudlMeta):
             )
         return self.resources[names.index(name)]
 
-    def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: Path | None) -> None:
         """Output to an RST file."""
         template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
         rendered = template.render(package=self)
@@ -2989,21 +3027,16 @@ class Package(PudlMeta):
                 assert encoders[field.name].ignored_codes == encoder.ignored_codes
         return encoders
 
-    def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         """Clean up all coded columns in a dataframe based on PUDL coding tables.
-
-        Running with ``copy=False`` is intended for memory-intensive data frames where no
-        upstream process retains a reference to the data. Use care with this option,
-        and keep an eye out for spooky data changes showing up in unexpected places.
 
         Args:
             df: DataFrame whose code columns are being cleaned up.
-            copy: (Default True) Return a copy, making no changes to the original data.
 
         Returns:
             A dataframe with clean code columns.
         """
-        encoded_df = df.copy() if copy else df
+        encoded_df = df.copy(deep=False)
         for col in encoded_df.columns:
             if col in self.encoders:
                 encoded_df[col] = self.encoders[col].encode(
@@ -3013,33 +3046,18 @@ class Package(PudlMeta):
 
     def to_frictionless(
         self,
-        exclude_pattern: str | Pattern[str] | None = None,
-        include_pattern: str | Pattern[str] | None = None,
     ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage.
 
-        Allows filtering out specific resources by passing regex patterns to include
-        or exclude resources by name. This is used to generate an independent
-        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
-        from the rest of PUDL. This method will only look for table names that exactly
-        match the supplied patterns, not substring matches.
-
-        Args:
-            exclude_pattern: Exclude resources whose names exactly match this pattern.
-            include_pattern: Only include resources whose names exactly match this pattern.
+        The datapackage describes every resource in this package. Its contributors,
+        licenses and keywords are compiled from just those resources, so a package like
+        ``ferceqr``, which is distributed separately from the rest of PUDL, gets an
+        independent descriptor that lists only what it uses. Its sources are
+        :attr:`sources`: those compiled from the resources plus any listed explicitly
+        when the package was built (see ``extra_source_ids`` in
+        :meth:`from_resource_ids`).
         """
         pudl_resources = list(self.resources)
-        if exclude_pattern is not None:
-            pudl_resources = [
-                r for r in pudl_resources if re.match(exclude_pattern, r.name) is None
-            ]
-        if include_pattern is not None:
-            pudl_resources = [
-                r
-                for r in pudl_resources
-                if re.match(include_pattern, r.name) is not None
-            ]
-
         compiled = self._compile_from_resources(pudl_resources)
 
         package = frictionless.Package(
@@ -3058,9 +3076,7 @@ class Package(PudlMeta):
             ],
             keywords=list(compiled["keywords"]),
             resources=[r.to_frictionless() for r in pudl_resources],
-            sources=[
-                DataSource.from_id(name).to_frictionless() for name in sorted(SOURCES)
-            ],
+            sources=[s.to_frictionless() for s in self.sources],
         )
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
@@ -3068,6 +3084,37 @@ class Package(PudlMeta):
         package.custom["unit_registry"] = unit_registry_to_frictionless()
         return package
 
+
+FERCEQR_PACKAGE = Package.from_resource_ids(
+    name="ferceqr",
+    title="The Public Utility Data Liberation Project (PUDL) FERC EQR Data",
+    version=_get_version("catalystcoop.pudl"),
+    description=(
+        "PUDL is a data processing pipeline created by Catalyst Cooperative that "
+        "cleans, integrates, and standardizes some of the most widely used public "
+        "energy datasets in the US. The data serve researchers, activists, "
+        "journalists, and policy makers that might not have the technical expertise "
+        "to access it in its raw form, the time to clean and prepare the data for "
+        "bulk analysis, or the means to purchase it from existing commercial "
+        "providers. FERC EQR data is included in PUDL, but handled and distributed "
+        "separately due to its scale."
+    ),
+    included_etl_groups=("ferceqr",),
+)
+
+
+PUDL_SOURCES_WITHOUT_TABLES: tuple[str, ...] = (
+    "eia757a",
+    "ferc2",
+    "ferc6",
+    "ferc60",
+)
+"""Data sources that are part of PUDL but have no tables in the PUDL package (yet).
+
+They are listed explicitly in the package level ``sources`` so that downstream
+consumers of the metadata still learn about them. ``ferceqr`` is deliberately absent:
+it is distributed as its own package.
+"""
 
 PUDL_PACKAGE = Package.from_resource_ids(
     title="The Public Utility Data Liberation Project (PUDL)",
@@ -3081,6 +3128,8 @@ PUDL_PACKAGE = Package.from_resource_ids(
         "bulk analysis, or the means to purchase it from existing commercial "
         "providers."
     ),
+    excluded_etl_groups=("ferceqr",),
+    extra_source_ids=PUDL_SOURCES_WITHOUT_TABLES,
 )
 """Define a global PUDL package object for use across the entire codebase.
 
@@ -3089,6 +3138,57 @@ some of the class definitions below, but having it defined in the middle of this
 is kind of obscure, so it is imported in the __init__.py for this subpackage and then
 imported in other modules from that more prominent location.
 """
+
+DATAPACKAGES: dict[str, Package] = {
+    PUDL_PACKAGE.name: PUDL_PACKAGE,
+    FERCEQR_PACKAGE.name: FERCEQR_PACKAGE,
+}
+"""Registry of every datapackage PUDL distributes, keyed by package name.
+
+This is the single source of truth for which packages exist. Code that needs to see
+all of the tables, rather than the tables of one particular package, should go through
+this registry (or :func:`all_resources` / :func:`find_resource`) instead of naming
+individual packages, so that adding a package cannot leave a consumer behind.
+
+A resource may appear in more than one package. Nothing here assumes the packages are
+disjoint: lookups return the first match in registry order, and listings are
+deduplicated by resource name. A resource's definition comes from ``RESOURCE_METADATA``
+and does not depend on the package that contains it.
+"""
+
+
+def all_resources() -> list[Resource]:
+    """Return every resource in any registered datapackage, unique by name.
+
+    Resources are listed in registry order, then in package order. A resource that
+    appears in several packages is listed once, using its first occurrence.
+    """
+    unique: dict[str, Resource] = {}
+    for package in DATAPACKAGES.values():
+        for resource in package.resources:
+            unique.setdefault(resource.name, resource)
+    return list(unique.values())
+
+
+def find_resource(name: str) -> Resource:
+    """Return the named resource from the first registered package containing it.
+
+    Use this when you have a resource name but don't know which package it belongs to.
+    Code that is specific to one package, like building the PUDL SQLite database,
+    should keep using that package directly.
+
+    Raises:
+        ValueError: if no registered datapackage contains the resource.
+    """
+    for package in DATAPACKAGES.values():
+        try:
+            return package.get_resource(name)
+        except ValueError:
+            continue
+    raise ValueError(
+        f"Unknown resource {name!r} is not part of any registered data package "
+        f"({', '.join(DATAPACKAGES)})."
+    )
 
 
 class CodeMetadata(PudlMeta):
