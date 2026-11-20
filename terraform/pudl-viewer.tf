@@ -290,7 +290,7 @@ resource "google_storage_bucket" "pudl_viewer_logs" {
 
   lifecycle_rule {
     condition {
-      age = 180
+      age = 1825
     }
     action {
       type = "Delete"
