@@ -140,6 +140,7 @@ redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
     "data_sources/wip_future": "future_data.html",
     "bibliography": "citations_media/index.html",
+    "cite": "citations_media/how_to_cite_pudl.html",
 }
 
 # Automatically generate API documentation during the doc build:

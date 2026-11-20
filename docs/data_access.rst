@@ -56,9 +56,10 @@ Quick Reference
      - Parquet, DuckDB, SQLite
      - ``stable``
      - Researcher, Publisher, Archivist
-     - Access a specific, immutable version of the PUDL data by DOI for citation in
-       academic publications or other applications where long-term reproducibility is
-       needed. Web-based bulk download of data for local analysis.
+     - Access a specific, immutable version of the PUDL data by DOI for
+       :doc:`citation </citations_media/how_to_cite_pudl>` in academic publications or
+       other applications where long-term reproducibility is needed. Web-based bulk
+       download of data for local analysis.
    * - :ref:`access-agent-skill`
      - Parquet
      - ``nightly``, ``stable``
@@ -146,11 +147,12 @@ We assign a version number to our quarterly data releases so they can be easily
 identified. These versions are based on the date of publication. For example,
 ``v2024.11.0`` would be the first release of the data that happened in November 2024.
 These are referred to as ``stable`` releases, and are archived for long-term access and
-citation.
+:doc:`citation </citations_media/how_to_cite_pudl>`.
 
 We also provide access to a ``nightly`` development build of the data, which is updated
 most weekday mornings. These builds are useful for beta testing new outputs, but are
-ephemeral and may not be as well validated as the ``stable`` releases.
+ephemeral and may not be as well validated as the ``stable`` releases. Nightly builds
+are not archived and can't be cited. See :ref:`cite-why-versioned`.
 
 .. _access-viewer:
 
@@ -589,6 +591,9 @@ all `here on Zenodo <https://zenodo.org/doi/10.5281/zenodo.3653158>`__. Zenodo a
 long-lived DOIs to each archive, suitable for citation in academic journals and other
 publications. The most recent versioned PUDL data release can always be found using this
 Concept DOI: https://doi.org/10.5281/zenodo.3653158
+
+When you cite PUDL, use the DOI for the specific version you used, not the Concept DOI.
+See :doc:`/citations_media/how_to_cite_pudl` for details and example citations.
 
 From Zenodo you can download the ``pudl.duckdb`` database, individual SQLite databases,
 a zipfile containing all the Parquet files bundled together (``pudl_parquet.zip``, which
