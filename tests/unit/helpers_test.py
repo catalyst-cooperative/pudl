@@ -1,5 +1,6 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+import os
 import zipfile
 from contextlib import contextmanager
 from datetime import date, datetime
@@ -11,6 +12,7 @@ import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 from geopandas.testing import assert_geodataframe_equal
@@ -2337,3 +2339,35 @@ def test_persist_table_as_parquet_compression(kind, writer, tmp_path, mocker):
     assert spy.call_args.kwargs["compression_level"] == 7
     row_group = pq.read_metadata(parquet_data.parquet_path).row_group(0)
     assert row_group.column(0).compression == pudl.PARQUET_COMPRESSION.upper()
+
+
+def test_persist_table_as_parquet_duckdb_small_batches_consolidated(tmp_path, mocker):
+    """DuckDB relations that yield tiny batches shouldn't become tiny row groups.
+
+    Reading a fragmented parquet file makes DuckDB emit batches of only a few rows, and
+    each one used to be written as its own row group. That bloated the output file and
+    the metadata readers have to hold in memory.
+    """
+    mocker.patch.dict(
+        os.environ,
+        {
+            "PUDL_OUTPUT": str(tmp_path / "output"),
+            "PUDL_INPUT": str(tmp_path / "input"),
+        },
+    )
+    n_rows = 1_000
+    source = tmp_path / "fragmented.parquet"
+    pq.write_table(
+        pa.table({"id": list(range(n_rows)), "name": [f"n{i}" for i in range(n_rows)]}),
+        source,
+        row_group_size=2,
+    )
+    assert pq.ParquetFile(source).num_row_groups == n_rows // 2
+
+    rel = duckdb.connect().sql(f"SELECT * FROM read_parquet('{source}')")  # noqa: S608
+    parquet_data = persist_table_as_parquet(rel, table_name="_test__small_batches")
+
+    written = pq.ParquetFile(parquet_data.parquet_path)
+    assert written.num_row_groups == 1
+    assert written.metadata.num_rows == n_rows
+    assert sorted(written.read()["id"].to_pylist()) == list(range(n_rows))

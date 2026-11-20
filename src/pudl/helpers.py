@@ -29,6 +29,7 @@ import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
@@ -2683,12 +2684,32 @@ def persist_table_as_parquet(
                 compression=compression_options["compression"],
             )
         else:
-            reader = table_data.to_arrow_reader(batch_size=100_000)
+            row_group_size = 100_000
+            reader = table_data.to_arrow_reader(batch_size=row_group_size)
             with pq.ParquetWriter(
                 str(parquet_data.parquet_path), reader.schema, **compression_options
             ) as writer:
+                # DuckDB can emit very small batches, and every write_batch() call produces
+                # its own row group. Thousands of tiny row groups bloat the file and the
+                # metadata that readers must hold in memory. This block will accumulate
+                # batches into a buffer, then write to the final parquet file once we've
+                # reached the desired row_group_size
+                buffered: list[pa.RecordBatch] = []
+                buffered_rows = 0
                 for batch in reader:
-                    writer.write_batch(batch)
+                    buffered.append(batch)
+                    buffered_rows += batch.num_rows
+                    # Write batches parquet all at once
+                    if buffered_rows >= row_group_size:
+                        writer.write_table(
+                            pa.Table.from_batches(buffered, schema=reader.schema)
+                        )
+                        buffered, buffered_rows = [], 0
+                # If there are any unwritten batches still in the buffer, write them now
+                if buffered:
+                    writer.write_table(
+                        pa.Table.from_batches(buffered, schema=reader.schema)
+                    )
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
