@@ -70,9 +70,6 @@ path on S3 or the PUDL Data Viewer, it's from the nightly builds.
 Citing a Versioned Release
 -------------------------------------------------------------------------------
 
-Cite the version you used, with its version-specific DOI. For example, for the
-``v2026.11.0`` release (replace ``XXXXXXXX`` with the version-specific DOI from Zenodo)
-
 To find the version-specific DOI for a release:
 
 #. Go to the `latest PUDL data release on Zenodo
@@ -80,11 +77,14 @@ To find the version-specific DOI for a release:
 #. In the **Versions** panel on the right-hand side of the page, select the version you
    used (``View all versions`` lists older releases).
 #. Copy the DOI shown on that version's page. Zenodo's **Citation** panel will also
-   generate a citation in many formats, including BibTeX, APA, and Chicago.
+   generate a full citation in many formats, including BibTeX, APA, and Chicago that
+   you can copy and use.
+
+**Example Citation for v2026.11.0:**
 
     Selvans, Z., Gosnell, C., Sharpe, A., Schira, Z., Xia, D., Belfer, E., & Mazaitis,
     K. (2026). *The Public Utility Data Liberation (PUDL) Project* (v2026.11.0) [Data
-    set]. Catalyst Cooperative. https://doi.org/10.5281/zenodo.XXXXXXXX
+    set]. Catalyst Cooperative. https://doi.org/10.5281/zenodo.24119965
 
 .. code-block:: bibtex
 
@@ -96,8 +96,8 @@ To find the version-specific DOI for a release:
      version   = {v2026.11.0},
      year      = {2026},
      publisher = {Catalyst Cooperative},
-     doi       = {10.5281/zenodo.XXXXXXXX},
-     url       = {https://doi.org/10.5281/zenodo.XXXXXXXX},
+     doi       = {10.5281/zenodo.24119965},
+     url       = {https://doi.org/10.5281/zenodo.24119965},
    }
 
 .. _cite-table:
@@ -114,13 +114,13 @@ table's full name as it appears in the :doc:`/data_dictionaries/pudl_db`, e.g.
 matters because many PUDL tables contain similar information at different levels of
 processing or aggregation.
 
-For example, to cite the ``out_eia__yearly_generators`` table from the ``v2026.11.0``
+For example, to cite the ``out_eia__yearly_generators`` table from the v2026.11.0
 release:
 
     Selvans, Z., Gosnell, C., Sharpe, A., Schira, Z., Xia, D., Belfer, E., & Mazaitis,
     K. (2026). out_eia__yearly_generators. In *The Public Utility Data Liberation (PUDL)
     Project* (v2026.11.0) [Data set]. Catalyst Cooperative.
-    https://doi.org/10.5281/zenodo.XXXXXXXX
+    https://doi.org/10.5281/zenodo.24119965
 
 .. code-block:: bibtex
 
@@ -133,8 +133,8 @@ release:
      version   = {v2026.11.0},
      year      = {2026},
      publisher = {Catalyst Cooperative},
-     doi       = {10.5281/zenodo.XXXXXXXX},
-     url       = {https://doi.org/10.5281/zenodo.XXXXXXXX},
+     doi       = {10.5281/zenodo.24119965},
+     url       = {https://doi.org/10.5281/zenodo.24119965},
    }
 
 -------------------------------------------------------------------------------
