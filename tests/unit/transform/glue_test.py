@@ -1,5 +1,6 @@
 """Tests for Glue functions."""
 
+from collections.abc import Sequence
 from io import StringIO
 from typing import Any
 
@@ -39,19 +40,25 @@ def _make_subplant_ids(
     generator_rows: list[dict],
     emissions_unit_rows: list[dict],
     bga_rows: list[dict],
+    entity_generator_rows: Sequence[dict] = (),
 ) -> pd.DataFrame:
     """Run core_epa__assn_eia_epacamd_subplant_ids on hand-built minimal inputs.
 
-    Each argument is a list of row dicts for one of the four input tables, using
+    Each argument is a list of row dicts for one of the five input tables, using
     only the columns that function actually reads:
 
     * crosswalk_rows: plant_id_epa, emissions_unit_id_epa, generator_id_epa,
       plant_id_eia, boiler_id, generator_id (mirrors ``_core_epa__assn_eia_epacamd_unique``)
-    * generator_rows: plant_id_eia, generator_id (mirrors ``core_eia860__scd_generators``)
+    * generator_rows: plant_id_eia, generator_id, report_date,
+      generator_retirement_date (mirrors ``core_eia860__scd_generators``)
     * emissions_unit_rows: plant_id_eia, emissions_unit_id_epa (mirrors
       ``_core_epacems__emissions_unit_ids``)
     * bga_rows: plant_id_eia, generator_id, unit_id_pudl (mirrors
       ``core_eia860__assn_boiler_generator``)
+    * entity_generator_rows: plant_id_eia, generator_id, generator_operating_date,
+      original_planned_generator_operating_date (mirrors
+      ``core_eia__entity_generators``). Defaults to empty, i.e. no age data at all,
+      which leaves subplant_id ordering exactly as it was before #5775.
     """
     crosswalk_columns = [
         "plant_id_epa",
@@ -68,7 +75,22 @@ def _make_subplant_ids(
             crosswalk_rows, columns=crosswalk_columns
         ),
         core_eia860__scd_generators=pd.DataFrame(
-            generator_rows, columns=["plant_id_eia", "generator_id"]
+            generator_rows,
+            columns=[
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "generator_retirement_date",
+            ],
+        ),
+        core_eia__entity_generators=pd.DataFrame(
+            list(entity_generator_rows),
+            columns=[
+                "plant_id_eia",
+                "generator_id",
+                "generator_operating_date",
+                "original_planned_generator_operating_date",
+            ],
         ),
         _core_epacems__emissions_unit_ids=pd.DataFrame(
             emissions_unit_rows, columns=["plant_id_eia", "emissions_unit_id_epa"]
@@ -82,7 +104,11 @@ def _make_subplant_ids(
 def _rows_mask(actual: pd.DataFrame, row: dict, id_cols: list[str]) -> pd.Series:
     mask = pd.Series(True, index=actual.index)
     for col in id_cols:
-        mask &= actual[col] == row[col]
+        # .fillna(False): a null entry elsewhere in a nullable-dtype column compares
+        # to pd.NA, not False, which otherwise makes the chained `&=` below raise
+        # ("boolean value of NA is ambiguous") once mixed with a differently-backed
+        # nullable-boolean column.
+        mask &= (actual[col] == row[col]).fillna(False)
     return mask
 
 
@@ -119,8 +145,11 @@ def _subplant_id_for(actual: pd.DataFrame, plant_id_eia: int, **id_filter: Any) 
     on (e.g. ``generator_id="G1"`` or ``emissions_unit_id_epa="U1"``).
     """
     [(id_col, id_value)] = id_filter.items()
+    # .fillna(False): see the comment in _rows_mask -- the same mixed-nullable-dtype
+    # issue applies here whenever id_col has a null entry elsewhere in the table.
     matches = actual[
-        (actual.plant_id_eia == plant_id_eia) & (actual[id_col] == id_value)
+        (actual.plant_id_eia == plant_id_eia).fillna(False)
+        & (actual[id_col] == id_value).fillna(False)
     ]
     return matches.subplant_id.iloc[0]
 
@@ -665,6 +694,286 @@ def test_subplant_id_is_one_indexed_and_contiguous_per_plant():
     )
 
 
+def test_subplant_id_orders_subplants_from_oldest_to_newest():
+    """Subplants should be numbered oldest to newest, not by row/discovery order.
+
+    The three generators here are listed newest-first in every input row list, so
+    networkx would discover (and, before #5775, number) "NEW" first. The oldest
+    generator's subplant must still get subplant_id 1.
+    """
+    plant_id_eia = 9101
+    ages = [
+        ("NEW", pd.Timestamp("2020-01-01")),
+        ("MID", pd.Timestamp("2005-01-01")),
+        ("OLD", pd.Timestamp("1990-01-01")),
+    ]
+    generator_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": gen} for gen, _ in ages
+    ]
+    entity_generator_rows = [
+        {
+            "plant_id_eia": plant_id_eia,
+            "generator_id": gen,
+            "generator_operating_date": date,
+        }
+        for gen, date in ages
+    ]
+    crosswalk_rows = [_crosswalk_row(plant_id_eia, f"U_{gen}", gen) for gen, _ in ages]
+    emissions_unit_rows = [
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": f"U_{gen}"}
+        for gen, _ in ages
+    ]
+    bga_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": gen, "unit_id_pudl": i}
+        for i, (gen, _) in enumerate(ages)
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows,
+        generator_rows,
+        emissions_unit_rows,
+        bga_rows,
+        entity_generator_rows,
+    )
+
+    assert _subplant_id_for(actual, plant_id_eia, generator_id="OLD") == 1
+    assert _subplant_id_for(actual, plant_id_eia, generator_id="MID") == 2
+    assert _subplant_id_for(actual, plant_id_eia, generator_id="NEW") == 3
+
+
+def test_subplant_id_order_is_invariant_to_input_row_order():
+    """Reversing the crosswalk's row order should not change any subplant_id.
+
+    Before #5775, subplant_id was assigned in whatever order networkx happened to
+    discover connected components while building the graph, which tracks the
+    crosswalk's row order -- an accident of upstream merge order, not a property of
+    the plant. This calls make_subplant_ids directly (bypassing the asset's own
+    outer merges, which -- for rows that all match 1:1 as these do -- normalize row
+    order back to the left table's regardless of input order) so the row order
+    reaching the graph-construction step is genuinely reversed, not just the order
+    of one of several inputs that get merged back into the same shape.
+    """
+    plant_id_eia = 9102
+    ages = [
+        ("A", pd.Timestamp("1975-06-01")),
+        ("B", pd.Timestamp("1998-03-01")),
+        ("C", pd.Timestamp("2015-11-01")),
+    ]
+    crosswalk = pd.DataFrame(
+        [
+            {
+                "plant_id_eia": plant_id_eia,
+                "plant_id_epa": plant_id_eia,
+                "generator_id": gen,
+                "emissions_unit_id_epa": f"U_{gen}",
+                "unit_id_pudl": i,
+                "first_report_date": pd.NaT,
+                "generator_sort_date": date,
+            }
+            for i, (gen, date) in enumerate(ages)
+        ]
+    )
+
+    forward = glue_assets.make_subplant_ids(crosswalk)
+    reversed_actual = glue_assets.make_subplant_ids(
+        crosswalk.iloc[::-1].reset_index(drop=True)
+    )
+
+    forward_ids = forward.set_index("generator_id")["subplant_id"].to_dict()
+    reversed_ids = reversed_actual.set_index("generator_id")["subplant_id"].to_dict()
+    assert forward_ids == reversed_ids, (
+        "Reversing crosswalk row order changed subplant_id assignment: "
+        f"forward={forward_ids}, reversed={reversed_ids}"
+    )
+
+
+def test_adding_newer_generator_does_not_renumber_existing_subplants():
+    """Adding a newer, unconnected generator shouldn't change existing subplant_ids.
+
+    This is the scenario #5775 calls out explicitly: a plant with two existing,
+    unconnected subplants should keep their subplant_id when a third, newer
+    generator is added, as long as the new generator doesn't connect to either of
+    them.
+    """
+    plant_id_eia = 9103
+    old_inputs = {
+        "crosswalk_rows": [
+            _crosswalk_row(plant_id_eia, "U_OLD1", "OLD1"),
+            _crosswalk_row(plant_id_eia, "U_OLD2", "OLD2"),
+        ],
+        "generator_rows": [
+            {"plant_id_eia": plant_id_eia, "generator_id": "OLD1"},
+            {"plant_id_eia": plant_id_eia, "generator_id": "OLD2"},
+        ],
+        "emissions_unit_rows": [
+            {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "U_OLD1"},
+            {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "U_OLD2"},
+        ],
+        "bga_rows": [
+            {"plant_id_eia": plant_id_eia, "generator_id": "OLD1", "unit_id_pudl": 1},
+            {"plant_id_eia": plant_id_eia, "generator_id": "OLD2", "unit_id_pudl": 2},
+        ],
+        "entity_generator_rows": [
+            {
+                "plant_id_eia": plant_id_eia,
+                "generator_id": "OLD1",
+                "generator_operating_date": pd.Timestamp("1980-01-01"),
+            },
+            {
+                "plant_id_eia": plant_id_eia,
+                "generator_id": "OLD2",
+                "generator_operating_date": pd.Timestamp("1995-01-01"),
+            },
+        ],
+    }
+
+    before = _make_subplant_ids(**old_inputs)
+
+    with_new_generator = _make_subplant_ids(
+        crosswalk_rows=[
+            *old_inputs["crosswalk_rows"],
+            _crosswalk_row(plant_id_eia, "U_NEW", "NEW"),
+        ],
+        generator_rows=[
+            *old_inputs["generator_rows"],
+            {"plant_id_eia": plant_id_eia, "generator_id": "NEW"},
+        ],
+        emissions_unit_rows=[
+            *old_inputs["emissions_unit_rows"],
+            {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "U_NEW"},
+        ],
+        bga_rows=[
+            *old_inputs["bga_rows"],
+            {"plant_id_eia": plant_id_eia, "generator_id": "NEW", "unit_id_pudl": 3},
+        ],
+        entity_generator_rows=[
+            *old_inputs["entity_generator_rows"],
+            {
+                "plant_id_eia": plant_id_eia,
+                "generator_id": "NEW",
+                "generator_operating_date": pd.Timestamp("2022-01-01"),
+            },
+        ],
+    )
+
+    for gen in ("OLD1", "OLD2"):
+        assert _subplant_id_for(
+            before, plant_id_eia, generator_id=gen
+        ) == _subplant_id_for(with_new_generator, plant_id_eia, generator_id=gen), (
+            f"adding a newer generator changed the existing subplant_id for {gen}"
+        )
+    assert _subplant_id_for(with_new_generator, plant_id_eia, generator_id="NEW") == 3
+
+
+def test_cems_only_subplant_sorts_after_every_dated_subplant():
+    """A CEMS-only subplant (no EIA generator match) has no dates, so it sorts last.
+
+    It's listed first in every input row list, to confirm it's the missing age
+    data -- not its row position -- that pushes it to the end.
+    """
+    plant_id_eia = 9104
+    emissions_unit_rows = [
+        # Never matches any EIA generator, so it has no age data at all.
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "U_ORPHAN"},
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "U_DATED"},
+    ]
+    crosswalk_rows = [_crosswalk_row(plant_id_eia, "U_DATED", "DATED")]
+    generator_rows = [{"plant_id_eia": plant_id_eia, "generator_id": "DATED"}]
+    bga_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": "DATED", "unit_id_pudl": 1}
+    ]
+    entity_generator_rows = [
+        {
+            "plant_id_eia": plant_id_eia,
+            "generator_id": "DATED",
+            "generator_operating_date": pd.Timestamp("1990-01-01"),
+        }
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows,
+        generator_rows,
+        emissions_unit_rows,
+        bga_rows,
+        entity_generator_rows,
+    )
+
+    assert _subplant_id_for(actual, plant_id_eia, generator_id="DATED") == 1
+    assert _subplant_id_for(actual, plant_id_eia, emissions_unit_id_epa="U_ORPHAN") == 2
+
+
+def test_merging_two_subplants_keeps_the_older_subplant_id():
+    """When a shared unit_id_pudl merges two subplants, the older one's ID wins.
+
+    "OLD" and "ORPHAN_OLD" share combustor "C_OLD"; "NEW" and "ORPHAN_NEW" share
+    combustor "C_NEW" -- two separate groups by the EPA crosswalk alone, connected
+    into one subplant only via their shared unit_id_pudl=1. "NEW"'s rows are listed
+    before "OLD"'s rows everywhere, so under the old discovery-order numbering this
+    merged subplant could easily have been numbered as if it were "NEW"'s. A third,
+    unconnected "MID"-aged generator confirms the merged subplant's age reflects its
+    oldest member ("OLD"), not just whichever member's row networkx happened to
+    visit first.
+    """
+    plant_id_eia = 9105
+    crosswalk_rows = [
+        _crosswalk_row(plant_id_eia, "C_NEW", "NEW"),
+        _crosswalk_row(plant_id_eia, "C_NEW", "ORPHAN_NEW"),
+        _crosswalk_row(plant_id_eia, "C_OLD", "OLD"),
+        _crosswalk_row(plant_id_eia, "C_OLD", "ORPHAN_OLD"),
+        _crosswalk_row(plant_id_eia, "U_MID", "MID"),
+    ]
+    generator_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": g}
+        for g in ["NEW", "ORPHAN_NEW", "OLD", "ORPHAN_OLD", "MID"]
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": u}
+        for u in ["C_NEW", "C_OLD", "U_MID"]
+    ]
+    bga_rows = [
+        # The shared unit_id_pudl=1 is what merges the OLD and NEW groups.
+        {"plant_id_eia": plant_id_eia, "generator_id": "NEW", "unit_id_pudl": 1},
+        {"plant_id_eia": plant_id_eia, "generator_id": "OLD", "unit_id_pudl": 1},
+        {"plant_id_eia": plant_id_eia, "generator_id": "MID", "unit_id_pudl": 2},
+    ]
+    entity_generator_rows = [
+        {
+            "plant_id_eia": plant_id_eia,
+            "generator_id": "NEW",
+            "generator_operating_date": pd.Timestamp("2015-01-01"),
+        },
+        {
+            "plant_id_eia": plant_id_eia,
+            "generator_id": "OLD",
+            "generator_operating_date": pd.Timestamp("1980-01-01"),
+        },
+        {
+            "plant_id_eia": plant_id_eia,
+            "generator_id": "MID",
+            "generator_operating_date": pd.Timestamp("2000-01-01"),
+        },
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows,
+        generator_rows,
+        emissions_unit_rows,
+        bga_rows,
+        entity_generator_rows,
+    )
+
+    merged_id = _subplant_id_for(actual, plant_id_eia, generator_id="OLD")
+    for gen in ("NEW", "ORPHAN_OLD", "ORPHAN_NEW"):
+        assert _subplant_id_for(actual, plant_id_eia, generator_id=gen) == merged_id, (
+            f"generator {gen} should be in the same merged subplant as OLD: \n{actual}"
+        )
+    assert merged_id == 1, (
+        "merged OLD/NEW subplant should keep OLD's older subplant_id=1 (ahead of "
+        f"MID), got {merged_id}: \n{actual}"
+    )
+    assert _subplant_id_for(actual, plant_id_eia, generator_id="MID") == 2
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
@@ -710,15 +1019,25 @@ plant_id_eia,generator_id,unit_id_pudl
     generators_entity_eia_test = pd.read_csv(
         StringIO(
             """
-plant_id_eia,generator_id
-1392,1A
-1392,2A
-1392,3A
-1392,4A
-1392,5A
-1,A
+plant_id_eia,generator_id,report_date,generator_retirement_date
+1392,1A,,
+1392,2A,,
+1392,3A,,
+1392,4A,,
+1392,5A,,
+1,A,,
 """
         )
+    )
+    # No age data at all -- this test's expectations predate #5775 and rely on
+    # ties (every key null) falling back to the original networkx discovery order.
+    entity_generators_eia_test = pd.DataFrame(
+        columns=[
+            "plant_id_eia",
+            "generator_id",
+            "generator_operating_date",
+            "original_planned_generator_operating_date",
+        ]
     )
     epacamd_eia_subplant_ids_expected = pd.read_csv(
         StringIO(
@@ -739,6 +1058,7 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
     actual = glue_assets.core_epa__assn_eia_epacamd_subplant_ids(  # type: ignore[bad-return]
         _core_epa__assn_eia_epacamd_unique=epacamd_eia_test,
         core_eia860__scd_generators=generators_entity_eia_test,
+        core_eia__entity_generators=entity_generators_eia_test,
         _core_epacems__emissions_unit_ids=emissions_unit_ids_epacems_test,
         core_eia860__assn_boiler_generator=boiler_generator_assn_eia860_test,
     )[expected.columns].convert_dtypes()

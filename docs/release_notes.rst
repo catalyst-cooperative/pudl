@@ -28,6 +28,15 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` is now assigned
+  within each plant in a deterministic, age-based order (oldest generator first)
+  instead of following the row order of the EPA/EIA crosswalk after several outer
+  merges. Previously, unrelated changes to input ordering or shape could shuffle
+  ``subplant_id`` with no change to the underlying plant. This can't guarantee
+  ``subplant_id`` is stable across PUDL releases -- discovering a new connection
+  between two subplants still renumbers them -- only that unrelated data changes and
+  input ordering don't. See :issue:`5775`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
