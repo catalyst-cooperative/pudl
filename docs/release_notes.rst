@@ -37,6 +37,11 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed ``persist_table_as_parquet`` writing a row group for every tiny batch DuckDB
+  emitted, which bloated FERC EQR files (e.g. 437 MB to 8 MB for
+  ``core_ferceqr__quarterly_identity``) and made them memory-hungry to read. See PR
+  :pr:`5772`.
+
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
