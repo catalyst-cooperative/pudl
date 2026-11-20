@@ -6,7 +6,6 @@ when they create or refine those crosswalk-style tables and supporting relations
 rather than the domain-specific transforms for any one source dataset.
 """
 
-import collections
 from itertools import repeat
 
 import dagster as dg
@@ -306,6 +305,7 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 def core_epa__assn_eia_epacamd_subplant_ids(
     _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia860__scd_generators: pd.DataFrame,
+    core_eia__entity_generators: pd.DataFrame,
     _core_epacems__emissions_unit_ids: pd.DataFrame,
     core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -324,10 +324,12 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         generators that do not report to CEMS. Before applying this function to the
         subplant crosswalk, the crosswalk must be completed with all generators by outer
         merging in the complete list of generators from EIA-860. This dataframe also
-        contains the complete list of ``unit_id_pudl`` mappings that will be necessary.
+        contains the complete list of ``unit_id_pudl`` mappings that will be necessary,
+        plus each generator's age-ordering columns (see :func:`_generator_age_keys`).
     #.  :func:`make_subplant_ids`: Use graph analysis to identify distinct groupings of
         EPA units, EIA generators, and EIA-860 boiler-generator ``unit_id_pudl``
-        associations, based on 1:1, 1:m, m:1, or m:m relationships.
+        associations, based on 1:1, 1:m, m:1, or m:m relationships, and number each
+        plant's subplants from oldest to newest.
 
     Returns:
         table of cems_ids and with subplant_id added
@@ -339,7 +341,9 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
         augment_crosswalk_with_generators_eia860(
-            _core_epa__assn_eia_epacamd_unique, core_eia860__scd_generators
+            _core_epa__assn_eia_epacamd_unique,
+            core_eia860__scd_generators,
+            core_eia__entity_generators,
         )
         .pipe(augment_crosswalk_with_epacamd_ids, _core_epacems__emissions_unit_ids)
         .pipe(augment_crosswalk_with_bga_eia860, core_eia860__assn_boiler_generator)
@@ -385,16 +389,24 @@ def core_epa__assn_eia_epacamd_subplant_ids(
 
 
 def augment_crosswalk_with_generators_eia860(
-    crosswalk_clean: pd.DataFrame, core_eia860__scd_generators: pd.DataFrame
+    crosswalk_clean: pd.DataFrame,
+    core_eia860__scd_generators: pd.DataFrame,
+    core_eia__entity_generators: pd.DataFrame,
 ) -> pd.DataFrame:
     """Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.
+
+    Also merges in each generator's age-ordering columns (see
+    :func:`_generator_age_keys`), which :func:`_subplant_ids_from_prepped_crosswalk`
+    uses to number each plant's subplants in a deterministic, age-based order instead
+    of by crosswalk row order.
 
     Args:
         crosswalk_clean: transformed EPA CEMS-EIA crosswalk.
         core_eia860__scd_generators: EIA860 generators table.
+        core_eia__entity_generators: EIA generators entity table.
     """
     crosswalk_clean = crosswalk_clean.merge(
-        core_eia860__scd_generators[["plant_id_eia", "generator_id"]].drop_duplicates(),
+        _generator_age_keys(core_eia860__scd_generators, core_eia__entity_generators),
         how="outer",
         on=["plant_id_eia", "generator_id"],
         validate="m:1",
@@ -403,6 +415,62 @@ def augment_crosswalk_with_generators_eia860(
         crosswalk_clean["plant_id_eia"]
     )
     return crosswalk_clean
+
+
+def _generator_age_keys(
+    core_eia860__scd_generators: pd.DataFrame,
+    core_eia__entity_generators: pd.DataFrame,
+) -> pd.DataFrame:
+    """Build one row per (plant_id_eia, generator_id) with age-ordering columns.
+
+    :func:`_subplant_ids_from_prepped_crosswalk` uses these columns to number each
+    plant's subplants from oldest to newest, rather than by crosswalk row order,
+    mirroring Open Grid Emissions' ``generate_subplant_ids``
+    (singularity-energy/open-grid-emissions#353):
+
+    * ``first_report_date``: the earliest ``report_date`` EIA-860 has for the
+      generator.
+    * ``generator_sort_date``: the generator's operating date, falling back to its
+      retirement date (covers generators that retired long enough ago that EIA-860
+      no longer reports an operating date for them) and then its original planned
+      operating date (covers proposed generators that never came online).
+
+    Args:
+        core_eia860__scd_generators: EIA860 generators table.
+        core_eia__entity_generators: EIA generators entity table.
+
+    Returns:
+        One row per (plant_id_eia, generator_id), with ``first_report_date`` and
+        ``generator_sort_date`` columns. Both are null for a generator with no usable
+        dates at all.
+    """
+    scd_age_cols = core_eia860__scd_generators.groupby(
+        ["plant_id_eia", "generator_id"], as_index=False
+    ).agg(
+        first_report_date=("report_date", "min"),
+        generator_retirement_date=("generator_retirement_date", "min"),
+    )
+    generator_age_keys = core_eia__entity_generators[
+        [
+            "plant_id_eia",
+            "generator_id",
+            "generator_operating_date",
+            "original_planned_generator_operating_date",
+        ]
+    ].merge(
+        scd_age_cols,
+        how="outer",
+        on=["plant_id_eia", "generator_id"],
+        validate="1:1",
+    )
+    generator_age_keys["generator_sort_date"] = (
+        generator_age_keys["generator_operating_date"]
+        .fillna(generator_age_keys["generator_retirement_date"])
+        .fillna(generator_age_keys["original_planned_generator_operating_date"])
+    )
+    return generator_age_keys[
+        ["plant_id_eia", "generator_id", "first_report_date", "generator_sort_date"]
+    ]
 
 
 def augment_crosswalk_with_epacamd_ids(
@@ -457,6 +525,11 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     generator) is keyed by its own row position instead of left null, so two such
     rows are never accidentally treated as sharing an id.
 
+    Any other columns on ``crosswalk`` -- notably the ``first_report_date`` and
+    ``generator_sort_date`` age-ordering columns from :func:`_generator_age_keys` --
+    pass through unchanged, since they're carried along as edge attributes by
+    :func:`_subplant_ids_from_prepped_crosswalk`.
+
     Args:
         crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk, augmented with
             ``unit_id_pudl`` (see :func:`augment_crosswalk_with_bga_eia860`).
@@ -501,9 +574,16 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
 def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     """Use networkx graph analysis to assign a per-plant ``subplant_id``.
 
+    Each plant's subplants are numbered from oldest to newest -- see the age-key
+    ranking below -- rather than in the arbitrary order networkx discovers their
+    connected components, so that ``subplant_id`` doesn't shuffle when the crosswalk
+    changes shape or row order without the plant itself actually changing (#5775).
+
     Args:
         prepped: ``core_epa__assn_eia_epacamd`` crosswalk passed through
-            :func:`_prep_for_networkx`
+            :func:`_prep_for_networkx`, with the age-ordering columns from
+            :func:`_generator_age_keys` (``first_report_date``,
+            ``generator_sort_date``) still attached.
 
     Returns:
         A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus a new ``subplant_id``
@@ -545,30 +625,78 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     ].drop_duplicates()
     connectivity_graph.add_edges_from(unit_edges.itertuples(index=False, name=None))
 
-    # Assign subplant_id directly, per plant, as each connected component is
-    # discovered -- no plant-spanning "global" ID is ever created. Every node in a
-    # component shares one plant_id_eia (node identities embed it, and crosswalk
-    # edges never span plants), so pulling it off any single node in the component
-    # is enough to know which plant's counter to use.
-    next_subplant_id: dict[int, int] = collections.defaultdict(int)
-    subplant_id_by_node = {}
-    for node_set in nx.connected_components(connectivity_graph):
+    # Give each connected component a temporary, arbitrary label as it's discovered
+    # -- no plant-spanning "global" ID is ever created. Every node in a component
+    # shares one plant_id_eia (node identities embed it, and crosswalk edges never
+    # span plants), so pulling it off any single node in the component is enough to
+    # know which plant it belongs to. The final, user-facing subplant_id is assigned
+    # below, by age rather than by this discovery order.
+    component_label_by_node: dict[tuple, int] = {}
+    plant_id_eia_by_label: dict[int, int] = {}
+    for component_label, node_set in enumerate(
+        nx.connected_components(connectivity_graph)
+    ):
         assert nx.algorithms.bipartite.is_bipartite(
             connectivity_graph.subgraph(node_set)
         ), f"non-bipartite node_set={node_set}"
         # networkx types graph nodes as opaque Hashable; ours are always the
         # (type_tag, plant_id_eia, natural_id) tuples built in _prep_for_networkx.
-        plant_id_eia = next(iter(node_set))[1]  # type: ignore[bad-index]
-        subplant_id = next_subplant_id[plant_id_eia]
-        next_subplant_id[plant_id_eia] += 1
-        subplant_id_by_node.update(dict.fromkeys(node_set, subplant_id))
+        plant_id_eia_by_label[component_label] = next(iter(node_set))[1]  # type: ignore[bad-index]
+        component_label_by_node.update(dict.fromkeys(node_set, component_label))
 
     # Safe to map through a plain dict here: every node embeds a real plant_id_eia
     # and, for rows missing a natural id, a per-row sentinel (see
     # _prep_for_networkx), so no two distinct nodes are ever null/equal-looking in a
     # way that could make pandas silently collapse them.
-    edge_list["subplant_id"] = edge_list["combustor_node"].map(subplant_id_by_node)
-    return edge_list
+    edge_list["_component_label"] = edge_list["combustor_node"].map(
+        component_label_by_node
+    )
+
+    # Rank each plant's components from oldest to newest, instead of numbering them
+    # in networkx's arbitrary discovery order (which follows crosswalk row order --
+    # see #5775). A component's age key is the minimum, across all its member rows,
+    # of (first_report_date, generator_sort_date, generator_id,
+    # emissions_unit_id_epa) -- so e.g. a CEMS-only component with no EIA generator
+    # at all, which has no dates, sorts after every component that contains one. Two
+    # components that get merged here because a unit_id_pudl link was learned (see
+    # above) are already one component by this point, so the merged component's key
+    # -- and thus its subplant_id -- reflects its oldest member, not either
+    # original component's discovery order.
+    component_keys = edge_list.groupby("_component_label", as_index=False).agg(
+        first_report_date=("first_report_date", "min"),
+        generator_sort_date=("generator_sort_date", "min"),
+        generator_id=("generator_id", "min"),
+        emissions_unit_id_epa=("emissions_unit_id_epa", "min"),
+    )
+    component_keys["plant_id_eia"] = component_keys["_component_label"].map(
+        plant_id_eia_by_label
+    )
+    # kind="stable" plus the original discovery-order label as the final tiebreaker
+    # column (rather than relying on sort stability alone) keeps ties -- most
+    # commonly every key all-null, e.g. when no age data is available at all --
+    # exactly as before: in networkx's original discovery order.
+    component_keys = component_keys.sort_values(
+        by=[
+            "plant_id_eia",
+            "first_report_date",
+            "generator_sort_date",
+            "generator_id",
+            "emissions_unit_id_epa",
+            "_component_label",
+        ],
+        na_position="last",
+        kind="stable",
+    )
+    component_keys["subplant_id"] = component_keys.groupby("plant_id_eia").cumcount()
+    subplant_id_by_label = dict(
+        zip(
+            component_keys["_component_label"],
+            component_keys["subplant_id"],
+            strict=True,
+        )
+    )
+    edge_list["subplant_id"] = edge_list["_component_label"].map(subplant_id_by_label)
+    return edge_list.drop(columns="_component_label")
 
 
 def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
@@ -601,8 +729,18 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     than ``plant_id_epa`` because the former is more granular and integrated into CEMS
     during the transform process.
 
+    Within each plant, subplants are numbered from oldest to newest (see
+    :func:`_generator_age_keys` and :func:`_subplant_ids_from_prepped_crosswalk`) so
+    that a plant's subplant_ids don't shuffle when the crosswalk's row order or shape
+    changes without the plant itself changing. This can't guarantee subplant_id is
+    stable across PUDL releases -- the crosswalk itself can improve, e.g. by
+    discovering that two previously-separate subplants are actually connected, which
+    will still renumber them (as the older, merged subplant) -- only that unrelated
+    data changes and input ordering don't cause renumbering on their own.
+
     Args:
-        crosswalk: The core_epa__assn_eia_epacamd crosswalk
+        crosswalk: The core_epa__assn_eia_epacamd crosswalk, augmented with the age
+            columns from :func:`_generator_age_keys`.
 
     Returns:
         An edge list connecting EPA units to EIA generators, with connected pieces
