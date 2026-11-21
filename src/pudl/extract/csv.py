@@ -8,12 +8,16 @@ from typing import Any
 import pandas as pd
 
 import pudl.logging_helpers
-from pudl.extract.extractor import GenericExtractor, PartitionSelection
+from pudl.extract.extractor import (
+    GenericExtractor,
+    GenericMetadata,
+    PartitionSelection,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class CsvExtractor(GenericExtractor):
+class CsvExtractor(GenericExtractor[GenericMetadata]):
     """Class for extracting dataframes from CSV files.
 
     The extraction logic is invoked by calling extract() method of this class.

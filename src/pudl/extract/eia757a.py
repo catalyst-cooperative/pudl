@@ -16,7 +16,7 @@ class Extractor(CsvExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = GenericMetadata("eia757a")
+        self._metadata = GenericMetadata("eia757a")
         super().__init__(*args, **kwargs)
 
     def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:

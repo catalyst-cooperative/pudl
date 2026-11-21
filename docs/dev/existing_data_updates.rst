@@ -99,9 +99,15 @@ directly to PUDL database table names because we don't load the data from all pa
 some pages result in more than one database table after normalization.
 
 **2.A.1)** If you're adding a new year, add a row for the new year of data to
-  each of the aforementioned files. If there are any changes to prior years, make
-  sure to address those too. If you are updating early release data with final
-  release data, replace the values in the appropriate year row. **The easiest way
+  ``file_map.csv``, since the file names differ from year to year. The other files
+  only need a row for a year in which something differs from the year before: a
+  year without a row is assumed to be the same as the closest year before it that
+  has one, up to the last year in the working partitions of the data source in
+  ``pudl.metadata.sources`` or in ``file_map.csv``. A file that has a row for every
+  year is also still valid. If there are any changes to prior years, make sure to
+  address those too.
+  If you are updating early release data with final release data, replace the
+  values in the appropriate year row. **The easiest way
   to correct the values for these files is to test extraction in Dagster as
   described in the next step, then use the error messages to narrow down what should
   be updated.** Exhaustively examining each file manually to compare it with its
@@ -125,7 +131,7 @@ pages, or columns) then create new mappings to track that information over time.
 .. note::
 
     In all of the the above CSV files we use a value of ``-1`` to indicate that the data
-    does not exist in a given year.
+    does not exist in a given year. Cells are never left empty.
 
 B. FERC Form 714
 ^^^^^^^^^^^^^^^^
