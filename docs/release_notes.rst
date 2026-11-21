@@ -20,7 +20,7 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
-- Added data source page for :doc:`EPA MATS <data_sources/epamats>`.
+* Added data source page for :doc:`EPA MATS <data_sources/epamats>`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30,6 +30,15 @@ New Data Tests & Validations
   ``dbt`` generic test, which is a tolerance-based variant of ``foreign_key`` that fails
   only if the fraction of child keys missing from the parent exceeds a threshold. See
   :issue:`5770` and :pr:`5772`.
+* Added accounting validation tests for ``core_rus12__yearly_balance_sheet_assets`` and
+  ``out_rus12__yearly_balance_sheet_assets`` to check that balance sheet components sum
+  to their reported totals. See issue :issue:`5728` and PR :pr:`5749`.
+* Validated that the margins and equities, long-term debt, noncurrent obligations,
+  current and accrued liabilities, and total liabilities and other credits in
+  :ref:`core_rus7__yearly_balance_sheet_liabilities` and
+  :ref:`out_rus7__yearly_balance_sheet_liabilities` equal the sum of their
+  subcomponents. Unapplied payments are subtracted from total long-term debt. See
+  issue :issue:`5760` and PR :pr:`5762`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
