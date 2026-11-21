@@ -75,9 +75,9 @@ Connect us with other organizations
 For PUDL to make a bigger impact, we need to find more people who need the data.
 Here's how you can help:
 
-* Cite PUDL using `DOIs from Zenodo
-  <https://zenodo.org/communities/catalyst-cooperative/>`__ if you use the
-  software or data in your own published work.
+* Cite PUDL if you use the software or data in your own published work. See
+  `How to Cite PUDL
+  <https://docs.catalyst.coop/pudl/en/nightly/citations_media/how_to_cite_pudl.html>`__.
 * Point us toward appropriate grant funding opportunities and meetings where
   we might present our work.
 * Point us at interesting publications related to open energy data, open source

@@ -76,9 +76,10 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
-    "cooperative_cites.bib",
-    "catalyst_pubs.bib",
     "catalyst_cites.bib",
+    "catalyst_mentions.bib",
+    "catalyst_pubs.bib",
+    "cooperative_cites.bib",
     "further_reading.bib",
 ]
 
@@ -139,6 +140,7 @@ redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
     "data_sources/wip_future": "future_data.html",
     "bibliography": "citations_media/index.html",
+    "cite": "citations_media/how_to_cite_pudl.html",
 }
 
 # Automatically generate API documentation during the doc build:
@@ -370,6 +372,24 @@ def data_sources_metadata_to_rst(app):
 # task in pyproject.toml so the generated file gets removed.
 CITATIONS_MEDIA_PAGES = [
     {
+        "name": "citing_pudl",
+        "title": "Work Citing PUDL and other Catalyst Analyses",
+        "bibfile": "catalyst_cites.bib",
+        "description": (
+            "Academic, policy, and industry publications that cite PUDL and/or "
+            "analyses done by Catalyst Cooperative."
+        ),
+    },
+    {
+        "name": "mentioning_pudl",
+        "title": "Media Mentions of PUDL or Catalyst",
+        "bibfile": "catalyst_mentions.bib",
+        "description": (
+            "Media such as news or magazine articles, blogs, interviews, podcasts,"
+            " or videos that mention PUDL or Catalyst."
+        ),
+    },
+    {
         "name": "catalyst_publications",
         "title": "Catalyst Publications",
         "bibfile": "catalyst_pubs.bib",
@@ -381,17 +401,8 @@ CITATIONS_MEDIA_PAGES = [
         ),
     },
     {
-        "name": "citing_pudl",
-        "title": "Work Citing PUDL and other Catalyst Analyses",
-        "bibfile": "catalyst_cites.bib",
-        "description": (
-            "Academic, policy, and industry publications that reference PUDL and "
-            "analyses done by Catalyst Cooperative."
-        ),
-    },
-    {
         "name": "citing_cooperative",
-        "title": "Work Citing Catalyst Cooperative",
+        "title": "References to Catalyst as a Worker Cooperative",
         "bibfile": "cooperative_cites.bib",
         "description": (
             "Academic, policy, and industry publications referencing Catalyst's "

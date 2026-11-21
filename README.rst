@@ -21,8 +21,8 @@ The Public Utility Data Liberation Project (PUDL)
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
    :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
    :alt: pre-commit CI
-.. |zenodo-doi| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3404014-1682D4?logo=zenodo&logoColor=white
-   :target: https://doi.org/10.5281/zenodo.3404014
+.. |zenodo-doi| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3653158-1682D4?logo=zenodo&logoColor=white
+   :target: https://doi.org/10.5281/zenodo.3653158
    :alt: Zenodo DOI
 .. |office-hours| image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
    :target: https://calend.ly/catalyst-cooperative/pudl-office-hours
@@ -223,7 +223,8 @@ summary:
   Open Data Registry <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.
 * `Zenodo <https://docs.catalyst.coop/pudl/en/nightly/data_access.html#access-zenodo>`__
   provides stable long-term access to our versioned data releases with a citeable DOI:
-  https://doi.org/10.5281/zenodo.3653158
+  https://doi.org/10.5281/zenodo.3653158. See
+  `How to Cite PUDL <https://docs.catalyst.coop/pudl/en/nightly/citations_media/how_to_cite_pudl.html>`__.
 * `The PUDL Development Environment <https://docs.catalyst.coop/pudl/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 
@@ -354,7 +355,9 @@ for any purpose, so long as you give us credit for the work we've done.
   `the MIT License <https://opensource.org/licenses/MIT>`__.
 * The PUDL data and documentation are published under the
   `Creative Commons Attribution License v4.0 <https://creativecommons.org/licenses/by/4.0/>`__
-  (CC-BY-4.0).
+  (CC-BY-4.0). See
+  `How to Cite PUDL <https://docs.catalyst.coop/pudl/en/nightly/citations_media/how_to_cite_pudl.html>`__
+  for how to give us credit.
 
 Contact Us
 ----------
