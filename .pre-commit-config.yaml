@@ -161,6 +161,29 @@ repos:
         always_run: false
         entry: pixi run jupyter nbconvert --clear-output
 
+      # Type check with pyrefly against the tracked baseline. These are local hooks
+      # because pyrefly needs the full dev pixi environment to resolve imports, which
+      # pre-commit.ci doesn't have (see `ci.skip` below). The ci-pyrefly job in
+      # .github/workflows/pytest.yml enforces the same checks instead.
+      - id: pyrefly-check
+        name: pyrefly-check
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: pixi run pyrefly-check
+
+      # Enforce the minimum type coverage defined by the pyrefly-coverage task.
+      - id: pyrefly-coverage
+        name: pyrefly-coverage
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: pixi run pyrefly-coverage
+
       # Keep pixi.lock in sync with pyproject.toml.
       - id: pixi-lock-update
         name: pixi-lock-update
@@ -228,6 +251,8 @@ ci:
       nb-output-clear,
       pixi-lock-update,
       pixi-lock-check,
+      pyrefly-check,
+      pyrefly-coverage,
       shellcheck,
       trufflehog,
     ]

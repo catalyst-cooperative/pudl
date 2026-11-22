@@ -201,6 +201,45 @@ jobs:
           pixi run dg list defs --json > /tmp/dg-defs.json
           test -s /tmp/dg-defs.json
 
+  ci-pyrefly:
+    # pre-commit.ci can't run the local pyrefly hooks (no pixi dev environment), so
+    # type checking is enforced here instead. Fast, so it runs on every push with no
+    # change_filter gating, which also means the required check always reports.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Install pudl dev environment using pixi
+        uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          environments: dev
+          locked: true
+          cache: true
+          # See ci-docs above for why this is always false.
+          cache-write: false
+
+      - name: Type check with pyrefly (fails on errors not in the baseline)
+        run: pixi run pyrefly-check
+
+      - name: Check pyrefly type coverage minimum
+        run: pixi run pyrefly-coverage
+
+      # These are informational, to keep the baselined errors and incomplete
+      # coverage visible in the CI logs. They only run if the checks above pass,
+      # and neither can fail the job.
+      - name: Summarize remaining baselined pyrefly errors
+        run: pixi run pyrefly-status-errors
+
+      - name: Summarize pyrefly type coverage by module
+        run: pixi run pyrefly-status-coverage
+
   ci-lockfile:
     # Backstop for the local pixi-lock-update / pixi-lock-check hooks, in case someone
     # has not installed pre-commit or is bypassing it. Fails fast and legibly if
