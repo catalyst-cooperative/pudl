@@ -85,3 +85,21 @@ macros:
       - name: crs
         type: string
         description: Optional CRS of the regions' geometries, e.g. "EPSG:4269". If omitted, it is read from the regions relation with a query, which requires regions to be a real table or view rather than a CTE (e.g. in a unit test).
+  - name: unit_mismatch_check
+    description: Logic behind the expect_energy_units and expect_power_units data tests. Among the rows selected by row_condition whose unit column is not NULL, returns a one-row summary if the fraction whose unit matches none of the allowed unit patterns (case-insensitive SQL LIKE) exceeds max_failure_rate. The rate is pooled across all of the selected rows.
+    arguments:
+      - name: model
+        type: string
+        description: The table or model to check.
+      - name: unit_col
+        type: string
+        description: Column holding the unit the rows are measured or priced in.
+      - name: allowed_unit_patterns
+        type: list[string]
+        description: SQL LIKE patterns for the allowed units, e.g. energy_unit_patterns() + neutral_unit_patterns().
+      - name: max_failure_rate
+        type: float
+        description: Maximum acceptable fraction (between 0 and 1) of checked rows with a unit outside the allowed list.
+      - name: row_condition
+        type: string
+        description: Optional SQL condition selecting which rows to check, e.g. "product_name = 'CAPACITY'".

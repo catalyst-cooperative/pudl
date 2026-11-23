@@ -483,3 +483,49 @@ macros:
           Optional distance in meters. A point within this distance of its reported county
           passes, even if it is outside it, which accounts for imprecise
           coordinates and boundaries. Defaults to 0 (no tolerance).
+
+  - name: test_expect_energy_units
+    description: >
+      Check that the selected rows are measured or priced in units of energy (e.g.
+      $/MWH) or a neutral unit like FLAT RATE, not in power or capacity (e.g. $/MW-MO)
+      or any other unit. Among the rows selected by row_condition with a non-null unit,
+      fails if the fraction with a unit outside the allowed list exceeds max_failure_rate.
+    arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
+      - name: unit_col
+        type: string
+        description: Column holding the unit the rows are measured or priced in, e.g. rate_units.
+      - name: max_failure_rate
+        type: float
+        description: Maximum acceptable fraction (between 0 and 1) of checked rows with a unit outside the allowed list.
+      - name: row_condition
+        type: string
+        description: Optional SQL condition selecting which rows to check, e.g. "product_name = 'CAPACITY'". The failure rate is pooled across the selected rows, so use separate tests to give groups of rows their own thresholds.
+      - name: allowed_unit_patterns
+        type: list[string]
+        description: Case-insensitive SQL LIKE patterns for the allowed units. Defaults to energy_unit_patterns() + neutral_unit_patterns().
+
+  - name: test_expect_power_units
+    description: >
+      Check that the selected rows are measured or priced in units of power or capacity
+      (e.g. $/MW-MO) or a neutral unit like FLAT RATE, not in energy (e.g. $/MWH) or any
+      other unit. Among the rows selected by row_condition with a non-null unit, fails if
+      the fraction with a unit outside the allowed list exceeds max_failure_rate.
+    arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
+      - name: unit_col
+        type: string
+        description: Column holding the unit the rows are measured or priced in, e.g. rate_units.
+      - name: max_failure_rate
+        type: float
+        description: Maximum acceptable fraction (between 0 and 1) of checked rows with a unit outside the allowed list.
+      - name: row_condition
+        type: string
+        description: Optional SQL condition selecting which rows to check, e.g. "product_name = 'CAPACITY'". The failure rate is pooled across the selected rows, so use separate tests to give groups of rows their own thresholds.
+      - name: allowed_unit_patterns
+        type: list[string]
+        description: Case-insensitive SQL LIKE patterns for the allowed units. Defaults to power_unit_patterns() + neutral_unit_patterns().

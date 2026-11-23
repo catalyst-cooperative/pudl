@@ -36,27 +36,21 @@ sources:
                 max_value: 0
                 max_fraction_below: 0.002
                 max_fraction_above: 0.01
-          - expect_column_fraction_outside_range:
+          - expect_power_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH' AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.001
-                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'CAPACITY'
+                max_failure_rate: 0.001
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.02
-                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY'
+                max_failure_rate: 0.02
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.03
-                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY IMBALANCE'
+                max_failure_rate: 0.03
           - expect_fraction_missing_foreign_key:
               arguments:
                 fk_column_names:

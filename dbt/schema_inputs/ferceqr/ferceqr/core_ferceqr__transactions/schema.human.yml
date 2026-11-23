@@ -66,94 +66,60 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.0001
                 row_condition: standardized_price != 0 AND price != 0
-          # Rate units should be dimensionally consistent with the product sold:
-          # capacity is priced per unit of power ($/MW-MO, $/KW-DAY, ...), not per
-          # unit of energy ($/MWH, CENTS/KWH, ...), and energy is priced per unit of
-          # energy. Appendix D of the EQR data dictionary lists the allowed rate units.
-          # FLAT RATE and NULL are neither, so they are excluded. Observed: capacity with energy units <=0.043%, energy with power units <=0.0001% across local quarters.
-          - expect_column_fraction_outside_range:
+          # Rate units should be consistent with the product sold: capacity is priced per
+          # unit of power ($/MW-MO, $/KW-DAY, ...) not energy ($/MWH, CENTS/KWH, ...),
+          # and energy products per unit of energy. Appendix D of the EQR data
+          # dictionary lists the allowed rate units. Thresholds are set above the rates
+          # observed in the complete local quarters (not yet re-run on all of them).
+          # Observed CAPACITY with energy units: <=0.043% (2013-2016 only).
+          - expect_power_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH'
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.001
-                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'CAPACITY'
+                max_failure_rate: 0.001
+          # Observed power units: ENERGY <=0.0001%, ENERGY IMBALANCE ~0.00001%,
+          # REAL POWER TRANSMISSION LOSS ~0.03%, GENERATOR IMBALANCE ~0.02%,
+          # TOLLING ENERGY ~0.11%, EXCHANGE ~0.09%.
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.00001
-                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
-          # Booked out power is energy that was contractually committed but not
-          # delivered, so (like ENERGY) it should be priced per unit of energy. Unlike
-          # CAPACITY and ENERGY this is a looser check: ~1.9% of local rows use power
-          # units, almost all from a single filer in 2022q1 (Boston Energy Trading and
-          # Marketing, $/MW-MO). In every other quarter the rate is <=0.03%. The
-          # threshold is table-wide, so it only catches large new problems.
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY'
+                max_failure_rate: 0.00001
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.05
-                row_condition: product_name = 'BOOKED OUT POWER' AND rate_units IS NOT NULL
-          # More products that are essentially always priced per unit of energy; flag
-          # any rate in power or capacity units. Thresholds are table-wide and set above
-          # the rates observed in the complete local quarters (not yet re-run on all of
-          # them): ENERGY IMBALANCE ~0.00001%, EXCHANGE ~0.09%, GENERATOR IMBALANCE
-          # ~0.02%, REAL POWER TRANSMISSION LOSS ~0.03%, TOLLING ENERGY ~0.11%.
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY IMBALANCE'
+                max_failure_rate: 0.00001
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.00001
-                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS'
+                max_failure_rate: 0.002
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.002
-                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'GENERATOR IMBALANCE'
+                max_failure_rate: 0.002
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.002
-                row_condition: product_name = 'GENERATOR IMBALANCE' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'TOLLING ENERGY'
+                max_failure_rate: 0.005
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.005
-                row_condition: product_name = 'TOLLING ENERGY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'EXCHANGE'
+                max_failure_rate: 0.005
+          # Booked out power is energy that was committed but not delivered, so it
+          # should also be priced per unit of energy. This is looser: ~1.9% of local rows
+          # use power units, almost all from one filer in 2022q1 (Boston Energy Trading
+          # and Marketing, $/MW-MO), and <=0.03% in every other quarter. The threshold is
+          # table-wide, so it only catches large new problems.
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.005
-                row_condition: product_name = 'EXCHANGE' AND rate_units IS NOT NULL
+                unit_col: rate_units
+                row_condition: product_name = 'BOOKED OUT POWER'
+                max_failure_rate: 0.05
           # Cross-table checks. Every seller in a quarter's transactions should have filed
           # an identity record for that quarter (observed 0.007% of rows missing overall,
           # at most 0.5% in a single quarter).

@@ -42,62 +42,46 @@ sources:
                 max_value: 0
                 max_fraction_above: 0.0001
                 row_condition: standardized_price != 0 AND price != 0
-          - expect_column_fraction_outside_range:
+          - expect_power_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH' AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.001
-                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'CAPACITY'
+                max_failure_rate: 0.001
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 1.0e-05
-                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY'
+                max_failure_rate: 1.0e-05
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.05
-                row_condition: product_name = 'BOOKED OUT POWER' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY IMBALANCE'
+                max_failure_rate: 1.0e-05
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 1.0e-05
-                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS'
+                max_failure_rate: 0.002
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.002
-                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'GENERATOR IMBALANCE'
+                max_failure_rate: 0.002
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.002
-                row_condition: product_name = 'GENERATOR IMBALANCE' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'TOLLING ENERGY'
+                max_failure_rate: 0.005
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.005
-                row_condition: product_name = 'TOLLING ENERGY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'EXCHANGE'
+                max_failure_rate: 0.005
+          - expect_energy_units:
               arguments:
-                column_name: CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA') AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.005
-                row_condition: product_name = 'EXCHANGE' AND rate_units IS NOT NULL
+                unit_col: rate_units
+                row_condition: product_name = 'BOOKED OUT POWER'
+                max_failure_rate: 0.05
           - expect_fraction_missing_foreign_key:
               arguments:
                 fk_column_names:

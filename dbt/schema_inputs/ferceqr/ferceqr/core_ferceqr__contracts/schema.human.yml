@@ -54,40 +54,28 @@ sources:
                 max_value: 0
                 max_fraction_below: 0.002
                 max_fraction_above: 0.01
-          # Rate units should be dimensionally consistent with the product sold:
-          # capacity is priced per unit of power ($/MW-MO, $/KW-DAY, ...), not per
-          # unit of energy ($/MWH, CENTS/KWH, ...), and energy is priced per unit of
-          # energy. Appendix D of the EQR data dictionary lists the allowed rate units.
-          # FLAT RATE and NULL are neither, so they are excluded. Observed: capacity with energy rate units <=0.035%, energy with power rate units <=1.1% (2013-2014) and <=0.4% since. The `units` column is not tested because contract quantities for ENERGY are often stated in MW, and ~3% of CAPACITY contracts use energy units.
-          - expect_column_fraction_outside_range:
+          # Rate units should be consistent with the product sold: capacity is priced per
+          # unit of power, energy per unit of energy (see core_ferceqr__transactions).
+          # The `units` column is not tested because contract quantities for ENERGY are
+          # often stated in MW, and ~3% of CAPACITY contracts use energy units.
+          # Observed CAPACITY with energy rate units: <=0.035%.
+          - expect_power_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%KWH' OR rate_units LIKE '%MWH'
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.001
-                row_condition: product_name = 'CAPACITY' AND rate_units IS NOT NULL
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'CAPACITY'
+                max_failure_rate: 0.001
+          # Observed power rate units: ENERGY <=1.1% (2013-2014) and <=0.4% since;
+          # ENERGY IMBALANCE ~1.2% overall and up to ~10% in a single quarter.
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.02
-                row_condition: product_name = 'ENERGY' AND rate_units IS NOT NULL
-          # Energy imbalance is priced per unit of energy. Observed ~1.2% of rows with
-          # power units (up to ~10% in a single quarter), so the threshold is loose.
-          - expect_column_fraction_outside_range:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY'
+                max_failure_rate: 0.02
+          - expect_energy_units:
               arguments:
-                column_name: >-
-                  CAST(rate_units LIKE '%-MO' OR rate_units LIKE '%-DAY' OR rate_units LIKE '%-WK' OR rate_units LIKE '%-YR' OR rate_units IN ('$/KW', '$/MW', '$/KVA', '$/KV', '$/KVR', '$/RKVA')
-                  AS INTEGER)
-                min_value: 0
-                max_value: 0
-                max_fraction_above: 0.03
-                row_condition: product_name = 'ENERGY IMBALANCE' AND rate_units IS NOT NULL
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY IMBALANCE'
+                max_failure_rate: 0.03
           # Every seller in a quarter's contracts should have filed an identity record
           # for that quarter (observed at most 0.003% of rows missing in a quarter).
           - expect_fraction_missing_foreign_key:
