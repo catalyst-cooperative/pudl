@@ -975,3 +975,53 @@ def test_add_record_id_null_utility():
         "1_a_plant_gen_total_null",
         "1_a_plant_gen_owned_111",
     ]
+
+
+def test_label_operating_gens_cancelled():
+    """Cancelled generators get their own ``operational_status_pudl`` (:issue:`5766`).
+
+    They are kept apart from proposed generators, and have no end-of-year capacity.
+    """
+    gens = pd.DataFrame(
+        {
+            "plant_id_eia": [1, 1, 1],
+            "generator_id": ["a", "b", "c"],
+            "report_date": pd.to_datetime(["2020-01-01"] * 3),
+            "operational_status": ["existing", "proposed", "cancelled"],
+            "generator_retirement_date": pd.Series(
+                [pd.NaT] * 3, dtype="datetime64[ns]"
+            ),
+            "capacity_mw": [10.0, 20.0, 30.0],
+        }
+    )
+
+    out = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().label_operating_gens(gens)
+
+    assert out.operational_status_pudl.tolist() == [
+        "operating",
+        "proposed",
+        "cancelled",
+    ]
+    assert out.capacity_eoy_mw.tolist() == [10.0, 0.0, 0.0]
+
+
+def test_operational_statuses_have_a_priority_and_a_pudl_category():
+    """Every ``operational_status`` in the code table can be ranked and labeled.
+
+    A status missing from the priority order would become null when plant parts are
+    deduplicated, and one missing from the ``operational_status_pudl`` enum would
+    fail validation of the plant-part tables.
+    """
+    from pudl.metadata.codes import CODE_METADATA
+    from pudl.metadata.fields import FIELD_METADATA
+
+    statuses = set(
+        CODE_METADATA["core_eia__codes_operational_status"]["df"].operational_status
+    )
+    priority = pudl.analysis.plant_parts_eia.PRIORITY_ATTRIBUTES_DICT[
+        "operational_status"
+    ]
+    assert statuses <= set(priority)
+    pudl_statuses = (statuses - {"existing"}) | {"operating"}
+    for field in ["operational_status_pudl", "operational_status_pudl_plant_gen"]:
+        assert pudl_statuses <= set(FIELD_METADATA[field]["constraints"]["enum"])

@@ -823,7 +823,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "CN",
                     "cancelled",
                     "Cancelled, but previously reported as 'planned'",
-                    "proposed",
+                    "cancelled",
                 ),
                 (
                     "CO",
@@ -835,7 +835,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "IP",
                     "indefinitely_postponed",
                     "Planned new indefinitely postponed, or no longer in resource plan",
-                    "proposed",
+                    "cancelled",
                 ),
                 (
                     "L",

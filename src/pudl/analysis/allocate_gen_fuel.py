@@ -902,6 +902,19 @@ _TRANSITION_DATE_COL: dict[Literal["retired", "proposed"], str] = {
 }
 """The column recording a generator's actual transition date, keyed by ``operational_status``."""
 
+_STATUSES_IN_DIRECTION: dict[Literal["retired", "proposed"], list[str]] = {
+    "retired": ["retired"],
+    "proposed": ["proposed", "cancelled"],
+}
+"""The ``operational_status`` values treated as each transition direction.
+
+Cancelled generators (EIA codes CN and IP) were labeled ``"proposed"`` until they were
+given their own ``"cancelled"`` status (:issue:`5766`). They are still handled with the
+proposed generators here, so that a cancelled generator that nonetheless reports
+generation or fuel is retained exactly as it was before, and a PM/ESC group containing
+both proposed and cancelled generators still counts as entirely proposed.
+"""
+
 
 def _identify_transitioning_generators(
     gen_assoc: pd.DataFrame,
@@ -953,8 +966,9 @@ def _identify_transitioning_generators(
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that are transitioning mid year
     # or have fuel or generation use while being labeled as operational_status.
+    statuses = _STATUSES_IN_DIRECTION[operational_status]
     transitioning_generator_ids = gen_assoc.loc[
-        (gen_assoc.operational_status == operational_status)
+        (gen_assoc.operational_status.isin(statuses))
         & (
             has_stale_status(gen_assoc.report_date, gen_assoc[transition_date_col])
             | (
@@ -1136,8 +1150,9 @@ def _identify_entirely_transitioned_groups(
     # rescues a permanently-proposed generator with no recorded operating date that
     # nonetheless reports real generation -- see
     # test_identify_plants_unknown_transition_date.
+    statuses = _STATUSES_IN_DIRECTION[operational_status]
     candidate_group_years = gen_assoc.loc[
-        (gen_assoc.operational_status == operational_status)
+        (gen_assoc.operational_status.isin(statuses))
         & (
             has_stale_status(gen_assoc.report_date, gen_assoc[transition_date_col])
             | gen_assoc[transition_date_col].isnull()
@@ -1163,7 +1178,7 @@ def _identify_entirely_transitioned_groups(
     # a PM/ESC-group-year is only "entirely `operational_status`" if every generator
     # reported that year has that same operational_status ...
     group_years_with_mixed_status = group_years_with_any_candidate.loc[
-        group_years_with_any_candidate["operational_status"] != operational_status,
+        ~group_years_with_any_candidate["operational_status"].isin(statuses),
         [*group_cols, "report_year"],
     ].drop_duplicates()
 

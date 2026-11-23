@@ -5669,7 +5669,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operational_status": {
         "type": "string",
         "description": (
-            "The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860."
+            "The operating status of the asset: existing, proposed, retired or "
+            "cancelled. Derived from the reported operational status code (see "
+            "core_eia__codes_operational_status), not from the EIA-860 tab the "
+            "asset was listed in. Cancelled includes indefinitely postponed "
+            "projects (code IP), which EIA has listed in the Retired and Canceled "
+            "tab since 2009, as well as cancelled projects (code CN)."
         ),
     },
     "operational_status_code": {
@@ -5679,14 +5684,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operational_status_pudl": {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories.",
-        "constraints": {"enum": ["operating", "retired", "proposed"]},
+        "constraints": {"enum": ["operating", "retired", "proposed", "cancelled"]},
     },
     "operational_status_pudl_plant_gen": {
         "type": "string",
         "description": (
             "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record ."
         ),
-        "constraints": {"enum": ["operating", "retired", "proposed"]},
+        "constraints": {"enum": ["operating", "retired", "proposed", "cancelled"]},
     },
     "operator_utility_id_eia": {
         "type": "integer",
