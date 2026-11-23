@@ -1,6 +1,131 @@
 {
   "errors": [
     {
+      "path": "src/pudl/dagster/resources.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `DatastoreResource` is not assignable to parameter `datastore` with type `ResourceDependency[Unknown]` in function `FercEqrArchiveResource.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `DatastoreResource` is not assignable to parameter `datastore` with type `ResourceDependency[Unknown]` in function `pudl.dagster.resources.FercEqrArchiveResource.__init__`"
+    },
+    {
+      "path": "tests/unit/extract/ferceqr_test.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Datastore` is not assignable to parameter `datastore` with type `ResourceDependency[Unknown]` in function `pudl.dagster.resources.FercEqrArchiveResource.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `GlobalDataConfigResource` is not assignable to parameter `global_data_config` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `GlobalDataConfigResource` is not assignable to parameter `global_data_config` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "tests/unit/dagster/io_managers_test.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `GlobalDataConfig` is not assignable to parameter `global_data_config` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "tests/unit/dagster/io_managers_test.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `GlobalDataConfig` is not assignable to parameter `global_data_config` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PartialResource[GlobalDataConfigResource]` is not assignable to parameter `global_data_config` with type `ResourceDependency[Unknown]` in function `FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PartialResource[GlobalDataConfigResource]` is not assignable to parameter `global_data_config` with type `ResourceDependency[Unknown]` in function `FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/resources.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PartialResource[PudlPathsResource]` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `DatastoreResource.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PartialResource[PudlPathsResource]` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PartialResource[PudlPathsResource]` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PartialResource[PudlPathsResource]` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `PudlParquetIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PudlPathsResource` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PudlPathsResource` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PudlPathsResource` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.PudlParquetIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `PudlPathsResource` is not assignable to parameter `pudl_paths` with type `ResourceDependency[Unknown]` in function `pudl.dagster.resources.DatastoreResource.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/resources.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `DatastoreResource.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/io_managers.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
+    },
+    {
+      "path": "src/pudl/dagster/build.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettingsResource` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `pudl.dagster.resources.DatastoreResource.__init__`"
+    },
+    {
+      "path": "tests/unit/dagster/io_managers_test.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettings` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercDbfSqliteIOManager.__init__`"
+    },
+    {
+      "path": "tests/unit/dagster/io_managers_test.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `ZenodoDoiSettings` is not assignable to parameter `zenodo_dois` with type `ResourceDependency[Unknown]` in function `pudl.dagster.io_managers.FercXbrlSqliteIOManager.__init__`"
+    },
+    {
       "path": "src/pudl/extract/excel.py",
       "name": "bad-override-mutable-attribute",
       "concise_description": "Class member `ExcelExtractor.METADATA` overrides parent class `GenericExtractor` in an inconsistent manner"
