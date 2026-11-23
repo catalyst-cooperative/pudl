@@ -18,6 +18,22 @@ from pudl.transform.eia860 import _core_eia860__generators
 logger = get_logger(__name__)
 
 
+def _append_puerto_rico_generators(
+    generators: pd.DataFrame, puerto_rico_generators: pd.DataFrame
+) -> pd.DataFrame:
+    """Append a raw Puerto Rico EIA-860M generator page to its mainland counterpart.
+
+    EIA-860M reports Puerto Rico generators on their own spreadsheet tabs, which are
+    extracted as separate raw assets. They are combined with the mainland pages in the
+    same way as in :func:`pudl.extract.eia860m.append_eia860m`.
+    """
+    return pd.concat(
+        [generators, puerto_rico_generators],
+        ignore_index=True,
+        sort=True,
+    )
+
+
 @asset(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
@@ -27,11 +43,15 @@ def core_eia860m__changelog_generators(
     raw_eia860m__generator_proposed: pd.DataFrame,
     raw_eia860m__generator_existing: pd.DataFrame,
     raw_eia860m__generator_retired: pd.DataFrame,
+    raw_eia860m__puerto_rico_generator_proposed: pd.DataFrame,
+    raw_eia860m__puerto_rico_generator_existing: pd.DataFrame,
+    raw_eia860m__puerto_rico_generator_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Changelog of EIA-860M Generators based on operating status.
 
     The monthly reported EIA-860M tables includes existing, proposed and retired
-    generators. This table combines all monthly reported data and preserves the first
+    generators, with Puerto Rico generators reported on separate tabs. This table
+    combines all monthly reported data, including Puerto Rico, and preserves the first
     reported record when any new information about the generator was reported.
 
     We are not putting this table through PUDL's standard normalization process for EIA
@@ -64,9 +84,18 @@ def core_eia860m__changelog_generators(
     eia860_generators = cast(
         pd.DataFrame,
         _core_eia860__generators(
-            raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
-            raw_eia860__generator_existing=raw_eia860m__generator_existing,
-            raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
+            raw_eia860__generator_proposed=_append_puerto_rico_generators(
+                raw_eia860m__generator_proposed,
+                raw_eia860m__puerto_rico_generator_proposed,
+            ),
+            raw_eia860__generator_existing=_append_puerto_rico_generators(
+                raw_eia860m__generator_existing,
+                raw_eia860m__puerto_rico_generator_existing,
+            ),
+            raw_eia860__generator_retired=_append_puerto_rico_generators(
+                raw_eia860m__generator_retired,
+                raw_eia860m__puerto_rico_generator_retired,
+            ).assign(
                 # pandas-stubs does not accept a scalar pd.NA as an assigned value.
                 operational_status_code=pd.NA  # type: ignore[bad-argument-type]
             ),
