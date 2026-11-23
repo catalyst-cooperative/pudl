@@ -51,7 +51,7 @@ sources:
               arguments:
                 unit_col: rate_units
                 row_condition: product_name = 'ENERGY'
-                max_failure_rate: 1.0e-05
+                max_failure_rate: 3.0e-05
           - expect_energy_units:
               arguments:
                 unit_col: rate_units

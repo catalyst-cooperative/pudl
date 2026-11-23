@@ -77,14 +77,15 @@ sources:
                 unit_col: rate_units
                 row_condition: product_name = 'CAPACITY'
                 max_failure_rate: 0.001
-          # Observed power units: ENERGY <=0.0001%, ENERGY IMBALANCE ~0.00001%,
-          # REAL POWER TRANSMISSION LOSS ~0.03%, GENERATOR IMBALANCE ~0.02%,
-          # TOLLING ENERGY ~0.11%, EXCHANGE ~0.09%.
+          # Observed units that aren't energy or flat rate: ENERGY ~0.0005% (mostly
+          # $/MW-DAY from a few filers, so the threshold leaves room for a few more),
+          # ENERGY IMBALANCE ~0.00003%, REAL POWER TRANSMISSION LOSS ~0.03%,
+          # GENERATOR IMBALANCE ~0.02%, TOLLING ENERGY ~0.11%, EXCHANGE ~0.09%.
           - expect_energy_units:
               arguments:
                 unit_col: rate_units
                 row_condition: product_name = 'ENERGY'
-                max_failure_rate: 0.00001
+                max_failure_rate: 0.00003
           - expect_energy_units:
               arguments:
                 unit_col: rate_units
