@@ -168,6 +168,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("GA", "Chattahooche", "Chattahoochee"),
         ("GA", "De Kalb", "DeKalb"),
         ("GA", "Glasscock", "Glascock County"),
+        ("GA", "Hillsborough", "Jasper"),
         ("IA", "Hardin -remove", "Hardin County"),
         ("IA", "Harris", "Harrison"),
         ("IA", "Humbolt", "Humboldt"),
