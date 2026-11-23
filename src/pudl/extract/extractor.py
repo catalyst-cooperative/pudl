@@ -41,10 +41,23 @@ def working_time_partitions(dataset_name: str) -> list[str]:
     These are the values of the time-like keys (see :data:`TIME_PARTITION_KEYS`) of the
     ``working_partitions`` of the data source in :data:`pudl.metadata.sources.SOURCES`.
     Datasets that are not data sources, such as the test datasets, have none.
+
+    Raises:
+        AssertionError: If the data source has working partitions of more than one
+            temporal resolution (e.g. both ``years`` and ``year_months``), since the
+            partitions of different resolutions can't be meaningfully ordered or
+            carried forward together.
     """
     working_partitions = SOURCES.get(dataset_name, {}).get("working_partitions", {})
+    time_keys = [key for key in TIME_PARTITION_KEYS if working_partitions.get(key)]
+    if len(time_keys) > 1:
+        raise AssertionError(
+            f"The {dataset_name} data source has working partitions of more than one "
+            f"temporal resolution: {time_keys}. Metadata change logs require a single "
+            "resolution."
+        )
     return sorted(
-        {str(p) for key in TIME_PARTITION_KEYS for p in working_partitions.get(key, [])}
+        {str(p) for key in time_keys for p in working_partitions.get(key, [])}
     )
 
 
@@ -113,6 +126,7 @@ class GenericMetadata:
     def __init__(
         self,
         dataset_name: str,
+        *,
         path: Path | None = None,
         partitions: Sequence[str] | None = None,
     ):
@@ -123,11 +137,15 @@ class GenericMetadata:
                 is given, files will be loaded from
                 src/pudl/package_data/${dataset_name}
             path: Directory to load the metadata files from, instead of the directory
-                of the dataset in the package data. Useful for test datasets.
+                of the dataset in the package data. Keyword-only: meant to enable
+                simpler, cleaner testing with small fake datasets, not for use in
+                production code.
             partitions: The partitions to describe with the metadata that is a change
                 log, in addition to those that it has rows for and those that are in
                 ``file_map.csv``, if there is one. By default these are the time
-                partitions that the data source is processed for.
+                partitions that the data source is processed for. Keyword-only: meant
+                to enable tests that don't depend on the real working partitions of
+                the data source, not for use in production code.
         """
         self._dataset_name = dataset_name
         self._path = path if path is not None else PUDL_PACKAGE_DATA_PATH / dataset_name
@@ -262,6 +280,10 @@ class GenericExtractor[MetadataT: GenericMetadata](ABC):
     Extractors are generic over the type of the metadata that they use, so that
     extractors for datasets with more specialized metadata, such as Excel files, can
     use its methods with type checking.
+
+    ``MetadataT`` is the conventional name for a type variable (the ``T`` stands for
+    "Type"): a placeholder, limited here to :class:`GenericMetadata`, that each
+    subclass fills in, e.g. ``GenericExtractor[ExcelMetadata]``.
     """
 
     _metadata: MetadataT

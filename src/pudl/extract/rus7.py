@@ -28,7 +28,6 @@ class Extractor(CsvExtractor):
         In this instance we are using the same methodology from the excel metadata extractor.
         """
         _file_name = self._metadata._load_file_map()
-        # The file map is loaded with every cell as a string.
         return str(
             _file_name.loc[self._metadata._get_partition_selection(partition), page]
         )

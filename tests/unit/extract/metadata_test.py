@@ -146,6 +146,20 @@ def test_working_time_partitions():
     assert working_time_partitions("not_a_data_source") == []
 
 
+def test_working_time_partitions_rejects_mixed_resolutions(mocker):
+    """A data source with more than one temporal resolution is an error."""
+    mocker.patch.dict(
+        "pudl.extract.extractor.SOURCES",
+        {
+            "mixed": {
+                "working_partitions": {"years": [2015], "year_months": ["2015-07"]}
+            }
+        },
+    )
+    with pytest.raises(AssertionError, match="more than one"):
+        working_time_partitions("mixed")
+
+
 def test_change_log_files_describe_every_working_partition(tmp_path: Path):
     """Change log files are expanded to the partitions that the metadata is given."""
     (tmp_path / "column_maps").mkdir()

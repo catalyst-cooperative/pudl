@@ -50,6 +50,7 @@ class ExcelMetadata(GenericMetadata):
     def __init__(
         self,
         dataset_name: str,
+        *,
         path: pathlib.Path | None = None,
         partitions: Sequence[str] | None = None,
     ):
@@ -60,11 +61,15 @@ class ExcelMetadata(GenericMetadata):
                 is given, files will be loaded from
                 src/pudl/package_data/${dataset_name}
             path: Directory to load the metadata files from, instead of the directory
-                of the dataset in the package data. Useful for test datasets.
+                of the dataset in the package data. Keyword-only: meant to enable
+                simpler, cleaner testing with small fake datasets, not for use in
+                production code.
             partitions: The partitions to describe with the metadata that is a change
                 log, in addition to those that it has rows for and those that are in
                 ``file_map.csv``, if there is one. By default these are the time
-                partitions that the data source is processed for.
+                partitions that the data source is processed for. Keyword-only: meant
+                to enable tests that don't depend on the real working partitions of
+                the data source, not for use in production code.
         """
         super().__init__(dataset_name, path=path, partitions=partitions)
         self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
