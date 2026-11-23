@@ -1,1 +1,4 @@
 *.csv
+# The canonical crosswalk and its decision log are tracked.
+!utility_crosswalk/
+!utility_crosswalk/*.csv

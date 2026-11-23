@@ -1,0 +1,48 @@
+utility_id_ferc1,name_ferc1,utility_id_eia,name_eia,uncertain,numeric_informed,notes,decided_at
+40,TXU Electric Company,44372,TXU Electric Co,False,False,,2026-11-23T03:25:16+00:00
+155,Southern California Edison Company,17609,Southern California Edison Co,False,False,,2026-11-23T03:17:50+00:00
+159,"Consolidated Edison Company of New York, Inc.",4226,Consolidated Edison Co-NY Inc,False,False,,2026-11-23T03:23:30+00:00
+160,"Duke Energy Progress, LLC",3046,Duke Energy Progress - (NC),False,False,,2026-11-23T03:28:22+00:00
+161,"Duke Energy Florida, LLC",6455,"Duke Energy Florida, LLC",False,False,,2026-11-23T03:27:39+00:00
+162,"Puget Sound Energy, Inc.",15500,Puget Sound Energy Inc,False,False,,2026-11-23T03:30:54+00:00
+163,Consumers Energy Company,4254,Consumers Energy Co,False,False,,2026-11-23T03:27:54+00:00
+164,VIRGINIA ELECTRIC AND POWER COMPANY,19876,Virginia Electric & Power Co,False,False,,2026-11-23T03:24:58+00:00
+165,Commonwealth Edison Company,4110,Commonwealth Edison Co,False,False,,2026-11-23T03:19:26+00:00
+165,Commonwealth Edison Company,4111,Commonwealth Edison Co IN Inc,False,False,,2026-11-23T03:19:26+00:00
+167,PECO Energy Company,14940,PECO Energy Co,False,False,,2026-11-23T03:28:40+00:00
+170,"Duke Energy Carolinas, LLC",5416,"Duke Energy Carolinas, LLC",False,False,,2026-11-23T03:23:58+00:00
+170,"Duke Energy Carolinas, LLC",54905,Duke Energy Carolinas LLC,False,False,,2026-11-23T03:23:58+00:00
+173,Jersey Central Power & Light Company,9726,Jersey Central Power & Lt Co,False,False,,2026-11-23T03:31:56+00:00
+174,Ohio Edison Company,13998,Ohio Edison Co,False,False,,2026-11-23T03:33:25+00:00
+183,PACIFIC GAS AND ELECTRIC COMPANY,14328,Pacific Gas & Electric Co.,False,False,,2026-11-23T03:17:25+00:00
+184,DTE Electric Company,5109,DTE Electric Company,False,False,,2026-11-23T03:26:46+00:00
+200,Appalachian Power Company,733,Appalachian Power Co,False,False,,2026-11-23T03:42:13+00:00
+204,Ohio Power Company,14006,Ohio Power Co,False,False,,2026-11-23T03:29:26+00:00
+218,San Diego Gas & Electric Company,16609,San Diego Gas & Electric Co,False,False,,2026-11-23T03:29:55+00:00
+221,Union Electric Company,19436,Union Electric Co - (MO),False,False,,2026-11-23T03:30:43+00:00
+222,Ameren Illinois Company,56697,Ameren Illinois Company,False,False,,2026-11-23T03:31:43+00:00
+222,Ameren Illinois Company,61576,Ameren Illinois,False,False,,2026-11-23T03:31:43+00:00
+227,Public Service Company of Colorado,15466,Public Service Co of Colorado,False,False,,2026-11-23T03:28:49+00:00
+229,Northern States Power Company (Minnesota),13781,Northern States Power Co - Minnesota,False,False,,2026-11-23T03:28:59+00:00
+243,The Connecticut Light and Power Company,4176,Connecticut Light & Power Co,False,False,,2026-11-23T03:30:21+00:00
+247,Florida Power & Light Company,6452,Florida Power & Light Co,False,False,,2026-11-23T03:16:08+00:00
+248,Baltimore Gas and Electric Company,1167,Baltimore Gas & Electric Co,False,False,,2026-11-23T03:30:09+00:00
+260,Public Service Electric and Gas Company,15477,Public Service Elec & Gas Co,False,True,,2026-11-23T03:26:34+00:00
+267,PPL Electric Utilities Corporation,14715,PP&L Inc,False,False,,2026-11-23T03:29:37+00:00
+271,NSTAR Electric Company,54913,NSTAR Electric Company,False,False,,2026-11-23T03:29:46+00:00
+275,Niagara Mohawk Power Corporation,13573,Niagara Mohawk Power Corp.,False,False,,2026-11-23T03:29:10+00:00
+277,Massachusetts Electric Company,11804,Massachusetts Electric Co,False,False,,2026-11-23T03:30:14+00:00
+280,Wisconsin Electric Power Company,20847,Wisconsin Electric Power Co,False,False,,2026-11-23T03:33:03+00:00
+281,National Grid Generation LLC,11172,Long Island Lighting Co,False,False,,2026-11-23T03:41:57+00:00
+281,National Grid Generation LLC,26751,KeySpan Generation LLC,False,False,,2026-11-23T03:41:57+00:00
+281,National Grid Generation LLC,56505,National Grid Generation LLC,False,False,,2026-11-23T03:41:57+00:00
+286,Arizona Public Service Company,803,Arizona Public Service Co,False,False,,2026-11-23T03:30:03+00:00
+293,Oncor Electric Delivery Company LLC,44372,TXU Electric Co,False,False,,2026-11-23T03:23:08+00:00
+293,Oncor Electric Delivery Company LLC,55998,Oncor,False,False,,2026-11-23T03:23:08+00:00
+294,ALABAMA POWER COMPANY,195,Alabama Power Co,False,False,,2026-11-23T03:29:16+00:00
+295,Georgia Power Company,7140,Georgia Power Co,False,False,,2026-11-23T03:24:44+00:00
+301,"Nevada Power Company, d/b/a NV Energy",13407,Nevada Power Co,False,False,,2026-11-23T03:34:11+00:00
+301,"Nevada Power Company, d/b/a NV Energy",63603,Nevada Power Company DBA NV Energy,False,False,,2026-11-23T03:34:11+00:00
+303,PacifiCorp,14354,PacifiCorp,False,False,,2026-11-23T03:26:54+00:00
+318,"CenterPoint Energy Houston Electric, LLC",8901,"CenterPoint Energy Houston Electric, LLC",False,False,,2026-11-23T03:24:35+00:00
+362,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC,False,False,,2026-11-23T03:33:16+00:00
