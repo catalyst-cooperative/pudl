@@ -36,7 +36,7 @@ sources:
                 min_value: 0
                 max_value: 0
                 max_fraction_above: 0.001
-          # End date should be before begin date
+          # End date should be after begin date
           # (observed <=0.6%).
           - expect_column_fraction_outside_range:
               arguments:
@@ -76,9 +76,11 @@ sources:
                 unit_col: rate_units
                 row_condition: product_name = 'ENERGY IMBALANCE'
                 max_failure_rate: 0.03
-          # Every seller in a quarter's contracts should have filed an identity record
-          # for that quarter (observed at most 0.003% of rows missing in a quarter).
-          - expect_fraction_missing_foreign_key:
+          # Every non-null seller in a quarter's contracts should have filed an identity
+          # record for that quarter. A handful of (quarter, seller) pairs don't: 36 of
+          # 121k distinct pairs, at most ~0.003% of rows in any quarter. NULL sellers are
+          # skipped here and checked separately below.
+          - foreign_key:
               arguments:
                 fk_column_names:
                   - year_quarter
@@ -87,4 +89,11 @@ sources:
                 pk_column_names:
                   - year_quarter
                   - company_id_ferc
-                max_fraction: 0.0005
+                max_fraction: 0.0001
+        columns:
+          # The seller CID is required by the data dictionary. Observed 0.07% NULL.
+          - name: seller_company_id_ferc
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.998

@@ -121,10 +121,12 @@ sources:
                 unit_col: rate_units
                 row_condition: product_name = 'BOOKED OUT POWER'
                 max_failure_rate: 0.05
-          # Cross-table checks. Every seller in a quarter's transactions should have filed
-          # an identity record for that quarter (observed 0.007% of rows missing overall,
-          # at most 0.5% in a single quarter).
-          - expect_fraction_missing_foreign_key:
+          # Cross-table checks. Every non-null seller in a quarter's transactions should
+          # have filed an identity record for that quarter, and every (seller, contract
+          # service agreement ID) pair should appear in that quarter's contracts. Both
+          # hold exactly in the full data once NULL sellers are excluded (foreign_key
+          # skips NULL keys; their share is checked separately below).
+          - foreign_key:
               arguments:
                 fk_column_names:
                   - year_quarter
@@ -133,13 +135,7 @@ sources:
                 pk_column_names:
                   - year_quarter
                   - company_id_ferc
-                max_fraction: 0.0005
-          # Each (seller, contract service agreement ID) pair in transactions should
-          # appear in that quarter's contracts. Compared as distinct pairs, since a few
-          # contracts account for most transactions. Observed 0.03% of pairs missing
-          # overall (0.4% at most in one quarter), and every miss was also a seller
-          # absent from the identity table.
-          - expect_fraction_missing_foreign_key:
+          - foreign_key:
               arguments:
                 fk_column_names:
                   - year_quarter
@@ -150,5 +146,10 @@ sources:
                   - year_quarter
                   - seller_company_id_ferc
                   - contract_service_agreement_id
-                max_fraction: 0.002
-                distinct_keys: true
+        columns:
+          # The seller CID is required by the data dictionary. Observed 0.007% NULL.
+          - name: seller_company_id_ferc
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.9998

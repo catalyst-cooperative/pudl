@@ -33,8 +33,11 @@ macros:
   - name: test_foreign_key
     description: >
       Check whether FK is valid.
-      Fails when non-null key tuple does not exist in parent. Rows with any
-      foreign key column null are skipped, matching SQLite behavior.
+      Fails when a non-null key tuple does not exist in the parent. Rows with any
+      foreign key column null are skipped, matching SQLite behavior, so test for NULL
+      keys separately if they matter. Strict by default; set max_fraction to tolerate a
+      share of failing rows. Returns at most sample_size of the failing child rows, plus
+      the number of failures, the number of rows checked and the failure rate.
     arguments:
       - name: model
         type: relation
@@ -44,42 +47,22 @@ macros:
         description: Ordered list of child key columns.
       - name: pk_table_name
         type: string
-        description: Parent relation to validate against, typically from ref().
-      - name: pk_column_names
-        type: list[string]
-        description: Ordered list of parent key columns.
-
-  - name: test_expect_fraction_missing_foreign_key
-    description: >
-      Like test_foreign_key, but tolerant: fails only if the fraction of child keys
-      (rows, or distinct key tuples) missing from the parent exceeds max_fraction.
-      Rows with any key column null are skipped, and keys are compared as text.
-      Returns a one-row summary rather than the offending rows.
-    arguments:
-      - name: model
-        type: relation
-        description: The child model (table) the test is applied to.
-      - name: fk_column_names
-        type: list[string]
-        description: Ordered list of child key columns.
-      - name: pk_table_name
-        type: string
-        description: Parent relation to validate against, typically from source().
+        description: Parent relation to validate against, typically from ref() or source().
       - name: pk_column_names
         type: list[string]
         description: Ordered list of parent key columns.
       - name: max_fraction
         type: float
-        description: Maximum acceptable fraction of child keys missing from the parent.
-      - name: distinct_keys
-        type: bool
-        description: If true, count distinct key tuples instead of rows.
+        description: Maximum acceptable fraction (between 0 and 1) of checked child rows missing from the parent. Defaults to 0, i.e. strict.
       - name: row_condition
         type: string
         description: Optional SQL condition restricting which child rows are checked.
       - name: parent_row_condition
         type: string
-        description: Optional SQL condition restricting which parent rows are used.
+        description: Optional SQL condition restricting which parent rows count as present.
+      - name: sample_size
+        type: integer
+        description: Maximum number of failing child rows to return. Defaults to 20.
 
   - name: test_expect_column_fraction_with_condition
     description: >

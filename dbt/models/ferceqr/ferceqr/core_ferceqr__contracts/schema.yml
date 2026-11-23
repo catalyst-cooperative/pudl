@@ -51,7 +51,7 @@ sources:
                 unit_col: rate_units
                 row_condition: product_name = 'ENERGY IMBALANCE'
                 max_failure_rate: 0.03
-          - expect_fraction_missing_foreign_key:
+          - foreign_key:
               arguments:
                 fk_column_names:
                   - year_quarter
@@ -60,10 +60,14 @@ sources:
                 pk_column_names:
                   - year_quarter
                   - company_id_ferc
-                max_fraction: 0.0005
+                max_fraction: 0.0001
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.998
           - name: contract_unique_id
           - name: seller_company_name
           - name: customer_company_name

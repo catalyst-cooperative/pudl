@@ -35,10 +35,10 @@ New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Added ``dbt`` data validation tests for the FERC EQR tables based on the rules in the
-  EQR Data Dictionary (v4.0). Also added the ``expect_fraction_missing_foreign_key``
-  ``dbt`` generic test, which is a tolerance-based variant of ``foreign_key`` that fails
-  only if the fraction of child keys missing from the parent exceeds a threshold. See
-  :issue:`5770` and :pr:`5772`.
+  EQR Data Dictionary (v4.0). The ``foreign_key`` ``dbt`` generic test can now tolerate
+  a fraction of failing rows (``max_fraction``, strict by default), restrict the rows
+  checked, and returns a sample of failures with the failure rate instead of every
+  failing row. See :issue:`5770` and :pr:`5772`.
 * Added accounting validation tests for ``core_rus12__yearly_balance_sheet_assets`` and
   ``out_rus12__yearly_balance_sheet_assets`` to check that balance sheet components sum
   to their reported totals. See issue :issue:`5728` and PR :pr:`5749`.

@@ -82,7 +82,7 @@ sources:
                 unit_col: rate_units
                 row_condition: product_name = 'BOOKED OUT POWER'
                 max_failure_rate: 0.05
-          - expect_fraction_missing_foreign_key:
+          - foreign_key:
               arguments:
                 fk_column_names:
                   - year_quarter
@@ -91,8 +91,7 @@ sources:
                 pk_column_names:
                   - year_quarter
                   - company_id_ferc
-                max_fraction: 0.0005
-          - expect_fraction_missing_foreign_key:
+          - foreign_key:
               arguments:
                 fk_column_names:
                   - year_quarter
@@ -103,11 +102,13 @@ sources:
                   - year_quarter
                   - seller_company_id_ferc
                   - contract_service_agreement_id
-                max_fraction: 0.002
-                distinct_keys: true
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.9998
           - name: transaction_unique_id
           - name: seller_company_name
           - name: customer_company_name
