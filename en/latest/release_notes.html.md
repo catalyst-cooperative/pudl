@@ -10,6 +10,14 @@
 
 ### Expanded Data Coverage
 
+#### EIA-860M
+
+* Added Puerto Rico generators to the [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators) table.
+  Previously the Puerto Rico tabs of EIA-860M were only included in the EIA-860 tables.
+  See issue [#5370](https://github.com/catalyst-cooperative/pudl/issues/5370) and PR [#5769](https://github.com/catalyst-cooperative/pudl/pull/5769).
+  The EIA-860 data source page now notes that the August through November 2018
+  EIA-860M spreadsheets lack a Puerto Rico retired generators tab.
+
 ### Documentation
 
 * Added data source page for [EPA MATS](data_sources/epamats.html.md).

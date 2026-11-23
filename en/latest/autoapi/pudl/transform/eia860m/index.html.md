@@ -9,19 +9,29 @@ Module to perform data cleaning functions on EIA860m data tables.
 
 ## Functions
 
-| [`core_eia860m__changelog_generators`](#pudl.transform.eia860m.core_eia860m__changelog_generators)(...) → pandas.DataFrame   | Changelog of EIA-860M Generators based on operating status.   |
-|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| [`_append_puerto_rico_generators`](#pudl.transform.eia860m._append_puerto_rico_generators)(generators, ...) → pandas.DataFrame   | Append a raw Puerto Rico EIA-860M generator page to its mainland counterpart.   |
+|-----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`core_eia860m__changelog_generators`](#pudl.transform.eia860m.core_eia860m__changelog_generators)(...) → pandas.DataFrame           | Changelog of EIA-860M Generators based on operating status.                     |
 
 ## Module Contents
 
 ### pudl.transform.eia860m.logger
 
-### pudl.transform.eia860m.core_eia860m_\_changelog_generators(raw_eia860m_\_generator_proposed: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_generator_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_generator_retired: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.transform.eia860m.\_append_puerto_rico_generators(generators: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), puerto_rico_generators: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Append a raw Puerto Rico EIA-860M generator page to its mainland counterpart.
+
+EIA-860M reports Puerto Rico generators on their own spreadsheet tabs, which are
+extracted as separate raw assets. They are combined with the mainland pages in the
+same way as in [`pudl.extract.eia860m.append_eia860m()`](../../extract/eia860m/index.html.md#pudl.extract.eia860m.append_eia860m).
+
+### pudl.transform.eia860m.core_eia860m_\_changelog_generators(raw_eia860m_\_generator_proposed: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_generator_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_generator_retired: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_puerto_rico_generator_proposed: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_puerto_rico_generator_existing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_eia860m_\_puerto_rico_generator_retired: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Changelog of EIA-860M Generators based on operating status.
 
 The monthly reported EIA-860M tables includes existing, proposed and retired
-generators. This table combines all monthly reported data and preserves the first
+generators, with Puerto Rico generators reported on separate tabs. This table
+combines all monthly reported data, including Puerto Rico, and preserves the first
 reported record when any new information about the generator was reported.
 
 We are not putting this table through PUDL’s standard normalization process for EIA

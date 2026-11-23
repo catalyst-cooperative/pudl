@@ -22,6 +22,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.transform.eia860m._append_puerto_rico_generators
    pudl.transform.eia860m.core_eia860m__changelog_generators
 
 
@@ -30,12 +31,22 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:function:: core_eia860m__changelog_generators(raw_eia860m__generator_proposed: pandas.DataFrame, raw_eia860m__generator_existing: pandas.DataFrame, raw_eia860m__generator_retired: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _append_puerto_rico_generators(generators: pandas.DataFrame, puerto_rico_generators: pandas.DataFrame) -> pandas.DataFrame
+
+   Append a raw Puerto Rico EIA-860M generator page to its mainland counterpart.
+
+   EIA-860M reports Puerto Rico generators on their own spreadsheet tabs, which are
+   extracted as separate raw assets. They are combined with the mainland pages in the
+   same way as in :func:`pudl.extract.eia860m.append_eia860m`.
+
+
+.. py:function:: core_eia860m__changelog_generators(raw_eia860m__generator_proposed: pandas.DataFrame, raw_eia860m__generator_existing: pandas.DataFrame, raw_eia860m__generator_retired: pandas.DataFrame, raw_eia860m__puerto_rico_generator_proposed: pandas.DataFrame, raw_eia860m__puerto_rico_generator_existing: pandas.DataFrame, raw_eia860m__puerto_rico_generator_retired: pandas.DataFrame) -> pandas.DataFrame
 
    Changelog of EIA-860M Generators based on operating status.
 
    The monthly reported EIA-860M tables includes existing, proposed and retired
-   generators. This table combines all monthly reported data and preserves the first
+   generators, with Puerto Rico generators reported on separate tabs. This table
+   combines all monthly reported data, including Puerto Rico, and preserves the first
    reported record when any new information about the generator was reported.
 
    We are not putting this table through PUDL's standard normalization process for EIA

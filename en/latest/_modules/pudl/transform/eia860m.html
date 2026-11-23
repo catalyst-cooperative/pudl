@@ -15,7 +15,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia860m &#8212; PUDL 2026.11.1.dev10 documentation</title>
+    <title>pudl.transform.eia860m &#8212; PUDL 2026.11.1.dev11 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../_static/documentation_options.js?v=5204b9c7"></script>
+    <script src="../../../_static/documentation_options.js?v=fb44cda1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../_static/design-tabs.js?v=fcb327ea"></script>
@@ -496,8 +496,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev10 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev11 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -893,6 +893,25 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_append_puerto_rico_generators">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia860m/index.html#pudl.transform.eia860m._append_puerto_rico_generators">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_append_puerto_rico_generators</span><span class="p">(</span>
+    <span class="n">generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">puerto_rico_generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Append a raw Puerto Rico EIA-860M generator page to its mainland counterpart.</span>
+
+<span class="sd">    EIA-860M reports Puerto Rico generators on their own spreadsheet tabs, which are</span>
+<span class="sd">    extracted as separate raw assets. They are combined with the mainland pages in the</span>
+<span class="sd">    same way as in :func:`pudl.extract.eia860m.append_eia860m`.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">generators</span><span class="p">,</span> <span class="n">puerto_rico_generators</span><span class="p">],</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
 <span class="nd">@asset</span><span class="p">(</span>
     <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
@@ -904,11 +923,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">raw_eia860m__generator_proposed</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">raw_eia860m__generator_existing</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">raw_eia860m__generator_retired</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_eia860m__puerto_rico_generator_proposed</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_eia860m__puerto_rico_generator_existing</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_eia860m__puerto_rico_generator_retired</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Changelog of EIA-860M Generators based on operating status.</span>
 
 <span class="sd">    The monthly reported EIA-860M tables includes existing, proposed and retired</span>
-<span class="sd">    generators. This table combines all monthly reported data and preserves the first</span>
+<span class="sd">    generators, with Puerto Rico generators reported on separate tabs. This table</span>
+<span class="sd">    combines all monthly reported data, including Puerto Rico, and preserves the first</span>
 <span class="sd">    reported record when any new information about the generator was reported.</span>
 
 <span class="sd">    We are not putting this table through PUDL's standard normalization process for EIA</span>
@@ -941,9 +964,18 @@ window.runMermaid = runMermaid;</script>
     <span class="n">eia860_generators</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">_core_eia860__generators</span><span class="p">(</span>
-            <span class="n">raw_eia860__generator_proposed</span><span class="o">=</span><span class="n">raw_eia860m__generator_proposed</span><span class="p">,</span>
-            <span class="n">raw_eia860__generator_existing</span><span class="o">=</span><span class="n">raw_eia860m__generator_existing</span><span class="p">,</span>
-            <span class="n">raw_eia860__generator_retired</span><span class="o">=</span><span class="n">raw_eia860m__generator_retired</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">raw_eia860__generator_proposed</span><span class="o">=</span><span class="n">_append_puerto_rico_generators</span><span class="p">(</span>
+                <span class="n">raw_eia860m__generator_proposed</span><span class="p">,</span>
+                <span class="n">raw_eia860m__puerto_rico_generator_proposed</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">raw_eia860__generator_existing</span><span class="o">=</span><span class="n">_append_puerto_rico_generators</span><span class="p">(</span>
+                <span class="n">raw_eia860m__generator_existing</span><span class="p">,</span>
+                <span class="n">raw_eia860m__puerto_rico_generator_existing</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">raw_eia860__generator_retired</span><span class="o">=</span><span class="n">_append_puerto_rico_generators</span><span class="p">(</span>
+                <span class="n">raw_eia860m__generator_retired</span><span class="p">,</span>
+                <span class="n">raw_eia860m__puerto_rico_generator_retired</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                 <span class="c1"># pandas-stubs does not accept a scalar pd.NA as an assigned value.</span>
                 <span class="n">operational_status_code</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span>  <span class="c1"># type: ignore[bad-argument-type]</span>
             <span class="p">),</span>

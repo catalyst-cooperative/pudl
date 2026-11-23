@@ -246,6 +246,9 @@ Notable Irregularities
   did not contain plant or utility IDs. All these records (several dozen) have been
   dropped because their data collection did not occur through the submission of Form 860-M
   by the operators, and EIA indicated that they would not be updating their IDs.
+* For unclear reasons, the EIA-860M spreadsheets for August through November 2018 lack
+  a retired generators tab for Puerto Rico data. The Puerto Rico operating and planned
+  generator tabs are present for those same months.
 
 
 
