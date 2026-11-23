@@ -27,7 +27,7 @@ def _():
     )
     DECISIONS_PATH = CROSSWALK_DIR / "decisions.csv"
     CROSSWALK_PATH = CROSSWALK_DIR / "utility_crosswalk.csv"
-    return CROSSWALK_PATH, DECISIONS_PATH, cc, cs, mo, pd
+    return CROSSWALK_PATH, DECISIONS_PATH, cc, cs, mo, os, pd
 
 
 @app.cell
@@ -101,7 +101,14 @@ def _(CROSSWALK_PATH, DECISIONS_PATH, mo):
 
 
 @app.cell
-def _(cc, mo, use_s3):
+def _(cc, mo, os, use_s3):
+    mo.stop(
+        not os.environ.get("PUDL_OUTPUT"),
+        mo.md(
+            "**`PUDL_OUTPUT` is not set.** The candidate cache is stored under "
+            "`$PUDL_OUTPUT`, so set it before starting the notebook."
+        ).callout(kind="danger"),
+    )
     source = "s3" if use_s3.value else "local"
     _missing = cc.missing_local_tables() if source == "local" else []
     mo.stop(
@@ -112,41 +119,42 @@ def _(cc, mo, use_s3):
             "Switch the data source to S3 above, or materialise them locally."
         ).callout(kind="danger"),
     )
-    mo.stop(
-        cc.cache_exists(source),
-        mo.md(
-            f"Using the {source} candidate cache in `{cc.cache_dir(source)}`."
-        ).callout(kind="success"),
-    )
     build_button = mo.ui.run_button(
         label=f"Build {source} candidate cache (a few minutes)"
     )
-    mo.vstack(
-        [
-            mo.md(
-                f"**No {source} candidate cache yet** in `{cc.cache_dir(source)}`. It is "
-                "built once from name, address, size and an unsupervised Splink model (no "
-                "labels), and reused afterwards."
-            ).callout(kind="warn"),
-            build_button,
-        ]
-    )
+    if cc.cache_exists(source):
+        _status = mo.md(
+            f"Using the {source} candidate cache in `{cc.cache_dir(source)}`."
+        ).callout(kind="success")
+    else:
+        _status = mo.vstack(
+            [
+                mo.md(
+                    f"**No {source} candidate cache yet** in `{cc.cache_dir(source)}`. "
+                    "It is not part of the repository: it is built once on each machine "
+                    "from name, address, size and an unsupervised Splink model (no "
+                    "labels), then reused."
+                ).callout(kind="warn"),
+                build_button,
+            ]
+        )
+    _status
     return build_button, source
 
 
 @app.cell
 def _(build_button, cc, mo, source):
-    mo.stop(cc.cache_exists(source))
-    mo.stop(not build_button.value)
-    with mo.status.spinner(title="Building candidates (about 3 minutes)"):
-        cc.build_cache(nightly=source == "s3")
-    mo.md("Cache built. Re-run this notebook (or refresh) to start labelling.")
-    return
+    if build_button.value and not cc.cache_exists(source):
+        with mo.status.spinner(title="Building candidates (about 3 minutes)"):
+            cc.build_cache(nightly=source == "s3")
+    # Downstream cells depend on this value, so they run once the cache exists.
+    cache_ready = cc.cache_exists(source)
+    return (cache_ready,)
 
 
 @app.cell
-def _(cc, mo, pd, source):
-    mo.stop(not cc.cache_exists(source), mo.md("Waiting for the candidate cache."))
+def _(cache_ready, cc, mo, pd, source):
+    mo.stop(not cache_ready, mo.md("Waiting for the candidate cache."))
     _dir = cc.cache_dir(source)
     candidates = pd.read_parquet(_dir / "candidates.parquet")
     ferc_info = pd.read_parquet(_dir / "ferc_info.parquet").set_index(
