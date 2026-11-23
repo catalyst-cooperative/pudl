@@ -109,6 +109,18 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
   iap_enabled          = true
   invoker_iam_disabled = true
 
+  // GitHub Actions deploys set the image, the commit-sha / managed-by labels and
+  // the gcloud client metadata. GHA owns those fields; Terraform must not revert them.
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].annotations,
+      template[0].labels,
+      template[0].containers[0].image,
+    ]
+  }
+
   scaling {
     min_instance_count = 0
   }
