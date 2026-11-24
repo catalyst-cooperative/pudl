@@ -26,6 +26,13 @@ EIA-860M
   The EIA-860 data source page now notes that the August through November 2018
   EIA-860M spreadsheets lack a Puerto Rico retired generators tab.
 
+EIA-861
+~~~~~~~~
+
+* :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
+  onward. The raw files were always in the archives, but our metadata marked them as
+  missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -43,6 +50,10 @@ New Data Tests & Validations
   :ref:`out_rus7__yearly_balance_sheet_liabilities` equal the sum of their
   subcomponents. Unapplied payments are subtracted from total long-term debt. See
   issue :issue:`5760` and PR :pr:`5762`.
+* Unit tests check that the mapping files of each CSV and Excel dataset agree with each
+  other, and list the mapping that is still unfinished. An integration test checks that
+  the working and mapped partitions are all in the raw archives. See :issue:`5289` and
+  :pr:`5724`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -52,6 +63,12 @@ Performance Improvements
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
+
+* The files that map the layout of raw spreadsheets and CSVs to our column names are now
+  change logs: a year only needs a row if its layout differs from the year before. Only
+  working partitions are filled in, ``file_map.csv`` lists every year that is mapped,
+  and ``-1`` marks data that doesn't exist. Extractors now take their metadata as a
+  constructor argument. See :issue:`5289` and :pr:`5724`.
 
 .. _release-v2026.11.0:
 
@@ -96,13 +113,6 @@ EIA-860M
 
 * Added :doc:`EIA-860m <data_sources/eia860>` data through September 2026. See
   PR :pr:`5732`.
-
-EIA-861
-~~~~~~~~
-
-* :ref:`core_eia861__yearly_distribution_systems` now covers 2013-2015 as well as 2016
-  onward. The raw files were always in the archives, but our metadata marked them as
-  missing, so about 5,900 rows were never extracted. See :issue:`5289` and :pr:`5724`.
 
 EIA-923
 ~~~~~~~
@@ -255,12 +265,6 @@ Bug Fixes & Data Cleaning
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
-* The hand-compiled files that describe the layout of our raw spreadsheets and CSVs are
-  now change logs: a year only needs a row when its layout differs from the year before,
-  and the gaps are filled in as the files load. That removed 83% of their rows, makes
-  annual updates less tedious, and standardizes ``-1`` as the marker for data that
-  doesn't exist. New tests check that the files agree with each other, and keep a list
-  of the mapping still left to do. See :issue:`5289` and :pr:`5724`.
 * The FERC DBF field types we can't convert to SQL column types are now listed apart
   from the ones we can, instead of being mixed in as placeholder strings. A field of an
   unsupported type fails immediately with an error naming the type, field and table.
