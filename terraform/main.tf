@@ -41,9 +41,12 @@ resource "google_storage_bucket" "tfstate" {
 
 module "gh_oidc" {
   source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
+  version     = "~> 6.0"
   project_id  = var.project_id
   pool_id     = "gh-actions-pool"
   provider_id = "gh-actions-provider"
+  # Only accept tokens from GitHub repos owned by the catalyst-cooperative org.
+  attribute_condition = "assertion.repository_owner_id == '25487946'"
   sa_mapping = {
     "pudl-tox-pytest-github-action" = {
       sa_name   = "projects/${var.project_id}/serviceAccounts/tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
@@ -192,19 +195,6 @@ resource "google_storage_bucket" "pudl_usage_metrics_output_bucket" {
   labels = {
     component = "usage-metrics"
   }
-}
-
-resource "google_service_account" "usage_metrics_archiver" {
-  account_id   = "usage-metrics-archiver"
-  display_name = "PUDL usage metrics archiver github action service account"
-}
-
-resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
-  for_each = toset(["roles/storage.objectCreator", "roles/storage.objectViewer", "roles/storage.insightsCollectorService"])
-
-  bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
-  role   = each.key
-  member = google_service_account.usage_metrics_archiver.member
 }
 
 resource "google_service_account" "usage_metrics_etl" {
