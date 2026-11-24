@@ -160,23 +160,20 @@ def test_working_time_partitions_rejects_mixed_resolutions(mocker):
         working_time_partitions("mixed")
 
 
-def test_change_log_files_describe_every_working_partition(tmp_path: Path):
+def test_change_log_files_describe_every_working_partition(fake_package_data):
     """Change log files are expanded to the partitions that the metadata is given."""
-    (tmp_path / "column_maps").mkdir()
-    (tmp_path / "column_maps" / "page.csv").write_text(
+    path = fake_package_data("fake", ["2010", "2011", "2012", "2013", "2014"])
+    (path / "column_maps").mkdir()
+    (path / "column_maps" / "page.csv").write_text(
         "year_index,col\n2010,old\n2013,new\n"
     )
-    (tmp_path / "skiprows.csv").write_text("year_index,page\n2010,0\n2012,5\n")
-    (tmp_path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
-    (tmp_path / "page_map.csv").write_text("year_index,page\n2010,0\n")
-    (tmp_path / "file_map.csv").write_text(
+    (path / "skiprows.csv").write_text("year_index,page\n2010,0\n2012,5\n")
+    (path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
+    (path / "page_map.csv").write_text("year_index,page\n2010,0\n")
+    (path / "file_map.csv").write_text(
         "year_index,page\n2010,a.xlsx\n2011,b.xlsx\n2012,c.xlsx\n2013,d.xlsx\n"
     )
-    metadata = ExcelMetadata(
-        "fake",
-        path=tmp_path,
-        partitions=["2010", "2011", "2012", "2013", "2014"],
-    )
+    metadata = ExcelMetadata("fake")
     assert metadata.get_column_map("page", year=2012) == {"old": "col"}
     assert metadata.get_column_map("page", year=2013) == {"new": "col"}
     assert metadata.get_column_map("page", year=2014) == {"new": "col"}
@@ -191,26 +188,28 @@ def test_change_log_files_describe_every_working_partition(tmp_path: Path):
     assert metadata.get_sheet_name("page", year=2014) == 0
 
 
-def test_change_log_files_describe_the_partitions_of_the_file_map(tmp_path: Path):
+def test_change_log_files_describe_the_partitions_of_the_file_map(fake_package_data):
     """The file map lists partitions that are not working partitions of the source."""
-    (tmp_path / "column_maps").mkdir()
-    (tmp_path / "column_maps" / "page.csv").write_text("year_index,col\n2010,old\n")
-    (tmp_path / "file_map.csv").write_text(
+    path = fake_package_data("fake")
+    (path / "column_maps").mkdir()
+    (path / "column_maps" / "page.csv").write_text("year_index,col\n2010,old\n")
+    (path / "file_map.csv").write_text(
         "year_index,page\n2010,a.csv\n2011,b.csv\n2012,-1\n"
     )
-    metadata = GenericMetadata("fake", path=tmp_path, partitions=[])
+    metadata = GenericMetadata("fake")
     assert list(metadata._column_map["page"].index) == ["2010", "2011", "2012"]
     assert metadata.get_column_map("page", year=2012) == {"old": "col"}
 
 
-def test_file_map_is_not_a_change_log(tmp_path: Path):
+def test_file_map_is_not_a_change_log(fake_package_data):
     """The names of the source files differ by partition, so each needs a row."""
-    (tmp_path / "column_maps").mkdir()
-    (tmp_path / "file_map.csv").write_text("year_index,page\n2010,a.xlsx\n")
-    (tmp_path / "page_map.csv").write_text("year_index,page\n2010,0\n")
-    (tmp_path / "skiprows.csv").write_text("year_index,page\n2010,1\n")
-    (tmp_path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
-    metadata = ExcelMetadata("fake", path=tmp_path, partitions=["2010", "2011"])
+    path = fake_package_data("fake", ["2010", "2011"])
+    (path / "column_maps").mkdir()
+    (path / "file_map.csv").write_text("year_index,page\n2010,a.xlsx\n")
+    (path / "page_map.csv").write_text("year_index,page\n2010,0\n")
+    (path / "skiprows.csv").write_text("year_index,page\n2010,1\n")
+    (path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
+    metadata = ExcelMetadata("fake")
     assert list(metadata._load_file_map().index) == ["2010"]
     # The other files are carried forward to 2011, but a file name must not be: using
     # the file of the year before would silently extract the wrong data.

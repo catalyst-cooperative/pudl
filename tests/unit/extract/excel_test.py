@@ -6,17 +6,18 @@ import pytest
 from pudl import PUDL_ROOT_PATH
 from pudl.extract import excel
 
-FAKE_DATASET_PATH = PUDL_ROOT_PATH / "tests/data/extract/test"
-"""Directory of the fake dataset that the tests of the Excel extractors use."""
+FAKE_PACKAGE_DATA_PATH = PUDL_ROOT_PATH / "tests/data/extract"
+"""Directory of the fake dataset ``test`` that the Excel tests use as package data."""
 
 
 class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
 
     @pytest.fixture(autouse=True)
-    def setUp(self):
+    def setUp(self, fake_package_data):
         """Constructs test metadata instance for testing."""
-        self._metadata = excel.ExcelMetadata("test", path=FAKE_DATASET_PATH)
+        fake_package_data("test", root=FAKE_PACKAGE_DATA_PATH)
+        self._metadata = excel.ExcelMetadata("test")
 
     def test_basics(self):
         """Test that basic API method return expected results."""
@@ -46,12 +47,13 @@ class TestMetadata:
         """Datasets without a page to part map have no secondary partitions."""
         assert self._metadata.get_page_partitions("books") == {}
 
-    def test_page_partitions_from_page_part_map(self):
-        """Pages are mapped to the secondary partitions in page_part_map.csv."""
-        metadata = excel.ExcelMetadata("phmsagas")
-        assert metadata.get_page_partitions("yearly_distribution") == {
-            "form": "gas_distribution"
-        }
+
+def test_page_partitions_from_page_part_map():
+    """Pages are mapped to the secondary partitions in page_part_map.csv."""
+    metadata = excel.ExcelMetadata("phmsagas")
+    assert metadata.get_page_partitions("yearly_distribution") == {
+        "form": "gas_distribution"
+    }
 
 
 class FakeExtractor(excel.ExcelExtractor):
@@ -62,7 +64,7 @@ class FakeExtractor(excel.ExcelExtractor):
 
         Good thing flake demanded this.
         """
-        self._metadata = excel.ExcelMetadata("test", path=FAKE_DATASET_PATH)
+        self._metadata = excel.ExcelMetadata("test")
         self.BLACKLISTED_PAGES = ["shoes"]
         super().__init__(ds=None)  # type: ignore[bad-argument-type]
 
@@ -103,6 +105,11 @@ def _fake_data_frames(page_name, **kwargs):
 
 class TestExtractor:
     """Test operation of the excel.Extractor class."""
+
+    @pytest.fixture(autouse=True)
+    def fake_dataset(self, fake_package_data):
+        """Load the metadata of the fake dataset ``test`` in the extractors."""
+        fake_package_data("test", root=FAKE_PACKAGE_DATA_PATH)
 
     def test_extract(self):
         extractor = FakeExtractor()

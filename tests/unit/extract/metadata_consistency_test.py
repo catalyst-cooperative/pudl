@@ -79,10 +79,13 @@ class MetadataView:
         return cls(name, path, metadata, working_time_partitions(name))
 
     @classmethod
-    def of_fake_dataset(cls, path: Path, working_partitions: list[str]) -> MetadataView:
-        """Load the metadata of a dataset made to test the checks."""
-        metadata = ExcelMetadata("fake", path=path, partitions=working_partitions)
-        return cls("fake", path, metadata, working_partitions)
+    def of_fake_dataset(cls, path: Path) -> MetadataView:
+        """Load the metadata of a dataset made to test the checks.
+
+        The dataset must be the one that the ``fake_package_data`` fixture made.
+        """
+        metadata = ExcelMetadata(path.name)
+        return cls(path.name, path, metadata, working_time_partitions(path.name))
 
     @property
     def is_excel(self) -> bool:
@@ -575,26 +578,29 @@ BROKEN_FAKE_DATASETS = {
 """The files to change in the fake dataset to violate each check."""
 
 
-def test_fake_dataset_is_consistent(tmp_path: Path):
+def test_fake_dataset_is_consistent(fake_package_data):
     """The fake dataset has no violations, so the ones below are from the changes."""
-    _write_fake_dataset(tmp_path)
-    view = MetadataView.of_fake_dataset(tmp_path, FAKE_PARTITIONS)
+    path = fake_package_data("fake", FAKE_PARTITIONS)
+    _write_fake_dataset(path)
+    view = MetadataView.of_fake_dataset(path)
     for check in CHECKS:
         assert check.find(view) == [], check.id
 
 
 @pytest.mark.parametrize("check_id", sorted(BROKEN_FAKE_DATASETS))
-def test_check_finds_its_violation(check_id: str, tmp_path: Path):
+def test_check_finds_its_violation(check_id: str, fake_package_data):
     """Each check finds the violation that it is for."""
-    _write_fake_dataset(tmp_path, **BROKEN_FAKE_DATASETS[check_id])
-    view = MetadataView.of_fake_dataset(tmp_path, FAKE_PARTITIONS)
+    path = fake_package_data("fake", FAKE_PARTITIONS)
+    _write_fake_dataset(path, **BROKEN_FAKE_DATASETS[check_id])
+    view = MetadataView.of_fake_dataset(path)
     assert CHECKS_BY_ID[check_id].find(view), check_id
 
 
-def test_working_partitions_without_a_file_map_row_are_found(tmp_path: Path):
+def test_working_partitions_without_a_file_map_row_are_found(fake_package_data):
     """P5 finds a working partition that the file map has no row for."""
-    _write_fake_dataset(tmp_path)
-    view = MetadataView.of_fake_dataset(tmp_path, [*FAKE_PARTITIONS, "2013"])
+    path = fake_package_data("fake", [*FAKE_PARTITIONS, "2013"])
+    _write_fake_dataset(path)
+    view = MetadataView.of_fake_dataset(path)
     assert CHECKS_BY_ID["P5"].find(view) == ["2013"]
 
 

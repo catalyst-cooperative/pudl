@@ -25,20 +25,22 @@ def _never_observed_pages(file_map: pd.DataFrame) -> list[str]:
     return [page for page in file_map.columns if (file_map[page] == "-1").all()]
 
 
-def test_file_map_with_empty_cells_is_rejected(tmp_path):
+def test_file_map_with_empty_cells_is_rejected(fake_package_data):
     """A file map with an empty cell is an error rather than a missing value."""
-    (tmp_path / "file_map.csv").write_text("page,books\n2010,a.csv\n2011,\n")
-    (tmp_path / "column_maps").mkdir()
-    metadata = GenericMetadata("test", path=tmp_path)
+    path = fake_package_data("test")
+    (path / "file_map.csv").write_text("page,books\n2010,a.csv\n2011,\n")
+    (path / "column_maps").mkdir()
+    metadata = GenericMetadata("test")
     with pytest.raises(AssertionError, match="empty cells"):
         metadata._load_file_map()
 
 
-def test_file_map_keeps_no_file_marker_as_string(tmp_path):
+def test_file_map_keeps_no_file_marker_as_string(fake_package_data):
     """A column holding only ``-1`` stays the string "-1", not the integer -1."""
-    (tmp_path / "file_map.csv").write_text("page,books\n2010,-1\n2011,-1\n")
-    (tmp_path / "column_maps").mkdir()
-    metadata = GenericMetadata("test", path=tmp_path)
+    path = fake_package_data("test")
+    (path / "file_map.csv").write_text("page,books\n2010,-1\n2011,-1\n")
+    (path / "column_maps").mkdir()
+    metadata = GenericMetadata("test")
     assert metadata._load_file_map().loc["2010", "books"] == "-1"
 
 

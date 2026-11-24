@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
@@ -131,38 +131,17 @@ class GenericMetadata:
     def __init__(
         self,
         dataset_name: str,
-        *,
-        path: Path | None = None,
-        partitions: Sequence[str] | None = None,
     ):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the dataset to load the metadata from. Unless a path
-                is given, files will be loaded from
-                src/pudl/package_data/${dataset_name}
-            path: Directory to load the metadata files from, instead of the directory
-                of the dataset in the package data. Keyword-only: meant to enable
-                simpler, cleaner testing with small fake datasets, not for use in
-                production code.
-            partitions: The partitions to describe with the metadata that is a change
-                log, in addition to those that it has rows for and those that are in
-                ``file_map.csv``, if there is one. By default these are the time
-                partitions that the data source is processed for. Keyword-only: meant
-                to enable tests that don't depend on the real working partitions of
-                the data source, not for use in production code.
+            dataset_name: Name of the dataset to load the metadata from. Files will be
+                loaded from src/pudl/package_data/${dataset_name}
         """
         self._dataset_name = dataset_name
-        self._path = path if path is not None else PUDL_PACKAGE_DATA_PATH / dataset_name
+        self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
         self._partitions = sorted(
-            {
-                *(
-                    partitions
-                    if partitions is not None
-                    else working_time_partitions(dataset_name)
-                ),
-                *self._file_map_partitions(),
-            }
+            {*working_time_partitions(dataset_name), *self._file_map_partitions()}
         )
         column_map_path = self._path / "column_maps"
         self._column_map = self._load_column_maps(column_map_path)

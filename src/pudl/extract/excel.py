@@ -1,7 +1,6 @@
 """Load excel metadata CSV files form a python data package."""
 
 import pathlib
-from collections.abc import Sequence
 from io import BytesIO
 
 import dbfread
@@ -50,28 +49,14 @@ class ExcelMetadata(GenericMetadata):
     def __init__(
         self,
         dataset_name: str,
-        *,
-        path: pathlib.Path | None = None,
-        partitions: Sequence[str] | None = None,
     ):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
-            dataset_name: Name of the dataset to load the metadata from. Unless a path
-                is given, files will be loaded from
-                src/pudl/package_data/${dataset_name}
-            path: Directory to load the metadata files from, instead of the directory
-                of the dataset in the package data. Keyword-only: meant to enable
-                simpler, cleaner testing with small fake datasets, not for use in
-                production code.
-            partitions: The partitions to describe with the metadata that is a change
-                log, in addition to those that it has rows for and those that are in
-                ``file_map.csv``, if there is one. By default these are the time
-                partitions that the data source is processed for. Keyword-only: meant
-                to enable tests that don't depend on the real working partitions of
-                the data source, not for use in production code.
+            dataset_name: Name of the dataset to load the metadata from. Files will be
+                loaded from src/pudl/package_data/${dataset_name}
         """
-        super().__init__(dataset_name, path=path, partitions=partitions)
+        super().__init__(dataset_name)
         self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
         self._skipfooter = self._load_change_log_csv(self._path, "skipfooter.csv")
         self._sheet_name = self._load_change_log_csv(self._path, "page_map.csv")
