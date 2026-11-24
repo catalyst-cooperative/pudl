@@ -33,7 +33,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cache, cached_property
 from pathlib import Path
-from typing import Literal, NamedTuple
+from typing import Literal, NamedTuple, cast
 
 import pandas as pd
 import pytest
@@ -59,6 +59,11 @@ NO_PARTITION = "any_year"
 def _strings(df: pd.DataFrame) -> pd.DataFrame:
     """Compare the cells of frames as the text of the files, whatever their dtypes."""
     return df.astype(str)
+
+
+def _row(column_map: pd.DataFrame, partition: str) -> pd.Series:
+    """Select the row of a partition, which is unique, of a column map."""
+    return cast(pd.Series, column_map.loc[partition])
 
 
 def _mapped(row: pd.Series) -> pd.Series:
@@ -110,10 +115,8 @@ class MetadataView:
     @cached_property
     def file_map(self) -> pd.DataFrame:
         """The names of the source files of each page (columns) and partition (rows)."""
-        assert isinstance(self.metadata, ExcelMetadata) or self.has_file_map
-        if isinstance(self.metadata, ExcelMetadata):
-            return _strings(self.metadata._file_name)
-        return _strings(self.metadata._load_file_map())
+        assert self.metadata._file_name is not None
+        return _strings(self.metadata._file_name)
 
     @cached_property
     def page_files(self) -> dict[str, pd.DataFrame]:
@@ -306,7 +309,7 @@ def _files_without_columns(view: MetadataView) -> list:
         if page in view.column_maps
         and (
             partition not in view.column_maps[page].index
-            or len(_mapped(view.column_maps[page].loc[partition])) == 0
+            or len(_mapped(_row(view.column_maps[page], partition))) == 0
         )
     ]
 
@@ -318,7 +321,7 @@ def _columns_without_files(view: MetadataView) -> list:
         for page, partition in _pages_without_files(view)
         if page in view.column_maps
         and partition in view.column_maps[page].index
-        and len(_mapped(view.column_maps[page].loc[partition])) > 0
+        and len(_mapped(_row(view.column_maps[page], partition))) > 0
     ]
 
 

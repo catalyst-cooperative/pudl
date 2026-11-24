@@ -60,7 +60,6 @@ class ExcelMetadata(GenericMetadata):
         self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
         self._skipfooter = self._load_change_log_csv(self._path, "skipfooter.csv")
         self._sheet_name = self._load_change_log_csv(self._path, "page_map.csv")
-        self._file_name = self._load_file_map()
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:

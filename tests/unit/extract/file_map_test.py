@@ -30,9 +30,8 @@ def test_file_map_with_empty_cells_is_rejected(fake_package_data):
     path = fake_package_data("test")
     (path / "file_map.csv").write_text("page,books\n2010,a.csv\n2011,\n")
     (path / "column_maps").mkdir()
-    metadata = GenericMetadata("test")
     with pytest.raises(AssertionError, match="empty cells"):
-        metadata._load_file_map()
+        GenericMetadata("test")
 
 
 def test_file_map_keeps_no_file_marker_as_string(fake_package_data):
@@ -41,7 +40,25 @@ def test_file_map_keeps_no_file_marker_as_string(fake_package_data):
     (path / "file_map.csv").write_text("page,books\n2010,-1\n2011,-1\n")
     (path / "column_maps").mkdir()
     metadata = GenericMetadata("test")
-    assert metadata._load_file_map().loc["2010", "books"] == "-1"
+    assert metadata.get_file_name("books", year=2010) == "-1"
+
+
+def test_generic_metadata_gives_the_file_names_of_the_file_map(fake_package_data):
+    """The file names of a dataset with a file map are found by page and partition."""
+    path = fake_package_data("test")
+    (path / "file_map.csv").write_text("page,books\n2010,a.csv\n2011,-1\n")
+    (path / "column_maps").mkdir()
+    metadata = GenericMetadata("test")
+    assert metadata.get_file_name("books", year=2010) == "a.csv"
+    assert metadata.get_file_name("books", year=2011) == "-1"
+
+
+def test_dataset_without_a_file_map_has_no_file_names(fake_package_data):
+    """Asking a dataset that has no file map for a file name is an error."""
+    path = fake_package_data("test")
+    (path / "column_maps").mkdir()
+    with pytest.raises(FileNotFoundError, match="no file_map.csv"):
+        GenericMetadata("test").get_file_name("books", year=2010)
 
 
 def test_never_observed_pages_finds_columns_that_are_all_no_file():

@@ -235,7 +235,8 @@ def test_file_map_is_not_a_change_log(fake_package_data):
     (path / "skiprows.csv").write_text("year_index,page\n2010,1\n")
     (path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
     metadata = ExcelMetadata("fake")
-    assert list(metadata._load_file_map().index) == ["2010"]
+    assert metadata._file_name is not None
+    assert list(metadata._file_name.index) == ["2010"]
     # The other files are carried forward to 2011, but a file name must not be: using
     # the file of the year before would silently extract the wrong data.
     assert metadata.get_skiprows("page", year=2011) == 1

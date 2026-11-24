@@ -24,14 +24,8 @@ class Extractor(GenericExtractor[GenericMetadata]):
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
-        """Get the file name for the right page and part.
-
-        In this instance we are using the same methodology from the excel metadata extractor.
-        """
-        _file_name = self._metadata._load_file_map()
-        return str(
-            _file_name.loc[self._metadata._get_partition_selection(partition), page]
-        )
+        """Get the file name for the right page and part."""
+        return self._metadata.get_file_name(page, **partition)
 
     def load_source(self, page: str, **partition):
         """Fetch the electricity parquet file from the NREL ATB zip archive.
