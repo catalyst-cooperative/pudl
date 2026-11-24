@@ -38,7 +38,11 @@ New Data Tests & Validations
   EQR Data Dictionary (v4.0). The ``foreign_key`` ``dbt`` generic test can now tolerate
   a fraction of failing rows (``max_fraction``, strict by default), restrict the rows
   checked, and returns a sample of failures with the failure rate instead of every
-  failing row. See :issue:`5770` and :pr:`5772`.
+  failing row. Added the ``expect_unique_key_fraction`` generic test, which checks
+  that a key is unique up to a tolerated fraction of duplicate rows, to set baselines
+  for FERC EQR tables with no enforced primary key.
+  ``expect_column_fraction_outside_range`` now accepts a one-sided range. FERC company
+  IDs now have a ``[CD]\d{6}`` pattern constraint. See :issue:`5770` and :pr:`5772`.
 * Added accounting validation tests for ``core_rus12__yearly_balance_sheet_assets`` and
   ``out_rus12__yearly_balance_sheet_assets`` to check that balance sheet components sum
   to their reported totals. See issue :issue:`5728` and PR :pr:`5749`.

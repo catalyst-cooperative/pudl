@@ -24,6 +24,13 @@ STATE_ID_FIPS = r"^\d{2}$"
 TAXPAYER_ID = r"\d{2}-\d{7}"
 """Regex pattern for 9-digit company taxpayer ID numbers (TINs)."""
 
+CID_FERC = r"^[CD]\d{6}$"
+"""Regex pattern for FERC Company Identifiers (CIDs): ``C`` or ``D`` plus 6 digits.
+
+The EQR data dictionary describes CIDs as ``C`` followed by 6 digits, but some legacy
+filers have ``D``-prefixed CIDs, e.g. ``D004308``.
+"""
+
 YEAR_QUARTER = r"\d{4}q[1-4]"
 """Regex pattern for year and quarter in the format YYYYqX."""
 

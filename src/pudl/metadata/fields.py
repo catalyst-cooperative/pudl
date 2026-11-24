@@ -75,6 +75,7 @@ from pudl.metadata.enums import (
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.patterns import (
     BORROWER_ID_RUS,
+    CID_FERC,
     EXHIBIT21_VERSION_SEC10K,
     FISCAL_YEAR_END_MMDD_SEC10K,
     HTTP_URL,
@@ -9642,6 +9643,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The Company Identifier (CID) obtained through FERC's"
             " Company Registration system."
         ),
+        "constraints": {
+            "pattern": CID_FERC,
+        },
     },
     "seller_company_id_ferc": {
         "type": "string",
@@ -9649,6 +9653,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The Company Identifier (CID) obtained through FERC's"
             " Company Registration system corresponding to the selling company."
         ),
+        "constraints": {
+            "pattern": CID_FERC,
+        },
     },
     "contact_name": {
         "type": "string",

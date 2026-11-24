@@ -21,6 +21,15 @@ sources:
                 price publishers (both observed to hold exactly). filer_unique_id is *not* a shared key
                 across the two tables: index_pub uses FS2, FS3, ... for additional publishers where
                 identity has FS1 or FA1.
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - year_quarter
+                  - company_id_ferc
+                  - filer_unique_id
+              description: |-
+                The primary key is (year_quarter, company_id_ferc, filer_unique_id). No duplicates
+                observed across all 53 quarters.
         columns:
           - name: year_quarter
           - name: company_id_ferc

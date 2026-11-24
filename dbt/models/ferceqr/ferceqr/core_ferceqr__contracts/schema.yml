@@ -98,6 +98,47 @@ sources:
                 that quarter. A handful of (quarter, seller) pairs don't: 36 of 121k distinct pairs, at
                 most ~0.003% of rows in any quarter. NULL sellers are skipped here and checked
                 separately on seller_company_id_ferc.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: rate_maximum - rate_minimum
+                min_value: 0
+                max_fraction_below: 0.005
+              description: |-
+                The minimum rate can't exceed the maximum rate, if a range is specified. Observed 0.16%
+                of contracts where both are given (3,320 of 2.05M), and 0.31% in the worst quarter
+                (2021q3).
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - "*"
+                max_fraction: 0.02
+              description: |-
+                Contracts have no natural primary key: (year_quarter, seller_company_id_ferc,
+                contract_unique_id) repeats in ~68% of rows, since contract IDs aren't unique. This
+                instead checks for exact duplicate rows, to set a baseline for the share of them.
+                Observed 1.2% (118k of 9.8M).
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'REQUIREMENTS SERVICE'
+                max_failure_rate: 0.03
+              description: Requirements service is priced per unit of energy. Observed ~1.5% with other units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'UPLIFT'
+                max_failure_rate: 0.03
+              description: |-
+                Uplift (a make-whole payment by an RTO/ISO) is priced per unit of energy or flat rate.
+                Observed ~1.5% with other units, and ~80% of rows have flat rate or no units at all.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'EMERGENCY ENERGY'
+                max_failure_rate: 0.08
+              description: |-
+                Emergency energy is priced per unit of energy. Observed ~3.8% with other units, so the
+                threshold is loose.
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc

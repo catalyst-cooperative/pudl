@@ -103,3 +103,27 @@ macros:
       - name: row_condition
         type: string
         description: Optional SQL condition selecting which rows to check, e.g. "product_name = 'CAPACITY'".
+  - name: key_checked_filter
+    description: Helper for the expect_unique_key_fraction data test. Returns the SQL condition selecting the rows checked for duplicate keys, which excludes rows with a NULL key column (unless the key is the whole row, ['*']) and applies row_condition.
+    arguments:
+      - name: key_columns
+        type: list[string]
+        description: The key columns, or ['*'] for a whole-row key.
+      - name: row_condition
+        type: string
+        description: Optional SQL condition restricting which rows are checked.
+  - name: duplicate_keys_query
+    description: Helper for the expect_unique_key_fraction data test. Returns a query with one row per key that appears more than once, with its row count.
+    arguments:
+      - name: model
+        type: string
+        description: The table or model to check.
+      - name: key_columns
+        type: list[string]
+        description: The key columns, or ['*'] for a whole-row key.
+      - name: checked_filter
+        type: string
+        description: SQL condition selecting the rows to check, from key_checked_filter.
+      - name: extra_filter
+        type: string
+        description: Optional extra SQL appended to the WHERE clause, e.g. to restrict to one partition.

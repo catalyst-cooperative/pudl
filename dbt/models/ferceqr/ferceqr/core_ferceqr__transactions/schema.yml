@@ -157,6 +157,52 @@ sources:
                 contracts. This holds exactly in the full data once NULL sellers are excluded
                 (foreign_key skips NULL keys; their share is checked separately on
                 seller_company_id_ferc).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: standardized_price * standardized_quantity - price * transaction_quantity
+                min_value: -1
+                max_value: 1
+                max_fraction_below: 0.0005
+                max_fraction_above: 0.0005
+                row_condition: product_name IN ('ENERGY', 'ENERGY IMBALANCE')
+              description: |-
+                For energy products the standardized price and quantity (in $/MWh and MWh) are unit
+                conversions of the reported ones, so their product should equal the reported price times
+                quantity, to within $1 of rounding. This fails for other products (reserves in
+                particular, 5-23% in the quarters checked), so only energy and energy imbalance are
+                checked. Observed ~0.01% of ENERGY rows and ~0.04% of ENERGY IMBALANCE rows off by more
+                than $1 across all 53 quarters, worst in 2013-2014 (up to 1.7% in a single quarter).
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - transaction_unique_id
+                partition_column: year_quarter
+                max_fraction: 0.002
+              description: |-
+                The primary key ought to be (year_quarter, seller_company_id_ferc,
+                transaction_unique_id), but some filers repeat IDs, so there is no enforced primary key.
+                This sets a baseline for the share of duplicate rows so that regressions (and,
+                eventually, improvements) are visible. In 10 quarters spread over 2013-2026, 0.05% of
+                rows pooled were duplicates, from 0% in 2020q4 and 2022q1 to 0.29% in 2019q4. Duplicates
+                are counted one quarter at a time to bound memory, so this test makes one pass over the
+                table per quarter and is slow on the full table.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'UPLIFT'
+                max_failure_rate: 0.01
+              description: |-
+                Uplift (a make-whole payment by an RTO/ISO) is priced per unit of energy or flat rate.
+                Observed ~0.5% with other units (mostly $/MW-DAY and $/MW), and ~60% of rows have flat
+                rate or no units at all.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'REQUIREMENTS SERVICE'
+                max_failure_rate: 0.003
+              description: Requirements service is priced per unit of energy. Observed ~0.08% with other units.
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc

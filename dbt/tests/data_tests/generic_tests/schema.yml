@@ -109,10 +109,10 @@ macros:
         description: The name of the column whose values are checked.
       - name: min_value
         type: float
-        description: Lower bound; values strictly below this count toward fraction_below.
+        description: Optional lower bound; values strictly below this count toward fraction_below. Omit for a one-sided check.
       - name: max_value
         type: float
-        description: Upper bound; values strictly above this count toward fraction_above.
+        description: Optional upper bound; values strictly above this count toward fraction_above. Omit for a one-sided check.
       - name: max_fraction_below
         type: float
         description: Maximum acceptable fraction of values below min_value (0 to 1, default 0).
@@ -512,3 +512,30 @@ macros:
       - name: allowed_unit_patterns
         type: list[string]
         description: Case-insensitive SQL LIKE patterns for the allowed units. Defaults to power_unit_patterns() + neutral_unit_patterns().
+
+  - name: test_expect_unique_key_fraction
+    description: >
+      Check that a (pseudo) primary key is unique, allowing a fraction of duplicate
+      rows. A key that appears n times contributes n - 1 duplicate rows. Fails if the
+      duplicate rows exceed max_fraction of the checked rows. Rows where any key column
+      is NULL are skipped. Returns a sample of the most-repeated keys with their row
+      counts, plus the number of duplicate rows and the duplicate rate.
+    arguments:
+      - name: model
+        type: relation
+        description: The model (table) the test is applied to.
+      - name: key_columns
+        type: list[string]
+        description: The columns that should uniquely identify a row.
+      - name: max_fraction
+        type: float
+        description: Maximum acceptable fraction (between 0 and 1) of checked rows that duplicate an earlier row's key. Defaults to 0, i.e. strict.
+      - name: row_condition
+        type: string
+        description: Optional SQL condition restricting which rows are checked.
+      - name: partition_column
+        type: string
+        description: Optional name of one of the key columns. Duplicates are counted within each distinct value of it, one at a time, which keeps memory bounded for huge partitioned tables.
+      - name: sample_size
+        type: integer
+        description: Maximum number of duplicated keys to return. Defaults to 20.
