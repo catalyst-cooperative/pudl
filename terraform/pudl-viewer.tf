@@ -99,6 +99,23 @@ resource "google_artifact_registry_repository" "pudl_viewer" {
   labels = {
     component = "pudl-viewer"
   }
+  cleanup_policy_dry_run = false
+  cleanup_policies {
+    id     = "90d TTL"
+    action = "DELETE"
+    condition {
+      older_than = "7776000s" // 90 days
+    }
+  }
+  // KEEP takes precedence over DELETE: never prune the newest versions, so the
+  // deployed image survives a long period without new pushes.
+  cleanup_policies {
+    id     = "keep-5-most-recent"
+    action = "KEEP"
+    most_recent_versions {
+      keep_count = 5
+    }
+  }
 }
 
 
@@ -147,6 +164,18 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
   deletion_protection = false
   labels = {
     component = "pudl-viewer"
+  }
+
+  // GitHub Actions deploys set the image, the commit-sha / managed-by labels and
+  // the gcloud client metadata. GHA owns those fields; Terraform must not revert them.
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].annotations,
+      template[0].labels,
+      template[0].containers[0].image,
+    ]
   }
 
   scaling {
@@ -290,7 +319,7 @@ resource "google_storage_bucket" "pudl_viewer_logs" {
 
   lifecycle_rule {
     condition {
-      age = 180
+      age = 1825
     }
     action {
       type = "Delete"
