@@ -10,6 +10,7 @@ import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -17,16 +18,15 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class Extractor(excel.ExcelExtractor):
     """Extractor for EIA form 923."""
 
-    def __init__(self, *args, **kwargs):
+    BLACKLISTED_PAGES = ["plant_frame"]
+
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self._metadata = excel.ExcelMetadata("eia923")
-        self.BLACKLISTED_PAGES = ["plant_frame"]
-        self.cols_added = []
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, excel.ExcelMetadata("eia923"))
 
     # Pages not supported by the metadata:
     # oil_stocks, coal_stocks, petcoke_stocks

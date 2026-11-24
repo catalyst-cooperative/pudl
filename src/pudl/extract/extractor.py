@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
@@ -278,25 +278,17 @@ class GenericExtractor[MetadataT: GenericMetadata](ABC):
     subclass fills in, e.g. ``GenericExtractor[ExcelMetadata]``.
     """
 
-    _metadata: MetadataT
-    """Instance of metadata object to use with this extractor.
-
-    Subclasses must set this before calling ``super().__init__()``.
-    """
-
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, ds: Datastore):
-        """Create new extractor object and load metadata.
+    def __init__(self, ds: Datastore, metadata: MetadataT):
+        """Create new extractor object.
 
         Args:
             ds: An initialized datastore, or subclass
+            metadata: The metadata that describes the dataset to extract.
         """
-        if not hasattr(self, "_metadata"):
-            raise NotImplementedError(
-                "self._metadata must be set before calling super().__init__()."
-            )
+        self._metadata = metadata
         self._dataset_name = self._metadata.get_dataset_name()
         self.ds = ds
         self.cols_added: list[str] = []
@@ -500,12 +492,13 @@ dagster_dict_str_strint = DagsterType(
 
 
 def partition_extractor_factory(
-    extractor_cls: type[GenericExtractor], name: str
+    extractor_cls: Callable[[Datastore], GenericExtractor], name: str
 ) -> OpDefinition:
     """Construct a Dagster op that extracts one partition of data, given an extractor.
 
     Args:
-        extractor_cls: Class of type :class:`Extractor` used to extract the data.
+        extractor_cls: Extractor class, or other callable that makes an extractor from
+            a datastore, used to extract the data.
         name: Name of an Excel based dataset (e.g. "eia860").
     """
 
@@ -590,7 +583,7 @@ def partitions_from_data_config_factory(name: str) -> OpDefinition:
 
 
 def raw_df_factory(
-    extractor_cls: type[GenericExtractor], name: str
+    extractor_cls: Callable[[Datastore], GenericExtractor], name: str
 ) -> AssetsDefinition:
     """Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 

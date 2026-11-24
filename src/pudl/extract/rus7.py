@@ -5,22 +5,23 @@ from dagster import asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
+from pudl.workspace.datastore import Datastore
 
 
 class Extractor(CsvExtractor):
     """Extractor for USDA RUS Form 7."""
 
-    def __init__(self, *args, **kwargs):
+    # add this index_col arg bc if not read_csv assumes the first col
+    # is the index and weirdly shifts the header names over its insufferable
+    READ_CSV_KWARGS = {"index_col": False}
+
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self._metadata = GenericMetadata("rus7")
-        # add this index_col arg bc if not read_csv assumes the first col
-        # is the index and weirdly shifts the header names over its insufferable
-        self.READ_CSV_KWARGS = {"index_col": False}
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, GenericMetadata("rus7"))
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Get the file name for the right page and part."""

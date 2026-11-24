@@ -48,23 +48,7 @@ def test_concat_pages():
         )
 
 
-def test_extractor_requires_metadata_before_init(mocker):
-    """An extractor that does not set its metadata fails with a clear message."""
-
-    class ExtractorWithoutMetadata(CsvExtractor):
-        pass
-
-    with pytest.raises(NotImplementedError, match="_metadata must be set"):
-        ExtractorWithoutMetadata(ds=mocker.Mock())
-
-
-def test_extractor_uses_metadata_set_by_subclass(mocker):
-    """The metadata set by the subclass is the one that the extractor uses."""
-
-    class ExtractorWithMetadata(CsvExtractor):
-        def __init__(self, ds):
-            self._metadata = GenericMetadata("eia191")
-            super().__init__(ds)
-
-    extractor = ExtractorWithMetadata(ds=mocker.Mock())
+def test_extractor_uses_the_metadata_it_is_given(mocker):
+    """The metadata that an extractor is created with is the one that it uses."""
+    extractor = CsvExtractor(mocker.Mock(), GenericMetadata("eia191"))
     assert extractor._metadata.get_dataset_name() == "eia191"

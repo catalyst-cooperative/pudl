@@ -9,19 +9,19 @@ from pudl.extract.extractor import (
     PartitionSelection,
     raw_df_factory,
 )
+from pudl.workspace.datastore import Datastore
 
 
 class Extractor(GenericExtractor[GenericMetadata]):
     """Extractor for NREL ATB."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self._metadata = GenericMetadata("nrelatb")
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, GenericMetadata("nrelatb"))
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Get the file name for the right page and part."""

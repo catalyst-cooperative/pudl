@@ -59,14 +59,14 @@ def test_page_partitions_from_page_part_map():
 class FakeExtractor(excel.ExcelExtractor):
     """Test friendly fake extractor returns strings instead of files."""
 
+    BLACKLISTED_PAGES = ["shoes"]
+
     def __init__(self, *args, **kwargs):
         """It's a Fake extractor.
 
         Good thing flake demanded this.
         """
-        self._metadata = excel.ExcelMetadata("test")
-        self.BLACKLISTED_PAGES = ["shoes"]
-        super().__init__(ds=None)  # type: ignore[bad-argument-type]
+        super().__init__(ds=None, metadata=excel.ExcelMetadata("test"))  # type: ignore[bad-argument-type]
 
     def load_source(self, page, **partition):
         """Returns fake file contents for given page and partition."""

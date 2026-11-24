@@ -132,13 +132,14 @@ class ExcelExtractor(GenericExtractor[ExcelMetadata]):
     this method should be overwritten in the dataset-specific extractor.
     """
 
-    def __init__(self, ds: Datastore):
-        """Create new extractor object and load metadata.
+    def __init__(self, ds: Datastore, metadata: ExcelMetadata):
+        """Create new extractor object.
 
         Args:
             ds: An initialized PUDL datastore, or subclass thereof.
+            metadata: The metadata that describes the dataset to extract.
         """
-        super().__init__(ds)
+        super().__init__(ds, metadata)
         self._file_cache = {}
 
     def process_raw(

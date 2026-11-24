@@ -1,13 +1,11 @@
 import pandas as pd
 import pytest
 
-from pudl.extract.excel import ExcelMetadata
 from pudl.extract.phmsagas import Extractor
 
 
 class FakeExtractor(Extractor):
     def __init__(self, mocker):
-        self._metadata = ExcelMetadata("phmsagas")
         super().__init__(ds=mocker.Mock())
         self._metadata = mocker.Mock()
 

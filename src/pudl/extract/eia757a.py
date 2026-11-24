@@ -5,19 +5,19 @@ from dagster import Output, asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
+from pudl.workspace.datastore import Datastore
 
 
 class Extractor(CsvExtractor):
     """Extractor for EIA form 757a."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self._metadata = GenericMetadata("eia757a")
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, GenericMetadata("eia757a"))
 
     def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
         """Get the columns for a particular page and partition key.

@@ -5,19 +5,19 @@ from dagster import asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
+from pudl.workspace.datastore import Datastore
 
 
 class Extractor(CsvExtractor):
     """Extractor for EIA form 176."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self._metadata = GenericMetadata("eia176")
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, GenericMetadata("eia176"))
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Produce the source file name as it will appear in the ZIP archive.
