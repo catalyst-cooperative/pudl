@@ -131,6 +131,8 @@ class GenericMetadata:
     authoritative record of what has been mapped.
     """
 
+    _file_name: pd.DataFrame
+
     def __init__(
         self,
         dataset_name: str,
@@ -150,6 +152,11 @@ class GenericMetadata:
     def get_dataset_name(self) -> str:
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
+
+    def get_file_name(self, page, **partition) -> str:
+        """Returns file name of given partition and page."""
+        # The file map is loaded with every cell as a string.
+        return str(self._file_name.loc[self._get_partition_selection(partition), page])
 
     def _load_csv(
         self, package_path: Path, filename: str, dtype: type | None = None

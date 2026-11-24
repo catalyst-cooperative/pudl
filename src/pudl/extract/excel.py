@@ -80,11 +80,6 @@ class ExcelMetadata(GenericMetadata):
         """Return number of footer rows to skip when loading a partition and page."""
         return self._skipfooter.loc[self._get_partition_selection(partition), page]
 
-    def get_file_name(self, page, **partition) -> str:
-        """Returns file name of given partition and page."""
-        # The file map is loaded with every cell as a string.
-        return str(self._file_name.loc[self._get_partition_selection(partition), page])
-
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
         return self._page_part_map.loc[page, "form"]
