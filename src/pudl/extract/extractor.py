@@ -31,7 +31,12 @@ PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-TIME_PARTITION_KEYS = ("years", "year_months", "half_years", "year_quarters")
+TIME_PARTITION_KEYS = (
+    "years",
+    "half_years",
+    "year_quarters",
+    "year_months",
+)
 """Keys of the working partitions of a data source that are points in time."""
 
 
