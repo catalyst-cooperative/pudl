@@ -16,7 +16,8 @@ cases, and for columns of a column map that do not exist.
 
 Only working partitions are checked against the file map. Partitions that are only
 mapped are never extracted, so these checks skip them, though the rows written for
-them are still checked for mistakes like a raw column that is mapped twice.
+them are still checked for mistakes like a raw column that is mapped twice. A working
+partition must not be filled in from a row of a partition that is not working (F1).
 
 Known violations are listed in :data:`KNOWN_VIOLATIONS` with how many there are, so
 that new ones are noticed, as are old ones that have been fixed. Each is either an
@@ -207,6 +208,23 @@ def _repeated_column_headers(view: MetadataView) -> list:
     ]
 
 
+def _working_partitions_filled_from_others(view: MetadataView) -> list:
+    """Find the working partitions that a file fills in from a non-working partition.
+
+    A partition without a row takes the row of the closest partition before it. If that
+    one is not working, nothing has checked the values that the working partition gets.
+    """
+    working = set(view.working_partitions)
+    found = []
+    for name, listed in view.listed_partitions().items():
+        for partition in view.working_partitions:
+            sources = [p for p in listed if p <= partition]
+            if sources and max(sources) not in working:
+                found.append((name, partition, max(sources)))
+                break
+    return found
+
+
 def _page_files_with_different_pages(view: MetadataView) -> list:
     """Find the pages that some of the page map, skiprows and skipfooter lack."""
     page_sets = [set(df.columns) for df in view.page_files.values()]
@@ -353,6 +371,12 @@ CHECKS = [
         "K4",
         "No file has two columns with the same name",
         _repeated_column_headers,
+        _all,
+    ),
+    Check(
+        "F1",
+        "Working partitions are only filled in from rows of working partitions",
+        _working_partitions_filled_from_others,
         _all,
     ),
     Check(
@@ -563,6 +587,7 @@ BROKEN_FAKE_DATASETS = {
     "K1": {"column_maps/a.csv": "page,x,y\n2010a,xx,yy\n"},
     "K2": {"column_maps/a.csv": "page,x,y\n2010,xx,xx\n"},
     "K4": {"column_maps/a.csv": "page,x,x\n2010,xx,yy\n"},
+    "F1": {"column_maps/a.csv": "page,x,y\n2009,xx,yy\n"},
     "P1": {"skipfooter.csv": "page,a\n2010,0\n"},
     "P2": {
         "page_map.csv": "page,a,b,c\n2010,0,-1,0\n2011,0,1,0\n",
