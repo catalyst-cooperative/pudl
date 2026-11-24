@@ -121,11 +121,14 @@ class GenericMetadata:
     The files that describe the structure of a dataset, such as the column maps, only
     need a row for the partitions in which that structure is different from the
     partition before it, like a change log. When they are loaded, each row is carried
-    forward to the later partitions without a row, up to the last working partition of
-    the data source or the last partition in ``file_map.csv``. See
-    :func:`expand_partitions`. A file with a row for every partition is still valid.
-    Files that name the source files of the partitions, such as ``file_map.csv``, need
-    a row for every partition, as the names are different in each.
+    forward to the later working partitions of the data source that do not have a row
+    (see :func:`expand_partitions`). Only working partitions are filled in, and only
+    from rows of working partitions: nothing extracts the others, so nothing would
+    check what they were filled in with.
+
+    ``file_map.csv`` is never filled in. It needs a row for every partition that has
+    been mapped, including any that are not working partitions, and is the
+    authoritative record of what has been mapped.
     """
 
     def __init__(
@@ -140,9 +143,7 @@ class GenericMetadata:
         """
         self._dataset_name = dataset_name
         self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
-        self._partitions = sorted(
-            {*working_time_partitions(dataset_name), *self._file_map_partitions()}
-        )
+        self._working_partitions = working_time_partitions(dataset_name)
         column_map_path = self._path / "column_maps"
         self._column_map = self._load_column_maps(column_map_path)
 
@@ -162,31 +163,20 @@ class GenericMetadata:
         df.index = df.index.astype(pd.StringDtype())
         return df
 
-    def _file_map_partitions(self) -> list[str]:
-        """List the partitions that the dataset has a file name for, if it has any.
-
-        The file map has a row for every partition that the dataset has source files
-        for, including some that are not working partitions of the data source.
-        """
-        if not (self._path / "file_map.csv").exists():
-            return []
-        return list(self._load_csv(self._path, "file_map.csv", dtype=str).index)
-
     def _load_change_log_csv(self, package_path: Path, filename: str) -> pd.DataFrame:
         """Load a metadata file that only has rows for the partitions that changed.
 
-        The rows are carried forward to the partitions of the dataset that do not have
-        one, so the result describes every partition that the dataset is processed for.
+        The rows are carried forward to the working partitions that do not have one.
         """
         return expand_partitions(
-            self._load_csv(package_path, filename), self._partitions
+            self._load_csv(package_path, filename), self._working_partitions
         )
 
     def _load_file_map(self) -> pd.DataFrame:
         """Load the map from partitions (rows) and pages (columns) to source file names.
 
         Every cell must be a string: either the name of the source file, or ``-1`` if
-        there is no file for that page and partition.
+        there is no file for that page and partition. This file is never filled in.
 
         Raises:
             AssertionError: If any cell is empty.

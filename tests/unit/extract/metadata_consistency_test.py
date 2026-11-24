@@ -14,6 +14,10 @@ the column maps.
 file name of ``-1`` means that it does not. Every other file uses ``-1`` in the same
 cases, and for columns of a column map that do not exist.
 
+Only working partitions are checked against the file map. Partitions that are only
+mapped are never extracted, so these checks skip them, though the rows written for
+them are still checked for mistakes like a raw column that is mapped twice.
+
 Known violations are listed in :data:`KNOWN_VIOLATIONS` with how many there are, so
 that new ones are noticed, as are old ones that have been fixed. Each is either an
 ``error``, which is wrong and should be fixed, or ``unfinished``, which is correct but
@@ -120,6 +124,11 @@ class MetadataView:
             "skipfooter": _strings(self.metadata._skipfooter),
         }
 
+    @property
+    def mapped_working_partitions(self) -> list[str]:
+        """The partitions of the file map that are working partitions of the source."""
+        return [p for p in self.file_map.index if p in self.working_partitions]
+
     def has_file(self, page: str, partition: str) -> bool:
         """Whether the file map has a source file for a page and partition."""
         return bool(self.file_map.loc[partition, page] != ABSENT)
@@ -216,11 +225,11 @@ def _column_maps_not_those_of_the_file_map(view: MetadataView) -> list:
 
 
 def _file_map_partitions_not_in_page_files(view: MetadataView) -> list:
-    """Find the partitions of the file map that the page files have no row for."""
+    """Find the working partitions of the file map that the page files lack."""
     return [
         (name, partition)
         for name, df in view.page_files.items()
-        for partition in sorted(set(view.file_map.index) - set(df.index))
+        for partition in sorted(set(view.mapped_working_partitions) - set(df.index))
     ]
 
 
@@ -230,17 +239,17 @@ def _working_partitions_not_in_file_map(view: MetadataView) -> list:
 
 
 def _pages_with_files(view: MetadataView):
-    """Generate the pages and partitions of the file map that have a source file."""
+    """Generate the pages and working partitions that have a source file."""
     for page in view.file_map.columns:
-        for partition in view.file_map.index:
+        for partition in view.mapped_working_partitions:
             if view.has_file(page, partition):
                 yield page, partition
 
 
 def _pages_without_files(view: MetadataView):
-    """Generate the pages and partitions of the file map that have no source file."""
+    """Generate the pages and working partitions that have no source file."""
     for page in view.file_map.columns:
-        for partition in view.file_map.index:
+        for partition in view.mapped_working_partitions:
             if not view.has_file(page, partition):
                 yield page, partition
 
@@ -366,7 +375,7 @@ CHECKS = [
     ),
     Check(
         "P4",
-        "Every partition of the file map is described by the page files",
+        "Every working partition of the file map is described by the page files",
         _file_map_partitions_not_in_page_files,
         _excel,
     ),
@@ -467,13 +476,6 @@ KNOWN_VIOLATIONS: dict[tuple[str, str], Known] = {
         "unfinished",
         "sales_customer_sited_eia861 has files from 2012, but no sheet in the page "
         "map. See P3.",
-    ),
-    ("V3", "eia861"): Known(
-        1,
-        "unfinished",
-        "demand_side_management_eia861 has a file for 1999, but its layout, with 62 "
-        "columns instead of the 50 of 2000, has not been mapped. 1999 is not a working "
-        "partition of the data source.",
     ),
 }
 """Violations that are known: how many, whether they are wrong, and what they are.

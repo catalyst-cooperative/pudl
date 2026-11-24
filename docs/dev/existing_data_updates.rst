@@ -102,13 +102,14 @@ some pages result in more than one database table after normalization.
   ``file_map.csv``, since the file names differ from year to year. For the other files,
   only add a row if something has changed: a year without a row is assumed to be the
   same as the most recent row, up to the last year in the working partitions of the data
-  source in ``pudl.metadata.sources`` or in ``file_map.csv``. If there are any changes
-  to prior years, make sure to address those too. If you are updating early release data
-  with final release data, replace the values in the appropriate year row. **The easiest
-  way to correct the values for these files is to test extraction in Dagster as
-  described in the next step, then use the error messages to narrow down what should be
-  updated.** Exhaustively examining each file manually to compare it with its
-  predecessor is the most difficult way.
+  source in ``pudl.metadata.sources``. Years that are not working partitions are never
+  filled in, and neither is ``file_map.csv``, which records every year that has been
+  mapped. If there are any changes to prior years, make sure to address those too. If
+  you are updating early release data with final release data, replace the values in the
+  appropriate year row. **The easiest way to correct the values for these files is to
+  test extraction in Dagster as described in the next step, then use the error messages
+  to narrow down what should be updated.** Exhaustively examining each file manually to
+  compare it with its predecessor is the most difficult way.
 
 .. note::
 

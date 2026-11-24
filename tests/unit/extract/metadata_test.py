@@ -188,17 +188,42 @@ def test_change_log_files_describe_every_working_partition(fake_package_data):
     assert metadata.get_sheet_name("page", year=2014) == 0
 
 
-def test_change_log_files_describe_the_partitions_of_the_file_map(fake_package_data):
-    """The file map lists partitions that are not working partitions of the source."""
-    path = fake_package_data("fake")
+def test_change_log_files_do_not_fill_partitions_that_are_not_working(
+    fake_package_data,
+):
+    """Partitions that are only mapped are not filled in, but their rows are loaded.
+
+    Nothing extracts a partition that is not a working partition, so there would be no
+    check on whether the values that it was filled in with are right.
+    """
+    path = fake_package_data("fake", ["2005", "2006", "2007"])
     (path / "column_maps").mkdir()
-    (path / "column_maps" / "page.csv").write_text("year_index,col\n2010,old\n")
+    (path / "column_maps" / "page.csv").write_text(
+        "year_index,col\n2000,old\n2005,new\n"
+    )
     (path / "file_map.csv").write_text(
-        "year_index,page\n2010,a.csv\n2011,b.csv\n2012,-1\n"
+        "year_index,page\n2000,a.csv\n2004,b.csv\n2005,c.csv\n2006,d.csv\n2007,e.csv\n"
+    )
+    column_map = GenericMetadata("fake")._column_map["page"]
+    # 2004 is mapped, and has an earlier row to be filled from, but is not working.
+    assert list(column_map.index) == ["2000", "2005", "2006", "2007"]
+    assert list(column_map["col"]) == ["old", "new", "new", "new"]
+
+
+def test_change_log_files_do_not_fill_the_partition_after_the_working_ones(
+    fake_package_data,
+):
+    """A new partition is not filled in from the last one until it is working."""
+    path = fake_package_data("fake", ["2024", "2025"])
+    (path / "column_maps").mkdir()
+    (path / "column_maps" / "page.csv").write_text("year_index,col\n2024,xx\n")
+    (path / "file_map.csv").write_text(
+        "year_index,page\n2024,a.csv\n2025,b.csv\n2026,c.csv\n"
     )
     metadata = GenericMetadata("fake")
-    assert list(metadata._column_map["page"].index) == ["2010", "2011", "2012"]
-    assert metadata.get_column_map("page", year=2012) == {"old": "col"}
+    assert metadata.get_column_map("page", year=2025) == {"xx": "col"}
+    with pytest.raises(KeyError):
+        metadata.get_column_map("page", year=2026)
 
 
 def test_file_map_is_not_a_change_log(fake_package_data):
