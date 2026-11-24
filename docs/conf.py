@@ -76,10 +76,10 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
-    "catalyst_cites.bib",
-    "catalyst_mentions.bib",
-    "catalyst_pubs.bib",
-    "cooperative_cites.bib",
+    "pudl_citations.bib",
+    "pudl_mentions.bib",
+    "catalyst_publications.bib",
+    "cooperative_mentions.bib",
     "further_reading.bib",
 ]
 
@@ -372,18 +372,18 @@ def data_sources_metadata_to_rst(app):
 # task in pyproject.toml so the generated file gets removed.
 CITATIONS_MEDIA_PAGES = [
     {
-        "name": "citing_pudl",
+        "name": "pudl_citations",
         "title": "Work Citing PUDL and other Catalyst Analyses",
-        "bibfile": "catalyst_cites.bib",
+        "bibfile": "pudl_citations.bib",
         "description": (
             "Academic, policy, and industry publications that cite PUDL and/or "
             "analyses done by Catalyst Cooperative."
         ),
     },
     {
-        "name": "mentioning_pudl",
+        "name": "pudl_mentions",
         "title": "Media Mentions of PUDL or Catalyst",
-        "bibfile": "catalyst_mentions.bib",
+        "bibfile": "pudl_mentions.bib",
         "description": (
             "Media such as news or magazine articles, blogs, interviews, podcasts,"
             " or videos that mention PUDL or Catalyst."
@@ -392,7 +392,7 @@ CITATIONS_MEDIA_PAGES = [
     {
         "name": "catalyst_publications",
         "title": "Catalyst Publications",
-        "bibfile": "catalyst_pubs.bib",
+        "bibfile": "catalyst_publications.bib",
         "description": (
             "Data, software, and analyses that we have published for public use. "
             "We self-archive all of our publications and the input data for PUDL "
@@ -401,9 +401,9 @@ CITATIONS_MEDIA_PAGES = [
         ),
     },
     {
-        "name": "citing_cooperative",
+        "name": "cooperative_mentions",
         "title": "References to Catalyst as a Worker Cooperative",
-        "bibfile": "cooperative_cites.bib",
+        "bibfile": "cooperative_mentions.bib",
         "description": (
             "Academic, policy, and industry publications referencing Catalyst's "
             "role as a worker-owned software cooperative."

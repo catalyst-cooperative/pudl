@@ -6,8 +6,8 @@ Citations & Media
     :maxdepth: 1
 
     how_to_cite_pudl
-    citing_pudl
-    mentioning_pudl
+    pudl_citations
+    pudl_mentions
     catalyst_publications
-    citing_cooperative
+    cooperative_mentions
     further_reading
