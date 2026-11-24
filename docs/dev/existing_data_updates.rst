@@ -129,7 +129,8 @@ pages, or columns) then create new mappings to track that information over time.
 .. note::
 
     In all of the the above CSV files we use a value of ``-1`` to indicate that the data
-    does not exist in a given year. Cells are never left empty.
+    does not exist in a given year. Cells are never left empty. A row of all ``-1``
+    ends a page that has been discontinued.
 
 B. FERC Form 714
 ^^^^^^^^^^^^^^^^

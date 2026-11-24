@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from pudl import PUDL_PACKAGE_DATA_PATH
+from pudl.extract.excel import ExcelMetadata
 from pudl.extract.extractor import GenericMetadata
 
 FAKE_FILE_MAP_PATH = Path(__file__).parents[2] / "data/extract/test/file_map.csv"
@@ -32,6 +33,27 @@ def test_file_map_with_empty_cells_is_rejected(fake_package_data):
     (path / "column_maps").mkdir()
     with pytest.raises(AssertionError, match="empty cells"):
         GenericMetadata("test")
+
+
+@pytest.mark.parametrize(
+    ("name", "text"),
+    [
+        ("column_maps/page.csv", "year_index,col\n2010,old\n2011,\n"),
+        ("skiprows.csv", "year_index,page\n2010,0\n2011,\n"),
+        ("page_map.csv", "year_index,page\n2010,\n"),
+    ],
+)
+def test_change_logs_with_empty_cells_are_rejected(fake_package_data, name, text):
+    """An empty cell of a change log is an error: data that is absent is ``-1``."""
+    path = fake_package_data("test", ["2010", "2011"])
+    (path / "column_maps").mkdir()
+    (path / "skiprows.csv").write_text("year_index,page\n2010,0\n")
+    (path / "skipfooter.csv").write_text("year_index,page\n2010,0\n")
+    (path / "page_map.csv").write_text("year_index,page\n2010,0\n")
+    (path / "file_map.csv").write_text("year_index,page\n2010,a.xlsx\n")
+    (path / name).write_text(text)
+    with pytest.raises(AssertionError, match="empty cells"):
+        ExcelMetadata("test")
 
 
 def test_file_map_keeps_no_file_marker_as_string(fake_package_data):

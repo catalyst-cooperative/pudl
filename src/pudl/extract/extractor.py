@@ -71,12 +71,12 @@ def expand_partitions(df: pd.DataFrame, partitions: Iterable[str]) -> pd.DataFra
 
     The rows of ``df`` are indexed by partition, and only need to include the
     partitions in which the description of the data differs from the one in the
-    partition before it. Each row is carried forward to the later partitions that are
-    not in the index, up until the next row that is. Each row is carried forward as a
-    whole.
+    partition before it. Data is forward filled for the entire row to fill the gaps
+    between mapped partitions.
 
     Nothing is backfilled, so partitions before the first row are not described.
-    A frame with a row for every partition is returned as it was.
+    A frame with a row for every partition is returned unchanged. Partitions are
+    compared as strings, so their labels must sort chronologically.
 
     Args:
         df: The rows of the partitions that have a different description than the
@@ -172,8 +172,17 @@ class GenericMetadata:
     def _load_csv(
         self, package_path: Path, filename: str, dtype: type | None = None
     ) -> pd.DataFrame:
-        """Load metadata from a filename that is found in a package directory."""
+        """Load metadata from a filename that is found in a package directory.
+
+        Raises:
+            AssertionError: If any cell is empty.
+        """
         df = pd.read_csv(package_path / filename, index_col=0, comment="#", dtype=dtype)
+        if df.isna().any().any():
+            raise AssertionError(
+                f"{package_path / filename} has empty cells. Every cell needs a "
+                "value, or -1 if the data does not exist in the partition."
+            )
         # we are assigning the index which contains the partitions as a sting dtype.
         # many of the partitions are years which are reasonably interpreted as ints,
         # but some are dates or other actual strings. We force the partitions to be
@@ -195,17 +204,8 @@ class GenericMetadata:
 
         Every cell must be a string: either the name of the source file, or ``-1`` if
         there is no file for that page and partition. This file is never filled in.
-
-        Raises:
-            AssertionError: If any cell is empty.
         """
-        file_map = self._load_csv(self._path, "file_map.csv", dtype=str)
-        if file_map.isna().any().any():
-            raise AssertionError(
-                f"The {self._dataset_name} file_map.csv has empty cells. Every page "
-                "and partition needs a file name, or -1 if it has no file."
-            )
-        return file_map
+        return self._load_csv(self._path, "file_map.csv", dtype=str)
 
     def _load_column_maps(self, column_map_path: Path) -> dict:
         """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
