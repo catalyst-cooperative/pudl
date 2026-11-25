@@ -115,15 +115,15 @@ class MetadataView:
     @cached_property
     def file_map(self) -> pd.DataFrame:
         """The names of the source files of each page (columns) and partition (rows)."""
-        assert self.metadata._file_name is not None
-        return _strings(self.metadata._file_name)
+        assert self.metadata._file_map is not None
+        return _strings(self.metadata._file_map)
 
     @cached_property
     def page_files(self) -> dict[str, pd.DataFrame]:
         """The files with a column for each page and a row for each partition."""
         assert isinstance(self.metadata, ExcelMetadata)
         return {
-            "page_map": _strings(self.metadata._sheet_name),
+            "page_map": _strings(self.metadata._page_map),
             "skiprows": _strings(self.metadata._skiprows),
             "skipfooter": _strings(self.metadata._skipfooter),
         }

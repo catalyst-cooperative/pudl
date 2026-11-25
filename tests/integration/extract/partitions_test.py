@@ -6,6 +6,7 @@ to in ``zenodo_dois.yml``, as described by its ``datapackage.json``. The archive
 have more partitions than these, which we have not mapped or processed yet.
 """
 
+import pandas as pd
 import pytest
 from requests.exceptions import ConnectionError, RetryError  # noqa: A004
 from urllib3.exceptions import MaxRetryError, ResponseError
@@ -32,10 +33,7 @@ def _mapped_partitions(dataset: str) -> set[str]:
     path = PUDL_PACKAGE_DATA_PATH / dataset / "file_map.csv"
     if not path.exists():
         return set()
-    with path.open() as file_map:
-        lines = (line for line in file_map if not line.startswith("#"))
-        next(lines)  # The header
-        return {line.split(",")[0].strip() for line in lines if line.strip()}
+    return set(pd.read_csv(path, usecols=[0], comment="#", dtype=str).iloc[:, 0])
 
 
 NOT_PARTITIONED_BY_TIME = {

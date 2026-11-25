@@ -131,7 +131,7 @@ class GenericMetadata:
     authoritative record of what has been mapped.
     """
 
-    _file_name: pd.DataFrame | None
+    _file_map: pd.DataFrame | None
 
     def __init__(
         self,
@@ -146,7 +146,7 @@ class GenericMetadata:
         self._dataset_name = dataset_name
         self._path = PUDL_PACKAGE_DATA_PATH / dataset_name
         self._working_partitions = working_time_partitions(dataset_name)
-        self._file_name = (
+        self._file_map = (
             self._load_file_map() if (self._path / "file_map.csv").exists() else None
         )
         column_map_path = self._path / "column_maps"
@@ -162,12 +162,12 @@ class GenericMetadata:
         Raises:
             FileNotFoundError: If the dataset has no ``file_map.csv``.
         """
-        if self._file_name is None:
+        if self._file_map is None:
             raise FileNotFoundError(
                 f"The {self._dataset_name} dataset has no file_map.csv."
             )
         # The file map is loaded with every cell as a string.
-        return str(self._file_name.loc[self._get_partition_selection(partition), page])
+        return str(self._file_map.loc[self._get_partition_selection(partition), page])
 
     def _load_csv(
         self, package_path: Path, filename: str, dtype: type | None = None

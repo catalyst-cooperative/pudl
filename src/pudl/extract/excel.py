@@ -59,7 +59,7 @@ class ExcelMetadata(GenericMetadata):
         super().__init__(dataset_name)
         self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
         self._skipfooter = self._load_change_log_csv(self._path, "skipfooter.csv")
-        self._sheet_name = self._load_change_log_csv(self._path, "page_map.csv")
+        self._page_map = self._load_change_log_csv(self._path, "page_map.csv")
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:
@@ -69,7 +69,7 @@ class ExcelMetadata(GenericMetadata):
 
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.loc[self._get_partition_selection(partition), page]
+        return self._page_map.loc[self._get_partition_selection(partition), page]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
