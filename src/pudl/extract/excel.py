@@ -44,14 +44,12 @@ class ExcelMetadata(GenericMetadata):
       specified to correctly identify the file housing the desired page. This is only
       required when a file can only be uniquely located using a combination of
       partitions (e.g. form and year).
-
     """
 
-    # TODO: we could validate whether metadata is valid for all year. We should have
-    # existing records for each (year, page) -> sheet_name, (year, page) -> skiprows
-    # and for all (year, page) -> column map
-
-    def __init__(self, dataset_name: str):
+    def __init__(
+        self,
+        dataset_name: str,
+    ):
         """Create Metadata object and load metadata from files on disk.
 
         Args:
@@ -59,10 +57,9 @@ class ExcelMetadata(GenericMetadata):
                 loaded from src/pudl/package_data/${dataset_name}
         """
         super().__init__(dataset_name)
-        self._skiprows = self._load_csv(self._path, "skiprows.csv")
-        self._skipfooter = self._load_csv(self._path, "skipfooter.csv")
-        self._sheet_name = self._load_csv(self._path, "page_map.csv")
-        self._file_name = self._load_csv(self._path, "file_map.csv")
+        self._skiprows = self._load_change_log_csv(self._path, "skiprows.csv")
+        self._skipfooter = self._load_change_log_csv(self._path, "skipfooter.csv")
+        self._page_map = self._load_change_log_csv(self._path, "page_map.csv")
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:
@@ -72,7 +69,7 @@ class ExcelMetadata(GenericMetadata):
 
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.loc[self._get_partition_selection(partition), page]
+        return self._page_map.loc[self._get_partition_selection(partition), page]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
@@ -82,16 +79,25 @@ class ExcelMetadata(GenericMetadata):
         """Return number of footer rows to skip when loading a partition and page."""
         return self._skipfooter.loc[self._get_partition_selection(partition), page]
 
-    def get_file_name(self, page, **partition):
-        """Returns file name of given partition and page."""
-        return self._file_name.loc[self._get_partition_selection(partition), page]
-
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
         return self._page_part_map.loc[page, "form"]
 
+    def get_page_partitions(self, page: str) -> dict[str, str]:
+        """Return the secondary partitions needed to locate the file for a page.
 
-class ExcelExtractor(GenericExtractor):
+        These come from ``page_part_map.csv``, which most datasets do not have, so
+        they have no secondary partitions.
+        """
+        if self._page_part_map.empty:
+            return {}
+        return {
+            str(name): str(value)
+            for name, value in self._page_part_map.loc[page].items()
+        }
+
+
+class ExcelExtractor(GenericExtractor[ExcelMetadata]):
     """Logic for extracting :class:`pd.DataFrame` from Excel spreadsheets.
 
     This class implements the generic dataset agnostic logic to load data
@@ -126,16 +132,14 @@ class ExcelExtractor(GenericExtractor):
     this method should be overwritten in the dataset-specific extractor.
     """
 
-    METADATA: ExcelMetadata = None
-
-    def __init__(self, ds: Datastore):
-        """Create new extractor object and load metadata.
+    def __init__(self, ds: Datastore, metadata: ExcelMetadata):
+        """Create new extractor object.
 
         Args:
             ds: An initialized PUDL datastore, or subclass thereof.
+            metadata: The metadata that describes the dataset to extract.
         """
-        super().__init__(ds)
-        self._metadata = self.METADATA
+        super().__init__(ds, metadata)
         self._file_cache = {}
 
     def process_raw(
@@ -200,13 +204,12 @@ class ExcelExtractor(GenericExtractor):
         """Specify the partitions used for returning a zipfile from the datastore.
 
         By default, this method appends any page to partition mapping in
-        :attr:`METADATA._page_part_map`. Most datasets do not have page to part
-        maps and just return the same partition that is passed in. If you have
+        :meth:`ExcelMetadata.get_page_partitions`. Most datasets do not have page to
+        part maps and just return the same partition that is passed in. If you have
         dataset-specific partition mappings that are needed to return a zipfile from the
         datastore, override this method to return the desired partitions.
         """
-        if not self._metadata._page_part_map.empty:
-            partition.update(self._metadata._page_part_map.loc[page])
+        partition.update(self._metadata.get_page_partitions(page))
         return partition
 
     def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:

@@ -9,29 +9,23 @@ from pudl.extract.extractor import (
     PartitionSelection,
     raw_df_factory,
 )
+from pudl.workspace.datastore import Datastore
 
 
-class Extractor(GenericExtractor):
+class Extractor(GenericExtractor[GenericMetadata]):
     """Extractor for NREL ATB."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self.METADATA = GenericMetadata("nrelatb")
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, GenericMetadata("nrelatb"))
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
-        """Get the file name for the right page and part.
-
-        In this instance we are using the same methodology from the excel metadata extractor.
-        """
-        _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
-        return str(
-            _file_name.loc[self.METADATA._get_partition_selection(partition), page]
-        )
+        """Get the file name for the right page and part."""
+        return self._metadata.get_file_name(page, **partition)
 
     def load_source(self, page: str, **partition):
         """Fetch the electricity parquet file from the NREL ATB zip archive.
