@@ -27722,14 +27722,14 @@ df <- read_parquet(
 
 ### Columns
 
-| **Field Name**                  | **Type**   | **Unit**   | **Description**                                                                                                                                                                     |
-|---------------------------------|------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| is_default                      | boolean    |            | Indicator of whether the technology is default.                                                                                                                                     |
-| is_technology_mature            | boolean    |            | Indicator of whether the technology is mature. Technologies are definedas mature if a representative plant is operating or under constructionin the United States in the Base Year. |
-| report_year                     | integer    |            | Four-digit year in which the data was reported.                                                                                                                                     |
-| technology_description          | string     |            | High level description of the technology used by the generator to produce electricity.                                                                                              |
-| technology_description_detail_1 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                  |
-| technology_description_detail_2 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                  |
+| **Field Name**                  | **Type**   | **Unit**   | **Description**                                                                                                                                                                       |
+|---------------------------------|------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| is_default                      | boolean    |            | Indicator of whether the technology is default.                                                                                                                                       |
+| is_technology_mature            | boolean    |            | Indicator of whether the technology is mature. Technologies are defined as mature if a representative plant is operating or under construction in the United States in the Base Year. |
+| report_year                     | integer    |            | Four-digit year in which the data was reported.                                                                                                                                       |
+| technology_description          | string     |            | High level description of the technology used by the generator to produce electricity.                                                                                                |
+| technology_description_detail_1 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                    |
+| technology_description_detail_2 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                    |
 
 <a id="core-phmsagas-yearly-distribution-by-install-decade"></a>
 
