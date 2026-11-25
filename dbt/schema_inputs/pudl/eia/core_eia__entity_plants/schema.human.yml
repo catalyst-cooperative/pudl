@@ -42,8 +42,7 @@ sources:
                   config:
                     where: |-
                       state IS NOT NULL
-                      AND county != "NOT IN FILE"
-                      AND county != "Not In File"
+                      AND county NOT IN ('NOT IN FILE', 'Not In File')
                   description: |-
                     We expect all plant records with a non-null state and a not silly
                     (`not in file`) county name to have a fips code. If there are
