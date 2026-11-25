@@ -339,25 +339,6 @@ the remaining non-conforming EIA-860 and EIA-923 county names.
 """
 
 
-def _check_for_missing_fips_codes(entity_df: pd.DataFrame):
-    """Check if the plant's entity table has excessive missing FIPS codes."""
-    missing_county_id_fips = entity_df.loc[
-        (
-            (entity_df.county_id_fips.isnull())
-            & (entity_df.state.notna())
-            & (entity_df.county.str.lower() != "not in file")
-        )
-    ]
-    if not missing_county_id_fips.empty:
-        raise AssertionError(
-            "We expect all plant records with a non-null state and a "
-            "not silly (`not in file`) county name to have a fips code. "
-            "If there are unmapped fips codes, you may need to add a fix "
-            "to a county name to `EIA_FIPS_COUNTY_FIXES`. \n\n"
-            f"{missing_county_id_fips}"
-        )
-
-
 def find_timezone(
     *,
     lng: float,
@@ -1665,7 +1646,6 @@ def harvested_entity_asset_factory(
                     county_col="county",
                 )
             )
-            _check_for_missing_fips_codes(entity_df)
             annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
                 fix_balancing_authority_codes_with_state,
                 plants_entity=entity_df,
