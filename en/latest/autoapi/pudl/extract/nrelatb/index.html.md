@@ -19,21 +19,15 @@ Routines used for extracting the raw NREL ATB data.
 
 ## Module Contents
 
-### *class* pudl.extract.nrelatb.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.nrelatb.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
-Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)
+Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)[[`pudl.extract.extractor.GenericMetadata`](../extractor/index.html.md#pudl.extract.extractor.GenericMetadata)]
 
 Extractor for NREL ATB.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
 
 #### source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the file name for the right page and part.
-
-In this instance we are using the same methodology from the excel metadata extractor.
 
 #### load_source(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition)
 

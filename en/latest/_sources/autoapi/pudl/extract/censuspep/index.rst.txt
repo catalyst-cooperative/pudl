@@ -39,22 +39,12 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:class:: Extractor(*args, **kwargs)
+.. py:class:: Extractor(ds: pudl.workspace.datastore.Datastore)
 
    Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
 
 
    Extractor for the excel dataset Census PEP FIPS Codes.
-
-
-   .. py:attribute:: METADATA
-
-      Instance of metadata object to use with this extractor.
-
-
-   .. py:attribute:: cols_added
-      :value: []
-
 
 
    .. py:method:: get_dtypes(page, **partition)

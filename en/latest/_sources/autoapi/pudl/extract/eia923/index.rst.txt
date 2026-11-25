@@ -41,7 +41,7 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:class:: Extractor(*args, **kwargs)
+.. py:class:: Extractor(ds: pudl.workspace.datastore.Datastore)
 
    Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
 
@@ -49,21 +49,11 @@ Module Contents
    Extractor for EIA form 923.
 
 
-   .. py:attribute:: METADATA
-
-      Instance of metadata object to use with this extractor.
-
-
    .. py:attribute:: BLACKLISTED_PAGES
       :value: ['plant_frame']
 
 
       List of supported pages that should not be extracted.
-
-
-   .. py:attribute:: cols_added
-      :value: []
-
 
 
    .. py:method:: process_raw(df, page, **partition)

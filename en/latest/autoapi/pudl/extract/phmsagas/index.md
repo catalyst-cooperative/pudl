@@ -24,17 +24,11 @@ This modules pulls data from PHMSA’s published Excel spreadsheets.
 
 ### pudl.extract.phmsagas.logger
 
-### *class* pudl.extract.phmsagas.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.phmsagas.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset PHMSA.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
-
-#### cols_added *= []*
 
 #### load_source(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

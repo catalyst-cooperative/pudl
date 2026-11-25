@@ -18,6 +18,12 @@
   The EIA-860 data source page now notes that the August through November 2018
   EIA-860M spreadsheets lack a Puerto Rico retired generators tab.
 
+#### EIA-861
+
+* [core_eia861_\_yearly_distribution_systems](data_dictionaries/pudl_db.html.md#core-eia861-yearly-distribution-systems) now covers 2013-2015 as well as 2016
+  onward. The raw files were always in the archives, but our metadata marked them as
+  missing, so about 5,900 rows were never extracted. See [#5289](https://github.com/catalyst-cooperative/pudl/issues/5289) and [#5724](https://github.com/catalyst-cooperative/pudl/pull/5724).
+
 ### Documentation
 
 * Added data source page for [EPA MATS](data_sources/epamats.html.md).
@@ -33,12 +39,22 @@
   [out_rus7_\_yearly_balance_sheet_liabilities](data_dictionaries/pudl_db.html.md#out-rus7-yearly-balance-sheet-liabilities) equal the sum of their
   subcomponents. Unapplied payments are subtracted from total long-term debt. See
   issue [#5760](https://github.com/catalyst-cooperative/pudl/issues/5760) and PR [#5762](https://github.com/catalyst-cooperative/pudl/pull/5762).
+* Unit tests check that the mapping files of each CSV and Excel dataset agree with each
+  other, and list the mapping that is still unfinished. An integration test checks that
+  the working and mapped partitions are all in the raw archives. See [#5289](https://github.com/catalyst-cooperative/pudl/issues/5289) and
+  [#5724](https://github.com/catalyst-cooperative/pudl/pull/5724).
 
 ### Bug Fixes & Data Cleaning
 
 ### Performance Improvements
 
 ### Developer Experience
+
+* The files that map the layout of raw spreadsheets and CSVs to our column names are now
+  change logs: a year only needs a row if its layout differs from the year before. Only
+  working partitions are filled in, `file_map.csv` lists every year that is mapped,
+  and `-1` marks data that doesn’t exist. Extractors now take their metadata as a
+  constructor argument. See [#5289](https://github.com/catalyst-cooperative/pudl/issues/5289) and [#5724](https://github.com/catalyst-cooperative/pudl/pull/5724).
 
 <a id="release-v2026-11-0"></a>
 

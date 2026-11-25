@@ -30,9 +30,9 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:class:: CsvExtractor(ds: pudl.workspace.datastore.Datastore)
+.. py:class:: CsvExtractor(ds: pudl.workspace.datastore.Datastore, metadata: MetadataT)
 
-   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
+   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`\ [\ :py:obj:`pudl.extract.extractor.GenericMetadata`\ ]
 
 
    Class for extracting dataframes from CSV files.

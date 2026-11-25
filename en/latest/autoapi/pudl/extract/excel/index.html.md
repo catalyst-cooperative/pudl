@@ -55,9 +55,7 @@ Optional file:
 
 #### \_skipfooter
 
-#### \_sheet_name
-
-#### \_file_name
+#### \_page_map
 
 #### get_sheet_name(page, \*\*partition)
 
@@ -71,17 +69,20 @@ Return number of header rows to skip when loading a partition and page.
 
 Return number of footer rows to skip when loading a partition and page.
 
-#### get_file_name(page, \*\*partition)
-
-Returns file name of given partition and page.
-
 #### get_form(page) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Returns the form name for a given page.
 
-### *class* pudl.extract.excel.ExcelExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
+#### get_page_partitions(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [dict](https://docs.python.org/3/builtins/stdtypes.html#dict)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [str](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
-Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)
+Return the secondary partitions needed to locate the file for a page.
+
+These come from `page_part_map.csv`, which most datasets do not have, so
+they have no secondary partitions.
+
+### *class* pudl.extract.excel.ExcelExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), metadata: [ExcelMetadata](#pudl.extract.excel.ExcelMetadata))
+
+Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)[[`ExcelMetadata`](#pudl.extract.excel.ExcelMetadata)]
 
 Logic for extracting `pd.DataFrame` from Excel spreadsheets.
 
@@ -116,12 +117,6 @@ one of the following functions (they all return the modified dataframe):
 5. get_datapackage_resources() if partition is anything other than a year,
 this method should be overwritten in the dataset-specific extractor.
 
-#### METADATA *: [ExcelMetadata](#pudl.extract.excel.ExcelMetadata)* *= None*
-
-Instance of metadata object to use with this extractor.
-
-#### \_metadata *= None*
-
 #### \_file_cache
 
 #### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
@@ -155,8 +150,8 @@ apply to every column, matching the `dtype` argument of
 Specify the partitions used for returning a zipfile from the datastore.
 
 By default, this method appends any page to partition mapping in
-`METADATA._page_part_map`. Most datasets do not have page to part
-maps and just return the same partition that is passed in. If you have
+[`ExcelMetadata.get_page_partitions()`](#pudl.extract.excel.ExcelMetadata.get_page_partitions). Most datasets do not have page to
+part maps and just return the same partition that is passed in. If you have
 dataset-specific partition mappings that are needed to return a zipfile from the
 datastore, override this method to return the desired partitions.
 

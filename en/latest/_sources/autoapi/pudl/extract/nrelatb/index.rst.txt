@@ -36,24 +36,17 @@ Functions
 Module Contents
 ---------------
 
-.. py:class:: Extractor(*args, **kwargs)
+.. py:class:: Extractor(ds: pudl.workspace.datastore.Datastore)
 
-   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
+   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`\ [\ :py:obj:`pudl.extract.extractor.GenericMetadata`\ ]
 
 
    Extractor for NREL ATB.
 
 
-   .. py:attribute:: METADATA
-
-      Instance of metadata object to use with this extractor.
-
-
    .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
 
       Get the file name for the right page and part.
-
-      In this instance we are using the same methodology from the excel metadata extractor.
 
 
 

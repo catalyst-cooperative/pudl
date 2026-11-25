@@ -67,17 +67,13 @@ Module Contents
      partitions (e.g. form and year).
 
 
-
    .. py:attribute:: _skiprows
 
 
    .. py:attribute:: _skipfooter
 
 
-   .. py:attribute:: _sheet_name
-
-
-   .. py:attribute:: _file_name
+   .. py:attribute:: _page_map
 
 
    .. py:method:: get_sheet_name(page, **partition)
@@ -98,21 +94,24 @@ Module Contents
 
 
 
-   .. py:method:: get_file_name(page, **partition)
-
-      Returns file name of given partition and page.
-
-
-
    .. py:method:: get_form(page) -> str
 
       Returns the form name for a given page.
 
 
 
-.. py:class:: ExcelExtractor(ds: pudl.workspace.datastore.Datastore)
+   .. py:method:: get_page_partitions(page: str) -> dict[str, str]
 
-   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
+      Return the secondary partitions needed to locate the file for a page.
+
+      These come from ``page_part_map.csv``, which most datasets do not have, so
+      they have no secondary partitions.
+
+
+
+.. py:class:: ExcelExtractor(ds: pudl.workspace.datastore.Datastore, metadata: ExcelMetadata)
+
+   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`\ [\ :py:obj:`ExcelMetadata`\ ]
 
 
    Logic for extracting :class:`pd.DataFrame` from Excel spreadsheets.
@@ -147,19 +146,6 @@ Module Contents
 
    5. get_datapackage_resources() if partition is anything other than a year,
    this method should be overwritten in the dataset-specific extractor.
-
-
-   .. py:attribute:: METADATA
-      :type:  ExcelMetadata
-      :value: None
-
-
-      Instance of metadata object to use with this extractor.
-
-
-   .. py:attribute:: _metadata
-      :value: None
-
 
 
    .. py:attribute:: _file_cache
@@ -204,8 +190,8 @@ Module Contents
       Specify the partitions used for returning a zipfile from the datastore.
 
       By default, this method appends any page to partition mapping in
-      :attr:`METADATA._page_part_map`. Most datasets do not have page to part
-      maps and just return the same partition that is passed in. If you have
+      :meth:`ExcelMetadata.get_page_partitions`. Most datasets do not have page to
+      part maps and just return the same partition that is passed in. If you have
       dataset-specific partition mappings that are needed to return a zipfile from the
       datastore, override this method to return the desired partitions.
 

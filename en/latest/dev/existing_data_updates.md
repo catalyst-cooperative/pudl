@@ -96,13 +96,17 @@ directly to PUDL database table names because we don’t load the data from all 
 some pages result in more than one database table after normalization.
 
 **2.A.1)** If you’re adding a new year, add a row for the new year of data to
-: each of the aforementioned files. If there are any changes to prior years, make
-  sure to address those too. If you are updating early release data with final
-  release data, replace the values in the appropriate year row. **The easiest way
-  to correct the values for these files is to test extraction in Dagster as
-  described in the next step, then use the error messages to narrow down what should
-  be updated.** Exhaustively examining each file manually to compare it with its
-  predecessor is the most difficult way.
+: `file_map.csv`, since the file names differ from year to year. For the other files,
+  only add a row if something has changed: a year without a row is assumed to be the
+  same as the most recent row, up to the last year in the working partitions of the data
+  source in `pudl.metadata.sources`. Years that are not working partitions are never
+  filled in, and neither is `file_map.csv`, which records every year that has been
+  mapped. If there are any changes to prior years, make sure to address those too. If
+  you are updating early release data with final release data, replace the values in the
+  appropriate year row. **The easiest way to correct the values for these files is to
+  test extraction in Dagster as described in the next step, then use the error messages
+  to narrow down what should be updated.** Exhaustively examining each file manually to
+  compare it with its predecessor is the most difficult way.
 
 #### NOTE
 **If you are adding EIA’s early release data**, make sure the raw files have
@@ -119,8 +123,11 @@ semantic meaning (i.e. they don’t correspond to any of the previously mapped f
 pages, or columns) then create new mappings to track that information over time.
 
 #### NOTE
-In all of the the above CSV files we use a value of `-1` to indicate that the data
-does not exist in a given year.
+In all of the above CSV files we use a value of `-1` to indicate that the data
+does not exist in a given year. Cells are never left empty. Like any other value,
+`-1` is carried forward to later years without a row, so a column map row of all
+`-1` marks a page as absent from that year until the next row, for example
+because it has been discontinued.
 
 ### B. FERC Form 714
 

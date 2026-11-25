@@ -24,21 +24,15 @@ This module pulls data from archived copies of EIA’s published Excel spreadshe
 
 ### pudl.extract.eia923.logger
 
-### *class* pudl.extract.eia923.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.eia923.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.html.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for EIA form 923.
 
-#### METADATA
-
-Instance of metadata object to use with this extractor.
-
 #### BLACKLISTED_PAGES *= ['plant_frame']*
 
 List of supported pages that should not be extracted.
-
-#### cols_added *= []*
 
 #### process_raw(df, page, \*\*partition)
 
