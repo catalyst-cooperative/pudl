@@ -288,9 +288,9 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/sec10k*.rst \
     docs/data_sources/vcerare*.rst \
     docs/citations_media/catalyst_publications.rst \
-    docs/citations_media/citing_pudl.rst \
-    docs/citations_media/mentioning_pudl.rst \
-    docs/citations_media/citing_cooperative.rst \
+    docs/citations_media/pudl_citations.rst \
+    docs/citations_media/pudl_mentions.rst \
+    docs/citations_media/cooperative_mentions.rst \
     docs/citations_media/further_reading.rst'
 """
 description = "Remove all generated documentation files"
