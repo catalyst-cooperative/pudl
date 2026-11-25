@@ -21,6 +21,7 @@ from dagster import AssetOut, Output, asset, multi_asset
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -28,15 +29,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA860M."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self.METADATA = excel.ExcelMetadata("eia860m")
-        self.cols_added = []
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, excel.ExcelMetadata("eia860m"))
 
     def process_raw(self, df, page, **partition):
         """Adds source column and report_year column if missing."""

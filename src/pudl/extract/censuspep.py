@@ -6,6 +6,7 @@ from dagster import Output, asset
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -13,15 +14,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset Census PEP FIPS Codes."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self.METADATA = excel.ExcelMetadata("censuspep")
-        self.cols_added = []
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, excel.ExcelMetadata("censuspep"))
 
     @staticmethod
     def get_dtypes(page, **partition):
