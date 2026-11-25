@@ -2,6 +2,7 @@
 name: com-dev-notify
 
 on:
+  workflow_call: # Make reusable in other repos
   issues:
     types: [opened]
   discussion:
