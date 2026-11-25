@@ -505,7 +505,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.66b2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.34.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.34.1-hc91a356_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.1-pyh5ded981_0.conda
@@ -1141,7 +1141,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.66b2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.34.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.34.1-hc91a356_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.1-pyh5ded981_0.conda
@@ -1503,7 +1503,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.66b2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.34.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.34.1-hc91a356_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandocfilters-1.5.1-pyh5ded981_0.conda
@@ -2424,7 +2424,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandas-stubs-3.1.0.261029-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.34.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.34.1-hc91a356_0.conda
@@ -3108,7 +3108,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandas-stubs-3.1.0.261029-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.34.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.34.1-hc91a356_0.conda
@@ -3487,7 +3487,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/optype-numpy-0.19.0-pyhec12e3b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderly-set-5.5.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/overrides-7.7.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandas-stubs-3.1.0.261029-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-base-0.34.1-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.34.1-hc91a356_0.conda
@@ -8269,6 +8269,7 @@ packages:
   - _python_abi3_support 1.*
   - cpython >=3.12
   license: BSD-3-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/pyzmq?source=compressed-mapping
   run_exports: {}
@@ -9227,6 +9228,7 @@ packages:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=15
   license: MIT
+  license_family: MIT
   purls: []
   run_exports:
     weak:
@@ -13374,6 +13376,7 @@ packages:
   - _python_abi3_support 1.*
   - cpython >=3.12
   license: BSD-3-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/pyzmq?source=compressed-mapping
   run_exports: {}
@@ -14280,6 +14283,7 @@ packages:
   depends:
   - libgcc >=15
   license: MIT
+  license_family: MIT
   purls: []
   run_exports:
     weak:
@@ -15645,8 +15649,9 @@ packages:
   - python >=3.11
   - python
   license: MIT
+  license_family: MIT
   purls:
-  - pkg:pypi/filelock?source=hash-mapping
+  - pkg:pypi/filelock?source=compressed-mapping
   run_exports: {}
   size: 185355
   timestamp: 1795471633113
@@ -16092,6 +16097,7 @@ packages:
   - grpc-google-iam-v1 >=0.14.2,<1.0.0
   - python
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/google-cloud-storage?source=compressed-mapping
   run_exports: {}
@@ -16731,7 +16737,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/jsonschema?source=compressed-mapping
+  - pkg:pypi/jsonschema?source=hash-mapping
   run_exports: {}
   size: 82084
   timestamp: 1787579299493
@@ -17749,19 +17755,18 @@ packages:
   run_exports: {}
   size: 30139
   timestamp: 1734587755455
-- conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
-  sha256: c432626b16768b8dab228bfb706f7060c2d462a21c516d240f68f2f902b5a044
-  md5: 936687ed80f295a1f5dbcf8bd34c252c
+- conda: https://conda.anaconda.org/conda-forge/noarch/packaging-26.4-pyhc364b38_0.conda
+  sha256: 168392f26ecbcf0156efa425ac730d19466ccffad55b15cb90b7f19683b18a31
+  md5: df83250ef4f2a8c4ed3a3fea9f13f96f
   depends:
-  - python >=3.9
+  - python >=3.10
   - python
   license: Apache-2.0
-  license_family: APACHE
   purls:
-  - pkg:pypi/packaging?source=hash-mapping
+  - pkg:pypi/packaging?source=compressed-mapping
   run_exports: {}
-  size: 116363
-  timestamp: 1785888127370
+  size: 123480
+  timestamp: 1795582404902
 - conda: https://conda.anaconda.org/conda-forge/noarch/pandas-stubs-3.1.0.261029-pyhd8ed1ab_0.conda
   sha256: 845d016ab836d1f45a3d1681694bc7a05b5b6a2cd6537bc4758a90dcffb81403
   md5: f9be034828f4d305704ec48c142688dc
@@ -20674,7 +20679,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/coverage?source=compressed-mapping
+  - pkg:pypi/coverage?source=hash-mapping
   run_exports: {}
   size: 453647
   timestamp: 1795456101585
@@ -23702,6 +23707,7 @@ packages:
   - _python_abi3_support 1.*
   - cpython >=3.12
   license: BSD-3-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/pyzmq?source=compressed-mapping
   run_exports: {}
@@ -24197,6 +24203,7 @@ packages:
   depends:
   - __osx >=11.0
   license: MIT
+  license_family: MIT
   purls: []
   run_exports:
     weak:
