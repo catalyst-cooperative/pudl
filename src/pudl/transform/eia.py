@@ -129,7 +129,11 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
         ("AK", "Prince Of Wales", "Prince of Wales-Hyder Census Area"),
         ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
-        ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
+        (
+            "AK",
+            "Prince of Wales-Outer Ketchika",
+            "Prince of Wales-Hyder Census Area",
+        ),
         ("AK", "Red Devil", "Bethel Census Area"),
         ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
         ("AK", "Skagway Yaku", "Skagway"),
@@ -168,7 +172,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("GA", "Chattahooche", "Chattahoochee"),
         ("GA", "De Kalb", "DeKalb"),
         ("GA", "Glasscock", "Glascock County"),
-        ("GA", "Hillsborough", "Jasper"),
+        ("GA", "Hillsborough", "Hart"),
         ("IA", "Hardin -remove", "Hardin County"),
         ("IA", "Harris", "Harrison"),
         ("IA", "Humbolt", "Humboldt"),
@@ -333,6 +337,25 @@ This set of fixes was developed for EIA-861 for
 :ref:`core_eia861__yearly_service_territory` and was expanded (slightly) to cover
 the remaining non-conforming EIA-860 and EIA-923 county names.
 """
+
+
+def _check_for_missing_fips_codes(entity_df: pd.DataFrame):
+    """Check if the plant's entity table has excessive missing FIPS codes."""
+    missing_county_id_fips = entity_df.loc[
+        (
+            (entity_df.county_id_fips.isnull())
+            & (entity_df.state.notna())
+            & (entity_df.county.str.lower() != "not in file")
+        )
+    ]
+    if not missing_county_id_fips.empty:
+        raise AssertionError(
+            "We expect all plant records with a non-null state and a "
+            "not silly (`not in file`) county name to have a fips code. "
+            "If there are unmapped fips codes, you may need to add a fix "
+            "to a county name to `EIA_FIPS_COUNTY_FIXES`. \n\n"
+            f"{missing_county_id_fips}"
+        )
 
 
 def find_timezone(
@@ -648,7 +671,13 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
     cems_df = pd.read_csv(
         PUDL_PACKAGE_DATA_PATH / "epacems" / "additional_epacems_plants.csv",
         index_col=["plant_id_eia"],
-        usecols=["plant_id_eia", "plant_name_eia", "state", "latitude", "longitude"],
+        usecols=[
+            "plant_id_eia",
+            "plant_name_eia",
+            "state",
+            "latitude",
+            "longitude",
+        ],
     )
     plants_entity = plants_entity.set_index("plant_id_eia")
     cems_unmatched = cems_df.loc[~cems_df.index.isin(plants_entity.index)]
@@ -1179,7 +1208,10 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
 
     # merge the 'bad' plants back into the larger frame
     bga_compiled_3 = bga_compiled_3.merge(
-        bad_plants, how="outer", on=["plant_id_eia", "report_date"], indicator=True
+        bad_plants,
+        how="outer",
+        on=["plant_id_eia", "report_date"],
+        indicator=True,
     )
 
     # use the indicator to create labels
@@ -1209,7 +1241,13 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     bga_out.loc[bga_out.unit_id_eia.isnull(), "unit_id_eia"] = pd.NA
 
     bga_for_nx = bga_out[
-        ["plant_id_eia", "report_date", "generator_id", "boiler_id", "unit_id_eia"]
+        [
+            "plant_id_eia",
+            "report_date",
+            "generator_id",
+            "boiler_id",
+            "unit_id_eia",
+        ]
     ]
     # If there's no boiler... there's no boiler-generator association
     bga_for_nx = bga_for_nx.dropna(subset=["boiler_id"]).drop_duplicates()
@@ -1349,7 +1387,12 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
                 axis=1,
             )
             .drop_duplicates(
-                subset=["report_date", "plant_id_eia", "boiler_id", "generator_id"]
+                subset=[
+                    "report_date",
+                    "plant_id_eia",
+                    "boiler_id",
+                    "generator_id",
+                ]
             )
         )
 
@@ -1412,7 +1455,9 @@ def map_balancing_authority_names_to_codes(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame:
+def fillna_balancing_authority_codes_via_names(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
     """Fill null balancing authority (BA) codes via a map of the BA names to codes.
 
     There are a handful of missing ``balancing_authority_code_eia``'s that are easy to
@@ -1497,7 +1542,8 @@ def fix_balancing_authority_codes_with_state(
             validate="m:1",
         )
         BACodeFix = namedtuple(
-            "BACodeFix", ["ba_code_found", "ba_code_fix", "ba_name_fix", "states"]
+            "BACodeFix",
+            ["ba_code_found", "ba_code_fix", "ba_name_fix", "states"],
         )
         fixes = [
             BACodeFix(
@@ -1523,7 +1569,10 @@ def fix_balancing_authority_codes_with_state(
             plants.loc[
                 (plants.balancing_authority_code_eia == fix.ba_code_found)
                 & (plants.state.isin(fix.states)),
-                ["balancing_authority_code_eia", "balancing_authority_name_eia"],
+                [
+                    "balancing_authority_code_eia",
+                    "balancing_authority_name_eia",
+                ],
             ] = [fix.ba_code_fix, fix.ba_name_fix]
         plants = plants.drop(columns=["state"])
 
@@ -1611,11 +1660,15 @@ def harvested_entity_asset_factory(
                 )
                 # Add FIPS IDs based on county & state names:
                 .pipe(
-                    add_fips_ids, _core_censuspep__yearly_geocodes, county_col="county"
+                    add_fips_ids,
+                    _core_censuspep__yearly_geocodes,
+                    county_col="county",
                 )
             )
+            _check_for_missing_fips_codes(entity_df)
             annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
-                fix_balancing_authority_codes_with_state, plants_entity=entity_df
+                fix_balancing_authority_codes_with_state,
+                plants_entity=entity_df,
             )
 
         # Take all of the column inputs and make them into one big forensics changelog
