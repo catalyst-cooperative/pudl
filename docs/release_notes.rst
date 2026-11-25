@@ -55,7 +55,7 @@ Bug Fixes & Data Cleaning
   reported code rather than the spreadsheet tab, the plant-part tables label these
   generators ``cancelled``, and the generation and fuel allocation still treats them
   as it treats proposed generators, so its results are unchanged. See issue
-  :issue:`5766` and PR :pr:`XXXX`.
+  :issue:`5766` and PR :pr:`5792`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
