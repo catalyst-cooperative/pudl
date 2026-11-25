@@ -1599,3 +1599,17 @@ def test_apply_pudl_dtypes_polars_resource_override() -> None:
     lf = pl.LazyFrame({_OVERRIDE_FIELD: [1.5, 2.3, 3.7]})
     result = apply_pudl_dtypes_polars(lf, resource=_RELIABILITY_RESOURCE).collect()
     assert result[_OVERRIDE_FIELD].dtype == pl.Float64
+
+
+def test_indefinitely_postponed_and_cancelled_generators_are_cancelled():
+    """Codes IP and CN map to a ``cancelled`` operational status (:issue:`5766`).
+
+    Since 2009 EIA lists both in the Retired and Canceled tab of EIA-860, not the
+    Proposed tab, so they shouldn't count as proposed.
+    """
+    from pudl.metadata.codes import CODE_METADATA
+
+    codes = CODE_METADATA["core_eia__codes_operational_status"]["df"].set_index("code")
+    assert codes.loc["IP", "operational_status"] == "cancelled"
+    assert codes.loc["CN", "operational_status"] == "cancelled"
+    assert codes.loc["PL", "operational_status"] == "proposed"

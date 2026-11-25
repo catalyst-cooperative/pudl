@@ -1210,3 +1210,48 @@ def test_stack_generators__drops_null_energy_sources():
     assert set(out["energy_source_code_num"]) <= {
         f"energy_source_code_{n}" for n in range(1, 13)
     }
+
+
+def test_identify_newly_operating_generators_includes_cancelled():
+    """A cancelled generator (EIA codes CN or IP) that nonetheless reports
+    generator-specific data is kept, as it was when cancelled generators were
+    labeled "proposed" (:issue:`5766`).
+    """
+    gen_assoc = _read_gen_assoc(
+        """plant_id_eia,generator_id,report_date,operational_status,generator_operating_date,gf_unique_to_gen,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
+23456,GEN1,2023-03-01,cancelled,,False,15,
+"""
+    )
+
+    out = allocate_gen_fuel.identify_newly_operating_generators(gen_assoc)
+
+    assert len(out) == 1
+    assert (out.operational_status == "cancelled").all()
+
+
+def test_identify_proposed_groups_counts_cancelled_as_proposed():
+    """A PM/ESC group whose generators are all either proposed or cancelled still
+    counts as entirely proposed, so its gf-table generation is kept, as it was when
+    cancelled generators were labeled "proposed" (:issue:`5766`). A group mixing
+    cancelled and existing generators is still excluded.
+    """
+    proposed_and_cancelled = _gen_assoc_df(
+        {
+            "plant_id_eia": [1, 1],
+            "generator_id": ["GEN1", "GEN2"],
+            "report_date": ["2024-01-01", "2024-01-01"],
+            "operational_status": ["proposed", "cancelled"],
+            "prime_mover_code": ["ST", "ST"],
+            "energy_source_code": ["NG", "NG"],
+            "generator_operating_date": [pd.NA, pd.NA],
+            "net_generation_mwh_g_tbl": [pd.NA, pd.NA],
+            "net_generation_mwh_gf_tbl": [50, 50],
+        }
+    )
+    out = allocate_gen_fuel.identify_proposed_groups(proposed_and_cancelled)
+    assert set(out.generator_id) == {"GEN1", "GEN2"}
+
+    cancelled_and_existing = proposed_and_cancelled.assign(
+        operational_status=["cancelled", "existing"]
+    )
+    assert allocate_gen_fuel.identify_proposed_groups(cancelled_and_existing).empty

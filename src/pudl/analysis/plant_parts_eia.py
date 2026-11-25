@@ -293,7 +293,7 @@ All the plant part ID columns must be in consistent attributes.
 """
 
 PRIORITY_ATTRIBUTES_DICT: dict[str, list[str]] = {
-    "operational_status": ["existing", "proposed", "retired"],
+    "operational_status": ["existing", "proposed", "retired", "cancelled"],
 }
 
 type AssignCol = Callable[[pd.DataFrame], pd.Series]
@@ -1362,9 +1362,10 @@ class AddPriorityAttribute(AddAttribute):
     based on a sorted list within :py:const:`PRIORITY_ATTRIBUTES`. For example, for
     "operational_status" we will grab the highest level of operational status that is
     associated with each records' component generators. The order of operational status
-    is defined within the method as: 'existing', 'proposed', then 'retired'. For example
-    if a plant_unit is composed of two generators, and one of them is "existing" and
-    another is "retired" the entire plant_unit will be considered "existing".
+    is defined within the method as: 'existing', 'proposed', 'retired', then
+    'cancelled'. For example if a plant_unit is composed of two generators, and one of
+    them is "existing" and another is "retired" the entire plant_unit will be
+    considered "existing".
     """
 
     def execute(self, part_df, gens_mega):

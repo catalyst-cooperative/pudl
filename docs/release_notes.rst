@@ -47,6 +47,16 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Generators reported as indefinitely postponed (code ``IP``) or cancelled (code
+  ``CN``) now have an ``operational_status`` of ``cancelled`` instead of ``proposed``.
+  EIA has listed both in the Retired and Canceled tab of EIA-860 since 2009, and they
+  made up about a third of the generator-years labeled ``proposed``. The
+  ``operational_status`` field description now says that the status comes from the
+  reported code rather than the spreadsheet tab, the plant-part tables label these
+  generators ``cancelled``, and the generation and fuel allocation still treats them
+  as it treats proposed generators, so its results are unchanged. See issue
+  :issue:`5766` and PR :pr:`5792`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
