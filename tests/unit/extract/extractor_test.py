@@ -2,7 +2,12 @@ import pandas as pd
 import pytest
 from dagster import build_op_context
 
-from pudl.extract.extractor import concat_pages, partitions_from_data_config_factory
+from pudl.extract.csv import CsvExtractor
+from pudl.extract.extractor import (
+    GenericMetadata,
+    concat_pages,
+    partitions_from_data_config_factory,
+)
 from pudl.settings import GlobalDataConfig, PudlDataConfig
 
 
@@ -41,3 +46,9 @@ def test_concat_pages():
             merged_dfs[page],
             pd.DataFrame({"df": [1, 2], "page": [page, page]}, index=[0, 1]),
         )
+
+
+def test_extractor_uses_the_metadata_it_is_given(mocker):
+    """The metadata that an extractor is created with is the one that it uses."""
+    extractor = CsvExtractor(mocker.Mock(), GenericMetadata("eia191"))
+    assert extractor._metadata.get_dataset_name() == "eia191"

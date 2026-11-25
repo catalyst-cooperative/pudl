@@ -5,32 +5,27 @@ from dagster import asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
+from pudl.workspace.datastore import Datastore
 
 
 class Extractor(CsvExtractor):
     """Extractor for USDA RUS Form 7."""
 
-    def __init__(self, *args, **kwargs):
+    # add this index_col arg bc if not read_csv assumes the first col
+    # is the index and weirdly shifts the header names over its insufferable
+    READ_CSV_KWARGS = {"index_col": False}
+
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self.METADATA = GenericMetadata("rus7")
-        # add this index_col arg bc if not read_csv assumes the first col
-        # is the index and weirdly shifts the header names over its insufferable
-        self.READ_CSV_KWARGS = {"index_col": False}
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, GenericMetadata("rus7"))
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
-        """Get the file name for the right page and part.
-
-        In this instance we are using the same methodology from the excel metadata extractor.
-        """
-        _file_name = self.METADATA._load_csv(self.METADATA._path, "file_map.csv")
-        return str(
-            _file_name.loc[self.METADATA._get_partition_selection(partition), page]
-        )
+        """Get the file name for the right page and part."""
+        return self._metadata.get_file_name(page, **partition)
 
     def process_raw(self, df, page, **partition):
         """Adds source column and report_year column if missing."""

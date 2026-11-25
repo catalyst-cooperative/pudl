@@ -13,6 +13,7 @@ import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -20,15 +21,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA860."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self.METADATA = excel.ExcelMetadata("eia860")
-        self.cols_added = []
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, excel.ExcelMetadata("eia860"))
 
     def process_raw(self, df: pd.DataFrame, page: str, **partition):
         """Apply necessary pre-processing to the dataframe.
