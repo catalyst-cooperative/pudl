@@ -9,6 +9,7 @@ from dagster import AssetOut, Output, multi_asset
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -16,15 +17,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset PHMSA."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ds: Datastore):
         """Initialize the module.
 
         Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
+            ds: Initialized datastore.
         """
-        self.METADATA = excel.ExcelMetadata("phmsagas")
-        self.cols_added = []
-        super().__init__(*args, **kwargs)
+        super().__init__(ds, excel.ExcelMetadata("phmsagas"))
 
     def load_source(self, page: str, **partition) -> pd.DataFrame:
         """Run same load_source and then replace all periods w/ n's.
