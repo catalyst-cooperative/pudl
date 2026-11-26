@@ -2003,6 +2003,8 @@ def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFra
         .drop(columns=["index"])
         .pipe(_post_process, name="core_eia861__yearly_mergers")
     )
+    df["entity_type"] = reconcile_entity_types(df["entity_type"])
+
     return df
 
 
@@ -2490,6 +2492,11 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         transformed_ud_misc_bool,
         on=idx_cols,
         how="outer",
+    )
+
+    # Normalize entity type column for utility data
+    transformed_ud_misc["entity_type"] = reconcile_entity_types(
+        transformed_ud_misc["entity_type"]
     )
 
     return (

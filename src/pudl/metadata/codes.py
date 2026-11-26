@@ -2714,6 +2714,7 @@ DISABLED_CODE_METADATA = {
             "Behind the Meter": "B",
             "Community Choice Aggregator": "G",
             "Cooperative": "C",
+            "DSM Administrator": "D",
             "Facility": "Q",
             "Federal": "F",
             "Investor Owned": "I",
@@ -2723,7 +2724,18 @@ DISABLED_CODE_METADATA = {
             "Retail Power Marketer": "R",
             "State": "S",
             "Unregulated": "Q",
+            "Unknown": "U",
             "Wholesale Power Marketer": "W",
+            # DSM data mapped based on entity_type values reported in utility_data tab
+            # for same year (not currently processed in PUDL)
+            "1.0": "I",
+            "2.0": "PO",
+            "3.0": "C",
+            "4.0": "F",
+            "5.0": "M",
+            "6.0": "P",
+            "7.0": "A",
+            "8.0": "S",
         },
         "ignored_codes": [],
     }
