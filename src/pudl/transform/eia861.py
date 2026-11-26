@@ -1286,11 +1286,11 @@ def core_eia861__yearly_advanced_metering_infrastructure(
     df["entity_type_new"] = reconcile_entity_types(df["entity_type"])
     # This field was not reported 2012-2018 - we fill it where the start and end values are consistent.
     df = fill_matching_gaps(
-        df, group_cols=["utility_id_eia"], value_cols=["entity_type"]
+        df, group_cols=["utility_id_eia"], value_cols=["entity_type_new"]
     )
-    context.pdb.set_trace()
-
-    return df
+    return df.drop(columns="entity_type").rename(
+        columns={"entity_type_new": "entity_type"}
+    )
 
 
 def reconcile_entity_types(entity_type_series: pd.Series) -> pd.Series:
