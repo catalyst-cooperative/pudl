@@ -1313,7 +1313,7 @@ def reconcile_entity_types(entity_type_series: pd.Series) -> pd.Series:
         )
     )
     # Check that mapping proceeded as expected.
-    missing_codes = set(entity_type_corrected.unique().dropna()).difference(
+    missing_codes = set(entity_type_corrected.dropna().unique()).difference(
         set(DISABLED_CODE_METADATA["core_eia__codes_entity_types"]["df"]["label"])
     )
     assert not missing_codes, f"Found unexpected entity types: {missing_codes}."

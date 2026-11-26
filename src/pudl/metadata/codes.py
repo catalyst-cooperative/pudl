@@ -2711,6 +2711,7 @@ DISABLED_CODE_METADATA = {
             ],
         ).convert_dtypes(),
         "code_fixes": {
+            "Municipal Mktg Authority": "A",
             "Behind the Meter": "B",
             "Community Choice Aggregator": "G",
             "Cooperative": "C",
@@ -2723,6 +2724,7 @@ DISABLED_CODE_METADATA = {
             "Power Marketer": "PO",
             "Retail Power Marketer": "R",
             "State": "S",
+            "Transmission": "T",
             "Unregulated": "Q",
             "Unknown": "U",
             "Wholesale Power Marketer": "W",
