@@ -2,17 +2,17 @@
 
 {% if descriptions.availability.type == "True" %}
 Most-recent data:
-  {{ descriptions.availability.description|safe }}
+{{ descriptions.availability.description|safe|indent(2, first=true) }}
 {% endif %}
 
 Processing:
-  {{ descriptions.layer.description|safe }}
+{{ descriptions.layer.description|safe|indent(2, first=true) }}
 
 Source:
-  {{ descriptions.source.description|safe }}
+{{ descriptions.source.description|safe|indent(2, first=true) }}
 
 Primary key:
-  {{ descriptions.primary_key.description|safe }}
+{{ descriptions.primary_key.description|safe|indent(2, first=true) }}
 
 {% if descriptions.usage_warnings|length > 0 %}
 Usage Warnings
@@ -28,5 +28,5 @@ Usage Warnings
 Additional Details
 ^^^^^^^^^^^^^^^^^^
 
-{{ descriptions.details.description|safe }}
+{{ descriptions.details.description|safe|indent(2, first=true) }}
 {% endif %}
