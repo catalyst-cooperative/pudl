@@ -58,6 +58,10 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Reconciled changes in the reporting format for ``entity_type`` in
+  :doc:`EIA-861 <data_sources/eia861>`, mapping older short-codes to standardized
+  labels. See :issue:`5601` and :pr:`5795`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
