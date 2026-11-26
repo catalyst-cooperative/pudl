@@ -355,13 +355,13 @@ To see which type errors and untyped code remain, run pyrefly directly:
 
 .. code-block:: console
 
-    $ pixi run pyrefly check               # also shows errors in the baseline
-    $ pixi run pyrefly coverage check src  # every untyped symbol (thousands of lines)
+    $ pixi run -e dev pyrefly check               # also shows errors in the baseline
+    $ pixi run -e dev pyrefly coverage check src  # every untyped symbol (very long)
 
 The baseline
 ~~~~~~~~~~~~
 
-The few type errors that remain can't (yet) be fixed are recorded in
+The few type errors that remain and can't (yet) be fixed are recorded in
 ``.pyrefly-baseline.json``. ``pixi run pyrefly-check`` only fails on errors *not already
 in the baseline*. This lets us require that type checking pass without waiting on
 upstream fixes.

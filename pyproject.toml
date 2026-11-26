@@ -217,7 +217,8 @@ description = "Type-check with pyrefly against the tracked baseline"
 # place the minimum type coverage is defined; the pre-commit hook and CI both call it.
 [tool.pixi.feature.dev.tasks.pyrefly-coverage]
 # omit-errors: print only the one-line summary, not every untyped symbol. For the full
-# list, run `pixi run pyrefly coverage check src` or `pixi run pyrefly-status-coverage`.
+# list, run `pixi run -e dev pyrefly coverage check src` or
+# `pixi run pyrefly-status-coverage`.
 cmd = "pyrefly coverage check --output-format omit-errors --fail-under 80 src"
 description = "Fail if pyrefly type coverage of src/ drops below 80%"
 
