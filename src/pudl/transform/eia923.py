@@ -205,7 +205,9 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     return gen_fuel
 
 
-def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> dict[str, str]:
+def _get_most_frequent_energy_source_map(
+    gen_fuel: pd.DataFrame,
+) -> dict[str, str]:
     """Get the a mapping of the most common energy_source for each fuel_type_code_agg.
 
     Args:
@@ -556,7 +558,9 @@ def _coalmine_cleanup(
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
         .pipe(
-            pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes, county_col=None
+            pudl.helpers.add_fips_ids,
+            _core_censuspep__yearly_geocodes,
+            county_col=None,
         )
     )
     # join state and partial county FIPS into five digit county FIPS
@@ -579,7 +583,8 @@ def _coalmine_cleanup(
 
 
 def plants_eia923(
-    eia923_dfs: dict[str, pd.DataFrame], eia923_transformed_dfs: dict[str, pd.DataFrame]
+    eia923_dfs: dict[str, pd.DataFrame],
+    eia923_transformed_dfs: dict[str, pd.DataFrame],
 ) -> dict[str, pd.DataFrame]:
     """Transforms the plants_eia923 table.
 
@@ -619,7 +624,7 @@ def plants_eia923(
             "plant_state",
             "sector_id_eia",
             "naics_code",
-            "reporting_frequency_code",
+            "reporting_frequency_code_plant",
             "census_region",
             "nerc_region",
             "capacity_mw",
@@ -685,7 +690,9 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
         "_core_eia923__generation_fuel_nuclear": AssetOut(),
     },
 )
-def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame):
+def _core_eia923__pre_generation_fuel(
+    raw_eia923__generation_fuel: pd.DataFrame,
+):
     """Transforms the raw_eia923__generation_fuel table.
 
     Transformations include:
@@ -808,7 +815,8 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     return (
         Output(output_name="_core_eia923__generation_fuel", value=gen_fuel),
         Output(
-            output_name="_core_eia923__generation_fuel_nuclear", value=gen_fuel_nuke
+            output_name="_core_eia923__generation_fuel_nuclear",
+            value=gen_fuel_nuke,
         ),
     )
 
@@ -840,7 +848,9 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
     )
 
 
-def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
+def _aggregate_duplicate_boiler_fuel_keys(
+    boiler_fuel_df: pd.DataFrame,
+) -> pd.DataFrame:
     """Combine boiler_fuel rows with duplicate keys by aggregating them.
 
     core_eia923__monthly_boiler_fuel contains a few records with duplicate keys, mostly caused by
@@ -861,8 +871,17 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     quantity_cols = [
         "fuel_consumed_units",
     ]
-    relative_cols = ["ash_content_pct", "sulfur_content_pct", "fuel_mmbtu_per_unit"]
-    key_cols = ["boiler_id", "energy_source_code", "plant_id_eia", "report_date"]
+    relative_cols = [
+        "ash_content_pct",
+        "sulfur_content_pct",
+        "fuel_mmbtu_per_unit",
+    ]
+    key_cols = [
+        "boiler_id",
+        "energy_source_code",
+        "plant_id_eia",
+        "report_date",
+    ]
 
     expected_cols = set(
         quantity_cols
@@ -904,14 +923,17 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
     # NOTE: the following method changes the order of the data and resets the index
     modified_boiler_fuel_df = pd.concat(
-        [boiler_fuel_df[~is_duplicate], aggregates.reset_index()], ignore_index=True
+        [boiler_fuel_df[~is_duplicate], aggregates.reset_index()],
+        ignore_index=True,
     )
 
     return modified_boiler_fuel_df
 
 
 @asset
-def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataFrame:
+def _core_eia923__boiler_fuel(
+    raw_eia923__boiler_fuel: pd.DataFrame,
+) -> pd.DataFrame:
     """Transforms the core_eia923__monthly_boiler_fuel table.
 
     Transformations include:
@@ -951,7 +973,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
         "early_release",
-        "reporting_frequency_code",
+        # "reporting_frequency_code",
         # "data_maturity",
     ]
     bf_df = bf_df.drop(cols_to_drop, axis=1)
@@ -1033,7 +1055,9 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFrame:
+def _core_eia923__generation(
+    raw_eia923__generator: pd.DataFrame,
+) -> pd.DataFrame:
     """Transforms the EIA 923 generation table.
 
     Transformations include:
@@ -1131,7 +1155,12 @@ def _drop_duplicates__core_eia923__generation(
         ]
         deduped = (
             dupe_df.groupby(unique_subset)
-            .agg({"net_generation_mwh": "sum", **dict.fromkeys(first_cols, "first")})
+            .agg(
+                {
+                    "net_generation_mwh": "sum",
+                    **dict.fromkeys(first_cols, "first"),
+                }
+            )
             .reset_index()
         )
         return pd.concat([df[~mask], deduped], ignore_index=True)
@@ -1146,7 +1175,12 @@ def _drop_duplicates__core_eia923__generation(
         gen_df = _agg_dupes(gen_df, still_dupes, still_dupe_mask)
     elif set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013, 2025}):
         assert set(still_dupes.plant_id_eia.unique()) == {3405, 55088}
-        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013, 2025, 2026}
+        assert set(still_dupes.report_date.dt.year.unique()) == {
+            2012,
+            2013,
+            2025,
+            2026,
+        }
         gen_df = _agg_dupes(gen_df, still_dupes, still_dupe_mask)
     if not (
         still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
@@ -1344,7 +1378,10 @@ def _core_eia923__fuel_receipts_costs(
         .pipe(pudl.helpers.convert_to_date)
         .pipe(
             pudl.helpers.cleanstrings,
-            ["natural_gas_transport_code", "natural_gas_delivery_contract_type_code"],
+            [
+                "natural_gas_transport_code",
+                "natural_gas_delivery_contract_type_code",
+            ],
             [
                 {"firm": ["F"], "interruptible": ["I"]},
                 {"firm": ["F"], "interruptible": ["I"]},

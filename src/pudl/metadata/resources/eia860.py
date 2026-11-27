@@ -110,6 +110,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "so2_control_proposed_strategy_3",
                 "standard_so2_scrubbed_fraction",
                 "data_maturity",
+                "reporting_frequency_code_boiler",
             ],
             "primary_key": ["plant_id_eia", "boiler_id", "report_date"],
             "foreign_key_rules": {
@@ -149,7 +150,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "bga_source",
                 "data_maturity",
             ],
-            "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "generator_id",
+                "boiler_id",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
@@ -235,6 +241,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "reactive_power_output_mvar",
                 "ferc_qualifying_facility",
                 "data_maturity",
+                "reporting_frequency_code_generator",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
             "foreign_key_rules": {
@@ -374,7 +381,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "pipeline_notes",
                 "primary_purpose_id_naics",
                 "regulatory_status_code",
-                "reporting_frequency_code",
+                "reporting_frequency_code_plant",
                 "sector_id_eia",
                 "sector_name_eia",
                 "service_area",
@@ -542,6 +549,34 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
+    "core_eia860__scd_prime_mover_energy_sources": {
+        "description": {
+            "additional_summary_text": (
+                "plant/prime mover/energy source code which may vary from year to year. Compiled from all EIA data."
+            ),
+            "additional_details_text": "This table primarily has each records' reporting frequency codes. "
+            & canonical_harvested_details("prime mover/energy source code", False),
+            "usage_warnings": ["harvested"],
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+                "reporting_frequency_code_prime_mover_energy_source",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia860",
+    },
     "core_eia860__scd_emissions_control_equipment": {
         "description": {
             "additional_summary_text": (
@@ -574,7 +609,11 @@ monitoring.
                 "emission_control_operating_date",
                 "emission_control_retirement_date",
             ],
-            "primary_key": ["report_date", "plant_id_eia", "emission_control_id_pudl"],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "emission_control_id_pudl",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia860"],
@@ -612,7 +651,11 @@ columns.""",
                 "emission_control_operating_date",
                 "emission_control_retirement_date",
             ],
-            "primary_key": ["report_date", "plant_id_eia", "emission_control_id_pudl"],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "emission_control_id_pudl",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia860"],

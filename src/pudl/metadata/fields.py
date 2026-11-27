@@ -330,7 +330,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of acquisition of items classified within the account.",
         "unit": "USD",
     },
-    "address_2": {"type": "string", "description": "Second line of the address."},
+    "address_2": {
+        "type": "string",
+        "description": "Second line of the address.",
+    },
     "adjustments": {
         "type": "number",
         "description": "Cost of adjustments to the account.",
@@ -1435,7 +1438,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Title of of utility contact 1.",
     },
-    "contact_title_2": {"type": "string", "description": "Title of utility contact 2."},
+    "contact_title_2": {
+        "type": "string",
+        "description": "Title of utility contact 2.",
+    },
     "contract_expiration_date": {
         "type": "date",
         "description": "Date contract expires.Format:  MMYY.",
@@ -2243,8 +2249,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "DPSF2. Median age by sex - Both sexes",
     },
-    "dp0020002": {"type": "number", "description": "DPSF2. Median age by sex - Male"},
-    "dp0020003": {"type": "number", "description": "DPSF2. Median age by sex - Female"},
+    "dp0020002": {
+        "type": "number",
+        "description": "DPSF2. Median age by sex - Male",
+    },
+    "dp0020003": {
+        "type": "number",
+        "description": "DPSF2. Median age by sex - Female",
+    },
     # DPSF3. Sex for the population 16 years and over - Universe: Population 16 years and over
     "dp0030001": {
         "type": "integer",
@@ -2311,7 +2323,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "DPSF7. Sex for population 65 years and over - Female",
     },
     # DPSF8. Race - Universe: Total population
-    "dp0080001": {"type": "integer", "description": "DPSF8. Race - Total population"},
+    "dp0080001": {
+        "type": "integer",
+        "description": "DPSF8. Race - Total population",
+    },
     "dp0080002": {
         "type": "integer",
         "description": "DPSF8. Race - Population of one race",
@@ -2325,19 +2340,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "DPSF8. Race - American Indian and Alaska Native",
     },
-    "dp0080006": {"type": "integer", "description": "DPSF8. Race - Asian total"},
-    "dp0080007": {"type": "integer", "description": "DPSF8. Race - Asian Indian"},
+    "dp0080006": {
+        "type": "integer",
+        "description": "DPSF8. Race - Asian total",
+    },
+    "dp0080007": {
+        "type": "integer",
+        "description": "DPSF8. Race - Asian Indian",
+    },
     "dp0080008": {"type": "integer", "description": "DPSF8. Race - Chinese"},
     "dp0080009": {"type": "integer", "description": "DPSF8. Race - Filipino"},
     "dp0080010": {"type": "integer", "description": "DPSF8. Race - Japanese"},
     "dp0080011": {"type": "integer", "description": "DPSF8. Race - Korean"},
     "dp0080012": {"type": "integer", "description": "DPSF8. Race - Vietnamese"},
-    "dp0080013": {"type": "integer", "description": "DPSF8. Race - Other Asian"},
+    "dp0080013": {
+        "type": "integer",
+        "description": "DPSF8. Race - Other Asian",
+    },
     "dp0080014": {
         "type": "integer",
         "description": "DPSF8. Race - Native Hawaiian and Other Pacific Islander total",
     },
-    "dp0080015": {"type": "integer", "description": "DPSF8. Race - Native Hawaiian"},
+    "dp0080015": {
+        "type": "integer",
+        "description": "DPSF8. Race - Native Hawaiian",
+    },
     "dp0080016": {
         "type": "integer",
         "description": "DPSF8. Race - Guamanian or Chamorro",
@@ -2347,7 +2374,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "DPSF8. Race - Other Pacific Islander",
     },
-    "dp0080019": {"type": "integer", "description": "DPSF8. Race - Some Other Race"},
+    "dp0080019": {
+        "type": "integer",
+        "description": "DPSF8. Race - Some Other Race",
+    },
     "dp0080020": {
         "type": "integer",
         "description": "DPSF8. Race - Population of Two or More Races",
@@ -2356,7 +2386,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "DPSF8. Race - White; American Indian and Alaska Native",
     },
-    "dp0080022": {"type": "integer", "description": "DPSF8. Race - White; Asian"},
+    "dp0080022": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; Asian",
+    },
     "dp0080023": {
         "type": "integer",
         "description": "DPSF8. Race - White; Black or African American",
@@ -2551,8 +2584,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "DPSF12. Relationship - Householder",
     },
-    "dp0120004": {"type": "integer", "description": "DPSF12. Relationship - Spouse"},
-    "dp0120005": {"type": "integer", "description": "DPSF12. Relationship - Child"},
+    "dp0120004": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Spouse",
+    },
+    "dp0120005": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Child",
+    },
     "dp0120006": {
         "type": "integer",
         "description": "DPSF12. Relationship - Own child under 18 years",
@@ -3181,7 +3220,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "enum": (
                 set(CUSTOMER_CLASSES) - {"direct_connection"}
-                | {"electric_power", "unspecified", "industrial_hydrogen_production"}
+                | {
+                    "electric_power",
+                    "unspecified",
+                    "industrial_hydrogen_production",
+                }
             )
         },
     },
@@ -3760,7 +3803,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Fuel groups used in the Electric Power Monthly",
         "constraints": {
-            "enum": ["petroleum", "other_gas", "petroleum_coke", "natural_gas", "coal"]
+            "enum": [
+                "petroleum",
+                "other_gas",
+                "petroleum_coke",
+                "natural_gas",
+                "coal",
+            ]
         },
     },
     "fuel_group_eia": {
@@ -5014,7 +5063,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of the company merged with or acquired.",
     },
-    "merge_date": {"type": "date", "description": "Date of merger or acquisition."},
+    "merge_date": {
+        "type": "date",
+        "description": "Date of merger or acquisition.",
+    },
     "merge_state": {
         "type": "string",
         "description": (
@@ -5032,7 +5084,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Minimum heat content per physical unit of fuel in MMBTU.",
         "unit": "MMBtu",
     },
-    "mine_id_msha": {"type": "integer", "description": "MSHA issued mine identifier."},
+    "mine_id_msha": {
+        "type": "integer",
+        "description": "MSHA issued mine identifier.",
+    },
     "mine_id_pudl": {
         "type": "integer",
         "description": "Dynamically assigned PUDL mine identifier.",
@@ -5715,7 +5770,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "PHMSA operator name.",
     },
-    "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
+    "opex_allowances": {
+        "type": "number",
+        "description": "Allowances.",
+        "unit": "USD",
+    },
     "opex_boiler": {
         "type": "number",
         "description": "Maintenance of boiler (or reactor) plant.",
@@ -5981,7 +6040,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Production expenses: rents (USD).",
         "unit": "USD",
     },
-    "opex_steam": {"type": "number", "description": "Steam expenses.", "unit": "USD"},
+    "opex_steam": {
+        "type": "number",
+        "description": "Steam expenses.",
+        "unit": "USD",
+    },
     "opex_steam_other": {
         "type": "number",
         "description": "Steam from other sources.",
@@ -6785,7 +6848,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "enum": PRIME_MOVER_TYPES_RUS12,
         },
     },
-    "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
+    "project_num": {
+        "type": "integer",
+        "description": "FERC Licensed Project Number.",
+    },
     "program": {
         "type": "string",
         "description": "The specific program or initiative associated with the FERC organization, which can provide context for the company's activities.",
@@ -7062,10 +7128,49 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "activities are reported on Schedule 6 of another company’s form."
         ),
     },
-    "reporting_frequency_code": {
+    "reporting_frequency_code_plant": {
         "type": "string",
         "description": (
-            "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details."
+            "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See core_eia__codes_reporting_frequencies for more details."
+        ),
+        "constraints": {
+            "enum": sorted(
+                set(
+                    CODE_METADATA["core_eia__codes_reporting_frequencies"]["df"]["code"]
+                )
+            )
+        },
+    },
+    "reporting_frequency_code_generator": {
+        "type": "string",
+        "description": (
+            "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See core_eia__codes_reporting_frequencies for more details."
+        ),
+        "constraints": {
+            "enum": sorted(
+                set(
+                    CODE_METADATA["core_eia__codes_reporting_frequencies"]["df"]["code"]
+                )
+            )
+        },
+    },
+    "reporting_frequency_code_boiler": {
+        "type": "string",
+        "description": (
+            "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See core_eia__codes_reporting_frequencies for more details."
+        ),
+        "constraints": {
+            "enum": sorted(
+                set(
+                    CODE_METADATA["core_eia__codes_reporting_frequencies"]["df"]["code"]
+                )
+            )
+        },
+    },
+    "reporting_frequency_code_prime_mover_energy_source": {
+        "type": "string",
+        "description": (
+            "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See core_eia__codes_reporting_frequencies for more details."
         ),
         "constraints": {
             "enum": sorted(
@@ -7147,7 +7252,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of disposal of items classified within the account.",
         "unit": "USD",
     },
-    "revenue": {"type": "number", "description": "Amount of revenue.", "unit": "USD"},
+    "revenue": {
+        "type": "number",
+        "description": "Amount of revenue.",
+        "unit": "USD",
+    },
     "revenue_class": {
         "type": "string",
         "description": "Source of revenue (e.g., retail sales, transmission).",
@@ -8759,7 +8868,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "A manually assigned PUDL utility ID. May not be stable over time."
         ),
     },
-    "utility_name_eia": {"type": "string", "description": "The name of the utility."},
+    "utility_name_eia": {
+        "type": "string",
+        "description": "The name of the utility.",
+    },
     "utility_name_ferc1": {
         "type": "string",
         "description": (
@@ -12055,7 +12167,14 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "type": "string",
             "description": "Listing of utility plant types.",
             "constraints": {
-                "enum": ["electric", "gas", "common", "other", "other3", "other2"]
+                "enum": [
+                    "electric",
+                    "gas",
+                    "common",
+                    "other",
+                    "other3",
+                    "other2",
+                ]
             },
         },
     },
