@@ -314,13 +314,21 @@ Linting and Formatting
   that corrects a typos), add ``# spellchecker:ignore`` as a comment to the end of the
   line.
 
+.. _type-checking:
+
 Type Checking with pyrefly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 We use `pyrefly <https://pyrefly.org/>`__, a fast Rust-based Python type checker, to
-catch type errors before they reach CI. It isn't yet part of the standard pre-commit
-hooks or CI pipeline -- PUDL's codebase predates comprehensive type annotations, so for
-now pyrefly runs as a voluntary check for anyone gradually cleaning up typing issues in
-the code they touch.
+catch type errors and keep our type annotations accurate. The checks are run in two
+places:
+
+* Locally, as the ``pyrefly-check`` and ``pyrefly-coverage`` hooks in
+  ``.pre-commit-config.yaml``. Like the other pre-commit hooks, they run on every
+  commit once you've run ``pixi run prek-install``.
+* In the ``ci-pyrefly`` job in ``.github/workflows/pytest.yml``, which runs on every
+  pull request. The pre-commit.ci service can't run the local hooks because it doesn't
+  have the PUDL pixi environment, so the hooks are skipped there and this job is what
+  enforces them for PRs.
 
 Running the checks
 ~~~~~~~~~~~~~~~~~~
@@ -333,18 +341,30 @@ pixi environment:
     $ pixi run pyrefly-check                                  # whole project, against the baseline
     $ pixi run -e dev pyrefly check src/pudl/path/to/file.py  # quick check of one file
 
-``pyrefly-check`` lives in the ``dev`` feature's task table specifically so that plain
-``pixi run pyrefly-check`` always resolves to the project-pinned ``pyrefly`` binary,
-rather than silently falling back to a different version found on ``$PATH`` (e.g. one
-installed globally for editor or language-server integration).
+To check that type coverage of ``src/`` is at or above the required minimum run the task
+below. It's quiet, and reports only a one-line summary and a pass or fail exit status:
+
+.. code-block:: console
+
+    $ pixi run pyrefly-coverage
+
+The minimum is defined in the ``pyrefly-coverage`` task in ``pyproject.toml``. Both the
+pre-commit hook and CI call that task. Coverage is only measured for ``src/``.
+
+To see which type errors and untyped code remain, run pyrefly directly:
+
+.. code-block:: console
+
+    $ pixi run -e dev pyrefly check               # also shows errors in the baseline
+    $ pixi run -e dev pyrefly coverage check src  # every untyped symbol (very long)
 
 The baseline
 ~~~~~~~~~~~~
 
-PUDL isn't enforcing full type-checking project-wide yet, so ``.pyrefly-baseline.json``
-records existing type errors, and ``pixi run pyrefly-check`` only fails on errors *not
-already in the baseline*. This makes it possible to catch newly introduced type errors
-without requiring the whole codebase to be error-free first.
+The few type errors that remain and can't (yet) be fixed are recorded in
+``.pyrefly-baseline.json``. ``pixi run pyrefly-check`` only fails on errors *not already
+in the baseline*. This lets us require that type checking pass without waiting on
+upstream fixes.
 
 Update the baseline after fixing pre-existing errors, or after a pyrefly version bump,
 by running the following commands:
