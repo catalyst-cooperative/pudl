@@ -39,3 +39,9 @@ html[data-theme="dark"] {
 #pudl-data-dictionary dd p {
   margin: 0; padding: 0;
 }
+
+/* Remove the gap between the two adjacent toctrees on data.rst. */
+.toctree-wrapper ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}
