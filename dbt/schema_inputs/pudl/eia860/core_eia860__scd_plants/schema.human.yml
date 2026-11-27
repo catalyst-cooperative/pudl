@@ -35,7 +35,7 @@ sources:
                   has_net_metering: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2015
                   pipeline_notes: EXTRACT(year FROM report_date) >= 2016
                   regulatory_status_code: EXTRACT(year FROM report_date) >= 2006
-                  reporting_frequency_code: EXTRACT(year FROM report_date) >= 2008
+                  reporting_frequency_code_plants: EXTRACT(year FROM report_date) >= 2008
                   service_area: EXTRACT(year FROM report_date) <= 2006
                   transmission_distribution_owner_id:
                     EXTRACT(year FROM report_date) >=

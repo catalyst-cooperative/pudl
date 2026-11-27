@@ -14,13 +14,6 @@ sources:
           - foreign_key:
               arguments:
                 fk_column_names:
-                  - reporting_frequency_code
-                pk_table_name: source('pudl', 'core_eia__codes_reporting_frequencies')
-                pk_column_names:
-                  - code
-          - foreign_key:
-              arguments:
-                fk_column_names:
                   - data_maturity
                 pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
                 pk_column_names:
@@ -74,7 +67,7 @@ sources:
                   has_net_metering: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2015
                   pipeline_notes: EXTRACT(year FROM report_date) >= 2016
                   regulatory_status_code: EXTRACT(year FROM report_date) >= 2006
-                  reporting_frequency_code: EXTRACT(year FROM report_date) >= 2008
+                  reporting_frequency_code_plants: EXTRACT(year FROM report_date) >= 2008
                   service_area: EXTRACT(year FROM report_date) <= 2006
                   transmission_distribution_owner_id: EXTRACT(year FROM report_date) >= 2007
                   transmission_distribution_owner_name: EXTRACT(year FROM report_date) >= 2007
@@ -114,7 +107,7 @@ sources:
           - name: pipeline_notes
           - name: primary_purpose_id_naics
           - name: regulatory_status_code
-          - name: reporting_frequency_code
+          - name: reporting_frequency_code_plant
           - name: sector_id_eia
           - name: sector_name_eia
           - name: service_area

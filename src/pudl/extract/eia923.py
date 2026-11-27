@@ -56,10 +56,14 @@ class Extractor(excel.ExcelExtractor):
             if col in df.columns:
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         df = self.add_data_maturity(df, page, **partition)
-        # Fill in blank reporting_frequency_code for monthly data
-        if "reporting_frequency_code" in df.columns:
+        # Fill in blank reporting_frequency_code_* for monthly data
+        if not (rf_col := df.filter(like="reporting_frequency_code").columns).empty:
+            assert len(rf_col) == 1, (
+                "We should never have more than 1 reporting_frequency_code_* column."
+            )
             df.loc[
-                df["data_maturity"] == "incremental_ytd", "reporting_frequency_code"
+                df["data_maturity"] == "incremental_ytd",
+                rf_col[0],
             ] = "M"
         # the 2021 early release data had some ding dang "."'s and nulls in the year column
         if "report_year" in df.columns:

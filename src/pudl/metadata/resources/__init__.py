@@ -27,6 +27,7 @@ class EiaEntity(StrEnum):
     UTILITIES = auto()
     BOILERS = auto()
     GENERATORS = auto()
+    PRIME_MOVER_ENERGY_SOURCES = auto()
 
 
 class RusEntity(StrEnum):
@@ -91,7 +92,7 @@ ENTITIES: dict[HarvestableEntity, EntitySpec] = {
             "pipeline_notes",
             "primary_purpose_id_naics",
             "regulatory_status_code",
-            "reporting_frequency_code",
+            "reporting_frequency_code_plant",
             "sector_id_eia",
             "sector_name_eia",
             "service_area",
@@ -198,6 +199,7 @@ ENTITIES: dict[HarvestableEntity, EntitySpec] = {
             "data_maturity",
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
+            "reporting_frequency_code_generator",
         ],
         "mapped_schemas": [
             {"operator_utility_id_eia": "utility_id_eia"},
@@ -310,6 +312,7 @@ ENTITIES: dict[HarvestableEntity, EntitySpec] = {
             "so2_control_proposed_strategy_3",
             "standard_so2_scrubbed_fraction",
             "data_maturity",
+            "reporting_frequency_code_boiler",
         ],
     },
     EiaEntity.UTILITIES: {
@@ -356,6 +359,12 @@ ENTITIES: dict[HarvestableEntity, EntitySpec] = {
                 "operator_state": "state",
             },
         ],
+    },
+    EiaEntity.PRIME_MOVER_ENERGY_SOURCES: {
+        "id_cols": ["plant_id_eia", "prime_mover_code", "energy_source_code"],
+        "static_cols": [],
+        "annual_cols": ["reporting_frequency_code_prime_mover_energy_source"],
+        "mapped_schemas": [],
     },
     # THIS IS A RUS ENTITY (everything above is from EIA)
     RusEntity.BORROWERS: {

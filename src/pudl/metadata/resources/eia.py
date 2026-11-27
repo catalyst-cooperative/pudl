@@ -249,7 +249,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["firing_type_1"], ["firing_type_2"], ["firing_type_3"]]
+                "fields": [
+                    ["firing_type_1"],
+                    ["firing_type_2"],
+                    ["firing_type_3"],
+                ]
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_firing_types"],
@@ -349,7 +353,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["period_nox"], ["period_particulate"], ["period_so2"]]
+                "fields": [
+                    ["period_nox"],
+                    ["period_particulate"],
+                    ["period_so2"],
+                ]
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_averaging_periods"],
@@ -487,7 +495,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["reporting_frequency_code"]]},
+            "foreign_key_rules": {
+                "fields": [
+                    [
+                        "reporting_frequency_code_plant",
+                        "reporting_frequency_code_generator",
+                        "reporting_frequency_code_boiler",
+                        "reporting_frequency_code_prime_mover_energy_source",
+                    ]
+                ]
+            },
         },
         "encoder": CODE_METADATA["core_eia__codes_reporting_frequencies"],
         "sources": ["eia923"],
@@ -696,9 +713,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [
                     ["plant_id_eia", "generator_id"],
-                    ["plant_id_eia_direct_support_1", "generator_id_direct_support_1"],
-                    ["plant_id_eia_direct_support_2", "generator_id_direct_support_2"],
-                    ["plant_id_eia_direct_support_3", "generator_id_direct_support_3"],
+                    [
+                        "plant_id_eia_direct_support_1",
+                        "generator_id_direct_support_1",
+                    ],
+                    [
+                        "plant_id_eia_direct_support_2",
+                        "generator_id_direct_support_2",
+                    ],
+                    [
+                        "plant_id_eia_direct_support_3",
+                        "generator_id_direct_support_3",
+                    ],
                 ],
                 # exclude core_epa__assn_eia_epacamd_subplant_ids bc there are generator ids in this
                 # glue table that come only from epacamd
@@ -996,7 +1022,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "pipeline_notes",
                 "primary_purpose_id_naics",
                 "regulatory_status_code",
-                "reporting_frequency_code",
+                "reporting_frequency_code_plant",
                 "sector_id_eia",
                 "sector_name_eia",
                 "service_area",
