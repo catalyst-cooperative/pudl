@@ -30,6 +30,9 @@ them easily.
 
 * Before making a PR, make sure the tests run and pass locally, including the
   code linters and pre-commit hooks. See [Set Up Code Linting](dev_setup.md#linting) for details.
+* Type checking with `pyrefly` and a minimum type coverage are required to pass, both
+  in the pre-commit hooks and in the `ci-pyrefly` GitHub Actions job. Don’t introduce
+  new type errors, and don’t lower the typing coverage.
 * Don’t forget to merge any new commits to the `main` branch into your feature
   branch before making a PR.
 * If for some reason the continuous integration tests fail for your PR, try and
