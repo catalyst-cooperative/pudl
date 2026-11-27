@@ -38,8 +38,13 @@ sources:
         columns:
           - name: county_id_fips
             data_tests:
-              - dbt_utils.not_null_proportion:
-                  arguments:
-                    at_least: 0.97
+              - not_null:
+                  config:
+                    where: |-
+                      state IS NOT NULL
+                      AND county NOT IN ('NOT IN FILE', 'Not In File')
                   description: |-
-                    County fips code should almost entirely be populated.
+                    We expect all plant records with a non-null state and a not silly
+                    (`not in file`) county name to have a fips code. If there are
+                    unmapped fips codes, you may need to add a fix to a county name to
+                    `EIA_FIPS_COUNTY_FIXES`.
