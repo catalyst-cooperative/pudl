@@ -5,3 +5,41 @@ sources:
       - name: core_ferceqr__quarterly_identity
         data_tests:
           - expect_columns_not_all_null
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_index_pub')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                row_condition: transactions_reported_to_index_price_publishers
+                max_fraction: 0.1
+              description: |-
+                Filers saying they reported transactions to index price publishers should
+                mostly have index price publisher records for the quarter. Observed 4.0%
+                of such identity rows without one overall, and up to 5.9% in a quarter.
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - year_quarter
+                  - company_id_ferc
+                  - filer_unique_id
+                row_condition: filer_unique_id LIKE 'FS%'
+                max_fraction: 0.0005
+              description: |-
+                The primary key ought to be (year_quarter, company_id_ferc,
+                filer_unique_id). For seller (FS) filers it nearly is: observed 10
+                duplicate rows out of ~156k (0.006%).
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - year_quarter
+                  - company_id_ferc
+                  - filer_unique_id
+                max_fraction: 0.025
+              description: |-
+                Across all filers, including agent (FA) filers who list several
+                contacts under one filer ID, ~1.7% of rows (5,225 of 306k) duplicate
+                an earlier key. This is a baseline for future improvement.

@@ -1,15 +1,16 @@
 {% test expect_column_fraction_outside_range(
     model,
     column_name,
-    min_value,
-    max_value,
+    min_value=None,
+    max_value=None,
     max_fraction_below=0.0,
     max_fraction_above=0.0,
     row_condition=None
 ) %}
 
 {# Check that the fraction of non-null values falling below min_value and the fraction
-falling above max_value each stay within an acceptable bound. Unlike
+falling above max_value each stay within an acceptable bound. Either bound may be
+omitted for a one-sided check, in which case nothing is counted on that side. Unlike
 dbt_expectations.expect_column_values_to_be_between with error_if, which counts absolute
 rows and therefore drifts as a table gains partitions, this expresses tolerance as a
 share of the (optionally row_condition-filtered) population. When row_condition selects
@@ -26,8 +27,16 @@ register as failures. #}
 WITH counts AS (
     SELECT
         COUNT({{ column_name }}) AS n_total,
+        {% if min_value is not none -%}
         COUNT(*) FILTER (WHERE {{ column_name }} < {{ min_value }}) AS n_below,
+        {%- else -%}
+        0 AS n_below,
+        {%- endif %}
+        {% if max_value is not none -%}
         COUNT(*) FILTER (WHERE {{ column_name }} > {{ max_value }}) AS n_above
+        {%- else -%}
+        0 AS n_above
+        {%- endif %}
     FROM {{ model }}
     {%- if row_condition %}
     WHERE {{ row_condition }}

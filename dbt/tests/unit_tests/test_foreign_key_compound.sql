@@ -13,12 +13,13 @@ child_table AS (
     ) AS t(child_id, child_left_key, child_right_key, child_name)
 ),
 observed_failures AS (
-    {{ test_foreign_key(
+    SELECT child_id, child_left_key, child_right_key, child_name, failure_type
+    FROM ({{ test_foreign_key(
         'child_table',
         ['child_left_key', 'child_right_key'],
         'parent_table',
         ['parent_left_key', 'parent_right_key'],
-    ) }}
+    ) }})
 ),
 expected_failures AS (
     SELECT * FROM (VALUES

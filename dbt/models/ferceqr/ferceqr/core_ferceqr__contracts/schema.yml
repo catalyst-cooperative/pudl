@@ -5,9 +5,148 @@ sources:
       - name: core_ferceqr__contracts
         data_tests:
           - expect_columns_not_all_null
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(contract_termination_date < commencement_date_of_contract_term AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.015
+              description: |-
+                Date ordering rule implied by the EQR data dictionary v4.0: the contract can't expire
+                before its terms took effect. Filers sometimes get these wrong (or use placeholder
+                dates), so a small fraction of violations is tolerated. Observed <=0.9% in the 8
+                quarters between 2013q3 and 2026q3 available locally.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(actual_termination_date < commencement_date_of_contract_term AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.02
+              description: |-
+                Likewise, a contract can't actually terminate before its terms took effect. Observed
+                <=1.4% in the 8 quarters between 2013q3 and 2026q3 available locally.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(actual_termination_date > LAST_DAY(MAKE_DATE(CAST(LEFT(year_quarter, 4) AS INTEGER), CAST(RIGHT(year_quarter, 1) AS INTEGER) * 3, 1)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+              description: |-
+                A contract that has actually terminated must have done so by the end of the filing
+                quarter. Observed 0%.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: CAST(end_date < begin_date AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.01
+              description: |-
+                End date should be after begin date. Observed <=0.6% in the 8 quarters between 2013q3
+                and 2026q3 available locally.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: contract_execution_date - LAST_DAY(MAKE_DATE(CAST(LEFT(year_quarter, 4) AS INTEGER), CAST(RIGHT(year_quarter, 1) AS INTEGER) * 3, 1))
+                min_value: -25000
+                max_value: 0
+                max_fraction_below: 0.002
+                max_fraction_above: 0.01
+              description: |-
+                The contract execution date should fall on or before the end of the filing quarter
+                (observed <=0.5%) and not be implausibly old, e.g. a placeholder date (more than ~68
+                years before; observed <=0.05%). The LAST_DAY(MAKE_DATE(...)) expression converts
+                year_quarter (e.g. '2024q1') to the last day of that quarter: MAKE_DATE builds the first
+                of the quarter's final month (year, quarter * 3, 1) and LAST_DAY moves it to month end
+                (2024-03-31). The test column is the difference in days from that date.
+          - expect_power_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'CAPACITY'
+                max_failure_rate: 0.001
+              description: |-
+                Capacity is priced per unit of power, not energy (see core_ferceqr__transactions). The
+                `units` column is not tested because contract quantities for ENERGY are often stated in
+                MW, and ~3% of CAPACITY contracts use energy units. Observed CAPACITY with energy rate
+                units: <=0.035%.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY'
+                max_failure_rate: 0.02
+              description: |-
+                Energy is priced per unit of energy. Observed power rate units: <=1.1% (2013-2014) and
+                <=0.4% since.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY IMBALANCE'
+                max_failure_rate: 0.03
+              description: |-
+                Energy imbalance is priced per unit of energy. Observed ~1.2% of rows with power units
+                overall, and up to ~10% in a single quarter, so the threshold is loose.
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+                max_fraction: 0.0001
+              description: |-
+                Every non-null seller in a quarter's contracts should have filed an identity record for
+                that quarter. A handful of (quarter, seller) pairs don't: 36 of 121k distinct pairs, at
+                most ~0.003% of rows in any quarter. NULL sellers are skipped here and checked
+                separately on seller_company_id_ferc.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: rate_maximum - rate_minimum
+                min_value: 0
+                max_fraction_below: 0.005
+              description: |-
+                The minimum rate can't exceed the maximum rate, if a range is specified. Observed 0.16%
+                of contracts where both are given (3,320 of 2.05M), and 0.31% in the worst quarter
+                (2021q3).
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - "*"
+                max_fraction: 0.02
+              description: |-
+                Contracts have no natural primary key: (year_quarter, seller_company_id_ferc,
+                contract_unique_id) repeats in ~68% of rows, since contract IDs aren't unique. This
+                instead checks for exact duplicate rows, to set a baseline for the share of them.
+                Observed 1.2% (118k of 9.8M).
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'REQUIREMENTS SERVICE'
+                max_failure_rate: 0.03
+              description: Requirements service is priced per unit of energy. Observed ~1.5% with other units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'UPLIFT'
+                max_failure_rate: 0.03
+              description: |-
+                Uplift (a make-whole payment by an RTO/ISO) is priced per unit of energy or flat rate.
+                Observed ~1.5% with other units, and ~80% of rows have flat rate or no units at all.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'EMERGENCY ENERGY'
+                max_failure_rate: 0.08
+              description: |-
+                Emergency energy is priced per unit of energy. Observed ~3.8% with other units, so the
+                threshold is loose.
         columns:
           - name: year_quarter
           - name: seller_company_id_ferc
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.998
+                  description: The seller CID is required by the data dictionary. Observed 0.07% NULL.
           - name: contract_unique_id
           - name: seller_company_name
           - name: customer_company_name

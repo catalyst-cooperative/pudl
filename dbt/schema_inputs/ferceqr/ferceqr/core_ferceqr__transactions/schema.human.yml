@@ -5,3 +5,237 @@ sources:
       - name: core_ferceqr__transactions
         data_tests:
           - expect_columns_not_all_null
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  total_transaction_charge
+                  - (transaction_quantity * price + COALESCE(total_transmission_charge, 0))
+                min_value: -1
+                max_value: 1
+                max_fraction_below: 0.002
+                max_fraction_above: 0.002
+              description: |-
+                EQR data dictionary v4.0: Total Transaction Charge is "Transaction
+                Quantity times Price plus Total Transmission Charge". Charges are reported
+                to 2 decimals, so allow $1 of rounding, and a small fraction of filer
+                errors. Observed ~0.06% total in 2013q3-q4.
+          - dbt_expectations.expression_is_true:
+              arguments:
+                expression: transaction_end_date >= transaction_begin_date
+              description: |-
+                Transactions can't end before they begin.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(year_quarter != CONCAT(YEAR(transaction_begin_date), 'q',
+                  QUARTER(transaction_begin_date)) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.000001
+              description: |-
+                Transactions should begin in the quarter they were filed for. A midnight
+                start on the first day of the next quarter is a boundary case (seen once
+                in 2016q4), so allow a vanishingly small fraction.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: trade_date - CAST(transaction_begin_date AS DATE)
+                min_value: -3650
+                max_value: 0
+                max_fraction_below: 0.01
+                max_fraction_above: 0.02
+              description: |-
+                The trade date is when the price was agreed, so it should not follow the
+                transaction begin date. The dictionary says to fall back to the contract
+                execution date when unknown, so some filers violate this: observed
+                0.9-1.3% after the begin date and 0.4-0.7% more than 10 years before it
+                (mostly placeholder dates like 0001-01-01) in 2013-2016 quarters.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(SIGN(standardized_quantity) != SIGN(transaction_quantity)
+                  AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.001
+                row_condition: standardized_quantity != 0 AND transaction_quantity != 0
+              description: |-
+                Quantities and prices can legitimately be negative (some filers report
+                all of their sales with negative quantities, and RTO/ISO prices can be
+                negative), so we don't test for non-negativity. But the standardized
+                values are just unit conversions of the reported ones, so their signs
+                should agree. Observed mismatch rate is at most 0.04% across the
+                2013-2026 quarters we have locally.
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  CAST(SIGN(standardized_price) != SIGN(price) AS INTEGER)
+                min_value: 0
+                max_value: 0
+                max_fraction_above: 0.0001
+                row_condition: standardized_price != 0 AND price != 0
+              description: |-
+                Standardized prices are just unit conversions of the reported prices, so
+                their signs should agree (negative prices can be legitimate, so we don't
+                test for non-negativity). Observed mismatch rate is at most 0.002%
+                across the 2013-2026 quarters we have locally.
+          - expect_power_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'CAPACITY'
+                max_failure_rate: 0.001
+              description: |-
+                Capacity is priced per unit of power ($/MW-MO, $/KW-DAY, ...) not energy
+                ($/MWH, CENTS/KWH, ...). Appendix D of the EQR data dictionary lists the
+                allowed rate units. Observed CAPACITY with energy units: <=0.043%
+                (2013-2016 only).
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY'
+                max_failure_rate: 0.00003
+              description: |-
+                Energy is priced per unit of energy. Observed ~0.0005% with other units,
+                mostly $/MW-DAY from a few filers, so the threshold leaves room for a few
+                more.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'ENERGY IMBALANCE'
+                max_failure_rate: 0.00001
+              description: |-
+                Energy imbalance is priced per unit of energy. Observed ~0.00003% with
+                other units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'REAL POWER TRANSMISSION LOSS'
+                max_failure_rate: 0.002
+              description: |-
+                Real power transmission loss is priced per unit of energy. Observed
+                ~0.03% with other units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'GENERATOR IMBALANCE'
+                max_failure_rate: 0.002
+              description: |-
+                Generator imbalance is priced per unit of energy. Observed ~0.02% with
+                other units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'TOLLING ENERGY'
+                max_failure_rate: 0.005
+              description: |-
+                Tolling energy is priced per unit of energy. Observed ~0.11% with other
+                units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'EXCHANGE'
+                max_failure_rate: 0.005
+              description: |-
+                Exchange is priced per unit of energy. Observed ~0.09% with other units.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'BOOKED OUT POWER'
+                max_failure_rate: 0.05
+              description: |-
+                Booked out power is energy that was committed but not delivered, so it
+                should also be priced per unit of energy. This is looser: ~1.9% of local
+                rows use power units, almost all from one filer in 2022q1 (Boston Energy
+                Trading and Marketing, $/MW-MO), and <=0.03% in every other quarter. The
+                threshold is table-wide, so it only catches large new problems.
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                pk_table_name: source('ferceqr', 'core_ferceqr__quarterly_identity')
+                pk_column_names:
+                  - year_quarter
+                  - company_id_ferc
+              description: |-
+                Every non-null seller in a quarter's transactions should have filed an
+                identity record for that quarter. This holds exactly in the full data
+                once NULL sellers are excluded (foreign_key skips NULL keys; their share
+                is checked separately on seller_company_id_ferc).
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+                pk_table_name: source('ferceqr', 'core_ferceqr__contracts')
+                pk_column_names:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - contract_service_agreement_id
+              description: |-
+                Every (seller, contract service agreement ID) pair should appear in that
+                quarter's contracts. This holds exactly in the full data once NULL
+                sellers are excluded (foreign_key skips NULL keys; their share is
+                checked separately on seller_company_id_ferc).
+          - expect_column_fraction_outside_range:
+              arguments:
+                column_name: >-
+                  standardized_price * standardized_quantity
+                  - price * transaction_quantity
+                min_value: -1
+                max_value: 1
+                max_fraction_below: 0.0005
+                max_fraction_above: 0.0005
+                row_condition: product_name IN ('ENERGY', 'ENERGY IMBALANCE')
+              description: |-
+                For energy products the standardized price and quantity (in $/MWh and MWh)
+                are unit conversions of the reported ones, so their product should equal
+                the reported price times quantity, to within $1 of rounding. This fails
+                for other products (reserves in particular, 5-23% in the quarters
+                checked), so only energy and energy imbalance are checked. Observed
+                ~0.01% of ENERGY rows and ~0.04% of ENERGY IMBALANCE rows off by more
+                than $1 across all 53 quarters, worst in 2013-2014 (up to 1.7% in a
+                single quarter).
+          - expect_unique_key_fraction:
+              arguments:
+                key_columns:
+                  - year_quarter
+                  - seller_company_id_ferc
+                  - transaction_unique_id
+                partition_column: year_quarter
+                max_fraction: 0.002
+              description: |-
+                The primary key ought to be (year_quarter, seller_company_id_ferc,
+                transaction_unique_id), but some filers repeat IDs, so there is no
+                enforced primary key. This sets a baseline for the share of duplicate
+                rows so that regressions (and, eventually, improvements) are visible.
+                In 10 quarters spread over 2013-2026, 0.05% of rows pooled were
+                duplicates, from 0% in 2020q4 and 2022q1 to 0.29% in 2019q4. Duplicates
+                are counted one quarter at a time to bound memory, so this test makes
+                one pass over the table per quarter and is slow on the full table.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'UPLIFT'
+                max_failure_rate: 0.01
+              description: |-
+                Uplift (a make-whole payment by an RTO/ISO) is priced per unit of energy
+                or flat rate. Observed ~0.5% with other units (mostly $/MW-DAY and $/MW),
+                and ~60% of rows have flat rate or no units at all.
+          - expect_energy_units:
+              arguments:
+                unit_col: rate_units
+                row_condition: product_name = 'REQUIREMENTS SERVICE'
+                max_failure_rate: 0.003
+              description: |-
+                Requirements service is priced per unit of energy. Observed ~0.08% with
+                other units.
+        columns:
+          - name: seller_company_id_ferc
+            data_tests:
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.9998
+                  description: |-
+                    The seller CID is required by the data dictionary. Observed 0.007%
+                    NULL.
