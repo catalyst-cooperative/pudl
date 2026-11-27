@@ -16,9 +16,9 @@ Extractor for CSV data.
 
 ### pudl.extract.csv.logger
 
-### *class* pudl.extract.csv.CsvExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.csv.CsvExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), metadata: MetadataT)
 
-Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.md#pudl.extract.extractor.GenericExtractor)
+Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.md#pudl.extract.extractor.GenericExtractor)[[`pudl.extract.extractor.GenericMetadata`](../extractor/index.md#pudl.extract.extractor.GenericMetadata)]
 
 Class for extracting dataframes from CSV files.
 

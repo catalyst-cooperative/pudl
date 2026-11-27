@@ -47228,7 +47228,7 @@ Columns
   * - is_technology_mature
     - boolean
     - 
-    - Indicator of whether the technology is mature. Technologies are definedas mature if a representative plant is operating or under constructionin the United States in the Base Year.
+    - Indicator of whether the technology is mature. Technologies are defined as mature if a representative plant is operating or under construction in the United States in the Base Year.
   * - report_year
     - integer
     - 

@@ -19,15 +19,11 @@ Extract EIA Form 191 data from CSVs.
 
 ## Module Contents
 
-### *class* pudl.extract.eia191.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.eia191.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.html.md#pudl.extract.csv.CsvExtractor)
 
 Extractor for EIA form 191.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
 
 #### source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 

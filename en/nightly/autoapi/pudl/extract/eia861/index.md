@@ -26,17 +26,11 @@ This code is for use analyzing EIA Form 861 data.
 
 ### pudl.extract.eia861.logger
 
-### *class* pudl.extract.eia861.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.eia861.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset EIA861.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
-
-#### cols_added *= []*
 
 #### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition)
 

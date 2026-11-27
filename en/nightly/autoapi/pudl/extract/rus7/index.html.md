@@ -20,15 +20,11 @@ Extract USDA RUS Form 7 data from CSVs.
 
 ## Module Contents
 
-### *class* pudl.extract.rus7.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.rus7.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.html.md#pudl.extract.csv.CsvExtractor)
 
 Extractor for USDA RUS Form 7.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
 
 #### READ_CSV_KWARGS
 
@@ -48,8 +44,6 @@ columns they apply to aren’t present.
 #### source_filename(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 Get the file name for the right page and part.
-
-In this instance we are using the same methodology from the excel metadata extractor.
 
 #### process_raw(df, page, \*\*partition)
 

@@ -19,15 +19,11 @@ Extract EIA Form 757a data from CSVs.
 
 ## Module Contents
 
-### *class* pudl.extract.eia757a.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.eia757a.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.html.md#pudl.extract.csv.CsvExtractor)
 
 Extractor for EIA form 757a.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
 
 #### get_page_cols(page: [str](https://docs.python.org/3/builtins/stdtypes.html#str), partition_selection: [str](https://docs.python.org/3/builtins/stdtypes.html#str)) → [pandas.RangeIndex](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.RangeIndex.html#pandas.RangeIndex)
 

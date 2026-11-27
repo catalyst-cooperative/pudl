@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="existing_data_updates.html.md" />
 <link rel="alternate" type="text/markdown" href="existing_data_updates.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Existing Data Updates &#8212; PUDL 2026.11.1.dev13 documentation</title>
+    <title>Existing Data Updates &#8212; PUDL 2026.11.1.dev17 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=72b5232c"></script>
+    <script src="../_static/documentation_options.js?v=ba27f877"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev13 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev13 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -886,13 +886,17 @@ the years (e.g. <code class="docutils literal notranslate"><span class="pre">boi
 directly to PUDL database table names because we don’t load the data from all pages, and
 some pages result in more than one database table after normalization.</p>
 <dl class="simple">
-<dt><strong>2.A.1)</strong> If you’re adding a new year, add a row for the new year of data to</dt><dd><p>each of the aforementioned files. If there are any changes to prior years, make
-sure to address those too. If you are updating early release data with final
-release data, replace the values in the appropriate year row. <strong>The easiest way
-to correct the values for these files is to test extraction in Dagster as
-described in the next step, then use the error messages to narrow down what should
-be updated.</strong> Exhaustively examining each file manually to compare it with its
-predecessor is the most difficult way.</p>
+<dt><strong>2.A.1)</strong> If you’re adding a new year, add a row for the new year of data to</dt><dd><p><code class="docutils literal notranslate"><span class="pre">file_map.csv</span></code>, since the file names differ from year to year. For the other files,
+only add a row if something has changed: a year without a row is assumed to be the
+same as the most recent row, up to the last year in the working partitions of the data
+source in <code class="docutils literal notranslate"><span class="pre">pudl.metadata.sources</span></code>. Years that are not working partitions are never
+filled in, and neither is <code class="docutils literal notranslate"><span class="pre">file_map.csv</span></code>, which records every year that has been
+mapped. If there are any changes to prior years, make sure to address those too. If
+you are updating early release data with final release data, replace the values in the
+appropriate year row. <strong>The easiest way to correct the values for these files is to
+test extraction in Dagster as described in the next step, then use the error messages
+to narrow down what should be updated.</strong> Exhaustively examining each file manually to
+compare it with its predecessor is the most difficult way.</p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -910,8 +914,11 @@ semantic meaning (i.e. they don’t correspond to any of the previously mapped f
 pages, or columns) then create new mappings to track that information over time.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In all of the the above CSV files we use a value of <code class="docutils literal notranslate"><span class="pre">-1</span></code> to indicate that the data
-does not exist in a given year.</p>
+<p>In all of the above CSV files we use a value of <code class="docutils literal notranslate"><span class="pre">-1</span></code> to indicate that the data
+does not exist in a given year. Cells are never left empty. Like any other value,
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> is carried forward to later years without a row, so a column map row of all
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> marks a page as absent from that year until the next row, for example
+because it has been discontinued.</p>
 </div>
 </section>
 <section id="b-ferc-form-714">

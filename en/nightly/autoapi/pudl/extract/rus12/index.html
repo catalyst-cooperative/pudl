@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
 <link rel="alternate" type="text/markdown" href="index.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>pudl.extract.rus12 &#8212; PUDL 2026.11.1.dev13 documentation</title>
+    <title>pudl.extract.rus12 &#8212; PUDL 2026.11.1.dev17 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../../../_static/documentation_options.js?v=72b5232c"></script>
+    <script src="../../../../_static/documentation_options.js?v=ba27f877"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../../../_static/design-tabs.js?v=fcb327ea"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev13 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev13 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -846,15 +846,9 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.extract.rus12.Extractor">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.rus12.</span></span><span class="sig-name descname"><span class="pre">Extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/rus12.html#Extractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.rus12.Extractor" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.rus12.</span></span><span class="sig-name descname"><span class="pre">Extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/rus12.html#Extractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.rus12.Extractor" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../csv/index.html#pudl.extract.csv.CsvExtractor" title="pudl.extract.csv.CsvExtractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl.extract.csv.CsvExtractor</span></code></a></p>
 <p>Extractor for USDA RUS Form 12.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.extract.rus12.Extractor.METADATA">
-<span class="sig-name descname"><span class="pre">METADATA</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/rus12.html#Extractor.METADATA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.rus12.Extractor.METADATA" title="Link to this definition">#</a></dt>
-<dd><p>Instance of metadata object to use with this extractor.</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.extract.rus12.Extractor.READ_CSV_KWARGS">
 <span class="sig-name descname"><span class="pre">READ_CSV_KWARGS</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/rus12.html#Extractor.READ_CSV_KWARGS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.rus12.Extractor.READ_CSV_KWARGS" title="Link to this definition">#</a></dt>
@@ -874,7 +868,6 @@ columns they apply to aren’t present.</p>
 <dt class="sig sig-object py" id="pudl.extract.rus12.Extractor.source_filename">
 <span class="sig-name descname"><span class="pre">source_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../extractor/index.html#pudl.extract.extractor.PartitionSelection" title="pudl.extract.extractor.PartitionSelection"><span class="pre">pudl.extract.extractor.PartitionSelection</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/rus12.html#Extractor.source_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.rus12.Extractor.source_filename" title="Link to this definition">#</a></dt>
 <dd><p>Get the file name for the right page and part.</p>
-<p>In this instance we are using the same methodology from the excel metadata extractor.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -979,7 +972,6 @@ to use the federal-level data.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.rus12.Extractor"><code class="docutils literal notranslate"><span class="pre">Extractor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.rus12.Extractor.METADATA"><code class="docutils literal notranslate"><span class="pre">Extractor.METADATA</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.rus12.Extractor.READ_CSV_KWARGS"><code class="docutils literal notranslate"><span class="pre">Extractor.READ_CSV_KWARGS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.rus12.Extractor.source_filename"><code class="docutils literal notranslate"><span class="pre">Extractor.source_filename()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.rus12.Extractor.process_raw"><code class="docutils literal notranslate"><span class="pre">Extractor.process_raw()</span></code></a></li>

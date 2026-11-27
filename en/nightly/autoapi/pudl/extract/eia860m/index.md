@@ -36,17 +36,11 @@ eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
 
 ### pudl.extract.eia860m.logger
 
-### *class* pudl.extract.eia860m.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.eia860m.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset EIA860M.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
-
-#### cols_added *= []*
 
 #### process_raw(df, page, \*\*partition)
 

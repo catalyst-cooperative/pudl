@@ -36,17 +36,12 @@ Functions
 Module Contents
 ---------------
 
-.. py:class:: Extractor(*args, **kwargs)
+.. py:class:: Extractor(ds: pudl.workspace.datastore.Datastore)
 
    Bases: :py:obj:`pudl.extract.csv.CsvExtractor`
 
 
    Extractor for EIA form 757a.
-
-
-   .. py:attribute:: METADATA
-
-      Instance of metadata object to use with this extractor.
 
 
    .. py:method:: get_page_cols(page: str, partition_selection: str) -> pandas.RangeIndex

@@ -22,17 +22,11 @@ Retrieve data from Census PEP spreadsheets.
 
 ### pudl.extract.censuspep.logger
 
-### *class* pudl.extract.censuspep.Extractor(\*args, \*\*kwargs)
+### *class* pudl.extract.censuspep.Extractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset Census PEP FIPS Codes.
-
-#### METADATA
-
-Instance of metadata object to use with this extractor.
-
-#### cols_added *= []*
 
 #### *static* get_dtypes(page, \*\*partition)
 
