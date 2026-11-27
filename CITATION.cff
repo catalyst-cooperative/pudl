@@ -1,5 +1,8 @@
 cff-version: 1.1.0
-message: "If you use PUDL, please cite it as indicated below."
+message: >-
+  If you use PUDL data, please cite the specific versioned data release you used, with
+  its version-specific DOI. See
+  https://docs.catalyst.coop/pudl/en/nightly/citations_media/how_to_cite_pudl.html
 authors:
   - family-names: Selvans
     given-names: Zane
