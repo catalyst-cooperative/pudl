@@ -1,23 +1,13 @@
 .. _data-dictionaries:
 
-Data Dictionaries
-=================
-
-Data Processed & Cleaned by PUDL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The PUDL data dictionary provides detailed metadata for the tables
-in the PUDL database. This includes table descriptions,
-field names, field descriptions, and field datatypes.
-
-**You can find this data at the** `beta PUDL Data Viewer
-<https://data.catalyst.coop>`__ **if you want interactive search, filtering,
-and CSV export.**
-
 .. toctree::
    :maxdepth: 1
-   :titlesonly:
+   :hidden:
 
    pudl_db
+
+Other Data Dictionaries
+=======================
 
 Raw, Unprocessed Data
 ^^^^^^^^^^^^^^^^^^^^^
