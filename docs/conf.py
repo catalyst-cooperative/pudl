@@ -261,6 +261,7 @@ html_theme_options = {
         "version_match": version_match,
     },
     "navbar_start": ["navbar-logo", "version-switcher"],
+    "sidebar_includehidden": False,  # If something is hidden in the TOC, also hide it in the sidebar
     "secondary_sidebar_items": {
         "**": ["page-toc", "sourcelink"],
     },
