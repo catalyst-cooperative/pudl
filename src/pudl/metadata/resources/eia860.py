@@ -552,11 +552,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_prime_mover_energy_sources": {
         "description": {
             "additional_summary_text": (
-                "utilities which may vary from year to year. Compiled from all EIA data."
+                "plant/prime mover/energy source code which may vary from year to year. Compiled from all EIA data."
             ),
-            "additional_details_text": canonical_harvested_details(
-                "prime mover/energy source code", False
-            ),
+            "additional_details_text": "This table primarily has each records' reporting frequency codes. "
+            & canonical_harvested_details("prime mover/energy source code", False),
             "usage_warnings": ["harvested"],
         },
         "schema": {

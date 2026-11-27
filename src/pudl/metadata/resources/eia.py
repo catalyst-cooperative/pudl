@@ -1382,6 +1382,33 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
+    "_core_eia__forensics_entity_resolution_prime_mover_energy_sources": {
+        "description": {
+            "additional_summary_text": (
+                "the statistics determining how we choose a single consistent value during entity resolution for plant_id_eia, prime_mover_code, energy_source_code."
+            ),
+            "usage_warnings": ["harvesting_ingredients"],
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "prime_mover_code",
+                "energy_source_code",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_candidate",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    },
 } | {
     # out_eia__yearly_generators and out_eia__monthly_generators are defined here
     f"out_eia__{freq}_generators": {

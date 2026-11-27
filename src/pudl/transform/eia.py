@@ -1568,7 +1568,13 @@ def harvested_entity_asset_factory(
         ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS}
         | {"_core_censuspep__yearly_geocodes": AssetIn()},
         outs={
-            f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
+            f"core_eia__entity_{entity.value}": AssetOut(
+                io_manager_key=(
+                    io_manager_key
+                    if entity != EiaEntity.PRIME_MOVER_ENERGY_SOURCES
+                    else "io_manager"
+                )
+            ),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"_core_eia__forensics_entity_resolution_{entity.value}": AssetOut(
                 io_manager_key=io_manager_key
