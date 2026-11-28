@@ -19,6 +19,7 @@ from pudl.helpers import (
     standardize_na_values,
 )
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.codes import DISABLED_CODE_METADATA  # TODO: Fix!
 from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
@@ -1240,6 +1241,7 @@ def core_eia861__yearly_short_form(
 
 @asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_advanced_metering_infrastructure(
+    context,
     raw_eia861__advanced_metering_infrastructure: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
@@ -1281,6 +1283,58 @@ def core_eia861__yearly_advanced_metering_infrastructure(
         )
     )
 
+    df["entity_type_new"] = reconcile_entity_types(df["entity_type"])
+    # This field was not reported 2012-2018 - we fill it where the start and end values are consistent.
+    df = fill_matching_gaps(
+        df.sort_values("report_date"),
+        group_cols=["utility_id_eia"],
+        value_cols=["entity_type_new"],
+    )
+    return df.drop(columns="entity_type").rename(
+        columns={"entity_type_new": "entity_type"}
+    )
+
+
+def reconcile_entity_types(entity_type_series: pd.Series) -> pd.Series:
+    """Convert entity types to standard values.
+
+    We don't do this using the standard encoders because we wish to use these values to forward
+    fill gaps over time to handle years when the field was not reported.
+    """
+    entity_type_corrected = entity_type_series.replace(
+        DISABLED_CODE_METADATA["core_eia__codes_entity_types"]["code_fixes"]
+    ).replace(
+        dict(
+            zip(
+                DISABLED_CODE_METADATA["core_eia__codes_entity_types"]["df"]["code"],
+                DISABLED_CODE_METADATA["core_eia__codes_entity_types"]["df"]["label"],
+                strict=True,
+            )
+        )
+    )
+    # Check that mapping proceeded as expected.
+    missing_codes = set(entity_type_corrected.dropna().unique()).difference(
+        set(DISABLED_CODE_METADATA["core_eia__codes_entity_types"]["df"]["label"])
+    )
+    assert not missing_codes, f"Found unexpected entity types: {missing_codes}."
+    return entity_type_corrected
+
+
+def fill_matching_gaps(
+    df: pd.DataFrame,
+    group_cols: list[str],
+    value_cols: list[str],
+) -> pd.DataFrame:
+    """Fill an NA when the nearest non-null values within the group match on both sides."""
+    grouped = df.groupby(group_cols, sort=False, dropna=False)[value_cols]
+    left = grouped.ffill()
+    right = grouped.bfill()
+
+    # Where the original value was null but both the forward and backfill are identical
+    # we can confidently fill in the value.
+    fill_mask = df[value_cols].isna() & left.eq(right).fillna(False)
+
+    df[value_cols] = df[value_cols].where(~fill_mask, left)
     return df
 
 
@@ -1949,6 +2003,8 @@ def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFra
         .drop(columns=["index"])
         .pipe(_post_process, name="core_eia861__yearly_mergers")
     )
+    df["entity_type"] = reconcile_entity_types(df["entity_type"])
+
     return df
 
 
@@ -2436,6 +2492,11 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         transformed_ud_misc_bool,
         on=idx_cols,
         how="outer",
+    )
+
+    # Normalize entity type column for utility data
+    transformed_ud_misc["entity_type"] = reconcile_entity_types(
+        transformed_ud_misc["entity_type"]
     )
 
     return (
