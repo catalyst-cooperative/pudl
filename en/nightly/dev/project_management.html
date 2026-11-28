@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="project_management.html.md" />
 <link rel="alternate" type="text/markdown" href="project_management.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>Project Management &#8212; PUDL 2026.11.1.dev17 documentation</title>
+    <title>Project Management &#8212; PUDL 2026.11.1.dev18 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=ba27f877"></script>
+    <script src="../_static/documentation_options.js?v=18500930"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
@@ -144,8 +144,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev18 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -834,6 +834,9 @@ to the commit associated with the most recent release.</p></li>
 <ul class="simple">
 <li><p>Before making a PR, make sure the tests run and pass locally, including the
 code linters and pre-commit hooks. See <a class="reference internal" href="dev_setup.html#linting"><span class="std std-ref">Set Up Code Linting</span></a> for details.</p></li>
+<li><p>Type checking with <code class="docutils literal notranslate"><span class="pre">pyrefly</span></code> and a minimum type coverage are required to pass, both
+in the pre-commit hooks and in the <code class="docutils literal notranslate"><span class="pre">ci-pyrefly</span></code> GitHub Actions job. Don’t introduce
+new type errors, and don’t lower the typing coverage.</p></li>
 <li><p>Don’t forget to merge any new commits to the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch into your feature
 branch before making a PR.</p></li>
 <li><p>If for some reason the continuous integration tests fail for your PR, try and

@@ -16,6 +16,8 @@ $ pixi run pytest-integration  # runs in ~2-5 minutes, no Dagster ETL required
 ```
 
 Both `pytest-unit` and `pytest-integration` run in GitHub Actions on every push.
+Type checking is not part of the test suite, but is also required to pass before a PR
+can merge. See [Type Checking with pyrefly](dev_setup.md#type-checking) for details.
 
 To run everything that’s required before a PR can merge – including the slower
 pipeline and data validation tests that only run in the merge queue – use:

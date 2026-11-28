@@ -55,6 +55,10 @@
   working partitions are filled in, `file_map.csv` lists every year that is mapped,
   and `-1` marks data that doesn’t exist. Extractors now take their metadata as a
   constructor argument. See [#5289](https://github.com/catalyst-cooperative/pudl/issues/5289) and [#5724](https://github.com/catalyst-cooperative/pudl/pull/5724).
+* Pyrefly type checking and a minimum of 80% type coverage are now required, enforced
+  by new `pyrefly-check` and `pyrefly-coverage` pre-commit hooks and a
+  `ci-pyrefly` GitHub Actions job (pre-commit.ci can’t run them). The CI logs also
+  summarize the baselined errors and remaining typing gaps. See [#5783](https://github.com/catalyst-cooperative/pudl/pull/5783).
 
 <a id="release-v2026-11-0"></a>
 

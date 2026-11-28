@@ -19,7 +19,7 @@
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
 <link rel="alternate" type="text/markdown" href="release_notes.html.md">
 <link rel="describedby" href="llms.txt">
-    <title>PUDL Release Notes &#8212; PUDL 2026.11.1.dev17 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.11.1.dev18 documentation</title>
   
   
   
@@ -52,7 +52,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=ba27f877"></script>
+    <script src="_static/documentation_options.js?v=18500930"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
@@ -143,8 +143,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev17 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.11.1.dev18 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.11.1.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -581,6 +581,10 @@ change logs: a year only needs a row if its layout differs from the year before.
 working partitions are filled in, <code class="docutils literal notranslate"><span class="pre">file_map.csv</span></code> lists every year that is mapped,
 and <code class="docutils literal notranslate"><span class="pre">-1</span></code> marks data that doesn’t exist. Extractors now take their metadata as a
 constructor argument. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5289">#5289</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5724">#5724</a>.</p></li>
+<li><p>Pyrefly type checking and a minimum of 80% type coverage are now required, enforced
+by new <code class="docutils literal notranslate"><span class="pre">pyrefly-check</span></code> and <code class="docutils literal notranslate"><span class="pre">pyrefly-coverage</span></code> pre-commit hooks and a
+<code class="docutils literal notranslate"><span class="pre">ci-pyrefly</span></code> GitHub Actions job (pre-commit.ci can’t run them). The CI logs also
+summarize the baselined errors and remaining typing gaps. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5783">#5783</a>.</p></li>
 </ul>
 </section>
 </section>
